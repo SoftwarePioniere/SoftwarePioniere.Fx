@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <Description>Software Pioniere Fx Reference to Foundatio</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Foundatio" Version="7.0.1706" />     
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.1.0" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="2.1.0" />
+  </ItemGroup>
+
+</Project>

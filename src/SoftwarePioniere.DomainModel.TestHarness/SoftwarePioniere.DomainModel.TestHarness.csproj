@@ -1,0 +1,13 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <RootNamespace>SoftwarePioniere.DomainModel</RootNamespace>
+    <Description>Software Pioniere Fx DomainModel Test Harness</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SoftwarePioniere.DomainModel.Services\SoftwarePioniere.DomainModel.Services.csproj" />
+    <ProjectReference Include="..\SoftwarePioniere.Messaging.TestHarness\SoftwarePioniere.Messaging.TestHarness.csproj" />
+  </ItemGroup>
+</Project>

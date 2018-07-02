@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <Description>Software Pioniere Fx Domain Services</Description>
+  </PropertyGroup>
+
+
+  <ItemGroup>
+    <ProjectReference Include="..\SoftwarePioniere.DomainModel\SoftwarePioniere.DomainModel.csproj" />
+    <ProjectReference Include="..\SoftwarePioniere.Foundatio\SoftwarePioniere.Foundatio.csproj" />
+  </ItemGroup>
+
+</Project>

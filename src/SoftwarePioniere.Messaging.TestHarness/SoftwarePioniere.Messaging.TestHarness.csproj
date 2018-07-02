@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <RootNamespace>SoftwarePioniere.Messaging</RootNamespace>
+     <Description>Software Pioniere Fx Messaging Test Harness</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SoftwarePioniere.Messaging\SoftwarePioniere.Messaging.csproj" />
+    <ProjectReference Include="..\SoftwarePioniere.TestHarness\SoftwarePioniere.TestHarness.csproj" />
+  </ItemGroup>
+
+</Project>
