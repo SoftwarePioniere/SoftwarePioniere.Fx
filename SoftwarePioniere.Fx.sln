@@ -35,7 +35,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SoftwarePioniere.ReadModel.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SoftwarePioniere.TestHarness", "src\SoftwarePioniere.TestHarness\SoftwarePioniere.TestHarness.csproj", "{5C790D09-E77B-473F-8991-DDA6B973038E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoftwarePioniere.Foundatio", "src\SoftwarePioniere.Foundatio\SoftwarePioniere.Foundatio.csproj", "{4A904ED7-DCE3-4E75-9D51-98382BC4BFB7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SoftwarePioniere.Foundatio", "src\SoftwarePioniere.Foundatio\SoftwarePioniere.Foundatio.csproj", "{4A904ED7-DCE3-4E75-9D51-98382BC4BFB7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
