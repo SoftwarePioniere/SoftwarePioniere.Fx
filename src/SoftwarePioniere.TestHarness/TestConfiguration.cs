@@ -7,7 +7,7 @@ namespace SoftwarePioniere
 
     public class TestConfiguration
     {
-        public TestConfiguration()
+        public TestConfiguration(Action<IConfigurationBuilder> config = null)
         {
             Console.WriteLine($"AppContext.BaseDirectory: {AppContext.BaseDirectory}");
             var basePath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..");
@@ -26,11 +26,13 @@ namespace SoftwarePioniere
            builder.AddEnvironmentVariables("SOPI_TESTS_");
 #endif
 
+            config?.Invoke(builder);
+
+            ConfigurationRoot = builder.Build();
         }
 
-        // ReSharper disable once MemberCanBePrivate.Global
-        // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        public IConfiguration ConfigurationRoot { get; private set; }
+        // ReSharper disable once MemberCanBePrivate.Global        
+        public IConfiguration ConfigurationRoot { get; }
 
         public T Get<T>(string sectionName)
         {
