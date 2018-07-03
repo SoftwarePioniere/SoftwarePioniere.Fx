@@ -291,7 +291,7 @@ namespace SoftwarePioniere.ReadModel
             var store = CreateInstance();
 
             var token = new CancellationToken(true);
-            var act1 = new Action(() => store.LoadItemsAsync<FakeEntity>(entity => true, token).Wait(token));
+            var act1 = new Action(() => store.LoadItemsAsync<FakeEntity>(entity => true, token).Wait());
             act1.Should().Throw<Exception>();
         }
 
