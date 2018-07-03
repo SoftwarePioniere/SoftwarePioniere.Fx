@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Foundatio.Messaging;
@@ -19,6 +20,19 @@ namespace SoftwarePioniere.DomainModel.Services.Tests
         private IRepository CreateInstance()
         {
             return GetService<IRepository>();
+        }
+
+        [Fact]
+        public void SaveWithCancelationThrowsError()
+        {
+            ServiceCollection.AddSingleton(Mock.Of<IEventStore>())
+                .AddSingleton(Mock.Of<IMessagePublisher>());
+
+
+            var repo = CreateInstance();
+            var token = new CancellationToken(true);
+            var act1 = new Action(() => repo.SaveAsync(FakeAggregate.Factory.Create(), token).Wait(token));
+            act1.Should().Throw<Exception>();
         }
 
         [Fact]
@@ -53,8 +67,9 @@ namespace SoftwarePioniere.DomainModel.Services.Tests
 
             mockPublisher.Setup(x => x.PublishAsync(
                     It.IsIn(typeof(FakeEvent), typeof(DomainEventMessage<FakeEvent>)),
-                    //It.IsAny<Type>(),
-                    It.IsAny<IMessage>(), null, default)
+                    It.IsAny<IMessage>(),
+                    It.IsAny<TimeSpan>(),
+                    It.IsAny<CancellationToken>())
                 )
                 .Returns(Task.CompletedTask)
                 .Verifiable();
@@ -96,6 +111,33 @@ namespace SoftwarePioniere.DomainModel.Services.Tests
         }
 
         [Fact]
+        public void LoadWithCancelationThrowsError()
+        {
+
+            ServiceCollection.AddSingleton(Mock.Of<IEventStore>())
+                .AddSingleton(Mock.Of<IMessagePublisher>());
+
+            var repo = CreateInstance();
+            var token = new CancellationToken(true);
+            var act1 = new Action(() => repo.GetByIdAsync<FakeAggregate>(Guid.NewGuid().ToString(), token).Wait(token));
+            act1.Should().Throw<Exception>();
+
+        }
+
+        [Fact]
+        public void CheckExistsWithCancelationThrowsError()
+        {
+            ServiceCollection.AddSingleton(Mock.Of<IEventStore>())
+                .AddSingleton(Mock.Of<IMessagePublisher>());
+
+
+            var repo = CreateInstance();
+            var token = new CancellationToken(true);
+            var act1 = new Action(() => repo.CheckAggregateExists<FakeAggregate>(Guid.NewGuid().ToString(), token).Wait(token));
+            act1.Should().Throw<Exception>();
+        }
+
+        [Fact]
         public void LoadThrowsExceptionOnWrongVersionAsync()
         {
             var events = FakeEvent.CreateList(10).ToArray();
@@ -126,7 +168,7 @@ namespace SoftwarePioniere.DomainModel.Services.Tests
         {
             ServiceCollection//.AddSingleton<IMessageBus>(new InMemoryMessageBus())
                 .AddSingleton<IRepository, Repository>()
-                
+
                 ;
         }
     }

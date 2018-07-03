@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 
 namespace SoftwarePioniere.DomainModel
 {
@@ -9,40 +10,35 @@ namespace SoftwarePioniere.DomainModel
     public interface IRepository
     {
 
-    
+
         /// <summary>
         /// Speichern der änderungen, ohne Prüfung auf die erwartete Version
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="aggregate"></param>
-        Task SaveAsync<T>(T aggregate) where T : AggregateRoot;
 
-        Task SaveAsync<T>(T aggregate, int expectedVersion) where T : AggregateRoot;
+        Task SaveAsync<T>(T aggregate, CancellationToken token = default(CancellationToken)) where T : AggregateRoot;
+
+
+        Task SaveAsync<T>(T aggregate, int expectedVersion, CancellationToken token = default(CancellationToken)) where T : AggregateRoot;
 
         /// <summary>
         /// Prüft, ob das Aggregate existiert
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="aggregateId"></param>
+
         /// <returns></returns>
-        Task<bool> CheckAggregateExists<T>(string aggregateId) where T : AggregateRoot;
+        Task<bool> CheckAggregateExists<T>(string aggregateId, CancellationToken token = default(CancellationToken)) where T : AggregateRoot;
 
         /// <summary>
         /// Laden aller Events und Erzeugung des Aggregats
         /// </summary>
-        /// <param name="id"></param>
         /// <returns></returns>
-        Task<T> GetByIdAsync<T>(string id) where T : AggregateRoot, new();
+        Task<T> GetByIdAsync<T>(string id, CancellationToken token = default(CancellationToken)) where T : AggregateRoot, new();
 
         /// <summary>
         /// Ladern aller Events und Erzeugung des Aggregats
         /// es wird geprüft, ob die letzte Event Version übereinstimmt
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="id"></param>
-        /// <param name="expectedAggregateVersion"></param>
         /// <returns></returns>
-         Task<T> GetByIdAsync<T>(string id, int expectedAggregateVersion) where T : AggregateRoot, new();
+        Task<T> GetByIdAsync<T>(string id, int expectedAggregateVersion, CancellationToken token = default(CancellationToken)) where T : AggregateRoot, new();
     }
 
 

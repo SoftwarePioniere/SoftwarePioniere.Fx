@@ -11,6 +11,7 @@ namespace SoftwarePioniere.ReadModel.Services.Tests
             ServiceCollection.AddInMemoryEntityStore();
         }
 
+
         [Fact]
         public override Task CanInsertAndDeleteItem()
         {
@@ -30,15 +31,40 @@ namespace SoftwarePioniere.ReadModel.Services.Tests
         }
 
         [Fact]
+        public override Task CanInsertManyItems()
+        {
+            return base.CanInsertManyItems();
+        }
+
+        [Fact]
         public override void DeleteThrowsErrorWithKeyNullOrEmpty()
         {
             base.DeleteThrowsErrorWithKeyNullOrEmpty();
         }
 
         [Fact]
-        public override void LoadItemThrowsErrorWithKeyNullOrEmpty()
+        public override void DeleteWithCancelationThrowsError()
         {
-            base.LoadItemThrowsErrorWithKeyNullOrEmpty();
+            base.DeleteWithCancelationThrowsError();
+        }
+
+
+        [Fact]
+        public override void InsertWithCancelationThrowsError()
+        {
+            base.InsertWithCancelationThrowsError();
+        }
+
+        [Fact]
+        public override void LoadItemsWithCancelationThrowsError()
+        {
+            base.LoadItemsWithCancelationThrowsError();
+        }
+
+        [Fact]
+        public override void LoadItemsWithPagingAndCancelationThrowsError()
+        {
+            base.LoadItemsWithPagingAndCancelationThrowsError();
         }
 
         [Fact]
@@ -57,6 +83,18 @@ namespace SoftwarePioniere.ReadModel.Services.Tests
         public override Task LoadItemsWithWhereWorks()
         {
             return base.LoadItemsWithWhereWorks();
+        }
+
+        [Fact]
+        public override void LoadItemThrowsErrorWithKeyNullOrEmpty()
+        {
+            base.LoadItemThrowsErrorWithKeyNullOrEmpty();
+        }
+
+        [Fact]
+        public override void LoadItemWithCancelationThrowsError()
+        {
+            base.LoadItemWithCancelationThrowsError();
         }
 
         [Fact]
@@ -84,9 +122,9 @@ namespace SoftwarePioniere.ReadModel.Services.Tests
         }
 
         [Fact]
-        public override Task CanInsertManyItems()
+        public override void UpdateWithCancelationThrowsError()
         {
-            return base.CanInsertManyItems();
+            base.UpdateWithCancelationThrowsError();
         }
     }
 }

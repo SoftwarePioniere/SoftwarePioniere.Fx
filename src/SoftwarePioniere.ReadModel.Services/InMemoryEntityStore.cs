@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Threading;
 using System.Threading.Tasks;
 using Foundatio.Caching;
 using Microsoft.Extensions.Logging;
@@ -23,7 +24,7 @@ namespace SoftwarePioniere.ReadModel.Services
             //_options = options ?? throw new ArgumentNullException(nameof(options));
         }
 
-        public override Task<T[]> LoadItemsAsync<T>()
+        public override Task<T[]> LoadItemsAsync<T>(CancellationToken token = default(CancellationToken))
         {
             if (Logger.IsEnabled(LogLevel.Debug))
             {
@@ -34,7 +35,7 @@ namespace SoftwarePioniere.ReadModel.Services
             return Task.FromResult(items.Values.Cast<T>().ToArray());
         }
 
-        public override Task<T[]> LoadItemsAsync<T>(Expression<Func<T, bool>> where)
+        public override Task<T[]> LoadItemsAsync<T>(Expression<Func<T, bool>> where, CancellationToken token = default(CancellationToken))
         {
             if (Logger.IsEnabled(LogLevel.Debug))
             {
@@ -57,10 +58,12 @@ namespace SoftwarePioniere.ReadModel.Services
                     typeof(T), items.Count, where);
             }
 
+            token.ThrowIfCancellationRequested();
+
             return Task.FromResult(witems);
         }
 
-        public override Task<PagedResults<T>> LoadPagedResultAsync<T>(PagedLoadingParameters<T> parms)
+        public override Task<PagedResults<T>> LoadPagedResultAsync<T>(PagedLoadingParameters<T> parms, CancellationToken token = default(CancellationToken))
         {
             if (parms == null)
             {
@@ -118,10 +121,12 @@ namespace SoftwarePioniere.ReadModel.Services
 
             var res = items.GetPagedResults(parms.PageSize, parms.Page);
 
+            token.ThrowIfCancellationRequested();
+
             return Task.FromResult(res);
         }
 
-        protected override Task InternalDeleteItemAsync<T>(string entityId)
+        protected override Task InternalDeleteItemAsync<T>(string entityId, CancellationToken token = default(CancellationToken))
         {
             if (string.IsNullOrEmpty(entityId))
             {
@@ -133,6 +138,7 @@ namespace SoftwarePioniere.ReadModel.Services
                 Logger.LogDebug("InternalDeleteItemAsync: {EntityType} {EntityId}", typeof(T), entityId);
             }
 
+            token.ThrowIfCancellationRequested();
 
             var items = _provider.GetItems(typeof(T));
 
@@ -144,7 +150,7 @@ namespace SoftwarePioniere.ReadModel.Services
             return Task.CompletedTask;
         }
 
-        protected override Task InternalInsertItemAsync<T>(T item)
+        protected override Task InternalInsertItemAsync<T>(T item, CancellationToken token = default(CancellationToken))
         {
             if (item == null)
             {
@@ -155,6 +161,8 @@ namespace SoftwarePioniere.ReadModel.Services
             {
                 Logger.LogDebug("InternalInsertItemAsync: {EntityType} {EntityId}", typeof(T), item.EntityId);
             }
+
+            token.ThrowIfCancellationRequested();
 
             var items = _provider.GetItems(typeof(T));
 
@@ -168,12 +176,12 @@ namespace SoftwarePioniere.ReadModel.Services
             return Task.CompletedTask;
         }
 
-        protected override Task InternalInsertOrUpdateItemAsync<T>(T item)
+        protected override Task InternalInsertOrUpdateItemAsync<T>(T item, CancellationToken token = default(CancellationToken))
         {
-            return InternalInsertItemAsync(item);
+            return InternalInsertItemAsync(item, token);
         }
 
-        protected override Task<T> InternalLoadItemAsync<T>(string entityId)
+        protected override Task<T> InternalLoadItemAsync<T>(string entityId, CancellationToken token = default(CancellationToken))
         {
             if (string.IsNullOrEmpty(entityId))
             {
@@ -185,6 +193,8 @@ namespace SoftwarePioniere.ReadModel.Services
                 Logger.LogDebug("InternalLoadItemAsync: {EntityType} {EntityId}", typeof(T), entityId);
             }
 
+            token.ThrowIfCancellationRequested();
+
             var items = _provider.GetItems(typeof(T));
 
             if (items.ContainsKey(entityId))
@@ -195,15 +205,17 @@ namespace SoftwarePioniere.ReadModel.Services
             return Task.FromResult(default(T));
         }
 
-        protected override async Task InternalUpdateItemAsync<T>(T item)
+        protected override async Task InternalUpdateItemAsync<T>(T item, CancellationToken token = default(CancellationToken))
         {
             if (item == null)
             {
                 throw new ArgumentNullException(nameof(item));
             }
 
-            await InternalDeleteItemAsync<T>(item.EntityId);
-            await InternalInsertItemAsync(item);
+            token.ThrowIfCancellationRequested();
+
+            await InternalDeleteItemAsync<T>(item.EntityId, token);
+            await InternalInsertItemAsync(item, token);
 
         }
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Foundatio.Messaging;
 using Microsoft.Extensions.Logging;
@@ -22,7 +23,7 @@ namespace SoftwarePioniere.DomainModel.Services
             _publisher = bus ?? throw new ArgumentNullException(nameof(bus));
         }
 
-        public async Task SaveAsync<T>(T aggregate, int expectedVersion) where T : AggregateRoot
+        public async Task SaveAsync<T>(T aggregate, int expectedVersion, CancellationToken token = default(CancellationToken)) where T : AggregateRoot
         {
             _logger.LogDebug("SaveAsync {Type} {AggregateId} {ExpectedVersion}", typeof(T), expectedVersion, aggregate.Id);
 
@@ -34,6 +35,7 @@ namespace SoftwarePioniere.DomainModel.Services
             }
             else
             {
+                token.ThrowIfCancellationRequested();
 
                 await _store.SaveEventsAsync<T>(aggregate.Id, events, expectedVersion).ConfigureAwait(false);
                 aggregate.MarkChangesAsCommitted();
@@ -42,42 +44,46 @@ namespace SoftwarePioniere.DomainModel.Services
 
                 foreach (var @event in events)
                 {
+                    token.ThrowIfCancellationRequested();
 
                     _logger.LogDebug("SaveAsync: PublishMessageAsync {@Message}", @event);
-                    await _publisher.PublishAsync(@event.GetType(), @event).ConfigureAwait(false);
+                    await _publisher.PublishAsync(@event.GetType(), @event, TimeSpan.Zero, token).ConfigureAwait(false);
 
                     _logger.LogDebug("SaveAsync: CreateDomainEventMessage {EventType}", @event.GetType());
                     var idem = @event.CreateDomainEventMessageFromType(aggregateName, aggregate.Id);
 
                     _logger.LogDebug("SaveAsync: Publish DomainEventMessage {@Message}", idem);
-                    await _publisher.PublishAsync(idem.GetType(), idem).ConfigureAwait(false);
+                    await _publisher.PublishAsync(idem.GetType(), idem, TimeSpan.Zero, token).ConfigureAwait(false);
 
                 }
             }
         }
 
-        public async Task SaveAsync<T>(T aggregate) where T : AggregateRoot
+        public async Task SaveAsync<T>(T aggregate, CancellationToken token = default(CancellationToken)) where T : AggregateRoot
         {
+            token.ThrowIfCancellationRequested();
             _logger.LogDebug("SaveAsync {AggregateType} {AggregateId} {AggregateVersion}", typeof(T), aggregate.Id, aggregate.Version);
-            await SaveAsync(aggregate, aggregate.Version).ConfigureAwait(false);
+            await SaveAsync(aggregate, aggregate.Version, token).ConfigureAwait(false);
         }
 
-        public Task<bool> CheckAggregateExists<T>(string aggregateId) where T : AggregateRoot
+        public Task<bool> CheckAggregateExists<T>(string aggregateId, CancellationToken token = default(CancellationToken)) where T : AggregateRoot
         {
+            token.ThrowIfCancellationRequested();
             return _store.CheckAggregateExists<T>(aggregateId);
         }
 
-        public async Task<T> GetByIdAsync<T>(string id) where T : AggregateRoot, new()
+        public async Task<T> GetByIdAsync<T>(string id, CancellationToken token = default(CancellationToken)) where T : AggregateRoot, new()
         {
             _logger.LogDebug("GetByIdAsync {Type} {AggregateId}", typeof(T), id);
 
-            var agg = await GetByIdAsync<T>(id, -1).ConfigureAwait(false);
+            var agg = await GetByIdAsync<T>(id, -1, token).ConfigureAwait(false);
             return agg;
         }
 
-        public async Task<T> GetByIdAsync<T>(string id, int expectedAggregateVersion) where T : AggregateRoot, new()
+        public async Task<T> GetByIdAsync<T>(string id, int expectedAggregateVersion, CancellationToken token = default(CancellationToken)) where T : AggregateRoot, new()
         {
             _logger.LogDebug("GetByIdAsync {Type} {AggregateId} and {ExcpectedVersion}", typeof(T), id, expectedAggregateVersion);
+            token.ThrowIfCancellationRequested();
 
             var aggregate = Activator.CreateInstance<T>();
             aggregate.SetId(id);
