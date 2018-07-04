@@ -18,6 +18,7 @@ COPY src/SoftwarePioniere.Messaging.TestHarness/*.csproj ./src/SoftwarePioniere.
 
 COPY src/SoftwarePioniere.Projections/*.csproj ./src/SoftwarePioniere.Projections/
 COPY src/SoftwarePioniere.Projections.Abstractions/*.csproj ./src/SoftwarePioniere.Projections.Abstractions/
+COPY src/SoftwarePioniere.Projections.Services/*.csproj ./src/SoftwarePioniere.Projections.Services/
 
 COPY src/SoftwarePioniere.ReadModel/*.csproj ./src/SoftwarePioniere.ReadModel/
 COPY src/SoftwarePioniere.ReadModel.Services/*.csproj ./src/SoftwarePioniere.ReadModel.Services/
