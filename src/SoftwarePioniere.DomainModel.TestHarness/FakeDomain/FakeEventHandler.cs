@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Foundatio.Messaging;
 using Microsoft.Extensions.Logging;
@@ -7,17 +8,19 @@ using SoftwarePioniere.Messaging;
 
 namespace SoftwarePioniere.DomainModel.FakeDomain
 {
+    // ReSharper disable once ClassNeverInstantiated.Global
     public class FakeEventHandler : IMessageHandler
         , IHandleMessage<FakeEvent>
         , IHandleMessage<FakeEvent2>
     {
+        private readonly IMessageSubscriber _subscriber;
         private readonly ILogger _logger;
 
         public FakeEventHandler(IMessageSubscriber subscriber, ILoggerFactory loggerFactory)
         {
+            _subscriber = subscriber ?? throw new ArgumentNullException(nameof(subscriber));
             _logger = loggerFactory.CreateLogger(GetType());
-            subscriber.SubscribeAsync<FakeEvent>(HandleAsync);
-            subscriber.SubscribeAsync<FakeEvent2>(HandleAsync);
+
         }
 
         public static IList<Guid> HandledBy { get; } = new List<Guid>();
@@ -33,6 +36,12 @@ namespace SoftwarePioniere.DomainModel.FakeDomain
         {
             _logger.LogInformation("Handle FakeEvent2 - throwing Error");
             throw new NotImplementedException();
+        }
+
+        public void Initialize(CancellationToken cancellationToken = default)
+        {
+            _subscriber.SubscribeAsync<FakeEvent>(HandleAsync, cancellationToken);
+            _subscriber.SubscribeAsync<FakeEvent2>(HandleAsync, cancellationToken);
         }
     }
 }

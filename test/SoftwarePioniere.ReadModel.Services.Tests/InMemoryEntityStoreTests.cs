@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using SoftwarePioniere.Extensions.DependencyInjection;
 using Xunit;
 using Xunit.Abstractions;
 

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace SoftwarePioniere.Projections
+﻿namespace SoftwarePioniere.Projections
 {
     public interface IProjectionContext
     {

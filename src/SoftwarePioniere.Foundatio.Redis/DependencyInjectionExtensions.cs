@@ -8,7 +8,7 @@ using SoftwarePioniere.Foundatio.Redis;
 using StackExchange.Redis;
 
 // ReSharper disable once CheckNamespace
-namespace SoftwarePioniere
+namespace SoftwarePioniere.Extensions.DependencyInjection
 {
     public static class DependencyInjectionExtensions
     {
@@ -32,6 +32,9 @@ namespace SoftwarePioniere
                     o.LoggerFactory(p.GetRequiredService<ILoggerFactory>())
                         .Subscriber(p.GetRequiredService<IConnectionMultiplexer>().GetSubscriber())
                         .Topic(topic)));
+            
+            services.AddSingleton<IMessageSubscriber>(c => c.GetRequiredService<IMessageBus>())
+                .AddSingleton<IMessagePublisher>(c => c.GetRequiredService<IMessageBus>());
 
             return services;
         }

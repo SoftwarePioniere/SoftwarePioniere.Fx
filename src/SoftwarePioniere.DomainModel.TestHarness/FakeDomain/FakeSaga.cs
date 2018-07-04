@@ -1,7 +1,7 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 using Foundatio.Messaging;
 using Microsoft.Extensions.Logging;
-using SoftwarePioniere.DomainModel.Services;
 using SoftwarePioniere.Messaging;
 
 namespace SoftwarePioniere.DomainModel.FakeDomain
@@ -10,13 +10,18 @@ namespace SoftwarePioniere.DomainModel.FakeDomain
     {
         public FakeSaga(ILoggerFactory loggerFactory, IMessageBus bus) : base(loggerFactory, bus)
         {
-            SubscribeCommand<FakeCommand>(HandleAsync);
+          
         }
 
         public Task HandleAsync(FakeCommand message)
         {
             Logger.LogInformation("Handling FakeCommand");
             return Task.CompletedTask;
+        }
+
+        public override void Initialize(CancellationToken cancellationToken = default)
+        {
+            SubscribeCommand<FakeCommand>(HandleAsync, cancellationToken);
         }
     }
 }

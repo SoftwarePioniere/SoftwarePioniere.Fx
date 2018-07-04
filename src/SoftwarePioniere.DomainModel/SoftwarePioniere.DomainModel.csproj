@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-     <Description>DomainModel Interfaces and Base Classes</Description>
+    <Description>Software Pioniere Fx DomainModel Interfaces and Base Classes</Description>
   </PropertyGroup>
 
   <ItemGroup>

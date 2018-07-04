@@ -14,16 +14,18 @@ namespace SoftwarePioniere.DomainModel
     {
         private IMessageBus CreateInstance()
         {
-            var sagas = ServiceProvider.GetServices<Saga>();
+            var sagas = ServiceProvider.GetServices<ISaga>();
             foreach (var saga in sagas)
             {
-                _logger.LogInformation("Saga Started {SagaType}", saga.GetType());
+                _logger.LogInformation("Saga Initialize {SagaType}", saga.GetType());
+                saga.Initialize();
             }
 
             var handlers = ServiceProvider.GetServices<IMessageHandler>();
             foreach (var handler in handlers)
             {
-                _logger.LogInformation("Handler Started {HandlerType}", handler.GetType());
+                _logger.LogInformation("Handler Initialize {HandlerType}", handler.GetType());
+                handler.Initialize();
             }
 
             return GetService<IMessageBus>();
@@ -65,7 +67,7 @@ namespace SoftwarePioniere.DomainModel
             ServiceCollection
                 .AddSingleton<IMessageSubscriber>(c => c.GetService<IMessageBus>())
                 .AddSingleton<IMessageHandler, FakeNotificationHandler>()
-                .AddSingleton<Saga, FakeSaga>()
+                .AddSingleton<ISaga, FakeSaga>()
                 ;
 
             var bus = CreateInstance();
@@ -80,7 +82,7 @@ namespace SoftwarePioniere.DomainModel
             ServiceCollection
                 .AddSingleton<IMessageSubscriber>(c => c.GetService<IMessageBus>())
                 .AddSingleton<IMessageHandler, FakeNotificationHandler>()
-                .AddSingleton<Saga, FakeSagaWithError>()
+                .AddSingleton<ISaga, FakeSagaWithError>()
                 ;
 
             var bus = CreateInstance();
