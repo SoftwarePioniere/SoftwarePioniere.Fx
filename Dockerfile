@@ -6,13 +6,18 @@ COPY Directory.Build.* ./
 COPY *.sln ./
 
 COPY src/SoftwarePioniere.DomainModel/*.csproj ./src/SoftwarePioniere.DomainModel/
+COPY src/SoftwarePioniere.DomainModel.Abstractions/*.csproj ./src/SoftwarePioniere.DomainModel.Abstractions/
 COPY src/SoftwarePioniere.DomainModel.Services/*.csproj ./src/SoftwarePioniere.DomainModel.Services/
 COPY src/SoftwarePioniere.DomainModel.TestHarness/*.csproj ./src/SoftwarePioniere.DomainModel.TestHarness/
 
 COPY src/SoftwarePioniere.Foundatio/*.csproj ./src/SoftwarePioniere.Foundatio/
+COPY src/SoftwarePioniere.Foundatio.Redis/*.csproj ./src/SoftwarePioniere.Foundatio.Redis/
 
 COPY src/SoftwarePioniere.Messaging/*.csproj ./src/SoftwarePioniere.Messaging/
 COPY src/SoftwarePioniere.Messaging.TestHarness/*.csproj ./src/SoftwarePioniere.Messaging.TestHarness/
+
+COPY src/SoftwarePioniere.Projections/*.csproj ./src/SoftwarePioniere.Projections/
+COPY src/SoftwarePioniere.Projections.Abstractions/*.csproj ./src/SoftwarePioniere.Projections.Abstractions/
 
 COPY src/SoftwarePioniere.ReadModel/*.csproj ./src/SoftwarePioniere.ReadModel/
 COPY src/SoftwarePioniere.ReadModel.Services/*.csproj ./src/SoftwarePioniere.ReadModel.Services/
