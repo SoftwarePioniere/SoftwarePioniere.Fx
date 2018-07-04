@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <Description>Software Pioniere Fx Projections Services</Description>
   </PropertyGroup>
 
   <ItemGroup>
