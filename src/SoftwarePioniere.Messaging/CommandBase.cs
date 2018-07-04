@@ -12,10 +12,12 @@ namespace SoftwarePioniere.Messaging
 
         //}
 
-        protected CommandBase(Guid id, DateTime timeStampUtc, string userId, int originalVersion, string requestId) : base(id, timeStampUtc, userId)
+        protected CommandBase(Guid id, DateTime timeStampUtc, string userId, int originalVersion, string requestId, string objectType, string objectId) : base(id, timeStampUtc, userId)
         {
             OriginalVersion = originalVersion;
             RequestId = requestId;
+            ObjectType = objectType;
+            ObjectId = objectId;
         }
 
 
@@ -29,5 +31,9 @@ namespace SoftwarePioniere.Messaging
         /// </summary>
 
         public string RequestId { get; }
+
+        public string ObjectType { get; }
+
+        public string ObjectId { get; }
     }
 }

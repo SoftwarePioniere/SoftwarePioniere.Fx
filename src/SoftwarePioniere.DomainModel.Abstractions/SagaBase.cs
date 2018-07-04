@@ -20,6 +20,7 @@ namespace SoftwarePioniere.DomainModel
         /// MessageBus
         /// </summary>
         protected readonly IMessageBus Bus;
+       
         /// <summary>
         /// Logger
         /// </summary>

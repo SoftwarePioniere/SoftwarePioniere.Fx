@@ -12,5 +12,9 @@
         /// </summary>
         string RequestId { get; }
 
+        string ObjectType { get; }
+        
+        string ObjectId { get;  }
+
     }
 }

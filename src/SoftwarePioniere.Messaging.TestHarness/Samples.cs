@@ -19,7 +19,7 @@ namespace SoftwarePioniere.Messaging
     public class FakeCommand : CommandBase
     {
         public FakeCommand(Guid id, DateTime timeStampUtc, string userId, int originalVersion, string requestId,
-            string text) : base(id, timeStampUtc, userId, originalVersion, requestId)
+            string text) : base(id, timeStampUtc, userId, originalVersion, requestId, "fakeobject", id.ToString())
         {
             Text = text;
         }

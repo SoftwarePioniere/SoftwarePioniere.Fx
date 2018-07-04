@@ -26,6 +26,12 @@ namespace SoftwarePioniere.Messaging.Notifications
         [JsonProperty("request_id")]
         public string RequestId { get; set; }
 
+        [JsonProperty("object_type")]
+        public string ObjectType { get; set; }
+
+        [JsonProperty("object_id")]
+        public string ObjectId { get; set; }
+
         // ReSharper disable once UnusedMember.Global
         public static NotificationMessage Create(ICommand cmd)
         {
@@ -33,7 +39,9 @@ namespace SoftwarePioniere.Messaging.Notifications
             {
                 CommandId = cmd.Id,
                 CommandType = cmd.GetType().Name,
-                RequestId = cmd.RequestId               
+                RequestId = cmd.RequestId,
+                ObjectId = cmd.ObjectId,
+                ObjectType = cmd.ObjectType
             }.CreateNotificationMessage(cmd);
         }
     }
