@@ -1,12 +1,16 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
+using SoftwarePioniere.Messaging;
 
 namespace SoftwarePioniere.Projections
 {
     public interface IProjector
     {
-        Task StartSubscriptionAsync(CancellationToken token = default);
+        
+        void Initialize(CancellationToken cancellationToken = default);
+        
+        string StreamName { get; }
 
-        Task RunAsync(CancellationToken token = default);
+        Task HandleAsync(IDomainEvent domainEvent);
     }
 }

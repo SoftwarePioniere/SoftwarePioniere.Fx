@@ -9,10 +9,17 @@ namespace SoftwarePioniere.Extensions.DependencyInjection
     {
         public static IServiceCollection AddDomainServices(this IServiceCollection services)
         {
-            return services.AddTransient<IRepository,Repository>();
+            return services.AddTransient<IRepository, Repository>();
+        }
+
+        public static IServiceCollection AddInMemoryEventStore(this IServiceCollection services)
+        {
+            return services
+                    .AddSingleton<IEventStore, InMemoryEventStore>()
+                    .AddSingleton<IEventStoreInitializer, EmptyEventStoreInitializer>()
+                ;
         }
 
 
-    
     }
 }

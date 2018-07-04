@@ -20,7 +20,7 @@ namespace SoftwarePioniere.DomainModel
         /// MessageBus
         /// </summary>
         protected readonly IMessageBus Bus;
-       
+
         /// <summary>
         /// Logger
         /// </summary>
@@ -45,12 +45,12 @@ namespace SoftwarePioniere.DomainModel
                 try
                 {
                     await handler(msg);
-                    await Bus.PublishAsync(CommandSucceededNotification.Create(msg));
+                    await Bus.PublishAsync(typeof(NotificationMessage), CommandSucceededNotification.Create(msg), TimeSpan.Zero, cancellationToken);
                 }
                 catch (Exception e)
                 {
                     Logger.LogError(e, "Error on Executing Command {CommandType} {Command}", typeof(T), msg);
-                    await Bus.PublishAsync(CommandFailedNotification.Create(msg, e));
+                    await Bus.PublishAsync(typeof(NotificationMessage), CommandFailedNotification.Create(msg, e), TimeSpan.Zero, cancellationToken);
                 }
             }, cancellationToken);
         }

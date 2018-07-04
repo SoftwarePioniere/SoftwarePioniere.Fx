@@ -2,13 +2,15 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <Description>Software Pioniere Fx Projections Abstractions and Base Classes</Description>
-    <RootNamespace>SoftwarePioniere.Projections</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SoftwarePioniere.Foundatio\SoftwarePioniere.Foundatio.csproj" />
+    <ProjectReference Include="..\SoftwarePioniere.DomainModel\SoftwarePioniere.DomainModel.csproj" />
     <ProjectReference Include="..\SoftwarePioniere.Projections\SoftwarePioniere.Projections.csproj" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="2.1.1" />    
   </ItemGroup>
 
 </Project>
