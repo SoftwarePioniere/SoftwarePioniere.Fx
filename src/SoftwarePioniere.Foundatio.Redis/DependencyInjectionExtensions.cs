@@ -24,15 +24,17 @@ namespace SoftwarePioniere.Extensions.DependencyInjection
                 .AddOptions()
                 .Configure(configureOptions);
 
-            services.AddSingleton<IConnectionMultiplexer>(p =>
-                ConnectionMultiplexer.Connect(p.GetRequiredService<IOptions<RedisOptions>>().Value.ConnectionString));
+            services
+               .AddSingleton(p => ConnectionMultiplexer.Connect(p.GetRequiredService<IOptions<RedisOptions>>().Value.ConnectionString))
+               .AddSingleton<IConnectionMultiplexer>(c => c.GetRequiredService<ConnectionMultiplexer>())
+               ;
 
             services.AddSingleton<IMessageBus>(p =>
                 new RedisMessageBus(o =>
                     o.LoggerFactory(p.GetRequiredService<ILoggerFactory>())
                         .Subscriber(p.GetRequiredService<IConnectionMultiplexer>().GetSubscriber())
                         .Topic(topic)));
-            
+
             services.AddSingleton<IMessageSubscriber>(c => c.GetRequiredService<IMessageBus>())
                 .AddSingleton<IMessagePublisher>(c => c.GetRequiredService<IMessageBus>());
 
@@ -52,8 +54,10 @@ namespace SoftwarePioniere.Extensions.DependencyInjection
                 .AddOptions()
                 .Configure(configureOptions);
 
-            services.AddSingleton(p =>
-                ConnectionMultiplexer.Connect(p.GetRequiredService<IOptions<RedisOptions>>().Value.ConnectionString));
+            services
+               .AddSingleton(p => ConnectionMultiplexer.Connect(p.GetRequiredService<IOptions<RedisOptions>>().Value.ConnectionString))
+               .AddSingleton<IConnectionMultiplexer>(c => c.GetRequiredService<ConnectionMultiplexer>())
+               ;
 
             services.AddSingleton<ICacheClient>(p =>
                 new RedisCacheClient(o =>
