@@ -41,16 +41,16 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SoftwarePioniere.Projection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SoftwarePioniere.Foundatio.Redis", "src\SoftwarePioniere.Foundatio.Redis\SoftwarePioniere.Foundatio.Redis.csproj", "{0E6C5C29-0867-48E5-BDD3-B85B54684877}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoftwarePioniere.DomainModel.Abstractions", "src\SoftwarePioniere.DomainModel.Abstractions\SoftwarePioniere.DomainModel.Abstractions.csproj", "{BA2AF1A3-C1CE-49FB-94A7-ACDDA29860D2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SoftwarePioniere.DomainModel.Abstractions", "src\SoftwarePioniere.DomainModel.Abstractions\SoftwarePioniere.DomainModel.Abstractions.csproj", "{BA2AF1A3-C1CE-49FB-94A7-ACDDA29860D2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoftwarePioniere.Projections.Abstractions", "src\SoftwarePioniere.Projections.Abstractions\SoftwarePioniere.Projections.Abstractions.csproj", "{0F6DA410-BCFB-442F-8B6E-72DF235498EF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SoftwarePioniere.Projections.Abstractions", "src\SoftwarePioniere.Projections.Abstractions\SoftwarePioniere.Projections.Abstractions.csproj", "{0F6DA410-BCFB-442F-8B6E-72DF235498EF}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{45588F03-FEE0-4F8C-8179-BDAE5C4749BF}"
 	ProjectSection(SolutionItems) = preProject
 		Dockerfile = Dockerfile
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoftwarePioniere.Projections.Services", "src\SoftwarePioniere.Projections.Services\SoftwarePioniere.Projections.Services.csproj", "{22F32BCF-E0F8-47DA-BF2E-29B2BFE6B7C7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SoftwarePioniere.Projections.Services", "src\SoftwarePioniere.Projections.Services\SoftwarePioniere.Projections.Services.csproj", "{22F32BCF-E0F8-47DA-BF2E-29B2BFE6B7C7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
