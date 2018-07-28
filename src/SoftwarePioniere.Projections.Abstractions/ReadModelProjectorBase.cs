@@ -42,7 +42,7 @@ namespace SoftwarePioniere.Projections
             }
         }
 
-        public virtual async Task CopyEntitiesAsync(IEntityStore source, IEntityStore dest, CancellationToken cancellationToken = default)
+        public virtual async Task CopyEntitiesAsync(IEntityStore source, IEntityStore dest, CancellationToken cancellationToken = default(CancellationToken))
         {
             Logger.LogInformation("Copy Entities");
 

@@ -4,6 +4,6 @@ namespace SoftwarePioniere.DomainModel
 {
     public interface ISaga
     {
-        void Initialize(CancellationToken cancellationToken = default);
+        void Initialize(CancellationToken cancellationToken = default(CancellationToken));
     }
 }

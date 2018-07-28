@@ -6,7 +6,7 @@ namespace SoftwarePioniere.ReadModel
 {
     public static class EntityStoreExtensions
     {
-        public static async Task<EntityDescriptor<T>> LoadAsync<T>(this IEntityStore store, string itemOnlyId, CancellationToken cancellationToken = default) where T : Entity
+        public static async Task<EntityDescriptor<T>> LoadAsync<T>(this IEntityStore store, string itemOnlyId, CancellationToken cancellationToken = default(CancellationToken)) where T : Entity
         {
             var id = itemOnlyId.CalculateEntityId<T>();
 
@@ -29,7 +29,7 @@ namespace SoftwarePioniere.ReadModel
             return desc;
         }
 
-        public static Task SaveAsync<T>(this IEntityStore store, EntityDescriptor<T> ent, CancellationToken cancellationToken = default) where T : Entity
+        public static Task SaveAsync<T>(this IEntityStore store, EntityDescriptor<T> ent, CancellationToken cancellationToken = default(CancellationToken)) where T : Entity
         {
 
             if (ent.IsNew)
@@ -38,7 +38,7 @@ namespace SoftwarePioniere.ReadModel
             return store.UpdateItemAsync(ent.Entity, cancellationToken);
         }
 
-        public static async Task<T> LoadEntity<T>(this IEntityStore store, string entityIdValue, CancellationToken cancellationToken = default) where T : Entity
+        public static async Task<T> LoadEntity<T>(this IEntityStore store, string entityIdValue, CancellationToken cancellationToken = default(CancellationToken)) where T : Entity
         {
             var ent = await store.LoadItemAsync<T>(entityIdValue.CalculateEntityId<T>(), cancellationToken);
             return ent;

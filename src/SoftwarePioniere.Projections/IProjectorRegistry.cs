@@ -5,6 +5,6 @@ namespace SoftwarePioniere.Projections
 {
     public interface IProjectorRegistry
     {
-        Task InitializeAsync(CancellationToken cancellationToken = default);
+        Task InitializeAsync(CancellationToken cancellationToken = default(CancellationToken));
     }
 }

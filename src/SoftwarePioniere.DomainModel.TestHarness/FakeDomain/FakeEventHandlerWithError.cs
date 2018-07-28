@@ -26,7 +26,7 @@ namespace SoftwarePioniere.DomainModel.FakeDomain
 
         }
 
-        public void Initialize(CancellationToken cancellationToken = default)
+        public void Initialize(CancellationToken cancellationToken = default(CancellationToken))
         {
             _subscriber.SubscribeAsync<FakeEvent>(HandleAsync, cancellationToken);
         }

@@ -14,7 +14,7 @@ namespace SoftwarePioniere.Projections
 
     public interface IReadModelProjector : IProjector
     {
-        Task CopyEntitiesAsync(IEntityStore source, IEntityStore dest, CancellationToken cancellationToken = default);
+        Task CopyEntitiesAsync(IEntityStore source, IEntityStore dest, CancellationToken cancellationToken = default(CancellationToken));
 
         IProjectionContext Context { get; set; }
     }

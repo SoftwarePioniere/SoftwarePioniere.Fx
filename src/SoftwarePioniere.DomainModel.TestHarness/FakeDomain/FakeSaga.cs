@@ -19,7 +19,7 @@ namespace SoftwarePioniere.DomainModel.FakeDomain
             return Task.CompletedTask;
         }
 
-        public override void Initialize(CancellationToken cancellationToken = default)
+        public override void Initialize(CancellationToken cancellationToken = default(CancellationToken))
         {
             SubscribeCommand<FakeCommand>(HandleAsync, cancellationToken);
         }

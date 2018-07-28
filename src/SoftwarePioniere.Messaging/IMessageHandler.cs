@@ -7,6 +7,6 @@ namespace SoftwarePioniere.Messaging
     /// </summary>
     public interface IMessageHandler
     {
-        void Initialize(CancellationToken cancellationToken = default);
+        void Initialize(CancellationToken cancellationToken = default(CancellationToken));
     }
 }

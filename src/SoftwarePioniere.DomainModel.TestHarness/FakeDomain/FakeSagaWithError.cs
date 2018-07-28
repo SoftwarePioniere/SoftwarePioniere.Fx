@@ -20,7 +20,7 @@ namespace SoftwarePioniere.DomainModel.FakeDomain
             throw new InvalidOperationException();
         }
 
-        public override void Initialize(CancellationToken cancellationToken = default)
+        public override void Initialize(CancellationToken cancellationToken = default(CancellationToken))
         {
             SubscribeCommand<FakeCommand>(HandleAsync, cancellationToken);
         }

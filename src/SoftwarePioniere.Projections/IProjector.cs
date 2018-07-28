@@ -7,7 +7,7 @@ namespace SoftwarePioniere.Projections
     public interface IProjector
     {
         
-        void Initialize(CancellationToken cancellationToken = default);
+        void Initialize(CancellationToken cancellationToken = default(CancellationToken));
         
         string StreamName { get; }
 
