@@ -47,28 +47,37 @@ namespace SoftwarePioniere.DomainModel
         //    return ev;
         //}
 
-        public static DomainEventMessage<TDomainEvent> CreateDomainEventMessage<TDomainEvent>(this TDomainEvent @event, string aggreateName, string aggregateId) where TDomainEvent : IDomainEvent
+        public static DomainEventMessage CreateDomainEventMessage<TDomainEvent>(this TDomainEvent @event, string aggreateName, string aggregateId) where TDomainEvent : IDomainEvent
         {
-            var ev = new DomainEventMessage<TDomainEvent>(Guid.NewGuid(), @event.TimeStampUtc, @event.UserId,
-                aggreateName, aggregateId, typeof(TDomainEvent).Name, @event);
+
+            var ev = new DomainEventMessage(Guid.NewGuid(), @event.TimeStampUtc, @event.UserId,
+                aggreateName, aggregateId, typeof(TDomainEvent).GetTypeShortName(), @event);
 
             return ev;
         }
 
-        public static IMessage CreateDomainEventMessageFromType(this IDomainEvent @event, string aggreateName, string aggregateId)
+        public static DomainEventMessage CreateDomainEventMessageFromType(this IDomainEvent @event, string aggreateName, string aggregateId, Type eventType)
         {
-            var t = typeof(DomainEventMessage<>).MakeGenericType(@event.GetType());
 
-            var ev = Activator.CreateInstance(t, new object[] {
-                Guid.NewGuid(), @event.TimeStampUtc, @event.UserId,
-                // ReSharper disable once UsePatternMatching
-                aggreateName, aggregateId,  @event.GetType().Name, @event}) as IMessage;
+            //    var t = typeof(DomainEventMessage<>).MakeGenericType(@event.GetType());
 
+            //var ev = Activator.CreateInstance(t, new object[] {
+            //    Guid.NewGuid(), @event.TimeStampUtc, @event.UserId,
+            //    // ReSharper disable once UsePatternMatching
+            //    aggreateName, aggregateId,  @event.GetType().Name, @event}) as IMessage;
+
+            var ev = new DomainEventMessage(Guid.NewGuid(), @event.TimeStampUtc, @event.UserId,
+                aggreateName, aggregateId, eventType.GetTypeShortName(), @event);
 
             if (ev == null)
-                throw  new InvalidOperationException("cannot create DomainEventMessage");
+                throw new InvalidOperationException("cannot create DomainEventMessage");
 
             return ev;
+        }
+
+        public static T Cast<T>(this DomainEventMessage domainEventMessage) where T : IDomainEvent
+        {
+            return (T) domainEventMessage.DomainEvent;
         }
 
     }

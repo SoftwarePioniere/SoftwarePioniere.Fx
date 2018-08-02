@@ -66,7 +66,7 @@ namespace SoftwarePioniere.DomainModel.Services.Tests
             var mockPublisher = new Mock<IMessagePublisher>();
 
             mockPublisher.Setup(x => x.PublishAsync(
-                    It.IsIn(typeof(FakeEvent), typeof(DomainEventMessage<FakeEvent>)),
+                    It.IsIn(typeof(FakeEvent), typeof(DomainEventMessage)),
                     It.IsAny<IMessage>(),
                     It.IsAny<TimeSpan>(),
                     It.IsAny<CancellationToken>())

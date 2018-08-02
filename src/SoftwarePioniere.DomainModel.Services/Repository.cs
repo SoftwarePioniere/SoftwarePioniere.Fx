@@ -50,7 +50,7 @@ namespace SoftwarePioniere.DomainModel.Services
                     await _publisher.PublishAsync(@event.GetType(), @event, TimeSpan.Zero, token).ConfigureAwait(false);
 
                     _logger.LogDebug("SaveAsync: CreateDomainEventMessage {EventType}", @event.GetType());
-                    var idem = @event.CreateDomainEventMessageFromType(aggregateName, aggregate.Id);
+                    var idem = @event.CreateDomainEventMessageFromType(aggregateName, aggregate.Id, @event.GetType());
 
                     _logger.LogDebug("SaveAsync: Publish DomainEventMessage {@Message}", idem);
                     await _publisher.PublishAsync(idem.GetType(), idem, TimeSpan.Zero, token).ConfigureAwait(false);

@@ -9,11 +9,11 @@ namespace SoftwarePioniere.DomainModel
     /// Nachricht um ein Domain Even
     /// von einem bestimmten Aggregat zu verschicken
     /// </summary>    
-    public class DomainEventMessage<TDomainEvent> : MessageBase where TDomainEvent : IDomainEvent
+    public class DomainEventMessage : MessageBase
     {
 
         public DomainEventMessage(Guid id, DateTime timeStampUtc, string userId
-            , string aggregateName, string aggregateId, string domainEventType, TDomainEvent domainEvent
+            , string aggregateName, string aggregateId, string domainEventType, object domainEvent
         ) : base(id, timeStampUtc, userId)
         {
             DomainEvent = domainEvent;
@@ -22,7 +22,7 @@ namespace SoftwarePioniere.DomainModel
             DomainEventType = domainEventType;
         }
 
-        public TDomainEvent DomainEvent { get; }
+        public object DomainEvent { get; }
 
         public string AggregateName { get; }
         public string AggregateId { get; }

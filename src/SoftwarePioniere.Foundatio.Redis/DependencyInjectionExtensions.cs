@@ -32,7 +32,7 @@ namespace SoftwarePioniere.Extensions.DependencyInjection
             services.AddSingleton<IMessageBus>(p =>
                 new RedisMessageBus(o =>
                     o.LoggerFactory(p.GetRequiredService<ILoggerFactory>())
-                        .Subscriber(p.GetRequiredService<IConnectionMultiplexer>().GetSubscriber())
+                        .Subscriber(p.GetRequiredService<IConnectionMultiplexer>().GetSubscriber())                        
                         .Topic(topic)));
 
             services.AddSingleton<IMessageSubscriber>(c => c.GetRequiredService<IMessageBus>())
