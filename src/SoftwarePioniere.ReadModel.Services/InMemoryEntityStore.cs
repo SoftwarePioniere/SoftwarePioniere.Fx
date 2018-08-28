@@ -176,6 +176,36 @@ namespace SoftwarePioniere.ReadModel.Services
             return Task.CompletedTask;
         }
 
+        protected override Task InternalBulkInsertItemsAsync<T>(T[] items, CancellationToken token = default(CancellationToken))
+        {
+            if (items == null)
+            {
+                throw new ArgumentNullException(nameof(items));
+            }
+            
+            if (Logger.IsEnabled(LogLevel.Debug))
+            {
+                Logger.LogDebug("BulkInsertItemsAsync: {EntityType} {EntityCount}", typeof(T), items.Length);
+            }
+
+            token.ThrowIfCancellationRequested();
+
+            var localItems = _provider.GetItems(typeof(T));
+
+            foreach (var item in items)
+            {
+                  
+                if (localItems.ContainsKey(item.EntityId))
+                {
+                    localItems.Remove(item.EntityId);
+                }
+
+                localItems.Add(item.EntityId, item);
+            }
+
+            return Task.CompletedTask;
+        }
+
         protected override Task InternalInsertOrUpdateItemAsync<T>(T item, CancellationToken token = default(CancellationToken))
         {
             return InternalInsertItemAsync(item, token);

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -19,6 +20,8 @@ namespace SoftwarePioniere.ReadModel
         ///     Ein Objekt mit dem Element Schlüssel speichern
         /// </summary>      
         Task InsertItemAsync<T>(T item, CancellationToken token = default(CancellationToken)) where T : Entity;
+
+        Task BulkInsertItemsAsync<T>(IEnumerable<T> items, CancellationToken token = default(CancellationToken)) where T : Entity;
 
         /// <summary>
         ///     Fügt ein Entity ein, falls es nicht existiert, sonst update

@@ -20,6 +20,8 @@ namespace SoftwarePioniere.ReadModel
 
         Task CanInsertManyItems();
 
+        Task CanBulkInsertManyItems();
+
         void DeleteThrowsErrorWithKeyNullOrEmpty();
 
         void DeleteWithCancelationThrowsError();
@@ -125,6 +127,22 @@ namespace SoftwarePioniere.ReadModel
             var store = CreateInstance();
 
             foreach (var entity in list) await store.InsertItemAsync(entity);
+
+            var all = await store.LoadItemsAsync<FakeEntity>();
+            var allKeys = all.Select(x => x.EntityId).ToArray();
+
+            foreach (var entity in list) allKeys.Should().Contain(entity.EntityId);
+        }
+
+        public virtual async Task CanBulkInsertManyItems()
+        {
+            var list = new List<FakeEntity>();
+
+            for (var i = 0; i < 1000; i++) list.Add(FakeEntity.Create(Guid.NewGuid().ToString()));
+            
+            var store = CreateInstance();
+
+            await store.BulkInsertItemsAsync(list);
 
             var all = await store.LoadItemsAsync<FakeEntity>();
             var allKeys = all.Select(x => x.EntityId).ToArray();

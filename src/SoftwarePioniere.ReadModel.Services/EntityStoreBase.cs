@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -51,6 +53,24 @@ namespace SoftwarePioniere.ReadModel.Services
 
             await ClearCache<T>();
             await InternalInsertItemAsync(item, token);
+        }
+
+        public async Task BulkInsertItemsAsync<T>(IEnumerable<T> items, CancellationToken token = default(CancellationToken)) where T : Entity
+        {
+            if (items == null)
+            {
+                throw new ArgumentNullException(nameof(items));
+            }
+
+
+            var enumerable = items as T[] ?? items.ToArray();
+            if (Logger.IsEnabled(LogLevel.Debug))
+            {
+                Logger.LogDebug("BulkInsertItemsAsync: {EntityType} {EntityCount}", typeof(T), enumerable.Count());
+            }
+
+            await ClearCache<T>();
+            await InternalBulkInsertItemsAsync(enumerable, token);
         }
 
 
@@ -148,6 +168,8 @@ namespace SoftwarePioniere.ReadModel.Services
         protected abstract Task InternalDeleteItemAsync<T>(string entityId, CancellationToken token = default(CancellationToken)) where T : Entity;
 
         protected abstract Task InternalInsertItemAsync<T>(T item, CancellationToken token = default(CancellationToken)) where T : Entity;
+
+        protected abstract Task InternalBulkInsertItemsAsync<T>(T[] items, CancellationToken token = default(CancellationToken)) where T : Entity;
 
         protected abstract Task InternalInsertOrUpdateItemAsync<T>(T item, CancellationToken token = default(CancellationToken)) where T : Entity;
 

@@ -38,6 +38,12 @@ namespace SoftwarePioniere.ReadModel.Services.Tests
         }
 
         [Fact]
+        public override Task CanBulkInsertManyItems()
+        {
+            return base.CanBulkInsertManyItems();
+        }
+
+        [Fact]
         public override void DeleteThrowsErrorWithKeyNullOrEmpty()
         {
             base.DeleteThrowsErrorWithKeyNullOrEmpty();
