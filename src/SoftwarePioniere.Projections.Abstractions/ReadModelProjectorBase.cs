@@ -50,14 +50,17 @@ namespace SoftwarePioniere.Projections
             var items = await source.LoadItemsAsync<T>(arg => true, cancellationToken);
             Logger.LogDebug("Entities Loaded {ItemCount} {EntityType}", items.Length, typeof(T).Name);
 
-
-            foreach (var item in items)
+            if (items.Length > 0)
             {
-                cancellationToken.ThrowIfCancellationRequested();
-                await dest.InsertItemAsync(item, cancellationToken);
+                await dest.BulkInsertItemsAsync(items, cancellationToken);
+                Logger.LogDebug("Items Inserted");
             }
-            Logger.LogDebug("Items Inserted");
-
+            //foreach (var item in items)
+            //{
+            //    cancellationToken.ThrowIfCancellationRequested();
+            //    await dest.InsertItemAsync(item, cancellationToken);
+            //}
+           
             cancellationToken.ThrowIfCancellationRequested();
 
             var status = await source.LoadItemAsync<ProjectionStatus>(Context.ProjectorId.CalculateEntityId<ProjectionStatus>(), cancellationToken);
