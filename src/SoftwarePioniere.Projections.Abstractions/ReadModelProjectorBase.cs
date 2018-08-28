@@ -33,6 +33,7 @@ namespace SoftwarePioniere.Projections
         public virtual async Task SaveAsync(EntityDescriptor<T> ent, IMessage msg, object entityToSerialize)
         {
             Logger.LogDebug("SaveAsync {Id} {IsNew}", ent.EntityId, ent.IsNew);
+            ent.Entity.ModifiedOnUtc = msg.TimeStampUtc;
             await Context.EntityStore.SaveAsync(ent);
 
             if (Context.IsLiveProcessing)
