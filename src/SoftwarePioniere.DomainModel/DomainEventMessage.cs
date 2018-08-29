@@ -13,7 +13,7 @@ namespace SoftwarePioniere.DomainModel
     {
 
         public DomainEventMessage(Guid id, DateTime timeStampUtc, string userId
-            , string aggregateName, string aggregateId, string domainEventType, object domainEvent
+            , string aggregateName, string aggregateId, string domainEventType, string domainEvent
         ) : base(id, timeStampUtc, userId)
         {
             DomainEvent = domainEvent;
@@ -22,7 +22,7 @@ namespace SoftwarePioniere.DomainModel
             DomainEventType = domainEventType;
         }
 
-        public object DomainEvent { get; }
+        public string DomainEvent { get; }
 
         public string AggregateName { get; }
         public string AggregateId { get; }

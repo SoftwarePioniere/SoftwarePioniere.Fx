@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+using Newtonsoft.Json;
 using SoftwarePioniere.Messaging;
 
 namespace SoftwarePioniere.DomainModel
@@ -51,7 +52,7 @@ namespace SoftwarePioniere.DomainModel
         {
 
             var ev = new DomainEventMessage(Guid.NewGuid(), @event.TimeStampUtc, @event.UserId,
-                aggreateName, aggregateId, typeof(TDomainEvent).GetTypeShortName(), @event);
+                aggreateName, aggregateId, typeof(TDomainEvent).GetTypeShortName(), JsonConvert.SerializeObject(@event));
 
             return ev;
         }
@@ -67,7 +68,7 @@ namespace SoftwarePioniere.DomainModel
             //    aggreateName, aggregateId,  @event.GetType().Name, @event}) as IMessage;
 
             var ev = new DomainEventMessage(Guid.NewGuid(), @event.TimeStampUtc, @event.UserId,
-                aggreateName, aggregateId, eventType.GetTypeShortName(), @event);
+                aggreateName, aggregateId, eventType.GetTypeShortName(), JsonConvert.SerializeObject(@event));
 
             if (ev == null)
                 throw new InvalidOperationException("cannot create DomainEventMessage");
@@ -77,7 +78,7 @@ namespace SoftwarePioniere.DomainModel
 
         public static T Cast<T>(this DomainEventMessage domainEventMessage) where T : IDomainEvent
         {
-            return (T) domainEventMessage.DomainEvent;
+            return JsonConvert.DeserializeObject<T>(domainEventMessage.DomainEvent);
         }
 
     }
