@@ -2,9 +2,9 @@
 
 namespace SoftwarePioniere.Messaging
 {
-    public class EmptyDomainEvent : DomainEventBase
+    public class EmptyDomainEvent : MessageBase
     {
-        public EmptyDomainEvent() : base(Guid.NewGuid(), DateTime.MinValue, "userId", "aggregateId")
+        public EmptyDomainEvent() : base(Guid.NewGuid(), DateTime.MinValue, "userId")
         {
 
         }

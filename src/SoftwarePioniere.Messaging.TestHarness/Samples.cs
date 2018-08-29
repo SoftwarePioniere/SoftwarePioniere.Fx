@@ -30,10 +30,13 @@ namespace SoftwarePioniere.Messaging
     public class FakeEvent : DomainEventBase
     {
         public FakeEvent(Guid id, DateTime timeStampUtc, string userId, string aggregateId, string text) : base(id,
-            timeStampUtc, userId, aggregateId)
+            timeStampUtc, userId)
         {
             Text = text;
+            AggregateId = aggregateId;
         }
+
+        public string AggregateId { get; }
 
         public string Text { get; }
 

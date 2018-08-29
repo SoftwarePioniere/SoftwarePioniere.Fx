@@ -43,6 +43,30 @@ namespace SoftwarePioniere.Projections
             }
         }
 
+        public virtual async Task DeleteAsync(string itemOnlyId, IMessage message, Func<T, object> objectToSeriaizer = null)
+        {
+            var item = await LoadAsync(itemOnlyId);
+
+            if (!item.IsNew)
+            {
+                await Context.EntityStore.DeleteItemAsync<T>(item.EntityId);
+
+                if (Context.IsLiveProcessing)
+                {
+                    object objToSer = null;
+
+                    if (objectToSeriaizer != null)
+                    {
+                        objToSer = objectToSeriaizer(item.Entity);
+                    }
+
+                    var noti = CreateNotification(item.Entity, message, ReadModelUpdatedNotification.MethodDelete, objToSer);
+                    await Bus.PublishAsync(noti);
+                }
+            }
+        }
+
+
         public virtual async Task CopyEntitiesAsync(IEntityStore source, IEntityStore dest, CancellationToken cancellationToken = default(CancellationToken))
         {
             Logger.LogInformation("Copy Entities");

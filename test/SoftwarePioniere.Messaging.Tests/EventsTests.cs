@@ -17,7 +17,7 @@ namespace SoftwarePioniere.Messaging.Tests
             o.UserId.Should().Be(UserId, s);
             o.TimeStampUtc.Should().Be(TimeStamp, s);
             o.Id.Should().Be(Id, s);
-            o.AggregateId.Should().Be(AggregateId, s);
+         //   o.AggregateId.Should().Be(AggregateId, s);
 
             o.Text.Should().Be(Text, s);
         }

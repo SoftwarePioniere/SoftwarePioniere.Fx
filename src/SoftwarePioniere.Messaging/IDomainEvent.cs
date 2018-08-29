@@ -4,6 +4,6 @@
     {
         //int EventVersion { get; }
 
-        string AggregateId { get; }
+        //string AggregateId { get; }
     }
 }

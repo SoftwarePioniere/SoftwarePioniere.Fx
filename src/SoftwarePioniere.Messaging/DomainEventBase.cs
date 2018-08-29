@@ -7,10 +7,10 @@ namespace SoftwarePioniere.Messaging
     /// </summary>
     public abstract class DomainEventBase : MessageBase, IDomainEvent
     {
-        protected DomainEventBase(Guid id, DateTime timeStampUtc, string userId, string aggregateId) : base(id, timeStampUtc, userId)
+        protected DomainEventBase(Guid id, DateTime timeStampUtc, string userId) : base(id, timeStampUtc, userId)
         {
-            AggregateId = aggregateId;
-           // EventVersion = eventVersion;
+            // AggregateId = aggregateId;
+            // EventVersion = eventVersion;
         }
 
         ///// <summary>
@@ -18,9 +18,9 @@ namespace SoftwarePioniere.Messaging
         ///// </summary>
         //public int EventVersion { get; }
 
-        /// <summary>
-        /// Die Id des Aggregats, an dem das Event aufgetreten ist
-        /// </summary>
-        public string AggregateId { get; }
+        ///// <summary>
+        ///// Die Id des Aggregats, an dem das Event aufgetreten ist
+        ///// </summary>
+        //public string AggregateId { get; }
     }
 }

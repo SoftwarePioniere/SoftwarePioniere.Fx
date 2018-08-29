@@ -6,7 +6,7 @@ namespace SoftwarePioniere.DomainModel
     {
         string AggregateId { get; }
         string AggregateName { get; }
-        IMessage DomainEvent { get; }
+        string DomainEvent { get; }
         string DomainEventType { get; }
     }
 }

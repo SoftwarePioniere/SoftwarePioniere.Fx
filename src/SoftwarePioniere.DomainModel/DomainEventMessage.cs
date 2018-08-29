@@ -9,7 +9,7 @@ namespace SoftwarePioniere.DomainModel
     /// Nachricht um ein Domain Even
     /// von einem bestimmten Aggregat zu verschicken
     /// </summary>    
-    public class DomainEventMessage : MessageBase
+    public class DomainEventMessage : MessageBase, IDomainEventMessage
     {
 
         public DomainEventMessage(Guid id, DateTime timeStampUtc, string userId
