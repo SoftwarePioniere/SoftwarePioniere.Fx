@@ -23,9 +23,14 @@ namespace SoftwarePioniere.DomainModel
         /// <summary>
         /// Prüft, ob das Aggregate existiert
         /// </summary>
-
         /// <returns></returns>
         Task<bool> CheckAggregateExists<T>(string aggregateId, CancellationToken token = default(CancellationToken)) where T : AggregateRoot;
+
+        /// <summary>
+        /// Prüft, ob das Aggregate existiert aus einem custom Stream
+        /// </summary>
+        /// <returns></returns>
+        Task<bool> CheckAggregateExists<T>(string aggregateId, string streamName, CancellationToken token = default(CancellationToken)) where T : AggregateRoot;
 
         /// <summary>
         /// Laden aller Events und Erzeugung des Aggregats
@@ -39,6 +44,20 @@ namespace SoftwarePioniere.DomainModel
         /// </summary>
         /// <returns></returns>
         Task<T> GetByIdAsync<T>(string id, int expectedAggregateVersion, CancellationToken token = default(CancellationToken)) where T : AggregateRoot, new();
+
+        /// <summary>
+        /// Laden aller Events und Erzeugung des Aggregats aus einem eigenen Stream
+        /// </summary>
+        /// <returns></returns>
+        Task<T> GetByIdAsync<T>(string id, string streamName, CancellationToken token = default(CancellationToken)) where T : AggregateRoot, new();
+
+        /// <summary>
+        /// Ladern aller Events und Erzeugung des Aggregats aus einem eigenen Stream
+        /// es wird geprüft, ob die letzte Event Version übereinstimmt
+        /// </summary>
+        /// <returns></returns>
+        Task<T> GetByIdAsync<T>(string id, int expectedAggregateVersion, string streamName, CancellationToken token = default(CancellationToken)) where T : AggregateRoot, new();
+
     }
 
 

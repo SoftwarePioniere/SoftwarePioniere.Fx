@@ -34,6 +34,12 @@ namespace SoftwarePioniere.DomainModel.Services
             return Task.FromResult(eventDescriptors);
         }
 
+        public Task<IList<EventDescriptor>> GetEventsForAggregateAsync<T>(string aggregateId, string streamName) where T : AggregateRoot
+        {
+            return GetEventsForAggregateAsync<T>(aggregateId);
+        }
+
+
         public Task<bool> CheckAggregateExists<T>(string aggregateId) where T : AggregateRoot
         {
             return Task.FromResult(_current.ContainsKey(aggregateId));
@@ -91,6 +97,12 @@ namespace SoftwarePioniere.DomainModel.Services
                 //// push event to the event descriptors list for current aggregate
                 //_current.Add(@event);
             }
+        }
+
+   
+        public Task<bool> CheckAggregateExists<T>(string aggregateId, string streamName) where T : AggregateRoot
+        {
+            return CheckAggregateExists<T>(aggregateId);
         }
     }
 }

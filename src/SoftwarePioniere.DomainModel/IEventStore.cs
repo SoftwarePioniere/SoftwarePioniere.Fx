@@ -16,6 +16,9 @@ namespace SoftwarePioniere.DomainModel
         /// <returns></returns>
         Task<IList<EventDescriptor>> GetEventsForAggregateAsync<T>(string aggregateId) where T : AggregateRoot;
 
+
+        Task<IList<EventDescriptor>> GetEventsForAggregateAsync<T>(string aggregateId, string streamName) where T : AggregateRoot;
+
         /// <summary>
         /// Prüft, ob das Aggregate existiert
         /// </summary>
@@ -23,6 +26,8 @@ namespace SoftwarePioniere.DomainModel
         /// <param name="aggregateId"></param>
         /// <returns></returns>
         Task<bool> CheckAggregateExists<T>(string aggregateId) where T : AggregateRoot;
+
+        Task<bool> CheckAggregateExists<T>(string aggregateId, string streamName) where T : AggregateRoot;
 
         /// <summary>
         ///     Speichert Events und prüft ggf auch auf die EventVersion
