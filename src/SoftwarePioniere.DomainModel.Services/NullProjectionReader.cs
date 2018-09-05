@@ -9,5 +9,10 @@ namespace SoftwarePioniere.DomainModel.Services
             var ret = default(T);
             return Task.FromResult(ret);
         }
+
+        public Task<T> GetStateAsyncAnonymousType<T>(string name, T anonymousTypeObject, string partitionId = null)
+        {
+            return Task.FromResult(anonymousTypeObject);
+        }
     }
 }
