@@ -36,5 +36,5 @@ namespace SoftwarePioniere.DomainModel
         /// <param name="events"></param>
         /// <param name="aggregateVersion">aktuelle Version im Aggregate</param>
         Task SaveEventsAsync<T>(string aggregateId, IEnumerable<IDomainEvent> events, int aggregateVersion) where T : AggregateRoot;
-    }
+    }    
 }

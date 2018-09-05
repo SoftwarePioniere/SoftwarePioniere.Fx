@@ -17,6 +17,7 @@ namespace SoftwarePioniere.Extensions.DependencyInjection
             return services
                     .AddDomainServices()
                     .AddSingleton<IEventStore, InMemoryEventStore>()
+                    .AddSingleton<IProjectionReader, NullProjectionReader>()
                 //    .AddSingleton<IEventStoreInitializer, EmptyEventStoreInitializer>()
                 ;
         }
