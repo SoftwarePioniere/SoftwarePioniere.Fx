@@ -3,22 +3,22 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
-using Foundatio.Caching;
 using Microsoft.Extensions.Logging;
 
 namespace SoftwarePioniere.ReadModel.Services
 {
+
     // ReSharper disable once ClassNeverInstantiated.Global
-    public class InMemoryEntityStore : EntityStoreBase
+    public class InMemoryEntityStore : EntityStoreBase<InMemoryEntityStoreOptions>
     {
         private readonly InMemoryEntityStoreConnectionProvider _provider;
         //private readonly IOptions<InMemoryEntityStoreOptions> _options;
 
 
-        public InMemoryEntityStore(ILoggerFactory loggerFactory, ICacheClient cacheClient,
+        public InMemoryEntityStore(InMemoryEntityStoreOptions options,
             InMemoryEntityStoreConnectionProvider provider
             //, IOptions<InMemoryEntityStoreOptions> options
-            ) : base(loggerFactory, cacheClient)
+            ) : base(options)
         {
             _provider = provider ?? throw new ArgumentNullException(nameof(provider));
             //_options = options ?? throw new ArgumentNullException(nameof(options));
@@ -182,7 +182,7 @@ namespace SoftwarePioniere.ReadModel.Services
             {
                 throw new ArgumentNullException(nameof(items));
             }
-            
+
             if (Logger.IsEnabled(LogLevel.Debug))
             {
                 Logger.LogDebug("BulkInsertItemsAsync: {EntityType} {EntityCount}", typeof(T), items.Length);
@@ -194,7 +194,7 @@ namespace SoftwarePioniere.ReadModel.Services
 
             foreach (var item in items)
             {
-                  
+
                 if (localItems.ContainsKey(item.EntityId))
                 {
                     localItems.Remove(item.EntityId);

@@ -1,4 +1,7 @@
-﻿namespace SoftwarePioniere.ReadModel.Services
+﻿using Foundatio.Caching;
+using Microsoft.Extensions.Logging;
+
+namespace SoftwarePioniere.ReadModel.Services
 {
     /// <summary>
     /// Entity Store Base Options
@@ -15,5 +18,9 @@
         /// Use the AppId for Filterung
         /// </summary>
         public bool UseAppId { get; set; }
+
+        public ILoggerFactory LoggerFactory { get; set; }
+        public ICacheClient CacheClient { get; set; }
+        public bool CachingDisabled { get; set; }
     }
 }

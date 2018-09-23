@@ -10,17 +10,25 @@ using Microsoft.Extensions.Logging.Abstractions;
 
 namespace SoftwarePioniere.ReadModel.Services
 {
-    public abstract class EntityStoreBase : IEntityStore
+
+    public abstract class EntityStoreBase<TOptions> : IEntityStore where TOptions : EntityStoreOptionsBase
     {
+
         // ReSharper disable once MemberCanBePrivate.Global
+        protected readonly TOptions Options;
         protected readonly ICacheClient CacheClient;
         protected readonly ILogger Logger;
         protected readonly TypeKeyCache TypeKeyCache = new TypeKeyCache();
 
-        protected EntityStoreBase(ILoggerFactory loggerFactory, ICacheClient cacheClient)
+        protected EntityStoreBase(TOptions options)
         {
-            CacheClient = cacheClient ?? throw new ArgumentNullException(nameof(cacheClient));
-            Logger = (loggerFactory ?? NullLoggerFactory.Instance).CreateLogger(GetType());
+            Options = options ?? throw new ArgumentNullException(nameof(options));
+            var loggerFactory = options.LoggerFactory ?? NullLoggerFactory.Instance;
+            Logger = loggerFactory.CreateLogger(GetType());
+            if (!Options.CachingDisabled)
+            {
+                CacheClient = Options.CacheClient ?? throw new ArgumentNullException(nameof(Options.CacheClient));
+            }
         }
 
         public virtual async Task DeleteItemAsync<T>(string entityId, CancellationToken token = default(CancellationToken)) where T : Entity
@@ -35,7 +43,11 @@ namespace SoftwarePioniere.ReadModel.Services
                 Logger.LogDebug("DeleteItemAsync: {EntityType} {EntityId}", typeof(T), entityId);
             }
 
-            await ClearCache<T>();
+            if (!Options.CachingDisabled)
+            {
+                await ClearCache<T>();
+            }
+
             await InternalDeleteItemAsync<T>(entityId, token);
         }
 
@@ -51,7 +63,10 @@ namespace SoftwarePioniere.ReadModel.Services
                 Logger.LogDebug("InsertItemAsync: {EntityType} {EntityId}", typeof(T), item.EntityId);
             }
 
-            await ClearCache<T>();
+            if (!Options.CachingDisabled)
+            {
+                await ClearCache<T>();
+            }
             await InternalInsertItemAsync(item, token);
         }
 
@@ -69,7 +84,11 @@ namespace SoftwarePioniere.ReadModel.Services
                 Logger.LogDebug("BulkInsertItemsAsync: {EntityType} {EntityCount}", typeof(T), enumerable.Count());
             }
 
-            await ClearCache<T>();
+            if (!Options.CachingDisabled)
+            {
+                await ClearCache<T>();
+            }
+
             await InternalBulkInsertItemsAsync(enumerable, token);
         }
 
@@ -86,7 +105,10 @@ namespace SoftwarePioniere.ReadModel.Services
                 Logger.LogDebug("InsertOrUpdateItemAsync: {EntityType} {EntityId}", typeof(T), item.EntityId);
             }
 
-            await ClearCache<T>();
+            if (!Options.CachingDisabled)
+            {
+                await ClearCache<T>();
+            }
             await InternalInsertOrUpdateItemAsync(item, token);
         }
 
@@ -100,6 +122,11 @@ namespace SoftwarePioniere.ReadModel.Services
             if (Logger.IsEnabled(LogLevel.Debug))
             {
                 Logger.LogDebug("LoadItemAsync: {EntityType} {EntityId}", typeof(T), entityId);
+            }
+
+            if (Options.CachingDisabled)
+            {
+                return await InternalLoadItemAsync<T>(entityId, token);
             }
 
             return await CacheLoad(() => InternalLoadItemAsync<T>(entityId, token), CacheKeys.Create<T>(nameof(T), entityId));
@@ -120,6 +147,11 @@ namespace SoftwarePioniere.ReadModel.Services
             if (Logger.IsEnabled(LogLevel.Debug))
             {
                 Logger.LogDebug("LoadItemsAsync: {EntityType} {Expression} {CacheKey}", typeof(T), where, cacheKey);
+            }
+
+            if (Options.CachingDisabled)
+            {
+                return await LoadItemsAsync(where, token);
             }
 
             return await CacheLoad(() => LoadItemsAsync(where, token), cacheKey);
@@ -146,6 +178,12 @@ namespace SoftwarePioniere.ReadModel.Services
                     cacheKey);
             }
 
+
+            if (Options.CachingDisabled)
+            {
+                return await LoadPagedResultAsync(parms, token);
+            }
+
             return await CacheLoad(() => LoadPagedResultAsync(parms, token), cacheKey);
         }
 
@@ -161,7 +199,11 @@ namespace SoftwarePioniere.ReadModel.Services
                 Logger.LogDebug("UpdateItemAsync: {EntityType} {EntityId}", typeof(T), item.EntityId);
             }
 
-            await ClearCache<T>();
+            if (!Options.CachingDisabled)
+            {
+                await ClearCache<T>();
+            }
+
             await InternalUpdateItemAsync(item, token);
         }
 
