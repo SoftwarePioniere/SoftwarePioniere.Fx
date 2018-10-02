@@ -29,6 +29,8 @@ namespace SoftwarePioniere.Projections
                 var item = await LoadAsync(evnt.AggregateId);
                 var entity = item.Entity;
 
+               // await Task.Delay(200);
+
                 entity.StringValue = evnt.Text;
 
                 await SaveAsync(item, domainEvent, new { id = entity.EntityId });

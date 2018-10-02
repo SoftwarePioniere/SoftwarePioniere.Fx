@@ -71,6 +71,19 @@ namespace SoftwarePioniere.Projections
         {
             Logger.LogInformation("Copy Entities");
 
+            {
+                var destItems =  await dest.LoadItemsAsync<T>(arg => true, cancellationToken);
+                if (destItems.Length > 0)
+                {
+                    Logger.LogDebug("Entities in Destination Loaded {ItemCount} {EntityType} - Must Delete", destItems.Length, typeof(T).Name);
+
+                    foreach (var destItem in destItems)
+                    {
+                        await dest.DeleteItemAsync<T>(destItem.EntityId, cancellationToken);
+                    }
+                }
+            }
+
             var items = await source.LoadItemsAsync<T>(arg => true, cancellationToken);
             Logger.LogDebug("Entities Loaded {ItemCount} {EntityType}", items.Length, typeof(T).Name);
 
