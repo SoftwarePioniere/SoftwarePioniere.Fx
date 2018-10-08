@@ -17,6 +17,8 @@ namespace SoftwarePioniere.Projections
 
         protected readonly IMessageBus Bus;
 
+        protected bool SkipDestinationDeletion { get; set; }
+
         protected ReadModelProjectorBase(ILoggerFactory loggerFactory, IMessageBus bus)
         {
             if (loggerFactory == null) throw new ArgumentNullException(nameof(loggerFactory));
@@ -72,15 +74,20 @@ namespace SoftwarePioniere.Projections
             Logger.LogInformation("Copy Entities");
 
             {
-                var destItems =  await dest.LoadItemsAsync<T>(arg => true, cancellationToken);
-                if (destItems.Length > 0)
+                if (!SkipDestinationDeletion)
                 {
-                    Logger.LogDebug("Entities in Destination Loaded {ItemCount} {EntityType} - Must Delete", destItems.Length, typeof(T).Name);
 
-                    foreach (var destItem in destItems)
+                    var destItems = await dest.LoadItemsAsync<T>(arg => true, cancellationToken);
+                    if (destItems.Length > 0)
                     {
-                        await dest.DeleteItemAsync<T>(destItem.EntityId, cancellationToken);
+                        Logger.LogDebug("Entities in Destination Loaded {ItemCount} {EntityType} - Must Delete", destItems.Length, typeof(T).Name);
+
+                        foreach (var destItem in destItems)
+                        {
+                            await dest.DeleteItemAsync<T>(destItem.EntityId, cancellationToken);
+                        }
                     }
+
                 }
             }
 
@@ -97,7 +104,7 @@ namespace SoftwarePioniere.Projections
             //    cancellationToken.ThrowIfCancellationRequested();
             //    await dest.InsertItemAsync(item, cancellationToken);
             //}
-           
+
             cancellationToken.ThrowIfCancellationRequested();
 
             var status = await source.LoadItemAsync<ProjectionStatus>(Context.ProjectorId.CalculateEntityId<ProjectionStatus>(), cancellationToken);
@@ -131,6 +138,6 @@ namespace SoftwarePioniere.Projections
 
             return CreateNotification(descriptor.Entity, msg, method, entityToSerialize);
         }
-      
+
     }
 }
