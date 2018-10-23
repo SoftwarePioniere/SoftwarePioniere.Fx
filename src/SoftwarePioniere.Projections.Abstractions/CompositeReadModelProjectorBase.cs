@@ -27,17 +27,14 @@ namespace SoftwarePioniere.Projections
             projector.Context = Context;
         }
 
-        public void Initialize(CancellationToken cancellationToken = default(CancellationToken))
-        {
-            throw new NotImplementedException();
-        }
+        public abstract void Initialize(CancellationToken cancellationToken = default(CancellationToken));
 
         public string StreamName { get; protected set; }
 
         public virtual async Task HandleAsync(IDomainEvent domainEvent)
         {
             foreach (var projector in _childProjectors)
-            {
+            {        
                 Logger.LogDebug("HandleAsync in ChildProjector {ChildProjector}", projector.GetType().Name);
                 await projector.HandleAsync(domainEvent);
             }
