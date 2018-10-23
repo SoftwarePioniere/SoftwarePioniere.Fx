@@ -9,6 +9,7 @@ namespace SoftwarePioniere.Projections
         public abstract void Initialize(CancellationToken cancellationToken = default(CancellationToken));
 
         public string StreamName { get; protected set; }
+
         public abstract Task HandleAsync(IDomainEvent domainEvent);
 
         public IProjectionContext Context { get; set; }

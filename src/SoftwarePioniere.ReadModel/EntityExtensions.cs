@@ -36,5 +36,15 @@ namespace SoftwarePioniere.ReadModel
             var id = entityId.Replace($"{sendung.EntityType}-", string.Empty);
             return id;
         }
+        
+        public static T[] DistinctArray<T>(this IEnumerable<T> items) where T : Entity
+        {
+            if (items == null)
+                return new T[0];
+
+            return items.GroupBy(x => x.EntityId).Select(g => g.First()).ToArray();
+        }
+
+
     }
 }
