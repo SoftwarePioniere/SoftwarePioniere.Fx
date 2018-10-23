@@ -8,10 +8,11 @@ using SoftwarePioniere.ReadModel;
 
 namespace SoftwarePioniere.Projections
 {
-    public abstract class CompositeReadModelProjectorBase : ProjectorBase, IReadModelProjector
+    public abstract class CompositeReadModelProjectorBase : IReadModelProjector
     {
         protected readonly ILogger Logger;
         private readonly IList<IReadModelProjector> _childProjectors = new List<IReadModelProjector>();
+        private IProjectionContext _context;
 
         protected CompositeReadModelProjectorBase(ILoggerFactory loggerFactory)
         {
@@ -26,7 +27,14 @@ namespace SoftwarePioniere.Projections
             projector.Context = Context;
         }
 
-        public override async Task HandleAsync(IDomainEvent domainEvent)
+        public void Initialize(CancellationToken cancellationToken = default(CancellationToken))
+        {
+            throw new NotImplementedException();
+        }
+
+        public string StreamName { get; protected set; }
+
+        public virtual async Task HandleAsync(IDomainEvent domainEvent)
         {
             foreach (var projector in _childProjectors)
             {
@@ -35,7 +43,7 @@ namespace SoftwarePioniere.Projections
             }
         }
 
-        public async Task CopyEntitiesAsync(IEntityStore source, IEntityStore dest,
+        public virtual async Task CopyEntitiesAsync(IEntityStore source, IEntityStore dest,
             CancellationToken cancellationToken = default(CancellationToken))
         {
             foreach (var projector in _childProjectors)
@@ -44,6 +52,19 @@ namespace SoftwarePioniere.Projections
                 await projector.CopyEntitiesAsync(source, dest, cancellationToken);
             }
 
+        }
+
+        public IProjectionContext Context
+        {
+            get => _context;
+            set
+            {
+                _context = value;
+                foreach (var projector in _childProjectors)
+                {
+                    projector.Context = _context;
+                }
+            }
         }
     }
 }

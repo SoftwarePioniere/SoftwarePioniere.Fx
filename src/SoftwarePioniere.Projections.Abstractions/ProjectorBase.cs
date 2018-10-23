@@ -12,6 +12,6 @@ namespace SoftwarePioniere.Projections
 
         public abstract Task HandleAsync(IDomainEvent domainEvent);
 
-        public IProjectionContext Context { get; set; }
+        public virtual IProjectionContext Context { get; set; }
     }
 }

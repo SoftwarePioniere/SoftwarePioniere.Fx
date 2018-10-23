@@ -105,10 +105,8 @@ namespace SoftwarePioniere.Projections
             //    await dest.InsertItemAsync(item, cancellationToken);
             //}
 
-            cancellationToken.ThrowIfCancellationRequested();
+        
 
-            var status = await source.LoadItemAsync<ProjectionStatus>(Context.ProjectorId.CalculateEntityId<ProjectionStatus>(), cancellationToken);
-            await dest.InsertItemAsync(status, cancellationToken);
         }
 
         // ReSharper disable once MemberCanBePrivate.Global
