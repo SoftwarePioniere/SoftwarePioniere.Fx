@@ -45,12 +45,20 @@ namespace SoftwarePioniere.DomainModel
                 try
                 {
                     await handler(msg);
-                    await Bus.PublishAsync(typeof(NotificationMessage), CommandSucceededNotification.Create(msg), TimeSpan.Zero, cancellationToken);
+                    //only send to bus if its coming from external request
+                    if (!string.IsNullOrEmpty(msg.RequestId))
+                    {
+                        await Bus.PublishAsync(typeof(NotificationMessage), CommandSucceededNotification.Create(msg), TimeSpan.Zero, cancellationToken);
+                    }
                 }
                 catch (Exception e)
                 {
                     Logger.LogError(e, "Error on Executing Command {CommandType} {Command}", typeof(T), msg);
-                    await Bus.PublishAsync(typeof(NotificationMessage), CommandFailedNotification.Create(msg, e), TimeSpan.Zero, cancellationToken);
+                    //only send to bus if its coming from external request
+                    if (!string.IsNullOrEmpty(msg.RequestId))
+                    {
+                        await Bus.PublishAsync(typeof(NotificationMessage), CommandFailedNotification.Create(msg, e), TimeSpan.Zero, cancellationToken);
+                    }
                 }
             }, cancellationToken);
         }
