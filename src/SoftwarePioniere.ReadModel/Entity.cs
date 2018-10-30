@@ -34,5 +34,13 @@ namespace SoftwarePioniere.ReadModel
         [JsonProperty("modified_on_utc")]
         [Required]
         public DateTime ModifiedOnUtc { get; set; }
+
+        public override string ToString()
+        {
+            if (!string.IsNullOrEmpty(EntityId))
+                return EntityId;
+
+            return base.ToString();
+        }
     }
 }
