@@ -2,6 +2,7 @@
 using Foundatio.Messaging;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using SoftwarePioniere.Foundatio;
 
 // ReSharper disable once CheckNamespace
 namespace SoftwarePioniere.Extensions.DependencyInjection
@@ -25,8 +26,9 @@ namespace SoftwarePioniere.Extensions.DependencyInjection
 
                         return new InMemoryMessageBus(b.Build());
                     })
-            .AddSingleton<IMessageSubscriber>(c => c.GetRequiredService<IMessageBus>())
-            .AddSingleton<IMessagePublisher>(c => c.GetRequiredService<IMessageBus>())
+                    .AddSingleton<IMessageSubscriber>(c => c.GetRequiredService<IMessageBus>())
+                    .AddSingleton<IMessagePublisher>(c => c.GetRequiredService<IMessageBus>())
+                  .AddSingleton<IQueueFactory,InMemoryQueueFactory>()
                 ;
         }
     }

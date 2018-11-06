@@ -4,6 +4,7 @@ using Foundatio.Messaging;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using SoftwarePioniere.Foundatio;
 using SoftwarePioniere.Foundatio.Redis;
 using StackExchange.Redis;
 
@@ -27,13 +28,16 @@ namespace SoftwarePioniere.Extensions.DependencyInjection
             services
                .AddSingleton(p => ConnectionMultiplexer.Connect(p.GetRequiredService<IOptions<RedisOptions>>().Value.ConnectionString))
                .AddSingleton<IConnectionMultiplexer>(c => c.GetRequiredService<ConnectionMultiplexer>())
+               .AddSingleton<IQueueFactory, RedisQueueFactory>()
                ;
 
             services.AddSingleton<IMessageBus>(p =>
                 new RedisMessageBus(o =>
                     o.LoggerFactory(p.GetRequiredService<ILoggerFactory>())
-                        .Subscriber(p.GetRequiredService<IConnectionMultiplexer>().GetSubscriber())                        
-                        .Topic(topic)));
+                        .Subscriber(p.GetRequiredService<IConnectionMultiplexer>().GetSubscriber())
+                        .Topic(topic)
+                    ));
+
 
             services.AddSingleton<IMessageSubscriber>(c => c.GetRequiredService<IMessageBus>())
                 .AddSingleton<IMessagePublisher>(c => c.GetRequiredService<IMessageBus>());
