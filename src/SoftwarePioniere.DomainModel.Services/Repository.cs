@@ -37,6 +37,8 @@ namespace SoftwarePioniere.DomainModel.Services
             {
                 token.ThrowIfCancellationRequested();
 
+                _logger.LogAggregate(aggregate);
+
                 await _store.SaveEventsAsync<T>(aggregate.Id, events, expectedVersion).ConfigureAwait(false);
                 aggregate.MarkChangesAsCommitted();
 
