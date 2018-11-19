@@ -129,7 +129,7 @@ namespace SoftwarePioniere.ReadModel.Services
                 return await InternalLoadItemAsync<T>(entityId, token);
             }
 
-            return await CacheLoad(() => InternalLoadItemAsync<T>(entityId, token), CacheKeys.Create<T>(nameof(T), entityId));
+            return await CacheLoadItem(() => InternalLoadItemAsync<T>(entityId, token), CacheKeys.Create<T>(nameof(T), entityId));
         }
 
         public abstract Task<T[]> LoadItemsAsync<T>(CancellationToken token = default(CancellationToken)) where T : Entity;
@@ -154,7 +154,7 @@ namespace SoftwarePioniere.ReadModel.Services
                 return await LoadItemsAsync(where, token);
             }
 
-            return await CacheLoad(() => LoadItemsAsync(where, token), cacheKey);
+            return await CacheLoadItems(() => LoadItemsAsync(where, token), cacheKey);
         }
 
         public abstract Task<PagedResults<T>> LoadPagedResultAsync<T>(PagedLoadingParameters<T> parms, CancellationToken token = default(CancellationToken)) where T : Entity;
@@ -184,7 +184,7 @@ namespace SoftwarePioniere.ReadModel.Services
                 return await LoadPagedResultAsync(parms, token);
             }
 
-            return await CacheLoad(() => LoadPagedResultAsync(parms, token), cacheKey);
+            return await CacheLoadPagedResult(() => LoadPagedResultAsync(parms, token), cacheKey);
         }
 
         public async Task UpdateItemAsync<T>(T item, CancellationToken token = default(CancellationToken)) where T : Entity
@@ -219,9 +219,20 @@ namespace SoftwarePioniere.ReadModel.Services
 
         protected abstract Task InternalUpdateItemAsync<T>(T item, CancellationToken token = default(CancellationToken)) where T : Entity;
 
-        private Task<T> CacheLoad<T>(Func<Task<T>> loader, string cacheKey)
+        private Task<T> CacheLoadItem<T>(Func<Task<T>> loader, string cacheKey)
         {
-            return CacheClient.CacheLoad(loader, cacheKey, 30, Logger);
+            return CacheClient.CacheLoadItem(loader, cacheKey, 30, Logger);
+        }
+
+        private Task<T[]> CacheLoadItems<T>(Func<Task<T[]>> loader, string cacheKey)
+        {
+            return CacheClient.CacheLoadItems(loader, cacheKey, 30, Logger);
+        }
+
+
+        private Task<PagedResults<T>> CacheLoadPagedResult<T>(Func<Task<PagedResults<T>>> loader, string cacheKey)
+        {
+            return CacheClient.CacheLoadPagedItems(loader, cacheKey, 30, Logger);
         }
 
         private Task ClearCache<T>() where T : Entity
