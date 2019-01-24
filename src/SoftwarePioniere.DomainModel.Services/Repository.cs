@@ -23,7 +23,7 @@ namespace SoftwarePioniere.DomainModel.Services
             _publisher = bus ?? throw new ArgumentNullException(nameof(bus));
         }
 
-        public async Task SaveAsync<T>(T aggregate, int expectedVersion, CancellationToken token = default(CancellationToken)) where T : AggregateRoot
+        public virtual async Task SaveAsync<T>(T aggregate, int expectedVersion, CancellationToken token = default(CancellationToken)) where T : AggregateRoot
         {
             _logger.LogDebug("SaveAsync {Type} {AggregateId} {ExpectedVersion}", typeof(T), expectedVersion, aggregate.Id);
 
@@ -68,7 +68,7 @@ namespace SoftwarePioniere.DomainModel.Services
             await SaveAsync(aggregate, aggregate.Version, token).ConfigureAwait(false);
         }
 
-        public Task<bool> CheckAggregateExists<T>(string aggregateId, CancellationToken token = default(CancellationToken)) where T : AggregateRoot
+        public virtual Task<bool> CheckAggregateExists<T>(string aggregateId, CancellationToken token = default(CancellationToken)) where T : AggregateRoot
         {
             token.ThrowIfCancellationRequested();
             return _store.CheckAggregateExists<T>(aggregateId);
@@ -82,7 +82,7 @@ namespace SoftwarePioniere.DomainModel.Services
             return agg;
         }
 
-        public async Task<T> GetByIdAsync<T>(string id, int expectedAggregateVersion, CancellationToken token = default(CancellationToken)) where T : AggregateRoot, new()
+        public virtual async Task<T> GetByIdAsync<T>(string id, int expectedAggregateVersion, CancellationToken token = default(CancellationToken)) where T : AggregateRoot, new()
         {
             _logger.LogDebug("GetByIdAsync {Type} {AggregateId} and {ExcpectedVersion}", typeof(T), id, expectedAggregateVersion);
             token.ThrowIfCancellationRequested();
@@ -114,7 +114,7 @@ namespace SoftwarePioniere.DomainModel.Services
             return agg;
         }
 
-        public async Task<T> GetByIdAsync<T>(string id, int expectedAggregateVersion, string streamName, CancellationToken token = default) where T : AggregateRoot, new()
+        public virtual async Task<T> GetByIdAsync<T>(string id, int expectedAggregateVersion, string streamName, CancellationToken token = default) where T : AggregateRoot, new()
         {
             _logger.LogDebug("GetByIdAsync {Type} {AggregateId} and {ExcpectedVersion}  {StreamName}", typeof(T), id, expectedAggregateVersion, streamName);
             token.ThrowIfCancellationRequested();
@@ -137,7 +137,7 @@ namespace SoftwarePioniere.DomainModel.Services
             return aggregate;
         }
 
-        public Task<bool> CheckAggregateExists<T>(string aggregateId, string streamName, CancellationToken token = default) where T : AggregateRoot
+        public virtual Task<bool> CheckAggregateExists<T>(string aggregateId, string streamName, CancellationToken token = default) where T : AggregateRoot
         {
             throw new NotImplementedException();
         }

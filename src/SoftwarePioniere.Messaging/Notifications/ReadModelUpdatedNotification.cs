@@ -36,7 +36,8 @@ namespace SoftwarePioniere.Messaging.Notifications
 
         [JsonProperty("method")]
         public string Method { get; set; }
-
-
+        
+        [JsonProperty("reason")]
+        public string Reason { get; set; }
     }
 }
