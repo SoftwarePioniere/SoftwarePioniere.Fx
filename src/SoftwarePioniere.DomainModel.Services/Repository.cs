@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -31,7 +32,7 @@ namespace SoftwarePioniere.DomainModel.Services
 
             if (events.Length == 0)
             {
-                _logger.LogDebug("SaveAsync {Type} {AggregateId} {ExpectedVersion} No Events", typeof(T), expectedVersion, aggregate.Id);
+                _logger.LogTrace("SaveAsync {Type} {AggregateId} {ExpectedVersion} No Events", typeof(T), expectedVersion, aggregate.Id);
             }
             else
             {
@@ -39,8 +40,11 @@ namespace SoftwarePioniere.DomainModel.Services
 
                 _logger.LogAggregate(aggregate);
 
+                var sw = Stopwatch.StartNew();
                 await _store.SaveEventsAsync<T>(aggregate.Id, events, expectedVersion).ConfigureAwait(false);
                 aggregate.MarkChangesAsCommitted();
+
+                _logger.LogDebug("SaveAsync Events Saved {Type} {AggregateId} in {Elapsed:0.0000} ms ", typeof(T), expectedVersion, sw.ElapsedMilliseconds);
 
                 var aggregateName = typeof(T).GetAggregateName();
 
@@ -48,13 +52,13 @@ namespace SoftwarePioniere.DomainModel.Services
                 {
                     token.ThrowIfCancellationRequested();
 
-                    _logger.LogDebug("SaveAsync: PublishMessageAsync {@Message}", @event);
+                    _logger.LogTrace("SaveAsync: PublishMessageAsync {@Message}", @event);
                     await _publisher.PublishAsync(@event.GetType(), @event, TimeSpan.Zero, token).ConfigureAwait(false);
 
-                    _logger.LogDebug("SaveAsync: CreateDomainEventMessage {EventType}", @event.GetType());
+                    _logger.LogTrace("SaveAsync: CreateDomainEventMessage {EventType}", @event.GetType());
                     var idem = @event.CreateDomainEventMessageFromType(aggregateName, aggregate.Id, @event.GetType());
 
-                    _logger.LogDebug("SaveAsync: Publish DomainEventMessage {@Message}", idem);
+                    _logger.LogTrace("SaveAsync: Publish DomainEventMessage {@Message}", idem);
                     await _publisher.PublishAsync(idem.GetType(), idem, TimeSpan.Zero, token).ConfigureAwait(false);
 
                 }

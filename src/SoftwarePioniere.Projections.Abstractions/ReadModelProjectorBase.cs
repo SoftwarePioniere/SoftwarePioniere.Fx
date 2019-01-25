@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Foundatio.Messaging;
@@ -71,8 +72,8 @@ namespace SoftwarePioniere.Projections
 
         public virtual async Task CopyEntitiesAsync(IEntityStore source, IEntityStore dest, CancellationToken cancellationToken = default(CancellationToken))
         {
-            Logger.LogInformation("Copy Entities");
-
+            Logger.LogDebug("CopyEntitiesAsync Starting");
+            var sw = Stopwatch.StartNew();
             {
                 if (!SkipDestinationDeletion)
                 {
@@ -80,7 +81,7 @@ namespace SoftwarePioniere.Projections
                     var destItems = await dest.LoadItemsAsync<T>(arg => true, cancellationToken);
                     if (destItems.Length > 0)
                     {
-                        Logger.LogDebug("Entities in Destination Loaded {ItemCount} {EntityType} - Must Delete", destItems.Length, typeof(T).Name);
+                        Logger.LogTrace("Entities in Destination Loaded {ItemCount} {EntityType} - Must Delete", destItems.Length, typeof(T).Name);
 
                         foreach (var destItem in destItems)
                         {
@@ -92,12 +93,12 @@ namespace SoftwarePioniere.Projections
             }
 
             var items = await source.LoadItemsAsync<T>(arg => true, cancellationToken);
-            Logger.LogDebug("Entities Loaded {ItemCount} {EntityType}", items.Length, typeof(T).Name);
+            Logger.LogTrace("Entities Loaded {ItemCount} {EntityType}", items.Length, typeof(T).Name);
 
             if (items.Length > 0)
             {
                 await dest.BulkInsertItemsAsync(items, cancellationToken);
-                Logger.LogDebug("Items Inserted");
+                Logger.LogTrace("Items Inserted");
             }
             //foreach (var item in items)
             //{
@@ -106,6 +107,7 @@ namespace SoftwarePioniere.Projections
             //}
 
         
+            Logger.LogDebug("CopyEntitiesAsync Finished in {Elapsed:0.0000} ms ", sw.ElapsedMilliseconds);
 
         }
 
@@ -120,7 +122,8 @@ namespace SoftwarePioniere.Projections
                 EntityId = entity.EntityId,
                 EntityType = entity.EntityType,
                 Method = method,
-                Entity = json
+                Entity = json,
+                Reason = msg.GetType().FullName
             }.CreateNotificationMessage(msg);
         }
 

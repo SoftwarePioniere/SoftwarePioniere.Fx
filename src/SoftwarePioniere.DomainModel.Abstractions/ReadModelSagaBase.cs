@@ -20,7 +20,7 @@ namespace SoftwarePioniere.DomainModel
         }
 
         // ReSharper disable once MemberCanBeMadeStatic.Global
-        protected NotificationMessage CreateNotification(Entity entity, IMessage msg, string method, object entityToSerialize)
+        protected virtual NotificationMessage CreateNotification(Entity entity, IMessage msg, string method, object entityToSerialize)
         {
             var json = entityToSerialize != null ? JsonConvert.SerializeObject(entityToSerialize) : string.Empty;
 
@@ -29,12 +29,13 @@ namespace SoftwarePioniere.DomainModel
                 EntityId = entity.EntityId,
                 EntityType = entity.EntityType,
                 Method = method,
-                Entity = json
+                Entity = json,
+                Reason = msg.GetType().FullName
             }.CreateNotificationMessage(msg);
         }
 
         // ReSharper disable once UnusedMember.Global
-        protected NotificationMessage CreateNotification<T>(EntityDescriptor<T> descriptor, IMessage msg, object entityToSerialize)
+        protected virtual NotificationMessage CreateNotification<T>(EntityDescriptor<T> descriptor, IMessage msg, object entityToSerialize)
             where T : Entity
         {
             var method = ReadModelUpdatedNotification.MethodInsert;

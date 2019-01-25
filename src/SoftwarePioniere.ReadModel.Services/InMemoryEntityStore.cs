@@ -26,10 +26,8 @@ namespace SoftwarePioniere.ReadModel.Services
 
         public override Task<T[]> LoadItemsAsync<T>(CancellationToken token = default(CancellationToken))
         {
-            if (Logger.IsEnabled(LogLevel.Debug))
-            {
-                Logger.LogDebug("LoadItemsAsync: {EntityType}", typeof(T));
-            }
+
+            Logger.LogTrace("LoadItemsAsync: {EntityType}", typeof(T));
 
             var items = _provider.GetItems(typeof(T));
             return Task.FromResult(items.Values.Cast<T>().ToArray());
@@ -37,28 +35,23 @@ namespace SoftwarePioniere.ReadModel.Services
 
         public override Task<T[]> LoadItemsAsync<T>(Expression<Func<T, bool>> where, CancellationToken token = default(CancellationToken))
         {
-            if (Logger.IsEnabled(LogLevel.Debug))
-            {
-                Logger.LogDebug("LoadItemsAsync: {EntityType} {Expression}", typeof(T), where);
-            }
+
+            Logger.LogTrace("LoadItemsAsync: {EntityType} {Expression}", typeof(T), where);
+
 
             var items = _provider.GetItems(typeof(T));
 
-            if (Logger.IsEnabled(LogLevel.Debug))
-            {
-                Logger.LogDebug("LoadItemsAsync: AllItemsCount {EntityType} {AllItemsCount} {Expression}", typeof(T),
-                    items.Count, where);
-            }
+
+            Logger.LogTrace("LoadItemsAsync: AllItemsCount {EntityType} {AllItemsCount} {Expression}", typeof(T),
+                items.Count, where);
+
 
             var witems = items.Values.Cast<T>().AsQueryable().Where(where).ToArray();
 
-            if (Logger.IsEnabled(LogLevel.Debug))
-            {
-                Logger.LogDebug("LoadItemsAsync: FilteredItemsCount {EntityType} {FilteredItemsCount} {Expression}",
-                    typeof(T), items.Count, where);
-            }
 
+            Logger.LogTrace("LoadItemsAsync: FilteredItemsCount {EntityType} {FilteredItemsCount} {Expression}", typeof(T), items.Count, where);
             token.ThrowIfCancellationRequested();
+
 
             return Task.FromResult(witems);
         }
@@ -70,10 +63,8 @@ namespace SoftwarePioniere.ReadModel.Services
                 throw new ArgumentNullException(nameof(parms));
             }
 
-            if (Logger.IsEnabled(LogLevel.Debug))
-            {
-                Logger.LogDebug("LoadPagedResultAsync: {EntityType} {Paramter}", typeof(T), parms);
-            }
+
+            Logger.LogTrace("LoadPagedResultAsync: {EntityType} {Paramter}", typeof(T), parms);
 
             var val = _provider.GetItems(typeof(T));
 
@@ -133,10 +124,8 @@ namespace SoftwarePioniere.ReadModel.Services
                 throw new ArgumentNullException(nameof(entityId));
             }
 
-            if (Logger.IsEnabled(LogLevel.Debug))
-            {
-                Logger.LogDebug("InternalDeleteItemAsync: {EntityType} {EntityId}", typeof(T), entityId);
-            }
+
+            Logger.LogTrace("InternalDeleteItemAsync: {EntityType} {EntityId}", typeof(T), entityId);
 
             token.ThrowIfCancellationRequested();
 
@@ -157,10 +146,9 @@ namespace SoftwarePioniere.ReadModel.Services
                 throw new ArgumentNullException(nameof(item));
             }
 
-            if (Logger.IsEnabled(LogLevel.Debug))
-            {
-                Logger.LogDebug("InternalInsertItemAsync: {EntityType} {EntityId}", typeof(T), item.EntityId);
-            }
+
+            Logger.LogTrace("InternalInsertItemAsync: {EntityType} {EntityId}", typeof(T), item.EntityId);
+
 
             token.ThrowIfCancellationRequested();
 
@@ -183,10 +171,9 @@ namespace SoftwarePioniere.ReadModel.Services
                 throw new ArgumentNullException(nameof(items));
             }
 
-            if (Logger.IsEnabled(LogLevel.Debug))
-            {
-                Logger.LogDebug("BulkInsertItemsAsync: {EntityType} {EntityCount}", typeof(T), items.Length);
-            }
+
+            Logger.LogTrace("BulkInsertItemsAsync: {EntityType} {EntityCount}", typeof(T), items.Length);
+
 
             token.ThrowIfCancellationRequested();
 
@@ -218,10 +205,8 @@ namespace SoftwarePioniere.ReadModel.Services
                 throw new ArgumentNullException(nameof(entityId));
             }
 
-            if (Logger.IsEnabled(LogLevel.Debug))
-            {
-                Logger.LogDebug("InternalLoadItemAsync: {EntityType} {EntityId}", typeof(T), entityId);
-            }
+
+            Logger.LogTrace("InternalLoadItemAsync: {EntityType} {EntityId}", typeof(T), entityId);
 
             token.ThrowIfCancellationRequested();
 

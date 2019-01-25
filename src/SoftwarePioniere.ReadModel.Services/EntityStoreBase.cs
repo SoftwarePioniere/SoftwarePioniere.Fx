@@ -38,10 +38,8 @@ namespace SoftwarePioniere.ReadModel.Services
                 throw new ArgumentNullException(nameof(entityId));
             }
 
-            if (Logger.IsEnabled(LogLevel.Debug))
-            {
-                Logger.LogDebug("DeleteItemAsync: {EntityType} {EntityId}", typeof(T), entityId);
-            }
+            Logger.LogDebug("DeleteItemAsync: {EntityType} {EntityId}", typeof(T), entityId);
+
 
             if (!Options.CachingDisabled)
             {
@@ -58,10 +56,7 @@ namespace SoftwarePioniere.ReadModel.Services
                 throw new ArgumentNullException(nameof(item));
             }
 
-            if (Logger.IsEnabled(LogLevel.Debug))
-            {
-                Logger.LogDebug("InsertItemAsync: {EntityType} {EntityId}", typeof(T), item.EntityId);
-            }
+            Logger.LogDebug("InsertItemAsync: {EntityType} {EntityId}", typeof(T), item.EntityId);
 
             if (!Options.CachingDisabled)
             {
@@ -77,12 +72,9 @@ namespace SoftwarePioniere.ReadModel.Services
                 throw new ArgumentNullException(nameof(items));
             }
 
-
             var enumerable = items as T[] ?? items.ToArray();
-            if (Logger.IsEnabled(LogLevel.Debug))
-            {
-                Logger.LogDebug("BulkInsertItemsAsync: {EntityType} {EntityCount}", typeof(T), enumerable.Count());
-            }
+            Logger.LogDebug("BulkInsertItemsAsync: {EntityType} {EntityCount}", typeof(T), enumerable.Count());
+
 
             if (!Options.CachingDisabled)
             {
@@ -100,10 +92,9 @@ namespace SoftwarePioniere.ReadModel.Services
                 throw new ArgumentNullException(nameof(item));
             }
 
-            if (Logger.IsEnabled(LogLevel.Debug))
-            {
-                Logger.LogDebug("InsertOrUpdateItemAsync: {EntityType} {EntityId}", typeof(T), item.EntityId);
-            }
+
+            Logger.LogDebug("InsertOrUpdateItemAsync: {EntityType} {EntityId}", typeof(T), item.EntityId);
+
 
             if (!Options.CachingDisabled)
             {
@@ -119,10 +110,7 @@ namespace SoftwarePioniere.ReadModel.Services
                 throw new ArgumentNullException(nameof(entityId));
             }
 
-            if (Logger.IsEnabled(LogLevel.Debug))
-            {
-                Logger.LogDebug("LoadItemAsync: {EntityType} {EntityId}", typeof(T), entityId);
-            }
+            Logger.LogDebug("LoadItemAsync: {EntityType} {EntityId}", typeof(T), entityId);
 
             if (Options.CachingDisabled)
             {
@@ -143,11 +131,7 @@ namespace SoftwarePioniere.ReadModel.Services
                 throw new ArgumentNullException(nameof(cacheKey));
             }
 
-
-            if (Logger.IsEnabled(LogLevel.Debug))
-            {
-                Logger.LogDebug("LoadItemsAsync: {EntityType} {Expression} {CacheKey}", typeof(T), where, cacheKey);
-            }
+            Logger.LogDebug("LoadItemsAsync: {EntityType} {Expression} {CacheKey}", typeof(T), where, cacheKey);
 
             if (Options.CachingDisabled)
             {
@@ -172,12 +156,7 @@ namespace SoftwarePioniere.ReadModel.Services
                 throw new ArgumentNullException(nameof(cacheKey));
             }
 
-            if (Logger.IsEnabled(LogLevel.Debug))
-            {
-                Logger.LogDebug("LoadItemsAsync: {EntityType} {PagedLoadingParameters}  {CacheKey}", typeof(T), parms,
-                    cacheKey);
-            }
-
+            Logger.LogDebug("LoadItemsAsync: {EntityType} {PagedLoadingParameters}  {CacheKey}", typeof(T), parms, cacheKey);
 
             if (Options.CachingDisabled)
             {
@@ -244,7 +223,7 @@ namespace SoftwarePioniere.ReadModel.Services
             {
                 if (Logger.IsEnabled(LogLevel.Debug))
                 {
-                    Logger.LogDebug("Clearing Cache for EntityType: {EntityType}", typeof(T));
+                    Logger.LogTrace("Clearing Cache for EntityType: {EntityType}", typeof(T));
                 }
 
                 return CacheClient.RemoveByPrefixAsync(cachePrefix);
