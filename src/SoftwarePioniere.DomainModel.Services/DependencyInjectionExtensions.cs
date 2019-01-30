@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using System;
+using Microsoft.Extensions.DependencyInjection;
 using SoftwarePioniere.DomainModel;
 using SoftwarePioniere.DomainModel.Services;
 
@@ -7,9 +8,24 @@ namespace SoftwarePioniere.Extensions.DependencyInjection
 {
     public static class DependencyInjectionExtensions
     {
-        public static IServiceCollection AddDomainServices(this IServiceCollection services)
+        public static IServiceCollection AddDomainServices(this IServiceCollection services, Action<RepositoryOptions> configureRepository = null)
         {
-            return services.AddTransient<IRepository, Repository>();
+            if (configureRepository != null)
+            {
+                services.AddOptions()
+                    .Configure(configureRepository);
+
+            }
+            else
+            {
+                services
+                    .AddOptions<RepositoryOptions>()
+                    ;
+            }
+            
+            return services.AddTransient<IRepository, Repository>()                
+                
+                ;
         }
 
         public static IServiceCollection AddInMemoryDomainServices(this IServiceCollection services)
@@ -22,6 +38,8 @@ namespace SoftwarePioniere.Extensions.DependencyInjection
                 ;
         }
 
+        
+        
 
     }
 }

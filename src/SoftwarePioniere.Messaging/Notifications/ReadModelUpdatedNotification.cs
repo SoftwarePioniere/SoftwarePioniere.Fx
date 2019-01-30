@@ -21,8 +21,7 @@ namespace SoftwarePioniere.Messaging.Notifications
 
         /// <inheritdoc />
         public ReadModelUpdatedNotification() : base(TypeKey)
-        {
-
+        {            
         }
 
         [JsonProperty("entity_id")]
@@ -39,5 +38,8 @@ namespace SoftwarePioniere.Messaging.Notifications
         
         [JsonProperty("reason")]
         public string Reason { get; set; }
+        
+        [JsonProperty("tags")]
+        public string[] Tags { get; set; }
     }
 }

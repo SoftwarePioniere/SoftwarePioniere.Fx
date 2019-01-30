@@ -5,23 +5,33 @@ using System.Threading;
 using System.Threading.Tasks;
 using Foundatio.Messaging;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using SoftwarePioniere.DomainModel.Exceptions;
 
 namespace SoftwarePioniere.DomainModel.Services
 {
+
+    public class RepositoryOptions
+    {
+        public bool SendInternalEvents { get; set; }
+    }
+        
     public class Repository : IRepository
     {
         private readonly ILogger _logger;
         private readonly IEventStore _store;
         private readonly IMessagePublisher _publisher;
+        private RepositoryOptions _options;
 
-        public Repository(ILoggerFactory loggerFactory, IEventStore store, IMessagePublisher bus)
+        public Repository(ILoggerFactory loggerFactory, IEventStore store, IMessagePublisher bus, IOptions<RepositoryOptions> options)
         {
             if (loggerFactory == null) throw new ArgumentNullException(nameof(loggerFactory));
             _logger = loggerFactory.CreateLogger(GetType());
             _store = store ?? throw new ArgumentNullException(nameof(store));
 
             _publisher = bus ?? throw new ArgumentNullException(nameof(bus));
+
+            _options = options.Value;
         }
 
         public virtual async Task SaveAsync<T>(T aggregate, int expectedVersion, CancellationToken token = default(CancellationToken)) where T : AggregateRoot
@@ -52,9 +62,13 @@ namespace SoftwarePioniere.DomainModel.Services
                 {
                     token.ThrowIfCancellationRequested();
 
-                    _logger.LogTrace("SaveAsync: PublishMessageAsync {@Message}", @event);
-                    await _publisher.PublishAsync(@event.GetType(), @event, TimeSpan.Zero, token).ConfigureAwait(false);
-
+                    if (_options.SendInternalEvents)
+                    {
+                        _logger.LogTrace("SaveAsync: PublishMessageAsync {@Message}", @event);
+                        await _publisher.PublishAsync(@event.GetType(), @event, TimeSpan.Zero, token)
+                            .ConfigureAwait(false);
+                    }
+                    
                     _logger.LogTrace("SaveAsync: CreateDomainEventMessage {EventType}", @event.GetType());
                     var idem = @event.CreateDomainEventMessageFromType(aggregateName, aggregate.Id, @event.GetType());
 

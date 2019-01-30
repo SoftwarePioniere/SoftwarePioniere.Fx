@@ -1,6 +1,8 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using SoftwarePioniere.Messaging;
+using SoftwarePioniere.Messaging.Notifications;
 using SoftwarePioniere.ReadModel;
 
 namespace SoftwarePioniere.Projections
@@ -9,7 +11,7 @@ namespace SoftwarePioniere.Projections
     {
         Task<EntityDescriptor<T>> LoadAsync(string itemOnlyId);
 
-        Task SaveAsync(EntityDescriptor<T> ent, IMessage msg, object entityToSerialize);      
+        Task SaveAsync(EntityDescriptor<T> ent, IMessage msg, object entityToSerialize, Action<NotificationMessage> configureNotification = null);      
     }
 
     public interface IReadModelProjector : IProjector

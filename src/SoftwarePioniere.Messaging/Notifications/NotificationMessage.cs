@@ -9,9 +9,12 @@ namespace SoftwarePioniere.Messaging.Notifications
         //{
         //    NotificationType = notificationType;
         //}
+        public NotificationMessage()
+        {           
+        }
 
         [JsonProperty("content")]
-        public string Content { get;  set;}
+        public string Content { get; set; }
 
         [JsonProperty("notification_type")]
         [JsonRequired]
@@ -28,5 +31,8 @@ namespace SoftwarePioniere.Messaging.Notifications
 
         [JsonProperty("timestamp_utc")]
         public DateTime TimeStampUtc { get; set; }
+
+        [JsonProperty("tags")]
+        public string[] Tags { get; set; }
     }
 }

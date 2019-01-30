@@ -33,7 +33,8 @@ namespace SoftwarePioniere.Projections
             return await Context.EntityStore.LoadAsync<T>(itemOnlyId);
         }
 
-        public virtual async Task SaveAsync(EntityDescriptor<T> ent, IMessage msg, object entityToSerialize)
+
+        public virtual async Task SaveAsync(EntityDescriptor<T> ent, IMessage msg, object entityToSerialize, Action<NotificationMessage> configureNotification = null)
         {
             Logger.LogDebug("SaveAsync {Id} {IsNew}", ent.EntityId, ent.IsNew);
             ent.Entity.ModifiedOnUtc = msg.TimeStampUtc;
@@ -42,11 +43,13 @@ namespace SoftwarePioniere.Projections
             if (Context.IsLiveProcessing)
             {
                 Logger.LogDebug("IsLiveProcessing, sending Notification");
-                await Bus.PublishAsync(CreateNotification(ent, msg, entityToSerialize));
+                var noti = CreateNotification(ent, msg, entityToSerialize);
+                configureNotification?.Invoke(noti);
+                await Bus.PublishAsync(noti);
             }
         }
 
-        public virtual async Task DeleteAsync(string itemOnlyId, IMessage message, Func<T, object> objectToSeriaizer = null)
+        public virtual async Task DeleteAsync(string itemOnlyId, IMessage message, Func<T, object> objectToSeriaizer = null, Action<NotificationMessage> configureNotification = null)
         {
             var item = await LoadAsync(itemOnlyId);
 
@@ -64,6 +67,7 @@ namespace SoftwarePioniere.Projections
                     }
 
                     var noti = CreateNotification(item.Entity, message, ReadModelUpdatedNotification.MethodDelete, objToSer);
+                    configureNotification?.Invoke(noti);
                     await Bus.PublishAsync(noti);
                 }
             }
