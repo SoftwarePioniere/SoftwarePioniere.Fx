@@ -5,14 +5,7 @@ namespace SoftwarePioniere.Messaging.Notifications
 {
     public class NotificationMessage : INotificationMessage
     {
-        //public NotificationMessage(string notificationType)
-        //{
-        //    NotificationType = notificationType;
-        //}
-        public NotificationMessage()
-        {           
-        }
-
+        
         [JsonProperty("content")]
         public string Content { get; set; }
 

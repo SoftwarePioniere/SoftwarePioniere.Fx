@@ -31,7 +31,7 @@ namespace SoftwarePioniere.Extensions.DependencyInjection
         public static IServiceCollection AddInMemoryDomainServices(this IServiceCollection services)
         {
             return services
-                    .AddDomainServices()
+               //     .AddDomainServices()
                     .AddSingleton<IEventStore, InMemoryEventStore>()
                     .AddSingleton<IProjectionReader, NullProjectionReader>()
                 //    .AddSingleton<IEventStoreInitializer, EmptyEventStoreInitializer>()
