@@ -4,7 +4,6 @@ using Newtonsoft.Json;
 
 namespace SoftwarePioniere.Messaging
 {
-
     public class FakeRequest : RequestBase
     {
         [JsonProperty("text")]
@@ -19,7 +18,17 @@ namespace SoftwarePioniere.Messaging
     public class FakeCommand : CommandBase
     {
         public FakeCommand(Guid id, DateTime timeStampUtc, string userId, int originalVersion, string requestId,
-            string text) : base(id, timeStampUtc, userId, originalVersion, requestId, "fakeobject", id.ToString())
+            string text) : base(id,
+            timeStampUtc,
+            userId,
+            originalVersion,
+            "fakeobject",
+            id.ToString(),
+            new Dictionary<string, string>
+            {
+                {RequestIdKey, requestId}
+            }
+        )
         {
             Text = text;
         }
@@ -30,7 +39,8 @@ namespace SoftwarePioniere.Messaging
     public class FakeEvent : DomainEventBase
     {
         public FakeEvent(Guid id, DateTime timeStampUtc, string userId, string aggregateId, string text) : base(id,
-            timeStampUtc, userId)
+            timeStampUtc,
+            userId)
         {
             Text = text;
             AggregateId = aggregateId;
@@ -48,7 +58,9 @@ namespace SoftwarePioniere.Messaging
         public static IEnumerable<FakeEvent> CreateList(int count)
         {
             var id = Guid.NewGuid().ToString();
-            for (var i = 0; i < count; i++)
+            for (var i = 0;
+                i < count;
+                i++)
                 yield return new FakeEvent(Guid.NewGuid(), DateTime.UtcNow, "fakeuserid", id, $"faketext {i + 1}");
         }
     }

@@ -16,7 +16,7 @@ namespace SoftwarePioniere.Messaging.Tests
         protected override void TestIt(FakeCommand o, string s)
         {
             o.UserId.Should().Be(UserId, s);
-            o.RequestId.Should().Be(RequestId, s);
+            o.GetRequestId().Should().Be(RequestId, s);
             o.TimeStampUtc.Should().Be(TimeStamp, s);
 
             if (s != FromRequest)

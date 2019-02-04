@@ -26,6 +26,9 @@ namespace SoftwarePioniere.Messaging.Notifications
         [JsonProperty("request_id")]
         public string RequestId { get; set; }
 
+        [JsonProperty("trace_identifier")]
+        public string TraceIdentifier { get; set; }
+
         [JsonProperty("object_type")]
         public string ObjectType { get; set; }
 
@@ -41,7 +44,8 @@ namespace SoftwarePioniere.Messaging.Notifications
             {
                 CommandId = cmd.Id,
                 CommandType = cmd.GetType().Name,
-                RequestId = cmd.RequestId,
+                RequestId = cmd.GetRequestId(),
+                TraceIdentifier = cmd.GetTraceIdentifier(),
                 ObjectId = cmd.ObjectId,
                 ObjectType = cmd.ObjectType,
                 ErrorText = ex.Message

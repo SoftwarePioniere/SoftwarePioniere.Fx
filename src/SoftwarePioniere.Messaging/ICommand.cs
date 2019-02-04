@@ -1,4 +1,6 @@
-﻿namespace SoftwarePioniere.Messaging
+﻿using System.Collections.Generic;
+
+namespace SoftwarePioniere.Messaging
 {
     public interface ICommand : IMessage
     {
@@ -7,14 +9,11 @@
         /// </summary>     
         int OriginalVersion { get; }
 
-        /// <summary>
-        /// Correlation Id des Requests, z.B. vom Webserver
-        /// </summary>
-        string RequestId { get; }
-
         string ObjectType { get; }
-        
-        string ObjectId { get;  }
+
+        string ObjectId { get; }
+
+        IDictionary<string, string> Properties { get; }
 
     }
 }
