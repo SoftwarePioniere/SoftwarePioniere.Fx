@@ -3,10 +3,10 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Foundatio.Messaging;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using SoftwarePioniere.DomainModel.Exceptions;
+using SoftwarePioniere.Messaging;
 
 namespace SoftwarePioniere.DomainModel.Services
 {
@@ -20,10 +20,10 @@ namespace SoftwarePioniere.DomainModel.Services
     {
         private readonly ILogger _logger;
         private readonly IEventStore _store;
-        private readonly IMessagePublisher _publisher;
-        private RepositoryOptions _options;
+        private readonly IMessageBusAdapter _publisher;
+        private readonly RepositoryOptions _options;
 
-        public Repository(ILoggerFactory loggerFactory, IEventStore store, IMessagePublisher bus, IOptions<RepositoryOptions> options)
+        public Repository(ILoggerFactory loggerFactory, IEventStore store, IMessageBusAdapter bus, IOptions<RepositoryOptions> options)
         {
             if (loggerFactory == null) throw new ArgumentNullException(nameof(loggerFactory));
             _logger = loggerFactory.CreateLogger(GetType());

@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using SoftwarePioniere.DomainModel;
 using SoftwarePioniere.DomainModel.Services;
+using SoftwarePioniere.Messaging;
 
 // ReSharper disable once CheckNamespace
 namespace SoftwarePioniere.Extensions.DependencyInjection
@@ -22,24 +23,26 @@ namespace SoftwarePioniere.Extensions.DependencyInjection
                     .AddOptions<RepositoryOptions>()
                     ;
             }
-            
-            return services.AddTransient<IRepository, Repository>()                
-                
+
+            return services
+                    .AddTransient<IRepository, Repository>()
+                    .AddSingleton<IMessageBusAdapter, DefaultMessageBusAdapter>()
                 ;
         }
 
         public static IServiceCollection AddInMemoryDomainServices(this IServiceCollection services)
         {
             return services
-               //     .AddDomainServices()
+                    //     .AddDomainServices()
+
                     .AddSingleton<IEventStore, InMemoryEventStore>()
                     .AddSingleton<IProjectionReader, NullProjectionReader>()
                 //    .AddSingleton<IEventStoreInitializer, EmptyEventStoreInitializer>()
                 ;
         }
 
-        
-        
+
+
 
     }
 }
