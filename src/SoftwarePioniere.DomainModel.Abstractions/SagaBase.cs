@@ -46,19 +46,19 @@ namespace SoftwarePioniere.DomainModel
                 {
                     await handler(msg);
                     //only send to bus if its coming from external request
-                    if (!string.IsNullOrEmpty(msg.GetRequestId()))
-                    {
-                        await Bus.PublishAsync(typeof(NotificationMessage), CommandSucceededNotification.Create(msg), TimeSpan.Zero, cancellationToken);
-                    }
+                    //if (!string.IsNullOrEmpty(msg.GetRequestId()))
+                    //{
+                    await Bus.PublishAsync(typeof(NotificationMessage), CommandSucceededNotification.Create(msg, null), TimeSpan.Zero, cancellationToken);
+                    //}
                 }
                 catch (Exception e)
                 {
                     Logger.LogError(e, "Error on Executing Command {CommandType} {Command}", typeof(T), msg);
                     //only send to bus if its coming from external request
-                    if (!string.IsNullOrEmpty(msg.GetRequestId()))
-                    {
-                        await Bus.PublishAsync(typeof(NotificationMessage), CommandFailedNotification.Create(msg, e), TimeSpan.Zero, cancellationToken);
-                    }
+                    //if (!string.IsNullOrEmpty(msg.GetRequestId()))
+                    //{
+                    await Bus.PublishAsync(typeof(NotificationMessage), CommandFailedNotification.Create(msg, e, null), TimeSpan.Zero, cancellationToken);
+                    //}
                 }
             }, cancellationToken);
         }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Newtonsoft.Json;
 
 namespace SoftwarePioniere.Messaging.Notifications
@@ -36,14 +37,14 @@ namespace SoftwarePioniere.Messaging.Notifications
         public string ObjectId { get; set; }
 
         // ReSharper disable once UnusedMember.Global
-        public static NotificationMessage Create(ICommand cmd)
+        public static NotificationMessage Create(ICommand cmd, IDictionary<string, string> state)
         {
             return new CommandSucceededNotification
             {
                 CommandId = cmd.Id,
                 CommandType = cmd.GetType().Name,
-                RequestId = cmd.GetRequestId(),
-                TraceIdentifier = cmd.GetTraceIdentifier(),
+                RequestId = state.GetRequestId(),
+                TraceIdentifier = state.GetTraceIdentifier(),
                 ObjectId = cmd.ObjectId,
                 ObjectType = cmd.ObjectType
             }.CreateNotificationMessage(cmd);

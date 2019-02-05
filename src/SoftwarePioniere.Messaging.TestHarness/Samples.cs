@@ -11,23 +11,19 @@ namespace SoftwarePioniere.Messaging
 
         public FakeCommand CreateFakeCommand(string requestId, string userId)
         {
-            return new FakeCommand(Guid.NewGuid(), TimeStampUtc, userId, -1, requestId, Text);
+            return new FakeCommand(Guid.NewGuid(), TimeStampUtc, userId, -1, Text);
         }
     }
 
     public class FakeCommand : CommandBase
     {
-        public FakeCommand(Guid id, DateTime timeStampUtc, string userId, int originalVersion, string requestId,
+        public FakeCommand(Guid id, DateTime timeStampUtc, string userId, int originalVersion,
             string text) : base(id,
             timeStampUtc,
             userId,
             originalVersion,
             "fakeobject",
-            id.ToString(),
-            new Dictionary<string, string>
-            {
-                {RequestIdKey, requestId}
-            }
+            id.ToString()
         )
         {
             Text = text;

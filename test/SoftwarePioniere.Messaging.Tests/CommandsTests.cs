@@ -10,13 +10,13 @@ namespace SoftwarePioniere.Messaging.Tests
 
         protected override FakeCommand CreateFromConstructor()
         {
-            return new FakeCommand(Id, TimeStamp, UserId, OriginalVersion, RequestId, Text);
+            return new FakeCommand(Id, TimeStamp, UserId, OriginalVersion,  Text);
         }
 
         protected override void TestIt(FakeCommand o, string s)
         {
             o.UserId.Should().Be(UserId, s);
-            o.GetRequestId().Should().Be(RequestId, s);
+            //o.GetRequestId().Should().Be(RequestId, s);
             o.TimeStampUtc.Should().Be(TimeStamp, s);
 
             if (s != FromRequest)

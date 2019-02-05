@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace SoftwarePioniere.Messaging
+﻿namespace SoftwarePioniere.Messaging
 {
     public interface ICommand : IMessage
     {
@@ -12,8 +10,6 @@ namespace SoftwarePioniere.Messaging
         string ObjectType { get; }
 
         string ObjectId { get; }
-
-        IDictionary<string, string> Properties { get; }
 
     }
 }
