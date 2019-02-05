@@ -1,16 +1,17 @@
-﻿using FluentAssertions;
+﻿using System;
+using FluentAssertions;
 using Xunit;
 
 namespace SoftwarePioniere.Messaging.Tests
 {
- 
+
     public class FakeCommandTest : CommandsTestBase<FakeCommand>
     {
         private const string Text = "fake text";
 
         protected override FakeCommand CreateFromConstructor()
         {
-            return new FakeCommand(Id, TimeStamp, UserId, OriginalVersion,  Text);
+            return new FakeCommand(Id, TimeStamp, UserId, OriginalVersion, Id.ToString(), Text);
         }
 
         protected override void TestIt(FakeCommand o, string s)
@@ -18,6 +19,7 @@ namespace SoftwarePioniere.Messaging.Tests
             o.UserId.Should().Be(UserId, s);
             //o.GetRequestId().Should().Be(RequestId, s);
             o.TimeStampUtc.Should().Be(TimeStamp, s);
+            //o.ObjectId.S
 
             if (s != FromRequest)
             {
@@ -36,7 +38,8 @@ namespace SoftwarePioniere.Messaging.Tests
             var request = new FakeRequest
             {
                 Text = Text,
-                TimeStampUtc = TimeStamp
+                TimeStampUtc = TimeStamp,
+                ObjectId = Guid.NewGuid().ToString()
             };
 
             var cmd = request.CreateFakeCommand(RequestId, UserId);

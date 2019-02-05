@@ -9,22 +9,24 @@ namespace SoftwarePioniere.Messaging
         [JsonProperty("text")]
         public string Text { get; set; }
 
+        [JsonProperty("object_id")]
+        public string ObjectId { get; set; }
+
         public FakeCommand CreateFakeCommand(string requestId, string userId)
         {
-            return new FakeCommand(Guid.NewGuid(), TimeStampUtc, userId, -1, Text);
+            return new FakeCommand(Guid.NewGuid(), TimeStampUtc, userId, -1, ObjectId, Text);
         }
     }
 
     public class FakeCommand : CommandBase
     {
-        public FakeCommand(Guid id, DateTime timeStampUtc, string userId, int originalVersion,
+        public FakeCommand(Guid id, DateTime timeStampUtc, string userId, int originalVersion, string objectId,
             string text) : base(id,
             timeStampUtc,
             userId,
             originalVersion,
             "fakeobject",
-            id.ToString()
-        )
+            objectId)
         {
             Text = text;
         }
@@ -48,7 +50,7 @@ namespace SoftwarePioniere.Messaging
 
         public static FakeEvent Create()
         {
-            return new FakeEvent(Guid.NewGuid(), DateTime.UtcNow, "fakeuserid", Guid.NewGuid().ToString(), "faketext");
+            return new FakeEvent(Guid.NewGuid(), DateTime.UtcNow, "fakeuserid",Guid.NewGuid().ToString(), "faketext");
         }
 
         public static IEnumerable<FakeEvent> CreateList(int count)

@@ -71,7 +71,7 @@ namespace SoftwarePioniere.DomainModel
                 ;
 
             var bus = CreateInstance();
-            var cmd = new FakeCommand(Guid.NewGuid(), DateTime.UtcNow, "xxx", -1, "Text1");
+            var cmd = new FakeCommand(Guid.NewGuid(), DateTime.UtcNow, "xxx", -1,  Guid.NewGuid().ToString(), "Text1");
             await bus.PublishAsync(cmd);
             await Task.Delay(1000);
             FakeNotificationHandler.HandledByCommandSucceededNotification.Should().Contain(x => x == cmd.Id);
@@ -86,7 +86,7 @@ namespace SoftwarePioniere.DomainModel
                 ;
 
             var bus = CreateInstance();
-            var cmd = new FakeCommand(Guid.NewGuid(), DateTime.UtcNow, "xxx", -1, "Text1");
+            var cmd = new FakeCommand(Guid.NewGuid(), DateTime.UtcNow, "xxx", -1, Guid.NewGuid().ToString(), "Text1");
             await bus.PublishAsync(cmd);
             await Task.Delay(1000);
             FakeNotificationHandler.HandledByCommandFailedNotification.Should().Contain(x => x == cmd.Id);
