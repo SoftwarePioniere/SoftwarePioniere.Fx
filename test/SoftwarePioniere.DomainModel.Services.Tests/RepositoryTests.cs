@@ -59,6 +59,37 @@ namespace SoftwarePioniere.DomainModel.Services.Tests
 
         }
 
+        public class MockAdapter : IMessageBusAdapter
+        {
+            private readonly IMessagePublisher _bus;
+
+            public MockAdapter(IMessagePublisher bus)
+            {
+                _bus = bus;
+            }
+            public Task PublishAsync(Type messageType, object message, TimeSpan? delay = null,
+                CancellationToken cancellationToken = default(CancellationToken))
+            {
+                return _bus.PublishAsync(messageType, message, delay, cancellationToken);
+            }
+
+            public Task PublishAsync<T>(T message, TimeSpan? delay = null,
+                CancellationToken cancellationToken = default(CancellationToken), IDictionary<string, string> state = null) where T : class, IMessage
+            {
+                return _bus.PublishAsync(typeof(T), message, delay, cancellationToken);
+            }
+
+            public Task SubscribeMessage<T>(Func<T, IDictionary<string, string>, Task> handler, CancellationToken cancellationToken = default(CancellationToken)) where T : class, IMessage
+            {
+                throw new NotImplementedException();
+            }
+
+            public Task SubscribeCommand<T>(Func<T, IDictionary<string, string>, Task> handler, CancellationToken cancellationToken = default(CancellationToken)) where T : class, ICommand
+            {
+                throw new NotImplementedException();
+            }
+        }
+
         [Fact]
         public async Task EventsWillBePushblishedAfterSavingAsync()
         {
@@ -74,9 +105,12 @@ namespace SoftwarePioniere.DomainModel.Services.Tests
                 .Returns(Task.CompletedTask)
                 .Verifiable();
 
+          
+            
             ServiceCollection
                 .AddSingleton(Mock.Of<IEventStore>())
                 .AddSingleton(mockPublisher.Object)
+                .AddSingleton<IMessageBusAdapter>(new MockAdapter(mockPublisher.Object))
                 ;
 
             var repo = CreateInstance();
@@ -168,8 +202,9 @@ namespace SoftwarePioniere.DomainModel.Services.Tests
         {
             ServiceCollection//.AddSingleton<IMessageBus>(new InMemoryMessageBus())
                 .AddSingleton<IRepository, Repository>()
-
+                .AddSingleton(Mock.Of<IMessageBusAdapter>())
                 ;
+            
         }
     }
 }

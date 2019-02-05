@@ -26,8 +26,13 @@ namespace SoftwarePioniere.Extensions.DependencyInjection
 
             return services
                     .AddTransient<IRepository, Repository>()
-                    .AddSingleton<IMessageBusAdapter, DefaultMessageBusAdapter>()
+                   
                 ;
+        }
+
+        public static IServiceCollection AddDefaultMessageBusAdapter(this IServiceCollection services)
+        {
+            return services.AddSingleton<IMessageBusAdapter, DefaultMessageBusAdapter>();
         }
 
         public static IServiceCollection AddInMemoryDomainServices(this IServiceCollection services)
