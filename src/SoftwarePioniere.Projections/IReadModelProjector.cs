@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using SoftwarePioniere.Messaging;
@@ -11,13 +12,14 @@ namespace SoftwarePioniere.Projections
     {
         Task<EntityDescriptor<T>> LoadAsync(string itemOnlyId);
 
-        Task SaveAsync(EntityDescriptor<T> ent, IMessage msg, object entityToSerialize, Action<NotificationMessage> configureNotification = null);      
+        Task SaveAsync(EntityDescriptor<T> ent, IMessage msg, object entityToSerialize,
+            Action<NotificationMessage> configureNotification = null,
+            IDictionary<string, string> state = null);
     }
 
     public interface IReadModelProjector : IProjector
     {
-        Task CopyEntitiesAsync(IEntityStore source, IEntityStore dest, CancellationToken cancellationToken = default(CancellationToken));
-
         IProjectionContext Context { get; set; }
+        Task CopyEntitiesAsync(IEntityStore source, IEntityStore dest, CancellationToken cancellationToken = default);
     }
 }

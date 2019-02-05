@@ -31,12 +31,12 @@ namespace SoftwarePioniere.Projections
 
         public string StreamName { get; protected set; }
 
-        public virtual async Task HandleAsync(IDomainEvent domainEvent)
+        public virtual async Task HandleAsync(IDomainEvent domainEvent, IDictionary<string, string> state = null)
         {
             foreach (var projector in _childProjectors)
-            {        
+            {
                 Logger.LogDebug("HandleAsync in ChildProjector {ChildProjector}", projector.GetType().Name);
-                await projector.HandleAsync(domainEvent);
+                await projector.HandleAsync(domainEvent, state);
             }
         }
 

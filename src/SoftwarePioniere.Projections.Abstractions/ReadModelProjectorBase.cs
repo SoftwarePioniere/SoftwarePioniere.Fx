@@ -1,8 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
-using Foundatio.Messaging;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using SoftwarePioniere.Messaging;
@@ -16,11 +16,11 @@ namespace SoftwarePioniere.Projections
     {
         protected readonly ILogger Logger;
 
-        protected readonly IMessageBus Bus;
+        protected readonly IMessageBusAdapter Bus;
 
         protected bool SkipDestinationDeletion { get; set; }
 
-        protected ReadModelProjectorBase(ILoggerFactory loggerFactory, IMessageBus bus)
+        protected ReadModelProjectorBase(ILoggerFactory loggerFactory, IMessageBusAdapter bus)
         {
             if (loggerFactory == null) throw new ArgumentNullException(nameof(loggerFactory));
             Logger = loggerFactory.CreateLogger(GetType());
@@ -34,7 +34,9 @@ namespace SoftwarePioniere.Projections
         }
 
 
-        public virtual async Task SaveAsync(EntityDescriptor<T> ent, IMessage msg, object entityToSerialize, Action<NotificationMessage> configureNotification = null)
+        public virtual async Task SaveAsync(EntityDescriptor<T> ent, IMessage msg, object entityToSerialize
+            , Action<NotificationMessage> configureNotification = null
+            , IDictionary<string, string> state = null)
         {
             Logger.LogDebug("SaveAsync {Id} {IsNew}", ent.EntityId, ent.IsNew);
             ent.Entity.ModifiedOnUtc = msg.TimeStampUtc;
@@ -45,11 +47,13 @@ namespace SoftwarePioniere.Projections
                 Logger.LogDebug("IsLiveProcessing, sending Notification");
                 var noti = CreateNotification(ent, msg, entityToSerialize);
                 configureNotification?.Invoke(noti);
-                await Bus.PublishAsync(noti);
+                await Bus.PublishAsync(noti, state: state);
             }
         }
 
-        public virtual async Task DeleteAsync(string itemOnlyId, IMessage message, Func<T, object> objectToSeriaizer = null, Action<NotificationMessage> configureNotification = null)
+        public virtual async Task DeleteAsync(string itemOnlyId, IMessage message, Func<T, object> objectToSeriaizer = null,
+            Action<NotificationMessage> configureNotification = null
+            , IDictionary<string, string> state = null)
         {
             var item = await LoadAsync(itemOnlyId);
 
@@ -68,7 +72,7 @@ namespace SoftwarePioniere.Projections
 
                     var noti = CreateNotification(item.Entity, message, ReadModelUpdatedNotification.MethodDelete, objToSer);
                     configureNotification?.Invoke(noti);
-                    await Bus.PublishAsync(noti);
+                    await Bus.PublishAsync(noti, state: state);
                 }
             }
         }
@@ -110,7 +114,7 @@ namespace SoftwarePioniere.Projections
             //    await dest.InsertItemAsync(item, cancellationToken);
             //}
 
-        
+
             Logger.LogDebug("CopyEntitiesAsync Finished in {Elapsed:0.0000} ms ", sw.ElapsedMilliseconds);
 
         }
