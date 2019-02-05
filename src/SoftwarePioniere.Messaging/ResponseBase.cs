@@ -19,17 +19,6 @@ namespace SoftwarePioniere.Messaging
         [JsonProperty("properties")]
         public Dictionary<string, string> Properties { get; set; }
 
-       
     }
 
-    public static class ResponseExtensions
-    {
-        public static void AddProperty(this ResponseBase response, string key, string value)
-        {
-            if (response.Properties.ContainsKey(key))
-                response.Properties.Remove(key);
-
-            response.Properties.Add(key, value);
-        }
-    }
 }
