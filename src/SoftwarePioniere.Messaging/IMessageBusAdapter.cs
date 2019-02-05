@@ -11,7 +11,8 @@ namespace SoftwarePioniere.Messaging
             Type messageType,
             object message,
             TimeSpan? delay = null,
-            CancellationToken cancellationToken = default(CancellationToken));
+            CancellationToken cancellationToken = default(CancellationToken),
+            IDictionary<string, string> state = null);
 
         Task PublishAsync<T>(
             T message,

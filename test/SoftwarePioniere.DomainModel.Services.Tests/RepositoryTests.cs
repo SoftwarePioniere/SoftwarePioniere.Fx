@@ -67,8 +67,9 @@ namespace SoftwarePioniere.DomainModel.Services.Tests
             {
                 _bus = bus;
             }
+           
             public Task PublishAsync(Type messageType, object message, TimeSpan? delay = null,
-                CancellationToken cancellationToken = default(CancellationToken))
+                CancellationToken cancellationToken = default(CancellationToken), IDictionary<string, string> state = null)
             {
                 return _bus.PublishAsync(messageType, message, delay, cancellationToken);
             }
@@ -105,8 +106,8 @@ namespace SoftwarePioniere.DomainModel.Services.Tests
                 .Returns(Task.CompletedTask)
                 .Verifiable();
 
-          
-            
+
+
             ServiceCollection
                 .AddSingleton(Mock.Of<IEventStore>())
                 .AddSingleton(mockPublisher.Object)
@@ -204,7 +205,7 @@ namespace SoftwarePioniere.DomainModel.Services.Tests
                 .AddSingleton<IRepository, Repository>()
                 .AddSingleton(Mock.Of<IMessageBusAdapter>())
                 ;
-            
+
         }
     }
 }
