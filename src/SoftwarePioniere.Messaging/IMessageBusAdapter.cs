@@ -29,5 +29,11 @@ namespace SoftwarePioniere.Messaging
         Task SubscribeCommand<T>(Func<T, IDictionary<string, string>, Task> handler,
             CancellationToken cancellationToken = default(CancellationToken))
             where T : class, ICommand;
+
+        Task SubscribeAggregateEvent<TAggregate, TMessage>(
+            Func<TMessage, AggregateTypeInfo<TAggregate>, IDictionary<string, string>, Task> handler,
+            CancellationToken cancellationToken = default(CancellationToken))
+            where TMessage : class, IDomainEvent;
+
     }
 }

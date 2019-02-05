@@ -89,6 +89,12 @@ namespace SoftwarePioniere.DomainModel.Services.Tests
             {
                 throw new NotImplementedException();
             }
+
+            public Task SubscribeAggregateEvent<TAggregate, TMessage>(Func<TMessage, AggregateTypeInfo<TAggregate>, IDictionary<string, string>, Task> handler,
+                CancellationToken cancellationToken = default(CancellationToken)) where TMessage : class, IDomainEvent
+            {
+                throw new NotImplementedException();
+            }
         }
 
         [Fact]

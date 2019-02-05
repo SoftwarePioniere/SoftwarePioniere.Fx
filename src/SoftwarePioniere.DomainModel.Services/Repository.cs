@@ -84,7 +84,6 @@ namespace SoftwarePioniere.DomainModel.Services
             IDictionary<string, string> state = null) where T : AggregateRoot
         {
             token.ThrowIfCancellationRequested();
-            _logger.LogDebug("SaveAsync {AggregateType} {AggregateId} {AggregateVersion}", typeof(T), aggregate.Id, aggregate.Version);
             await SaveAsync(aggregate, aggregate.Version, token, state).ConfigureAwait(false);
         }
 
@@ -98,8 +97,6 @@ namespace SoftwarePioniere.DomainModel.Services
         public async Task<T> GetByIdAsync<T>(string id, CancellationToken token = default(CancellationToken),
             IDictionary<string, string> state = null) where T : AggregateRoot, new()
         {
-            _logger.LogDebug("GetByIdAsync {Type} {AggregateId}", typeof(T), id);
-
             var agg = await GetByIdAsync<T>(id, -1, token, state).ConfigureAwait(false);
             return agg;
         }

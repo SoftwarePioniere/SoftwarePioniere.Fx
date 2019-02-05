@@ -37,5 +37,22 @@ namespace SoftwarePioniere.DomainModel.Services
         {
             return _bus.SubscribeAsync<T>((message, token) => handler(message, null), cancellationToken);
         }
+
+        public async Task SubscribeAggregateEvent<TAggregate, TMessage>(Func<TMessage, AggregateTypeInfo<TAggregate>, IDictionary<string, string>, Task> handler,
+            CancellationToken cancellationToken = default(CancellationToken)) where TMessage : class, IDomainEvent
+        {
+            await _bus.SubscribeAsync<DomainEventMessage>(async (message, token) =>
+            {
+                if (message.AggregateName == typeof(TAggregate).GetAggregateName())
+                {
+                    if (message.DomainEventType == typeof(TMessage).GetTypeShortName())
+                    {
+                        var ev = message.Cast<TMessage>();
+                        await handler(ev, new AggregateTypeInfo<TAggregate>(message.AggregateId), null);
+                    }
+
+                }
+            }, cancellationToken);
+        }
     }
 }

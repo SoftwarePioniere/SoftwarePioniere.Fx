@@ -18,6 +18,7 @@ namespace SoftwarePioniere.Messaging
         }
 
         public Type AggregateType { get; private set; }
+
         public string AggregateId { get; private set; }
     }
 }
