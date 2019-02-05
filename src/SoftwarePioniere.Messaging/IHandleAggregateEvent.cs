@@ -1,11 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace SoftwarePioniere.Messaging
 {
     public interface IHandleAggregateEvent<TAggregate, in TMessage> where TMessage : IMessage, IDomainEvent
     {
-        Task HandleAsync(TMessage message, AggregateTypeInfo<TAggregate> info);
+        Task HandleAsync(TMessage message, AggregateTypeInfo<TAggregate> info, IDictionary<string, string> state);
     }
 
     public class AggregateTypeInfo<TAggregate>
