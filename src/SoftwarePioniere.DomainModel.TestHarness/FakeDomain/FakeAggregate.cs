@@ -4,7 +4,7 @@ using SoftwarePioniere.Messaging;
 
 namespace SoftwarePioniere.DomainModel.FakeDomain
 {
-    [AggregateName(Constants.BoundedContextName,"Fake")]
+    [AggregateName(Constants.BoundedContextName, "Fake")]
     public class FakeAggregate : AggregateRoot
         , IApplyEvent<FakeEvent>
         , IApplyEvent<FakeEvent2>
@@ -24,7 +24,7 @@ namespace SoftwarePioniere.DomainModel.FakeDomain
         public void DoFakeEvent(string text)
         {
             if (string.IsNullOrEmpty(Id))
-                throw new DomainLogicException("please set id first");
+                throw new DomainLogicException(this, "please set id first");
 
             var @event = new FakeEvent(Guid.NewGuid(), DateTime.UtcNow, "userId", Id, text);
             ApplyChange(@event);
@@ -33,7 +33,7 @@ namespace SoftwarePioniere.DomainModel.FakeDomain
         public void DoFakeEvent2(string text)
         {
             if (string.IsNullOrEmpty(Id))
-                throw new DomainLogicException("please set id first");
+                throw new DomainLogicException(this, "please set id first");
 
             var @event = new FakeEvent2(Guid.NewGuid(), DateTime.UtcNow, "userId", Id, text);
             ApplyChange(@event);

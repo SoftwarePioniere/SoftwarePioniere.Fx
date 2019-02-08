@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using SoftwarePioniere.DomainModel.Exceptions;
 using SoftwarePioniere.Messaging;
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 
@@ -38,6 +39,9 @@ namespace SoftwarePioniere.DomainModel
         /// <param name="id"></param>
         public void SetId(string id)
         {
+            if (string.IsNullOrEmpty(id))
+                throw new EmptyAggregateIdException(GetType());
+
             Id = id;
         }
 

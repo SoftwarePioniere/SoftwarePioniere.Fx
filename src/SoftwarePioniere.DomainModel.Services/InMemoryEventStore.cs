@@ -19,7 +19,7 @@ namespace SoftwarePioniere.DomainModel.Services
 
         public InMemoryEventStore(ILoggerFactory loggerFactory)
         {
-           if (loggerFactory == null) throw new ArgumentNullException(nameof(loggerFactory));
+            if (loggerFactory == null) throw new ArgumentNullException(nameof(loggerFactory));
             _logger = loggerFactory.CreateLogger(GetType());
         }
 
@@ -29,7 +29,7 @@ namespace SoftwarePioniere.DomainModel.Services
             // used to build up an aggregate from its history (Domain.LoadsFromHistory)
 
             if (!_current.TryGetValue(aggregateId, out var eventDescriptors))
-                throw new AggregateNotFoundException { AggregateId = aggregateId, AggregateType = typeof(T) };
+                throw new AggregateNotFoundException(aggregateId, typeof(T));
 
             return Task.FromResult(eventDescriptors);
         }
@@ -99,7 +99,7 @@ namespace SoftwarePioniere.DomainModel.Services
             }
         }
 
-   
+
         public Task<bool> CheckAggregateExists<T>(string aggregateId, string streamName) where T : AggregateRoot
         {
             return CheckAggregateExists<T>(aggregateId);

@@ -2,20 +2,19 @@
 
 namespace SoftwarePioniere.DomainModel.Exceptions
 {
-    /// <summary>
-    /// Wird geworfen, wenn ein aggregate nicht gefunden wird
-    /// </summary>
+    
     public class AggregateNotFoundException : Exception
     {
-        /// <summary>
-        /// Die id des Aggregats
-        /// </summary>
-        public string AggregateId { get; set; }
+        public AggregateNotFoundException(string aggregateId, Type aggregateType) : base($"Aggregate {aggregateType.FullName} with Id {aggregateId} was not found")
+        {
+            AggregateId = aggregateId;
+            AggregateType = aggregateType;
+        }
 
-        /// <summary>
-        /// Typ des Aggregats
-        /// </summary>
+        public string AggregateId { get; }
+        
+        public Type AggregateType { get; }
 
-        public Type AggregateType { get; set; }
+    
     }
 }

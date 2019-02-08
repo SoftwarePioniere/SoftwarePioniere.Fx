@@ -2,18 +2,23 @@
 
 namespace SoftwarePioniere.DomainModel.Exceptions
 {
-    /// <summary>
-    /// Domänen Logic Fehler
-    /// </summary>
+
     public class DomainLogicException : Exception
     {
-        /// <summary>
-        /// ctor mit nachrichten übergabe
-        /// </summary>
-        /// <param name="message"></param>
+        [Obsolete]
         public DomainLogicException(string message) : base(message)
         {
-
+            
         }
+
+        public DomainLogicException(AggregateRoot aggregateRoot, string message) : base(message)
+        {
+            AggregateId = aggregateRoot?.Id;
+            AggregateType = aggregateRoot?.GetType();
+        }
+
+        public string AggregateId { get; }
+
+        public Type AggregateType { get; }
     }
 }
