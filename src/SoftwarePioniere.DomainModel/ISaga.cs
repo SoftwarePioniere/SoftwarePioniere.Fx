@@ -1,9 +1,10 @@
 ﻿using System.Threading;
+using System.Threading.Tasks;
 
 namespace SoftwarePioniere.DomainModel
 {
     public interface ISaga
     {
-        void Initialize(CancellationToken cancellationToken = default(CancellationToken));
+        Task StartAsync(CancellationToken cancellationToken);
     }
 }

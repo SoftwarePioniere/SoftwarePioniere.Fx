@@ -26,9 +26,11 @@ namespace SoftwarePioniere.DomainModel.FakeDomain
 
         }
 
-        public void Initialize(CancellationToken cancellationToken = default(CancellationToken))
+
+
+        public async Task StartAsync(CancellationToken cancellationToken)
         {
-            _subscriber.SubscribeAsync<FakeEvent>(HandleAsync, cancellationToken);
+            await _subscriber.SubscribeAsync<FakeEvent>(HandleAsync, cancellationToken);
         }
     }
 }

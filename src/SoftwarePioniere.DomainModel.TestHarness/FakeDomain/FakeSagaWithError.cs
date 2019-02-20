@@ -20,9 +20,10 @@ namespace SoftwarePioniere.DomainModel.FakeDomain
             throw new InvalidOperationException();
         }
 
-        public override void Initialize(CancellationToken cancellationToken = default(CancellationToken))
+     
+        public override async Task StartAsync(CancellationToken cancellationToken)
         {
-            SubscribeCommand<FakeCommand>(HandleAsync, cancellationToken);
+            await SubscribeCommandAsync<FakeCommand>(HandleAsync, cancellationToken);
         }
     }
 }

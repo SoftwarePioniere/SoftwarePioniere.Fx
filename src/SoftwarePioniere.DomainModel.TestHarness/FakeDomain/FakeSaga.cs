@@ -10,7 +10,7 @@ namespace SoftwarePioniere.DomainModel.FakeDomain
     {
         public FakeSaga(ILoggerFactory loggerFactory, IMessageBus bus) : base(loggerFactory, bus)
         {
-          
+
         }
 
         public Task HandleAsync(FakeCommand message)
@@ -19,9 +19,10 @@ namespace SoftwarePioniere.DomainModel.FakeDomain
             return Task.CompletedTask;
         }
 
-        public override void Initialize(CancellationToken cancellationToken = default(CancellationToken))
+
+        public override async Task StartAsync(CancellationToken cancellationToken)
         {
-            SubscribeCommand<FakeCommand>(HandleAsync, cancellationToken);
+            await SubscribeCommandAsync<FakeCommand>(HandleAsync, cancellationToken);
         }
     }
 }

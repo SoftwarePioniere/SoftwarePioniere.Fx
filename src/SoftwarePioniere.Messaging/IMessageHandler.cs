@@ -1,4 +1,5 @@
 ﻿using System.Threading;
+using System.Threading.Tasks;
 
 namespace SoftwarePioniere.Messaging
 {
@@ -7,6 +8,6 @@ namespace SoftwarePioniere.Messaging
     /// </summary>
     public interface IMessageHandler
     {
-        void Initialize(CancellationToken cancellationToken = default(CancellationToken));
+        Task StartAsync(CancellationToken cancellationToken);
     }
 }

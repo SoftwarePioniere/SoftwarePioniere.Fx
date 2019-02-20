@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Foundatio.Messaging;
@@ -38,7 +39,7 @@ namespace SoftwarePioniere.DomainModel
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        protected Task SubscribeCommand<T>(Func<T, Task> handler, CancellationToken cancellationToken = default(CancellationToken)) where T : class, ICommand
+        protected Task SubscribeCommandAsync<T>(Func<T, Task> handler, CancellationToken cancellationToken = default(CancellationToken)) where T : class, ICommand
         {
             return Bus.SubscribeAsync<T>(async msg =>
             {
@@ -63,6 +64,6 @@ namespace SoftwarePioniere.DomainModel
             }, cancellationToken);
         }
 
-        public abstract void Initialize(CancellationToken cancellationToken = default(CancellationToken));
+        public abstract Task StartAsync(CancellationToken cancellationToken);
     }
 }

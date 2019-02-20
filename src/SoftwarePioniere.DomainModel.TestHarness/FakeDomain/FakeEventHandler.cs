@@ -38,10 +38,10 @@ namespace SoftwarePioniere.DomainModel.FakeDomain
             throw new NotImplementedException();
         }
 
-        public void Initialize(CancellationToken cancellationToken = default(CancellationToken))
+        public async Task StartAsync(CancellationToken cancellationToken)
         {
-            _subscriber.SubscribeAsync<FakeEvent>(HandleAsync, cancellationToken);
-            _subscriber.SubscribeAsync<FakeEvent2>(HandleAsync, cancellationToken);
+            await _subscriber.SubscribeAsync<FakeEvent>(HandleAsync, cancellationToken);
+            await _subscriber.SubscribeAsync<FakeEvent2>(HandleAsync, cancellationToken);
         }
     }
 }

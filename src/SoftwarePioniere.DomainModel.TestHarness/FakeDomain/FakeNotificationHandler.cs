@@ -46,9 +46,11 @@ namespace SoftwarePioniere.DomainModel.FakeDomain
             return Task.CompletedTask;
         }
 
-        public void Initialize(CancellationToken cancellationToken = default(CancellationToken))
+
+
+        public async Task StartAsync(CancellationToken cancellationToken)
         {
-            _subscriber.SubscribeAsync<NotificationMessage>(HandleAsync, cancellationToken: cancellationToken);
+            await _subscriber.SubscribeAsync<NotificationMessage>(HandleAsync, cancellationToken: cancellationToken);
         }
     }
 }

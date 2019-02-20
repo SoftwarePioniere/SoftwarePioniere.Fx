@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Foundatio.Messaging;
@@ -12,20 +13,20 @@ namespace SoftwarePioniere.DomainModel
 {
     public abstract class MessageBusTestsBase : TestBase
     {
-        private IMessageBus CreateInstance()
+        private async Task<IMessageBus> CreateInstance()
         {
             var sagas = ServiceProvider.GetServices<ISaga>();
             foreach (var saga in sagas)
             {
                 _logger.LogInformation("Saga Initialize {SagaType}", saga.GetType());
-                saga.Initialize();
+                await saga.StartAsync(CancellationToken.None);
             }
 
             var handlers = ServiceProvider.GetServices<IMessageHandler>();
             foreach (var handler in handlers)
             {
                 _logger.LogInformation("Handler Initialize {HandlerType}", handler.GetType());
-                handler.Initialize();
+                await handler.StartAsync(CancellationToken.None);
             }
 
             return GetService<IMessageBus>();
@@ -40,7 +41,7 @@ namespace SoftwarePioniere.DomainModel
                 .AddSingleton<IMessageHandler, FakeEventHandler>()
                 ;
 
-            var bus = CreateInstance();
+            var bus = await CreateInstance();
             var @event = FakeEvent.Create();
             await bus.PublishAsync(@event);
             await Task.Delay(100);
@@ -55,7 +56,8 @@ namespace SoftwarePioniere.DomainModel
                 .AddSingleton<IMessageHandler, FakeEventHandler>()
                 ;
 
-            var bus = CreateInstance();
+
+            var bus = await CreateInstance();
             var @event = FakeEvent.Create();
             await bus.PublishAsync(@event);
             await Task.Delay(1000);
@@ -70,8 +72,8 @@ namespace SoftwarePioniere.DomainModel
                 .AddSingleton<ISaga, FakeSaga>()
                 ;
 
-            var bus = CreateInstance();
-            var cmd = new FakeCommand(Guid.NewGuid(), DateTime.UtcNow, "xxx", -1,  Guid.NewGuid().ToString(), "Text1");
+            var bus = await CreateInstance();
+            var cmd = new FakeCommand(Guid.NewGuid(), DateTime.UtcNow, "xxx", -1, Guid.NewGuid().ToString(), "Text1");
             await bus.PublishAsync(cmd);
             await Task.Delay(1000);
             FakeNotificationHandler.HandledByCommandSucceededNotification.Should().Contain(x => x == cmd.Id);
@@ -85,7 +87,7 @@ namespace SoftwarePioniere.DomainModel
                 .AddSingleton<ISaga, FakeSagaWithError>()
                 ;
 
-            var bus = CreateInstance();
+            var bus = await CreateInstance();
             var cmd = new FakeCommand(Guid.NewGuid(), DateTime.UtcNow, "xxx", -1, Guid.NewGuid().ToString(), "Text1");
             await bus.PublishAsync(cmd);
             await Task.Delay(1000);
