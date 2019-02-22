@@ -83,8 +83,18 @@ namespace SoftwarePioniere.DomainModel.Services
         public async Task SaveAsync<T>(T aggregate, CancellationToken token = default(CancellationToken),
             IDictionary<string, string> state = null) where T : AggregateRoot
         {
+            var parentState = new Dictionary<string, string>();
+
+            if (state != null)
+            {
+                foreach (var key in state.Keys)
+                {
+                    parentState.Add(key, state[key]);
+                }
+            }
+
             token.ThrowIfCancellationRequested();
-            await SaveAsync(aggregate, aggregate.Version, token, state).ConfigureAwait(false);
+            await SaveAsync(aggregate, aggregate.Version, token, parentState).ConfigureAwait(false);
         }
 
         public virtual Task<bool> CheckAggregateExists<T>(string aggregateId, CancellationToken token = default(CancellationToken),
