@@ -5,6 +5,8 @@ COPY nuget.config.build.tmp ./nuget.config
 COPY Directory.Build.* ./
 COPY *.sln ./
 
+COPY src/SoftwarePioniere.Clients/*.csproj ./src/SoftwarePioniere.Clients/
+
 COPY src/SoftwarePioniere.DomainModel/*.csproj ./src/SoftwarePioniere.DomainModel/
 COPY src/SoftwarePioniere.DomainModel.Abstractions/*.csproj ./src/SoftwarePioniere.DomainModel.Abstractions/
 COPY src/SoftwarePioniere.DomainModel.Services/*.csproj ./src/SoftwarePioniere.DomainModel.Services/
