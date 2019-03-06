@@ -1,21 +1,22 @@
 ﻿using System;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using SoftwarePioniere.Clients;
 
-namespace SoftwarePioniere.Clients
+// ReSharper disable once CheckNamespace
+namespace SoftwarePioniere.Extensions.DependencyInjection
 {
     public static class DependencyInjectionExtensions
     {
 
-        public static IServiceCollection AddAuth0ClientOptions(this IServiceCollection services, IConfiguration config)
-        {
-            return services.AddAuth0ClientOptions(c => config.Bind("Auth0Client", c));
-        }
+        //public static IServiceCollection AddAuth0ClientOptions(this IServiceCollection services, IConfiguration config)
+        //{
+        //    return services.AddAuth0ClientOptions(c => config.Bind("Auth0Client", c));
+        //}
 
-        public static IServiceCollection AddAzureAdClientOptions(this IServiceCollection services, IConfiguration config)
-        {
-            return services.AddAzureAdClientOptions(c => config.Bind("AzureAdClient", c));
-        }
+        //public static IServiceCollection AddAzureAdClientOptions(this IServiceCollection services, IConfiguration config)
+        //{
+        //    return services.AddAzureAdClientOptions(c => config.Bind("AzureAdClient", c));
+        //}
 
         public static IServiceCollection AddAuth0ClientOptions(this IServiceCollection services,
             Action<Auth0ClientOptions> configureOptions)
@@ -24,8 +25,8 @@ namespace SoftwarePioniere.Clients
                 .AddSingleton<Auth0TokenProvider>()
                 ;
 
-            var settings = new Auth0ClientOptions();
-            configureOptions(settings);
+            //var settings = new Auth0ClientOptions();
+            //configureOptions(settings);
 
             return services;
         }
@@ -37,8 +38,8 @@ namespace SoftwarePioniere.Clients
                 .AddSingleton<AzureAdTokenProvider>()
                 ;
 
-            var settings = new AzureAdClientOptions();
-            configureOptions(settings);
+            //var settings = new AzureAdClientOptions();
+            //configureOptions(settings);
 
 
             return services;

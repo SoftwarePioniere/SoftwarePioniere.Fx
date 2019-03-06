@@ -4,7 +4,6 @@ using System.Net.Http;
 using System.Security.Authentication;
 using System.Threading.Tasks;
 
-// ReSharper disable once CheckNamespace
 namespace SoftwarePioniere.Clients
 {
     public static class HttpClientExtensions
