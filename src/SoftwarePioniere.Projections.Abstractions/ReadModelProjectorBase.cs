@@ -121,7 +121,7 @@ namespace SoftwarePioniere.Projections
 
         // ReSharper disable once MemberCanBePrivate.Global
         // ReSharper disable once VirtualMemberNeverOverridden.Global
-        protected virtual NotificationMessage CreateNotification(Entity entity, IMessage msg, string method, object entityToSerialize)
+        protected virtual NotificationMessage CreateNotification(T entity, IMessage msg, string method, object entityToSerialize)
         {
             var json = entityToSerialize != null ? JsonConvert.SerializeObject(entityToSerialize) : string.Empty;
 
