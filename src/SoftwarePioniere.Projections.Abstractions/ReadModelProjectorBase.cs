@@ -46,8 +46,12 @@ namespace SoftwarePioniere.Projections
             {
                 Logger.LogDebug("IsLiveProcessing, sending Notification");
                 var noti = CreateNotification(ent, msg, entityToSerialize);
-                configureNotification?.Invoke(noti);
-                await Bus.PublishAsync(noti, state: state);
+
+                if (noti != null)
+                {
+                    configureNotification?.Invoke(noti);
+                    await Bus.PublishAsync(noti, state: state);
+                }
             }
         }
 
@@ -71,8 +75,11 @@ namespace SoftwarePioniere.Projections
                     }
 
                     var noti = CreateNotification(item.Entity, message, ReadModelUpdatedNotification.MethodDelete, objToSer);
-                    configureNotification?.Invoke(noti);
-                    await Bus.PublishAsync(noti, state: state);
+                    if (noti != null)
+                    {
+                        configureNotification?.Invoke(noti);
+                        await Bus.PublishAsync(noti, state: state);
+                    }
                 }
             }
         }
