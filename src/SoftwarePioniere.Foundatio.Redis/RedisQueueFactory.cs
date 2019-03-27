@@ -24,8 +24,7 @@ namespace SoftwarePioniere.Foundatio.Redis
             var queue = new RedisQueue<T>(new RedisQueueOptions<T>()
             {
                 LoggerFactory = _loggerFactory,
-                Name = name,
-
+                Name = name,                                       
                 ConnectionMultiplexer = _connection
             });
 

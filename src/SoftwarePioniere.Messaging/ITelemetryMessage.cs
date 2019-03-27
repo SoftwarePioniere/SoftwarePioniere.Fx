@@ -10,4 +10,13 @@ namespace SoftwarePioniere.Messaging
 
         IDictionary<string, string> Properties { get; }
     }
+
+    public interface ITypedTelemetryMessage<out T> : IMessage
+    {
+        string MessageType { get; }
+
+        T MessageContent { get; }
+
+        IDictionary<string, string> Properties { get; }
+    }
 }

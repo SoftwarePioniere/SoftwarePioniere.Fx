@@ -18,8 +18,37 @@ namespace SoftwarePioniere.Messaging
         }
     }
 
+    public class TypedTelemetryMessage<T> : MessageBase, ITypedTelemetryMessage<T>
+    {
+        public string MessageType { get; }
+
+        public T MessageContent { get; }
+
+        //public string MessageContent { get; }
+        public IDictionary<string, string> Properties { get; }
+
+        public TypedTelemetryMessage(Guid id, DateTime timeStampUtc, string userId, T messageContent, IDictionary<string, string> properties) : base(id, timeStampUtc, userId)
+        {
+            MessageType = typeof(T).GetTypeShortName();// messageType;
+            //MessageContent = messageContent;
+            MessageContent = messageContent;
+            Properties = properties;
+        }
+    }
+
     public static class TelemetryMessageExtensions
     {
+        public static TypedTelemetryMessage<T> CreateTypedTelemetryMessage<T>(this T message, IDictionary<string, string> state)
+            where T : IMessage
+        {
+            var tm = new TypedTelemetryMessage<T>(message.Id, message.TimeStampUtc, message.UserId
+                , message
+                , state
+            );
+
+            return tm;
+        }
+
         public static TelemetryMessage CreateTelemetryMessage(this IMessage message, IDictionary<string, string> state)
         {
             var tm = new TelemetryMessage(message.Id, message.TimeStampUtc, message.UserId
