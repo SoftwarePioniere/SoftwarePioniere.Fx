@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using FluentAssertions;
+using Newtonsoft.Json;
 using Xunit;
 
 namespace SoftwarePioniere.Messaging.Tests
@@ -16,6 +18,35 @@ namespace SoftwarePioniere.Messaging.Tests
 
             isIMessage.Should().BeTrue();
 
+        }
+
+        [Fact]
+        public void CanParseTypedTelemetryMessage()
+        {
+            var ev1 = FakeEvent.Create();
+
+            var dict1 = new Dictionary<string, string>
+            {
+                {"k1", "v1"},
+                {"k2", "v2"}
+            };
+            var msg1 = ev1.CreateTypedTelemetryMessage(dict1);
+
+            msg1.Should().NotBeNull();
+
+            msg1.Properties.Should().ContainKey("k1");
+            msg1.Properties.Should().ContainKey("k2");
+
+
+            var json1 = JsonConvert.SerializeObject(msg1);
+            json1.Should().NotBeNullOrEmpty();
+
+            var msg2 = JsonConvert.DeserializeObject<TypedTelemetryMessage<FakeEvent>>(json1);
+
+            msg2.Should().NotBeNull();
+
+            msg2.Properties.Should().ContainKey("k1");
+            msg2.Properties.Should().ContainKey("k2");
         }
     }
 }
