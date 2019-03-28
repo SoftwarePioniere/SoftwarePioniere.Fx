@@ -52,7 +52,7 @@ namespace SoftwarePioniere.DomainModel.Tests
                 var de = ev.CreateAggregateDomainEventMessage(agg);
 
                 de.AggregateId.Should().Be(agg.Id);
-                de.AggregateType.Should().Be(agg.GetType().GetTypeShortName());          
+                de.AggregateType.Should().Be(agg.GetType().GetTypeShortName());
                 de.DomainEventType.Should().Be("SoftwarePioniere.Messaging.FakeEvent, SoftwarePioniere.Messaging.TestHarness");
 
                 de.DomainEventContent.Id.Should().Be(ev.Id);
@@ -60,7 +60,24 @@ namespace SoftwarePioniere.DomainModel.Tests
                 de.DomainEventContent.AggregateId.Should().Be(ev.AggregateId);
                 de.DomainEventContent.TimeStampUtc.Should().Be(ev.TimeStampUtc);
                 de.DomainEventContent.UserId.Should().Be(ev.UserId);
-            }          
+            }
+
+            {
+                var de = (AggregateDomainEventMessage<FakeAggregate, FakeEvent>)ev.CreateTypedAggregateDomainEventMessage(agg);
+                de.Should().NotBeNull();
+
+                de.AggregateId.Should().Be(agg.Id);
+                de.AggregateType.Should().Be(agg.GetType().GetTypeShortName());
+                de.DomainEventType.Should().Be("SoftwarePioniere.Messaging.FakeEvent, SoftwarePioniere.Messaging.TestHarness");
+
+                de.DomainEventContent.Id.Should().Be(ev.Id);
+                de.DomainEventContent.Text.Should().Be(ev.Text);
+                de.DomainEventContent.AggregateId.Should().Be(ev.AggregateId);
+                de.DomainEventContent.TimeStampUtc.Should().Be(ev.TimeStampUtc);
+                de.DomainEventContent.UserId.Should().Be(ev.UserId);
+            }
         }
+
+
     }
 }

@@ -72,16 +72,19 @@ namespace SoftwarePioniere.DomainModel.Services
                     }
 
                     {
-                        var typeArgument1 = typeof(T);
-                        var typeArgument2 = @event.GetType();
 
-                        var genericClass = typeof(AggregateDomainEventMessage<,>);
-                        var constructedClass = genericClass.MakeGenericType(typeArgument1, typeArgument2);
+                        //var typeArgument1 = typeof(T);
+                        //var typeArgument2 = @event.GetType();
 
-                        // public AggregateDomainEventMessage(Guid id, DateTime timeStampUtc, string userId, TDomainEvent domainEventContent, string aggregateId) : base(id, timeStampUtc, userId)                        
-                        var created = Activator.CreateInstance(constructedClass,
-                            Guid.NewGuid(), @event.TimeStampUtc, @event.UserId,
-                            @event, aggregate.Id);
+                        //var genericClass = typeof(AggregateDomainEventMessage<,>);
+                        //var constructedClass = genericClass.MakeGenericType(typeArgument1, typeArgument2);
+
+                        //// public AggregateDomainEventMessage(Guid id, DateTime timeStampUtc, string userId, TDomainEvent domainEventContent, string aggregateId) : base(id, timeStampUtc, userId)                        
+                        //var created = Activator.CreateInstance(constructedClass,
+                        //    Guid.NewGuid(), @event.TimeStampUtc, @event.UserId,
+                        //    @event, aggregate.Id);
+
+                        var created = @event.CreateTypedAggregateDomainEventMessage(aggregate);
 
                         _logger.LogTrace("SaveAsync: Publish AggregateDomainEventMessage {@Message}", created);
                         await _publisher.PublishAsync(created.GetType(), created, TimeSpan.Zero, token, state).ConfigureAwait(false);

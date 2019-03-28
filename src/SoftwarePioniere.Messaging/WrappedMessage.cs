@@ -34,6 +34,18 @@ namespace SoftwarePioniere.Messaging
             return tm;
         }
 
+
+        public static object CreatedTypedWrappedMessage(this IMessage message, IDictionary<string, string> state)
+        {
+            var typeArgument1 = message.GetType();
+
+            var genericClass = typeof(WrappedMessage<>);
+            var constructedClass = genericClass.MakeGenericType(typeArgument1);
+            //public WrappedMessage(Guid id, DateTime timeStampUtc, string userId, T messageContent, IDictionary<string, string> properties) : base(id, timeStampUtc, userId)
+            var created = Activator.CreateInstance(constructedClass, Guid.NewGuid(), message.TimeStampUtc, message.UserId, message, state);
+
+            return created;
+        }
     }
 
 }

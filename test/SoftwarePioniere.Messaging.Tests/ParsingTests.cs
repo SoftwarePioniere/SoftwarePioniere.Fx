@@ -30,6 +30,7 @@ namespace SoftwarePioniere.Messaging.Tests
                 {"k1", "v1"},
                 {"k2", "v2"}
             };
+
             var msg1 = ev1.CreateWrappedMessage(dict1);
 
             msg1.Should().NotBeNull();
@@ -49,7 +50,21 @@ namespace SoftwarePioniere.Messaging.Tests
             msg2.Properties.Should().ContainKey("k2");
         }
 
+        [Fact]
+        public void CanCreatedTypedWrappedMessageFromUntyped()
+        {
+            var ev1 = FakeEvent.Create();
 
+            var dict1 = new Dictionary<string, string>
+            {
+                {"k1", "v1"},
+                {"k2", "v2"}
+            };
+            var msg1 = (WrappedMessage<FakeEvent>) ev1.CreatedTypedWrappedMessage(dict1);
+            msg1.Should().NotBeNull();
+
+            msg1.MessageContent.Id.Should().Be(ev1.Id);
+        }
 
     }
 }
