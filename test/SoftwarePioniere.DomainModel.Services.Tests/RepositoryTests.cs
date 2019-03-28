@@ -67,7 +67,7 @@ namespace SoftwarePioniere.DomainModel.Services.Tests
             {
                 _bus = bus;
             }
-           
+
             public Task PublishAsync(Type messageType, object message, TimeSpan? delay = null,
                 CancellationToken cancellationToken = default(CancellationToken), IDictionary<string, string> state = null)
             {
@@ -90,8 +90,20 @@ namespace SoftwarePioniere.DomainModel.Services.Tests
                 throw new NotImplementedException();
             }
 
-            public Task SubscribeAggregateEvent<TAggregate, TMessage>(Func<TMessage, AggregateTypeInfo<TAggregate>, IDictionary<string, string>, Task> handler,
-                CancellationToken cancellationToken = default(CancellationToken)) where TMessage : class, IDomainEvent
+            public Task SubscribeAggregateDomainEvent<TAggregate, TDomainEvent>(Func<TDomainEvent, AggregateTypeInfo<TAggregate>, IDictionary<string, string>, Task> handler,
+                CancellationToken cancellationToken = default(CancellationToken)) where TAggregate : IAggregateRoot where TDomainEvent : IDomainEvent
+            {
+                throw new NotImplementedException();
+            }
+
+            public Task<MessageResponse> PublishCommandAsync<T>(T cmd, CancellationToken cancellationToken = default(CancellationToken),
+                IDictionary<string, string> state = null) where T : class, ICommand
+            {
+                throw new NotImplementedException();
+            }
+
+            public Task<MessageResponse> PublishCommandsAsync<T>(IEnumerable<T> cmds, CancellationToken cancellationToken = default(CancellationToken),
+                IDictionary<string, string> state = null) where T : class, ICommand
             {
                 throw new NotImplementedException();
             }
@@ -104,15 +116,14 @@ namespace SoftwarePioniere.DomainModel.Services.Tests
             var mockPublisher = new Mock<IMessagePublisher>();
 
             mockPublisher.Setup(x => x.PublishAsync(
-                    It.IsIn(typeof(FakeEvent), typeof(DomainEventMessage)),
+                    It.IsIn(typeof(FakeEvent), typeof(AggregateDomainEventMessage<FakeAggregate, FakeEvent>)),
                     It.IsAny<IMessage>(),
                     It.IsAny<TimeSpan>(),
                     It.IsAny<CancellationToken>())
                 )
                 .Returns(Task.CompletedTask)
                 .Verifiable();
-
-
+            
 
             ServiceCollection
                 .AddSingleton(Mock.Of<IEventStore>())

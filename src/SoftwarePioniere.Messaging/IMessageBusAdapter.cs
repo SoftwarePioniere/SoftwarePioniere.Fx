@@ -30,10 +30,22 @@ namespace SoftwarePioniere.Messaging
             CancellationToken cancellationToken = default(CancellationToken))
             where T : class, ICommand;
 
-        Task SubscribeAggregateEvent<TAggregate, TMessage>(
-            Func<TMessage, AggregateTypeInfo<TAggregate>, IDictionary<string, string>, Task> handler,
+        Task SubscribeAggregateDomainEvent<TAggregate, TDomainEvent>(Func<TDomainEvent, AggregateTypeInfo<TAggregate>, IDictionary<string, string>, Task> handler,
             CancellationToken cancellationToken = default(CancellationToken))
-            where TMessage : class, IDomainEvent;
+            where TDomainEvent : IDomainEvent
+            where TAggregate : IAggregateRoot;
+
+        //Task SubscribeAggregateEvent<TAggregate, TMessage>(
+        //    Func<TMessage, AggregateTypeInfo<TAggregate>, IDictionary<string, string>, Task> handler,
+        //    CancellationToken cancellationToken = default(CancellationToken))
+        //    where TMessage : class, IDomainEvent
+        //    where TAggregate : IAggregateRoot;
+
+        Task<MessageResponse> PublishCommandAsync<T>(T cmd, CancellationToken cancellationToken = default(CancellationToken),
+            IDictionary<string, string> state = null) where T : class, ICommand;
+
+        Task<MessageResponse> PublishCommandsAsync<T>(IEnumerable<T> cmds, CancellationToken cancellationToken = default(CancellationToken),
+            IDictionary<string, string> state = null) where T : class, ICommand;
 
     }
 }

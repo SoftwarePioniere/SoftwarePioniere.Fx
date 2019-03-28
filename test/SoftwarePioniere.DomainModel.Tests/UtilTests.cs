@@ -46,34 +46,21 @@ namespace SoftwarePioniere.DomainModel.Tests
         public void CanCreateDomainEventMessages()
         {
             var ev = FakeEvent.Create();
+            var agg = FakeAggregate.Factory.Create("1");
 
             {
-                var de = ev.CreateDomainEventMessage("aggname", "aggid");
+                var de = ev.CreateAggregateDomainEventMessage(agg);
 
-                de.AggregateId.Should().Be("aggid");
-                de.AggregateName.Should().Be("aggname");
+                de.AggregateId.Should().Be(agg.Id);
+                de.AggregateType.Should().Be(agg.GetType().GetTypeShortName());          
                 de.DomainEventType.Should().Be("SoftwarePioniere.Messaging.FakeEvent, SoftwarePioniere.Messaging.TestHarness");
 
-                de.Cast<FakeEvent>().Id.Should().Be(ev.Id);
-                de.Cast<FakeEvent>().Text.Should().Be(ev.Text);
-                de.Cast<FakeEvent>().AggregateId.Should().Be(ev.AggregateId);
-                de.Cast<FakeEvent>().TimeStampUtc.Should().Be(ev.TimeStampUtc);
-                de.Cast<FakeEvent>().UserId.Should().Be(ev.UserId);
-            }
-
-            {
-                var de = ev.CreateDomainEventMessageFromType("aggname", "aggid", typeof(FakeEvent));
-                
-                de.AggregateId.Should().Be("aggid");
-                de.AggregateName.Should().Be("aggname");
-                de.DomainEventType.Should().Be("SoftwarePioniere.Messaging.FakeEvent, SoftwarePioniere.Messaging.TestHarness");
-
-                de.Cast<FakeEvent>().Id.Should().Be(ev.Id);
-                de.Cast<FakeEvent>().Text.Should().Be(ev.Text);
-                de.Cast<FakeEvent>().AggregateId.Should().Be(ev.AggregateId);
-                de.Cast<FakeEvent>().TimeStampUtc.Should().Be(ev.TimeStampUtc);
-                de.Cast<FakeEvent>().UserId.Should().Be(ev.UserId);
-            }
+                de.DomainEventContent.Id.Should().Be(ev.Id);
+                de.DomainEventContent.Text.Should().Be(ev.Text);
+                de.DomainEventContent.AggregateId.Should().Be(ev.AggregateId);
+                de.DomainEventContent.TimeStampUtc.Should().Be(ev.TimeStampUtc);
+                de.DomainEventContent.UserId.Should().Be(ev.UserId);
+            }          
         }
     }
 }

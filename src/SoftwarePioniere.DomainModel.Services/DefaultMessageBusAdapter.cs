@@ -16,43 +16,59 @@ namespace SoftwarePioniere.DomainModel.Services
             _bus = bus ?? throw new ArgumentNullException(nameof(bus));
         }
         public Task PublishAsync(Type messageType, object message, TimeSpan? delay = null,
-            CancellationToken cancellationToken = default(CancellationToken),
+            CancellationToken cancellationToken = default,
             IDictionary<string, string> state = null)
         {
             return _bus.PublishAsync(messageType, message, delay, cancellationToken);
         }
 
         public Task PublishAsync<T>(T message, TimeSpan? delay = null,
-            CancellationToken cancellationToken = default(CancellationToken), IDictionary<string, string> state = null) where T : class, IMessage
+            CancellationToken cancellationToken = default, IDictionary<string, string> state = null) where T : class, IMessage
         {
             return _bus.PublishAsync(typeof(T), message, delay, cancellationToken);
         }
 
-        public Task SubscribeMessage<T>(Func<T, IDictionary<string, string>, Task> handler, CancellationToken cancellationToken = default(CancellationToken)) where T : class, IMessage
+        public Task SubscribeMessage<T>(Func<T, IDictionary<string, string>, Task> handler, CancellationToken cancellationToken = default) where T : class, IMessage
         {
             return _bus.SubscribeAsync<T>((message, token) => handler(message, null), cancellationToken);
         }
 
-        public Task SubscribeCommand<T>(Func<T, IDictionary<string, string>, Task> handler, CancellationToken cancellationToken = default(CancellationToken)) where T : class, ICommand
+        public Task SubscribeCommand<T>(Func<T, IDictionary<string, string>, Task> handler, CancellationToken cancellationToken = default) where T : class, ICommand
         {
             return _bus.SubscribeAsync<T>((message, token) => handler(message, null), cancellationToken);
         }
 
-        public async Task SubscribeAggregateEvent<TAggregate, TMessage>(Func<TMessage, AggregateTypeInfo<TAggregate>, IDictionary<string, string>, Task> handler,
-            CancellationToken cancellationToken = default(CancellationToken)) where TMessage : class, IDomainEvent
+        public async Task SubscribeAggregateDomainEvent<TAggregate, TDomainEvent>(Func<TDomainEvent, AggregateTypeInfo<TAggregate>, IDictionary<string, string>, Task> handler,
+            CancellationToken cancellationToken = default) where TAggregate : IAggregateRoot where TDomainEvent : IDomainEvent
         {
-            await _bus.SubscribeAsync<DomainEventMessage>(async (message, token) =>
+            await _bus.SubscribeAsync<AggregateDomainEventMessage<TAggregate, TDomainEvent>>(async (message, token) =>
+             {
+                 await handler(message.DomainEventContent, new AggregateTypeInfo<TAggregate>(message.AggregateId), null);
+             }, cancellationToken);
+        }
+
+        public async Task<MessageResponse> PublishCommandAsync<T>(T cmd, CancellationToken cancellationToken = default,
+            IDictionary<string, string> state = null) where T : class, ICommand
+        {
+            await PublishAsync(cmd, TimeSpan.Zero, cancellationToken, state);
+            return new MessageResponse
             {
-                if (message.AggregateName == typeof(TAggregate).GetAggregateName())
-                {
-                    if (message.DomainEventType == typeof(TMessage).GetTypeShortName())
-                    {
-                        var ev = message.Cast<TMessage>();
-                        await handler(ev, new AggregateTypeInfo<TAggregate>(message.AggregateId), null);
-                    }
+                MessageId = cmd.Id,
+                UserId = cmd.UserId
+            };
+        }
 
-                }
-            }, cancellationToken);
+        public async Task<MessageResponse> PublishCommandsAsync<T>(IEnumerable<T> cmds, CancellationToken cancellationToken = default,
+            IDictionary<string, string> state = null) where T : class, ICommand
+        {
+            MessageResponse response = null;
+
+            foreach (var cmd in cmds)
+            {
+                response = await PublishCommandAsync(cmd, cancellationToken, state);
+            }
+
+            return response;
         }
     }
 }

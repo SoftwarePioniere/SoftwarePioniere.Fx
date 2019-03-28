@@ -2,7 +2,7 @@
 
 namespace SoftwarePioniere.Messaging
 {
-    public interface ITelemetryMessage : IMessage
+    public interface IMessageWrapper
     {
         string MessageType { get; }
 
@@ -11,7 +11,7 @@ namespace SoftwarePioniere.Messaging
         IDictionary<string, string> Properties { get; }
     }
 
-    public interface ITypedTelemetryMessage<out T> : IMessage
+    public interface IMessageWrapper<out T> where T : IMessage
     {
         string MessageType { get; }
 

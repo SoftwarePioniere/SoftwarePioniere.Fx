@@ -55,9 +55,10 @@ namespace SoftwarePioniere.DomainModel.Services
                 await _store.SaveEventsAsync<T>(aggregate.Id, events, expectedVersion).ConfigureAwait(false);
                 aggregate.MarkChangesAsCommitted();
 
+                sw.Stop();
                 _logger.LogDebug("SaveAsync Events Saved {Type} {AggregateId} in {Elapsed:0.0000} ms ", typeof(T), expectedVersion, sw.ElapsedMilliseconds);
 
-                var aggregateName = typeof(T).GetAggregateName();
+                //var aggregateName = typeof(T).GetAggregateName();
 
                 foreach (var @event in events)
                 {
@@ -70,11 +71,21 @@ namespace SoftwarePioniere.DomainModel.Services
                             .ConfigureAwait(false);
                     }
 
-                    _logger.LogTrace("SaveAsync: CreateDomainEventMessage {EventType}", @event.GetType());
-                    var idem = @event.CreateDomainEventMessageFromType(aggregateName, aggregate.Id, @event.GetType());
+                    {
+                        var typeArgument1 = typeof(T);
+                        var typeArgument2 = @event.GetType();
 
-                    _logger.LogTrace("SaveAsync: Publish DomainEventMessage {@Message}", idem);
-                    await _publisher.PublishAsync(idem.GetType(), idem, TimeSpan.Zero, token, state).ConfigureAwait(false);
+                        var genericClass = typeof(AggregateDomainEventMessage<,>);
+                        var constructedClass = genericClass.MakeGenericType(typeArgument1, typeArgument2);
+
+                        // public AggregateDomainEventMessage(Guid id, DateTime timeStampUtc, string userId, TDomainEvent domainEventContent, string aggregateId) : base(id, timeStampUtc, userId)                        
+                        var created = Activator.CreateInstance(constructedClass,
+                            Guid.NewGuid(), @event.TimeStampUtc, @event.UserId,
+                            @event, aggregate.Id);
+
+                        _logger.LogTrace("SaveAsync: Publish AggregateDomainEventMessage {@Message}", created);
+                        await _publisher.PublishAsync(created.GetType(), created, TimeSpan.Zero, token, state).ConfigureAwait(false);
+                    }
 
                 }
             }

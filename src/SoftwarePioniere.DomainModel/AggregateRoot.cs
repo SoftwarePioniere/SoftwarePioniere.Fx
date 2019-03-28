@@ -17,26 +17,17 @@ namespace SoftwarePioniere.DomainModel
     //    }
     //}
 
-    /// <summary>
-    /// Basis Aggregat Klasse
-    /// </summary>
-    public abstract class AggregateRoot
+
+    public abstract class AggregateRoot : IAggregateRoot
     {
         private readonly List<IDomainEvent> _changes = new List<IDomainEvent>();
 
-        /// <summary>
-        /// Eindeutige Id des Aggregates
-        /// Kann evtl. später durch ein Objekt ersetzt werden
-        /// </summary>
+
         public string Id
         {
             get; private set;
         }
 
-        /// <summary>
-        /// Setzt die Id des Aggregats
-        /// </summary>
-        /// <param name="id"></param>
         public void SetId(string id)
         {
             if (string.IsNullOrEmpty(id))
@@ -54,28 +45,16 @@ namespace SoftwarePioniere.DomainModel
         public int Version { get; private set; } = -1;
 
 
-        /// <summary>
-        /// Alle Änderungen, die noch nicht im Event Store gespeichert wurden
-        /// </summary>
-        /// <returns></returns>
         public IEnumerable<IDomainEvent> GetUncommittedChanges()
         {
             return _changes;
         }
 
-        /// <summary>
-        /// Änderungen wurden gespeichert und können hier aus dem Aggregate entfernt werden
-        /// </summary>
         public void MarkChangesAsCommitted()
         {
             _changes.Clear();
         }
 
-        /// <summary>
-        /// Wendet die Liste der Events auf das Aggregate an.
-        /// Diese werden nicht in die Changes Liste aufgenommen
-        /// </summary>
-        /// <param name="history"></param>
         public void LoadFromHistory(IEnumerable<EventDescriptor> history)
         {
             foreach (var eventDescriptor in history)
@@ -85,23 +64,11 @@ namespace SoftwarePioniere.DomainModel
             }
         }
 
-        /// <summary>
-        /// Ein Event Anwenden und in die Liste der Änderungen aufnehmen
-        /// </summary>
-        /// <param name="event"></param>
         protected void ApplyChange(IDomainEvent @event)
         {
             ApplyChange(@event, true);
         }
 
-        /// <summary>
-        /// Ein Event Anwenden und ggf. in die Liste aufnehmen.
-        /// Es wird die Methode passend zum EventType gesucht und dieses ausgeführt
-        /// vom Interface IApplyEvent
-        /// </summary>
-        /// <param name="event"></param>
-        /// <param name="isNew"></param>
-        // push atomic aggregate changes to local history for further processing (EventStore.SaveEvents)
         private void ApplyChange(IDomainEvent @event, bool isNew)
         {
             //den IApplyEvent mit dem generischen Typ des DomainEvents beziehen
@@ -117,7 +84,6 @@ namespace SoftwarePioniere.DomainModel
                 {
                     //die methode aus dem interface auf dem aktuellen objekt anwenden
                     ixmethod.Invoke(this, new object[] { @event });
-
                 }
             }
 

@@ -21,7 +21,7 @@ namespace SoftwarePioniere.Messaging.Tests
         }
 
         [Fact]
-        public void CanParseTypedTelemetryMessage()
+        public void CanParseWrappedMessage()
         {
             var ev1 = FakeEvent.Create();
 
@@ -30,7 +30,7 @@ namespace SoftwarePioniere.Messaging.Tests
                 {"k1", "v1"},
                 {"k2", "v2"}
             };
-            var msg1 = ev1.CreateTypedTelemetryMessage(dict1);
+            var msg1 = ev1.CreateWrappedMessage(dict1);
 
             msg1.Should().NotBeNull();
 
@@ -41,12 +41,15 @@ namespace SoftwarePioniere.Messaging.Tests
             var json1 = JsonConvert.SerializeObject(msg1);
             json1.Should().NotBeNullOrEmpty();
 
-            var msg2 = JsonConvert.DeserializeObject<TypedTelemetryMessage<FakeEvent>>(json1);
+            var msg2 = JsonConvert.DeserializeObject<WrappedMessage<FakeEvent>>(json1);
 
             msg2.Should().NotBeNull();
 
             msg2.Properties.Should().ContainKey("k1");
             msg2.Properties.Should().ContainKey("k2");
         }
+
+
+
     }
 }
