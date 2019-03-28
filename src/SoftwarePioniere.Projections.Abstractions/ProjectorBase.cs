@@ -11,7 +11,7 @@ namespace SoftwarePioniere.Projections
 
         public string StreamName { get; protected set; }
 
-        public abstract Task HandleAsync(IDomainEvent domainEvent, IDictionary<string, string> state = null);
+        public abstract Task ProcessEventAsync(IDomainEvent domainEvent, IDictionary<string, string> state = null);
 
         public virtual IProjectionContext Context { get; set; }
     }

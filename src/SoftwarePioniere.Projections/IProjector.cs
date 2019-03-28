@@ -12,6 +12,6 @@ namespace SoftwarePioniere.Projections
 
         string StreamName { get; }
 
-        Task HandleAsync(IDomainEvent domainEvent, IDictionary<string, string> state = null);
+        Task ProcessEventAsync(IDomainEvent domainEvent, IDictionary<string, string> state = null);
     }
 }
