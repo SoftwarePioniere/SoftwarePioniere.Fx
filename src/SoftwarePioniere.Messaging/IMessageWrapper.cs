@@ -11,12 +11,12 @@ namespace SoftwarePioniere.Messaging
         IDictionary<string, string> Properties { get; }
     }
 
-    public interface IMessageWrapper<out T> where T : IMessage
-    {
-        string MessageType { get; }
+    //public interface IMessageWrapper<out T> where T : IMessage
+    //{
+    //    string MessageType { get; }
 
-        T MessageContent { get; }
+    //    T MessageContent { get; }
 
-        IDictionary<string, string> Properties { get; }
-    }
+    //    IDictionary<string, string> Properties { get; }
+    //}
 }

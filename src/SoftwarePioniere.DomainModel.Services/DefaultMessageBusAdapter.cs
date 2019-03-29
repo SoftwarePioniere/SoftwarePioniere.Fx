@@ -39,11 +39,15 @@ namespace SoftwarePioniere.DomainModel.Services
         }
 
         public async Task SubscribeAggregateDomainEvent<TAggregate, TDomainEvent>(Func<TDomainEvent, AggregateTypeInfo<TAggregate>, IDictionary<string, string>, Task> handler,
-            CancellationToken cancellationToken = default) where TAggregate : IAggregateRoot where TDomainEvent : IDomainEvent
+            CancellationToken cancellationToken = default) where TAggregate : IAggregateRoot where TDomainEvent : class, IDomainEvent
         {
-            await _bus.SubscribeAsync<AggregateDomainEventMessage<TAggregate, TDomainEvent>>(async (message, token) =>
+            await _bus.SubscribeAsync<AggregateDomainEventMessage>(async (message, token) =>
              {
-                 await handler(message.DomainEventContent, new AggregateTypeInfo<TAggregate>(message.AggregateId), null);
+                 if (message.IsAggregate<TAggregate>() && message.IsEventType<TDomainEvent>())
+                 {
+                     await handler(message.GetEvent<TDomainEvent>(), new AggregateTypeInfo<TAggregate>(message.AggregateId), null);
+                 }
+
              }, cancellationToken);
         }
 

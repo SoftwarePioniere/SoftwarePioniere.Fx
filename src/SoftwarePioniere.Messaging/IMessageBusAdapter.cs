@@ -32,7 +32,7 @@ namespace SoftwarePioniere.Messaging
 
         Task SubscribeAggregateDomainEvent<TAggregate, TDomainEvent>(Func<TDomainEvent, AggregateTypeInfo<TAggregate>, IDictionary<string, string>, Task> handler,
             CancellationToken cancellationToken = default(CancellationToken))
-            where TDomainEvent : IDomainEvent
+            where TDomainEvent : class, IDomainEvent
             where TAggregate : IAggregateRoot;
 
         //Task SubscribeAggregateEvent<TAggregate, TMessage>(

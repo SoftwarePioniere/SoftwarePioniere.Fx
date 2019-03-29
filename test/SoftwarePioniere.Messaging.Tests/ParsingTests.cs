@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using FluentAssertions;
-using Newtonsoft.Json;
 using Xunit;
 
 namespace SoftwarePioniere.Messaging.Tests
@@ -20,51 +18,51 @@ namespace SoftwarePioniere.Messaging.Tests
 
         }
 
-        [Fact]
-        public void CanParseWrappedMessage()
-        {
-            var ev1 = FakeEvent.Create();
+        //[Fact]
+        //public void CanParseWrappedMessage()
+        //{
+        //    var ev1 = FakeEvent.Create();
 
-            var dict1 = new Dictionary<string, string>
-            {
-                {"k1", "v1"},
-                {"k2", "v2"}
-            };
+        //    var dict1 = new Dictionary<string, string>
+        //    {
+        //        {"k1", "v1"},
+        //        {"k2", "v2"}
+        //    };
 
-            var msg1 = ev1.CreateWrappedMessage(dict1);
+        //    var msg1 = ev1.CreateWrappedMessage(dict1);
 
-            msg1.Should().NotBeNull();
+        //    msg1.Should().NotBeNull();
 
-            msg1.Properties.Should().ContainKey("k1");
-            msg1.Properties.Should().ContainKey("k2");
+        //    msg1.Properties.Should().ContainKey("k1");
+        //    msg1.Properties.Should().ContainKey("k2");
 
 
-            var json1 = JsonConvert.SerializeObject(msg1);
-            json1.Should().NotBeNullOrEmpty();
+        //    var json1 = JsonConvert.SerializeObject(msg1);
+        //    json1.Should().NotBeNullOrEmpty();
 
-            var msg2 = JsonConvert.DeserializeObject<WrappedMessage<FakeEvent>>(json1);
+        //    var msg2 = JsonConvert.DeserializeObject<WrappedMessage<FakeEvent>>(json1);
 
-            msg2.Should().NotBeNull();
+        //    msg2.Should().NotBeNull();
 
-            msg2.Properties.Should().ContainKey("k1");
-            msg2.Properties.Should().ContainKey("k2");
-        }
+        //    msg2.Properties.Should().ContainKey("k1");
+        //    msg2.Properties.Should().ContainKey("k2");
+        //}
 
-        [Fact]
-        public void CanCreatedTypedWrappedMessageFromUntyped()
-        {
-            var ev1 = FakeEvent.Create();
+        //[Fact]
+        //public void CanCreatedTypedWrappedMessageFromUntyped()
+        //{
+        //    var ev1 = FakeEvent.Create();
 
-            var dict1 = new Dictionary<string, string>
-            {
-                {"k1", "v1"},
-                {"k2", "v2"}
-            };
-            var msg1 = (WrappedMessage<FakeEvent>) ev1.CreatedTypedWrappedMessage(dict1);
-            msg1.Should().NotBeNull();
+        //    var dict1 = new Dictionary<string, string>
+        //    {
+        //        {"k1", "v1"},
+        //        {"k2", "v2"}
+        //    };
+        //    var msg1 = (WrappedMessage<FakeEvent>) ev1.CreatedTypedWrappedMessage(dict1);
+        //    msg1.Should().NotBeNull();
 
-            msg1.MessageContent.Id.Should().Be(ev1.Id);
-        }
+        //    msg1.MessageContent.Id.Should().Be(ev1.Id);
+        //}
 
     }
 }

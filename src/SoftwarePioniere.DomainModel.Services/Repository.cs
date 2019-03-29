@@ -84,7 +84,7 @@ namespace SoftwarePioniere.DomainModel.Services
                         //    Guid.NewGuid(), @event.TimeStampUtc, @event.UserId,
                         //    @event, aggregate.Id);
 
-                        var created = @event.CreateTypedAggregateDomainEventMessage(aggregate);
+                        var created = @event.CreateAggregateDomainEventMessage(aggregate);
 
                         _logger.LogTrace("SaveAsync: Publish AggregateDomainEventMessage {@Message}", created);
                         await _publisher.PublishAsync(created.GetType(), created, TimeSpan.Zero, token, state).ConfigureAwait(false);
