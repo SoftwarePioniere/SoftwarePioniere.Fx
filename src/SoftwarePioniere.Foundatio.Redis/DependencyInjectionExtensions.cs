@@ -1,7 +1,6 @@
 ﻿using System;
 using Foundatio.Caching;
 using Foundatio.Messaging;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using SoftwarePioniere.Foundatio;
@@ -9,7 +8,7 @@ using SoftwarePioniere.Foundatio.Redis;
 using StackExchange.Redis;
 
 // ReSharper disable once CheckNamespace
-namespace SoftwarePioniere.Extensions.DependencyInjection
+namespace Microsoft.Extensions.DependencyInjection
 {
     public static class DependencyInjectionExtensions
     {

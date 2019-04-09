@@ -1,11 +1,10 @@
 ﻿using Foundatio.Caching;
 using Foundatio.Messaging;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using SoftwarePioniere.Foundatio;
 
 // ReSharper disable once CheckNamespace
-namespace SoftwarePioniere.Extensions.DependencyInjection
+namespace Microsoft.Extensions.DependencyInjection
 {
     public static class DependencyInjectionExtensions
     {

@@ -1,9 +1,8 @@
-﻿//using Microsoft.Extensions.DependencyInjection;
-//using Microsoft.Extensions.Hosting;
+﻿//using Microsoft.Extensions.Hosting;
 //using SoftwarePioniere.Projections.Services;
 
 //// ReSharper disable once CheckNamespace
-//namespace SoftwarePioniere.Extensions.DependencyInjection
+//namespace Microsoft.Extensions.DependencyInjection
 //{
 //    public static class DependencyInjectionExtensions
 //    {

@@ -1,11 +1,10 @@
 ﻿using System;
-using Microsoft.Extensions.DependencyInjection;
 using SoftwarePioniere.DomainModel;
 using SoftwarePioniere.DomainModel.Services;
 using SoftwarePioniere.Messaging;
 
 // ReSharper disable once CheckNamespace
-namespace SoftwarePioniere.Extensions.DependencyInjection
+namespace Microsoft.Extensions.DependencyInjection
 {
     public static class DependencyInjectionExtensions
     {
