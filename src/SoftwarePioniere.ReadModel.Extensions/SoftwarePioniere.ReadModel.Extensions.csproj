@@ -1,13 +1,12 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
-    <Description>Software Pioniere Fx ReadModel Services</Description>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <RootNamespace>SoftwarePioniere.ReadModel</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\SoftwarePioniere.Extensions\SoftwarePioniere.Extensions.csproj" />
-    <ProjectReference Include="..\SoftwarePioniere.Foundatio\SoftwarePioniere.Foundatio.csproj" />
     <ProjectReference Include="..\SoftwarePioniere.ReadModel\SoftwarePioniere.ReadModel.csproj" />
   </ItemGroup>
 
