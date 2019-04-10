@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\rc\SoftwarePioniere.Messaging.Abstractions\SoftwarePioniere.Messaging.Abstractions.csproj" />
+    <ProjectReference Include="..\SoftwarePioniere.Messaging.Abstractions\SoftwarePioniere.Messaging.Abstractions.csproj" />
     <ProjectReference Include="..\SoftwarePioniere.Caching.Abstractions\SoftwarePioniere.Caching.Abstractions.csproj" />
     <ProjectReference Include="..\SoftwarePioniere.Foundatio\SoftwarePioniere.Foundatio.csproj" />
     <ProjectReference Include="..\SoftwarePioniere.Projections\SoftwarePioniere.Projections.csproj" />

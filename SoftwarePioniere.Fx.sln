@@ -59,7 +59,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SoftwarePioniere.Clients.Te
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SoftwarePioniere.Extensions", "src\SoftwarePioniere.Extensions\SoftwarePioniere.Extensions.csproj", "{EDDCF609-C2BC-484F-96E5-BB4AA8E5734D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SoftwarePioniere.Messaging.Abstractions", "rc\SoftwarePioniere.Messaging.Abstractions\SoftwarePioniere.Messaging.Abstractions.csproj", "{088D90D2-7A1C-45A4-A530-6660C842E4A9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SoftwarePioniere.Messaging.Abstractions", "src\SoftwarePioniere.Messaging.Abstractions\SoftwarePioniere.Messaging.Abstractions.csproj", "{088D90D2-7A1C-45A4-A530-6660C842E4A9}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SoftwarePioniere.Caching.Abstractions", "src\SoftwarePioniere.Caching.Abstractions\SoftwarePioniere.Caching.Abstractions.csproj", "{34862DDD-2320-4816-976B-BEFF1F5ADD56}"
 EndProject

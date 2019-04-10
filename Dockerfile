@@ -12,37 +12,6 @@ RUN for file in $(ls *.csproj); do mkdir -p src/${file%.*}/ && mv $file src/${fi
 COPY test/*/*.csproj ./
 RUN for file in $(ls *.csproj); do mkdir -p test/${file%.*}/ && mv $file test/${file%.*}/; done
 
-#COPY src/SoftwarePioniere.Clients/*.csproj ./src/SoftwarePioniere.Clients/
-#
-#COPY src/SoftwarePioniere.DomainModel/*.csproj ./src/SoftwarePioniere.DomainModel/
-#COPY src/SoftwarePioniere.DomainModel.Abstractions/*.csproj ./src/SoftwarePioniere.DomainModel.Abstractions/
-#COPY src/SoftwarePioniere.DomainModel.Services/*.csproj ./src/SoftwarePioniere.DomainModel.Services/
-#COPY src/SoftwarePioniere.DomainModel.TestHarness/*.csproj ./src/SoftwarePioniere.DomainModel.TestHarness/
-#
-#COPY src/SoftwarePioniere.Foundatio/*.csproj ./src/SoftwarePioniere.Foundatio/
-#COPY src/SoftwarePioniere.Foundatio.Redis/*.csproj ./src/SoftwarePioniere.Foundatio.Redis/
-#
-#COPY src/SoftwarePioniere.Messaging/*.csproj ./src/SoftwarePioniere.Messaging/
-#COPY src/SoftwarePioniere.Messaging.TestHarness/*.csproj ./src/SoftwarePioniere.Messaging.TestHarness/
-#
-#COPY src/SoftwarePioniere.Projections/*.csproj ./src/SoftwarePioniere.Projections/
-#COPY src/SoftwarePioniere.Projections.Abstractions/*.csproj ./src/SoftwarePioniere.Projections.Abstractions/
-#COPY src/SoftwarePioniere.Projections.Services/*.csproj ./src/SoftwarePioniere.Projections.Services/
-#
-#COPY src/SoftwarePioniere.ReadModel/*.csproj ./src/SoftwarePioniere.ReadModel/
-#COPY src/SoftwarePioniere.ReadModel.Services/*.csproj ./src/SoftwarePioniere.ReadModel.Services/
-#COPY src/SoftwarePioniere.ReadModel.TestHarness/*.csproj ./src/SoftwarePioniere.ReadModel.TestHarness/
-#
-#COPY src/SoftwarePioniere.TestHarness/*.csproj ./src/SoftwarePioniere.TestHarness/
-#
-#COPY test/SoftwarePioniere.DomainModel.Services.Tests/*.csproj ./test/SoftwarePioniere.DomainModel.Services.Tests/
-#COPY test/SoftwarePioniere.DomainModel.Tests/*.csproj ./test/SoftwarePioniere.DomainModel.Tests/
-#
-#COPY test/SoftwarePioniere.Messaging.Tests/*.csproj ./test/SoftwarePioniere.Messaging.Tests/
-#
-#COPY test/SoftwarePioniere.ReadModel.Services.Tests/*.csproj ./test/SoftwarePioniere.ReadModel.Services.Tests/
-#COPY test/SoftwarePioniere.ReadModel.Tests/*.csproj ./test/SoftwarePioniere.ReadModel.Tests/
-#
 RUN dotnet restore SoftwarePioniere.Fx.sln
 
 FROM restore as src
