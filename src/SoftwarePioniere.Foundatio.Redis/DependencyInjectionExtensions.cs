@@ -30,16 +30,18 @@ namespace Microsoft.Extensions.DependencyInjection
                .AddSingleton<IQueueFactory, RedisQueueFactory>()
                ;
 
-            services.AddSingleton<IMessageBus>(p =>
-                new RedisMessageBus(o =>
+            services.AddSingleton<IMessageBus2>(p =>
+                new RedisMessageBus2(o =>
                     o.LoggerFactory(p.GetRequiredService<ILoggerFactory>())
                         .Subscriber(p.GetRequiredService<IConnectionMultiplexer>().GetSubscriber())
                         .Topic(topic)
                     ));
 
-
-            services.AddSingleton<IMessageSubscriber>(c => c.GetRequiredService<IMessageBus>())
-                .AddSingleton<IMessagePublisher>(c => c.GetRequiredService<IMessageBus>());
+            services
+                .AddSingleton<IMessageBus>(c => c.GetRequiredService<IMessageBus2>())
+                .AddSingleton<IMessageSubscriber>(c => c.GetRequiredService<IMessageBus2>())
+                .AddSingleton<IMessageSubscriber2>(c => c.GetRequiredService<IMessageBus2>())
+                .AddSingleton<IMessagePublisher>(c => c.GetRequiredService<IMessageBus2>());
 
             return services;
         }
