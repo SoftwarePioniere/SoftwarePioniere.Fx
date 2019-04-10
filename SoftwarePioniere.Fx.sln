@@ -65,7 +65,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SoftwarePioniere.Caching.Ab
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SoftwarePioniere.ReadModel.Extensions", "src\SoftwarePioniere.ReadModel.Extensions\SoftwarePioniere.ReadModel.Extensions.csproj", "{508F1F6E-73E1-4B30-B4C3-DDC599DDC236}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoftwarePioniere.Extensions.Tests", "test\SoftwarePioniere.Extensions.Tests\SoftwarePioniere.Extensions.Tests.csproj", "{FB3C543B-A918-462B-AA49-84E497378E8A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SoftwarePioniere.Extensions.Tests", "test\SoftwarePioniere.Extensions.Tests\SoftwarePioniere.Extensions.Tests.csproj", "{FB3C543B-A918-462B-AA49-84E497378E8A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
