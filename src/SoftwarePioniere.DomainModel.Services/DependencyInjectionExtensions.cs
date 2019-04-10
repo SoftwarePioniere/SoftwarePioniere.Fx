@@ -1,7 +1,6 @@
 ﻿using System;
 using SoftwarePioniere.DomainModel;
 using SoftwarePioniere.DomainModel.Services;
-using SoftwarePioniere.Messaging;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.Extensions.DependencyInjection
@@ -29,11 +28,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 ;
         }
 
-        public static IServiceCollection AddDefaultMessageBusAdapter(this IServiceCollection services)
-        {
-            return services.AddSingleton<IMessageBusAdapter, DefaultMessageBusAdapter>();
-        }
-
+       
         public static IServiceCollection AddInMemoryDomainServices(this IServiceCollection services)
         {
             return services

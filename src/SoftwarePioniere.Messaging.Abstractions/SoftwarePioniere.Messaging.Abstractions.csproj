@@ -12,9 +12,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\SoftwarePioniere.Messaging\SoftwarePioniere.Messaging.csproj" />
-    <ProjectReference Include="..\SoftwarePioniere.DomainModel\SoftwarePioniere.DomainModel.csproj" />
-    <ProjectReference Include="..\SoftwarePioniere.Extensions\SoftwarePioniere.Extensions.csproj" />
-    <ProjectReference Include="..\SoftwarePioniere.Foundatio\SoftwarePioniere.Foundatio.csproj" />
   </ItemGroup>
 
 </Project>
