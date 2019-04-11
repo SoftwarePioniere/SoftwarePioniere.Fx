@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using Foundatio.Caching;
 using Microsoft.Extensions.Logging;
 
-namespace SoftwarePioniere.ReadModel.Services
+namespace SoftwarePioniere.ReadModel
 {
     public static class CacheClientExtensions
     {

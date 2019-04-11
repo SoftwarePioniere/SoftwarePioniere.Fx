@@ -13,7 +13,7 @@ using SoftwarePioniere.Messaging;
 using SoftwarePioniere.ReadModel;
 using ILogger = Microsoft.Extensions.Logging.ILogger;
 
-namespace SoftwarePioniere.Projections.Services.EventStore
+namespace SoftwarePioniere.Projections
 {
     public class EventStoreProjectorRegistry : IProjectorRegistry
     {

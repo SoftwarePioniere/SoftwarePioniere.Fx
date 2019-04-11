@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using SoftwarePioniere.EventStore;
 
-namespace SoftwarePioniere.DomainModel.Services.EventStore
+namespace SoftwarePioniere.DomainModel
 {
     public class ProjectionReader : IProjectionReader
     {

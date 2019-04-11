@@ -7,7 +7,7 @@ using Microsoft.Azure.Documents.Linq;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace SoftwarePioniere.ReadModel.Services.AzureCosmosDb
+namespace SoftwarePioniere.ReadModel
 {
     public class AzureCosmosDbConnectionProvider : IEntityStoreConnectionProvider
     {

@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using SoftwarePioniere.Messaging;
 
-namespace SoftwarePioniere.Projections.Services.EventStore
+namespace SoftwarePioniere.Projections
 {
     public class EventStoreProjectionByCategoryInitializer : IEventStoreInitializer
     {

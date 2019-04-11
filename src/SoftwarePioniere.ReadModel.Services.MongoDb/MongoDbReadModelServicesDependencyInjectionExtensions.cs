@@ -3,12 +3,11 @@ using Foundatio.Caching;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using SoftwarePioniere.ReadModel;
-using SoftwarePioniere.ReadModel.Services.MongoDb;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.Extensions.DependencyInjection
 {
-    public static class DependencyInjectionExtensions
+    public static class MongoDbReadModelServicesDependencyInjectionExtensions
     {
         public static IServiceCollection AddMongoDbEntityStore(this IServiceCollection services) =>
             services.AddMongoDbEntityStore(_ => { });

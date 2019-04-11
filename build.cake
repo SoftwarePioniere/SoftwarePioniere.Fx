@@ -175,6 +175,14 @@ Task("DockerPushPackages")
 
 Task("Default");
 
+Task("BuildPackLocalPush")
+    .IsDependentOn("Clean")
+    .IsDependentOn("Version")
+    .IsDependentOn("Restore")
+    .IsDependentOn("Build")
+    .IsDependentOn("Pack")
+    .IsDependentOn("PushPackagesLocal")
+    ;
 
 Task("BuildTestPackLocalPush")
     .IsDependentOn("Clean")

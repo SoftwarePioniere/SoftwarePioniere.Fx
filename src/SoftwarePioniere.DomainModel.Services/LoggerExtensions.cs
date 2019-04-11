@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 
-namespace SoftwarePioniere.DomainModel.Services
+namespace SoftwarePioniere.DomainModel
 {
     public static class LoggerExtensions
     {

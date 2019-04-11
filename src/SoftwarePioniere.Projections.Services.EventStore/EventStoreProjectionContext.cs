@@ -6,10 +6,9 @@ using Foundatio.Caching;
 using Microsoft.Extensions.Logging;
 using SoftwarePioniere.EventStore;
 using SoftwarePioniere.ReadModel;
-using SoftwarePioniere.ReadModel.Services;
 using ILogger = Microsoft.Extensions.Logging.ILogger;
 
-namespace SoftwarePioniere.Projections.Services.EventStore
+namespace SoftwarePioniere.Projections
 {
     public class EventStoreProjectionContext : IProjectionContext
     {

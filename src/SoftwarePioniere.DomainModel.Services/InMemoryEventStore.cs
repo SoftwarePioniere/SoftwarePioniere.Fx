@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 using SoftwarePioniere.DomainModel.Exceptions;
 using SoftwarePioniere.Messaging;
 
-namespace SoftwarePioniere.DomainModel.Services
+namespace SoftwarePioniere.DomainModel
 {
     /// <summary>
     ///     In Memory Event Store

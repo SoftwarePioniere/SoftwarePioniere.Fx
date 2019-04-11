@@ -1,10 +1,9 @@
 ﻿using System;
 using Microsoft.Extensions.Hosting;
-using SoftwarePioniere.DomainModel.Subscriptions;
 using SoftwarePioniere.EventStore;
 using SoftwarePioniere.Messaging;
 
-namespace SoftwarePioniere.DomainModel.Services.EventStore.Subscriptions
+namespace SoftwarePioniere.DomainModel.Subscriptions
 {
     public class PersistentSubscriptionFactory : IPersistentSubscriptionFactory
     {

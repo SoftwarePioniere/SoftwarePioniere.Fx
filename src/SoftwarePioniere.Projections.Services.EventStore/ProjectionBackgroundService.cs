@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-namespace SoftwarePioniere.Projections.Services.EventStore
+namespace SoftwarePioniere.Projections
 {
     public class ProjectionBackgroundService : BackgroundService
     {

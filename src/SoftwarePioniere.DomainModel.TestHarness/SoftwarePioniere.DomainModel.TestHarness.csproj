@@ -7,7 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SoftwarePioniere.DomainModel.Abstractions\SoftwarePioniere.DomainModel.Abstractions.csproj" />
     <ProjectReference Include="..\SoftwarePioniere.DomainModel.Services\SoftwarePioniere.DomainModel.Services.csproj" />
     <ProjectReference Include="..\SoftwarePioniere.Messaging.TestHarness\SoftwarePioniere.Messaging.TestHarness.csproj" />
   </ItemGroup>

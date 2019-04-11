@@ -33,9 +33,9 @@ Param(
 
 )
 
-$CakeVersion = "0.28.0"
+$CakeVersion = "0.33.0"
 # $DotNetChannel = "Current";
-$DotNetVersion = "2.1.4";
+$DotNetVersion = "2.2.202";
 $DotNetInstallerUri = "https://dot.net/v1/dotnet-install.ps1";
 
 $ToolsDir = Join-Path $PSScriptRoot "tools"

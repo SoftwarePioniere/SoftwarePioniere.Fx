@@ -2,7 +2,7 @@
 using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.AspNetCore.Http;
 
-namespace SoftwarePioniere.Messaging.Services.ApplicationInsights
+namespace SoftwarePioniere.Messaging
 {
     public static class TelemetryHelpers
     {

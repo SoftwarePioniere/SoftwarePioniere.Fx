@@ -19,10 +19,18 @@
     <noWarn>1591</noWarn>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
-  
-  <PropertyGroup>
+
+   <PropertyGroup Condition="'$(Version)' == ''">
       <Version>99.99.99</Version>
+  </PropertyGroup>
+
+   <PropertyGroup>
       <AssemblyVersion>$(Version).0</AssemblyVersion>
+      <FileVersion>$(Version).0</FileVersion>
+      <InformationalVersion>$(Version).0</InformationalVersion>
+  </PropertyGroup>
+
+  <PropertyGroup>
       <IsPackable>True</IsPackable>
       <Authors>SoftwarePioniere</Authors>
       <PackageProjectUrl>https://github.com/SoftwarePioniere/SoftwarePioniere.Fx</PackageProjectUrl>

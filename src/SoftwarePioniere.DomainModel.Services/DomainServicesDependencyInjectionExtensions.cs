@@ -1,11 +1,10 @@
 ﻿using System;
 using SoftwarePioniere.DomainModel;
-using SoftwarePioniere.DomainModel.Services;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.Extensions.DependencyInjection
 {
-    public static class DependencyInjectionExtensions
+    public static class DomainServicesDependencyInjectionExtensions
     {
         public static IServiceCollection AddDomainServices(this IServiceCollection services, Action<RepositoryOptions> configureRepository = null)
         {

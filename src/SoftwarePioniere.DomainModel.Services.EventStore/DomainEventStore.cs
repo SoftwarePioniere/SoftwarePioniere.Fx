@@ -10,7 +10,7 @@ using SoftwarePioniere.DomainModel.Exceptions;
 using SoftwarePioniere.EventStore;
 using SoftwarePioniere.Messaging;
 
-namespace SoftwarePioniere.DomainModel.Services.EventStore
+namespace SoftwarePioniere.DomainModel
 {
     public class DomainEventStore : IEventStore
     {

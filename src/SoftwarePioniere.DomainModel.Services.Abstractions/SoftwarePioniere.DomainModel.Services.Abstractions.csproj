@@ -9,8 +9,7 @@
   <ItemGroup>
     <ProjectReference Include="..\SoftwarePioniere.DomainModel\SoftwarePioniere.DomainModel.csproj" />
     <ProjectReference Include="..\SoftwarePioniere.Foundatio\SoftwarePioniere.Foundatio.csproj" />
-    <ProjectReference Include="..\SoftwarePioniere.Messaging.Abstractions\SoftwarePioniere.Messaging.Abstractions.csproj" />
-    <ProjectReference Include="..\SoftwarePioniere.ReadModel\SoftwarePioniere.ReadModel.csproj" />
+    <ProjectReference Include="..\SoftwarePioniere.Messaging.Services.Abstractions\SoftwarePioniere.Messaging.Services.Abstractions.csproj" />
   </ItemGroup>
 
 </Project>

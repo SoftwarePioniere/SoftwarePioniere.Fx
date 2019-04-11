@@ -1,4 +1,4 @@
-﻿namespace SoftwarePioniere.ReadModel.Services.AzureCosmosDb
+﻿namespace SoftwarePioniere.ReadModel
 {
     public class AzureCosmosDbOptions : EntityStoreOptionsBase
     {

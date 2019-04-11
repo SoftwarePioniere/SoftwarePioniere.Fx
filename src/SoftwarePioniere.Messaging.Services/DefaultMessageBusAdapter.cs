@@ -7,7 +7,7 @@ using Foundatio.Messaging;
 using Microsoft.Extensions.Logging;
 using SoftwarePioniere.DomainModel;
 
-namespace SoftwarePioniere.Messaging.Services
+namespace SoftwarePioniere.Messaging
 {
     public class DefaultMessageBusAdapter : IMessageBusAdapter
     {

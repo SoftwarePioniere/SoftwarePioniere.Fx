@@ -9,7 +9,7 @@ using Microsoft.Azure.Documents.Client;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
-namespace SoftwarePioniere.ReadModel.Services.AzureCosmosDb
+namespace SoftwarePioniere.ReadModel
 {
     public class AzureCosmosDbEntityStore : EntityStoreBase<AzureCosmosDbOptions>
     {

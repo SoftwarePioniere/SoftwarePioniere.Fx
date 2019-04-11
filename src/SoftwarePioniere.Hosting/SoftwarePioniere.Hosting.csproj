@@ -9,9 +9,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SoftwarePioniere.DomainModel.Abstractions\SoftwarePioniere.DomainModel.Abstractions.csproj" />
-    <ProjectReference Include="..\SoftwarePioniere.Messaging.Abstractions\SoftwarePioniere.Messaging.Abstractions.csproj" />
-    <ProjectReference Include="..\SoftwarePioniere.Projections\SoftwarePioniere.Projections.csproj" />
+    <ProjectReference Include="..\SoftwarePioniere.DomainModel.Services.Abstractions\SoftwarePioniere.DomainModel.Services.Abstractions.csproj" />
+    <ProjectReference Include="..\SoftwarePioniere.Messaging.Services.Abstractions\SoftwarePioniere.Messaging.Services.Abstractions.csproj" />
+    <ProjectReference Include="..\SoftwarePioniere.Projections.Services.Abstractions\SoftwarePioniere.Projections.Services.Abstractions.csproj" />
+    <ProjectReference Include="..\SoftwarePioniere.ReadModel.Services.Abstractions\SoftwarePioniere.ReadModel.Services.Abstractions.csproj" />
   </ItemGroup>
 
 </Project>

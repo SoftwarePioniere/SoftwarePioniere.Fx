@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.Azure.Documents.Linq;
 using Microsoft.Extensions.Logging;
 
-namespace SoftwarePioniere.ReadModel.Services.AzureCosmosDb
+namespace SoftwarePioniere.ReadModel
 {
     public static class AzureCosmosDbLinqExtensions
     {

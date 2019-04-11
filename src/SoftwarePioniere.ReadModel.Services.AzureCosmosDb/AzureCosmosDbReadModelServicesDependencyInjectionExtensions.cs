@@ -3,12 +3,11 @@ using Foundatio.Caching;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using SoftwarePioniere.ReadModel;
-using SoftwarePioniere.ReadModel.Services.AzureCosmosDb;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.Extensions.DependencyInjection
 {
-    public static class DependencyInjectionExtensions
+    public static class AzureCosmosDbReadModelServicesDependencyInjectionExtensions
     {
         public static IServiceCollection AddAzureCosmosDbEntityStore(this IServiceCollection services) =>
             services.AddAzureCosmosDbEntityStore(_ => { });

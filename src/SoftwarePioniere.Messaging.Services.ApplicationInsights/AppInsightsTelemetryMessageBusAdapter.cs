@@ -7,12 +7,11 @@ using System.Threading.Tasks;
 using Foundatio.Messaging;
 using Microsoft.ApplicationInsights;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using SoftwarePioniere.DomainModel;
 using SoftwarePioniere.Messaging.Notifications;
 using SoftwarePioniere.ReadModel;
 
-namespace SoftwarePioniere.Messaging.Services.ApplicationInsights
+namespace SoftwarePioniere.Messaging
 {
     public class AppInsightsTelemetryMessageBusAdapter : IMessageBusAdapter
     {

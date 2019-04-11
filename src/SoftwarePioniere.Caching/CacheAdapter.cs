@@ -5,7 +5,7 @@ using Foundatio.Lock;
 using Microsoft.Extensions.Logging;
 using SoftwarePioniere.ReadModel;
 
-namespace SoftwarePioniere.Caching.Services
+namespace SoftwarePioniere.Caching
 {
     public class CacheAdapter : ICacheAdapter
     {

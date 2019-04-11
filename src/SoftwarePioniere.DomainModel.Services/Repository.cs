@@ -9,13 +9,8 @@ using Microsoft.Extensions.Options;
 using SoftwarePioniere.DomainModel.Exceptions;
 using SoftwarePioniere.Messaging;
 
-namespace SoftwarePioniere.DomainModel.Services
+namespace SoftwarePioniere.DomainModel
 {
-    public class RepositoryOptions
-    {
-        public bool SendInternalEvents { get; set; }
-    }
-
     public class Repository : IRepository
     {
         private readonly ILogger _logger;

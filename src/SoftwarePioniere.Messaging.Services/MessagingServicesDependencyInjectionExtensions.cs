@@ -1,10 +1,9 @@
 ﻿using SoftwarePioniere.Messaging;
-using SoftwarePioniere.Messaging.Services;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.Extensions.DependencyInjection
 {
-    public static class DependencyInjectionExtensions
+    public static class MessagingServicesDependencyInjectionExtensions
     {
         public static IServiceCollection AddDefaultMessageBusAdapter(this IServiceCollection services)
         {

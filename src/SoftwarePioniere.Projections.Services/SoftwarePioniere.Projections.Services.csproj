@@ -3,11 +3,11 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <Description>Software Pioniere Fx Projections Services</Description>
+    <RootNamespace>SoftwarePioniere.Projections</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SoftwarePioniere.DomainModel\SoftwarePioniere.DomainModel.csproj" />
-    <ProjectReference Include="..\SoftwarePioniere.Projections\SoftwarePioniere.Projections.csproj" />
+    <ProjectReference Include="..\SoftwarePioniere.Projections.Services.Abstractions\SoftwarePioniere.Projections.Services.Abstractions.csproj" />
   </ItemGroup>
 
 </Project>

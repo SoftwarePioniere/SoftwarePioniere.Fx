@@ -5,7 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 
-namespace SoftwarePioniere.ReadModel.Services
+namespace SoftwarePioniere.ReadModel
 {
 
     // ReSharper disable once ClassNeverInstantiated.Global

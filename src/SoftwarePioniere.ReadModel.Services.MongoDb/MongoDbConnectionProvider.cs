@@ -8,7 +8,7 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver;
 
-namespace SoftwarePioniere.ReadModel.Services.MongoDb
+namespace SoftwarePioniere.ReadModel
 {
 
     public class MongoDbConnectionProvider : IEntityStoreConnectionProvider

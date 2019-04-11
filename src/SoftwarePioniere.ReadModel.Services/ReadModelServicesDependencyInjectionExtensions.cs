@@ -3,12 +3,11 @@ using Foundatio.Caching;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using SoftwarePioniere.ReadModel;
-using SoftwarePioniere.ReadModel.Services;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.Extensions.DependencyInjection
 {
-    public static class DependencyInjectionExtensions
+    public static class ReadModelServicesDependencyInjectionExtensions
     {
         public static IServiceCollection AddInMemoryEntityStore(this IServiceCollection services) =>
             services.AddInMemoryEntityStore(_ => { });

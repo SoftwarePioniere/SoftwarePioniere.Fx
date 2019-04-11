@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace SoftwarePioniere.ReadModel.Services
+namespace SoftwarePioniere.ReadModel
 {
     /// <summary>
     /// Speichern der Types, damit man nicht immer eine neue klasse erstellen muss

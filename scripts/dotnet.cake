@@ -308,7 +308,7 @@ public class MyDotNet {
         Pull = true,
         BuildArg = new [] {
             $"CONFIGURATION={_configuration}",
-            $"Version={MyGitVersion.GetVersion()}"
+            $"Version={MyGitVersion.GetVersion()}",
             $"PROJECT={project}",
             $"PROJECTDLL={project}.dll",
         },
@@ -331,7 +331,7 @@ public class MyDotNet {
             Pull = true,
             BuildArg = new [] {
                 $"CONFIGURATION={_configuration}",
-                $"Version={MyGitVersion.GetVersion()}"
+                $"Version={MyGitVersion.GetVersion()}",
                 $"PROJECT={project}"
             },
             Tag = GetDockerTestRunnerTags(image),
@@ -414,7 +414,7 @@ public class MyDotNet {
         }
         tempEnv.AddRange(  new [] {
                 $"CONFIGURATION={_configuration}",
-                $"Version={MyGitVersion.GetVersion()}"
+                $"Version={MyGitVersion.GetVersion()}",
                 $"IMAGE={image}",
                 $"TAG={tag}",
                 $"PROJECT={project}",
@@ -473,7 +473,8 @@ public class MyDotNet {
                     Files = dcFiles,
                     RemoveOrphans = true,
                     // Verbose = true,
-                    ProjectName = projectName
+                    ProjectName = projectName,
+                    Volumes = true
                 };
 
                 _context.DockerComposeDown(settings);

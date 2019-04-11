@@ -3,14 +3,15 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <Description>Software Pioniere Fx Event Store Projection Services</Description>
+    <RootNamespace>SoftwarePioniere.Projections</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\SoftwarePioniere.EventStore\SoftwarePioniere.EventStore.csproj" />
+    <ProjectReference Include="..\SoftwarePioniere.Projections.Services\SoftwarePioniere.Projections.Services.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SoftwarePioniere.Projections.Abstractions\SoftwarePioniere.Projections.Abstractions.csproj" />
     <ProjectReference Include="..\SoftwarePioniere.ReadModel.Services\SoftwarePioniere.ReadModel.Services.csproj" />
   </ItemGroup>
 

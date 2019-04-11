@@ -6,12 +6,11 @@ using EventStore.ClientAPI;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using SoftwarePioniere.DomainModel.Subscriptions;
 using SoftwarePioniere.EventStore;
 using SoftwarePioniere.Messaging;
 using ILogger = Microsoft.Extensions.Logging.ILogger;
 
-namespace SoftwarePioniere.DomainModel.Services.EventStore.Subscriptions
+namespace SoftwarePioniere.DomainModel.Subscriptions
 {
 
     public class PersistentSubscriptionAdapter<T> : IPersistentSubscriptionAdapter<T>

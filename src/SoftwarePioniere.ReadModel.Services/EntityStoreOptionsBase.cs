@@ -1,7 +1,7 @@
 ﻿using Foundatio.Caching;
 using Microsoft.Extensions.Logging;
 
-namespace SoftwarePioniere.ReadModel.Services
+namespace SoftwarePioniere.ReadModel
 {
     /// <summary>
     /// Entity Store Base Options

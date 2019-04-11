@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace SoftwarePioniere.DomainModel.Services
+namespace SoftwarePioniere.DomainModel
 {
     public class NullProjectionReader : IProjectionReader
     {

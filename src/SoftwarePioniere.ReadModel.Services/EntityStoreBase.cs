@@ -8,7 +8,7 @@ using Foundatio.Caching;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 
-namespace SoftwarePioniere.ReadModel.Services
+namespace SoftwarePioniere.ReadModel
 {
 
     public abstract class EntityStoreBase<TOptions> : IEntityStore where TOptions : EntityStoreOptionsBase

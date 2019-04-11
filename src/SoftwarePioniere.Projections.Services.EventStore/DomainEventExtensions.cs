@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 using SoftwarePioniere.EventStore;
 using SoftwarePioniere.Messaging;
 
-namespace SoftwarePioniere.Projections.Services.EventStore
+namespace SoftwarePioniere.Projections
 {
 
     public static class DomainEventExtensions

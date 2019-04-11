@@ -1,4 +1,4 @@
-namespace SoftwarePioniere.ReadModel.Services.MongoDb
+namespace SoftwarePioniere.ReadModel
 {
     public class MongoEntity<T> where T : Entity
     {

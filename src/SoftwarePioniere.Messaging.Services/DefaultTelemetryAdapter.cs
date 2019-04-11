@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 
-namespace SoftwarePioniere.Messaging.Services
+namespace SoftwarePioniere.Messaging
 {
     public class DefaultTelemetryAdapter : ITelemetryAdapter
     {

@@ -13,24 +13,24 @@ namespace SoftwarePioniere.EventStore.Tests
 
         private EventStoreSetup CreateSetup()
         {
-    
 
-            return GetService<EventStoreSetup>();          
+
+            return GetService<EventStoreSetup>();
         }
 
-         [Fact]
-        public async Task CanEnableProjectionTest()
-        {
-            var setup = CreateSetup();
-            const string projectionName = "$streams";
-            if (await setup.CheckProjectionIsRunningAsync(projectionName))
-            {
-                throw new InvalidOperationException($"Please disable Projection {projectionName} before testing");
-            }
+        //[Fact]
+        //public async Task CanEnableProjectionTest()
+        //{
+        //    var setup = CreateSetup();
+        //    const string projectionName = "$streams";
+        //    if (await setup.CheckProjectionIsRunningAsync(projectionName))
+        //    {
+        //        throw new InvalidOperationException($"Please disable Projection {projectionName} before testing");
+        //    }
 
-            await setup.EnableProjectionAsync(projectionName);
-            (await setup.CheckProjectionIsRunningAsync(projectionName)).Should().BeTrue();
-        }
+        //    await setup.EnableProjectionAsync(projectionName);
+        //    (await setup.CheckProjectionIsRunningAsync(projectionName)).Should().BeTrue();
+        //}
 
         [Fact]
         public async Task CanAddOpsUserToAdminTest()
@@ -99,9 +99,9 @@ namespace SoftwarePioniere.EventStore.Tests
             ServiceCollection
                 .AddEventStoreConnection();
 
-                ServiceCollection
-                    .AddOptions()
-                    .Configure<EventStoreOptions>(c => new TestConfiguration().ConfigurationRoot.Bind("EventStore", c));
+            ServiceCollection
+                .AddOptions()
+                .Configure<EventStoreOptions>(c => new TestConfiguration().ConfigurationRoot.Bind("EventStore", c));
         }
     }
 }

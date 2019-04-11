@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace SoftwarePioniere.ReadModel.Services
+namespace SoftwarePioniere.ReadModel
 {
     // ReSharper disable once ClassNeverInstantiated.Global
     public class InMemoryEntityStoreConnectionProvider : IEntityStoreConnectionProvider

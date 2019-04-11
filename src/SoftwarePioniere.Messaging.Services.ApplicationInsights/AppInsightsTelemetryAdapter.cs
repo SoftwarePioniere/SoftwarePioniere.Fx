@@ -11,7 +11,7 @@ using Microsoft.Extensions.Logging;
 using SoftwarePioniere.AspNetCore;
 using SoftwarePioniere.ReadModel;
 
-namespace SoftwarePioniere.Messaging.Services.ApplicationInsights
+namespace SoftwarePioniere.Messaging
 {
     public class AppInsightsTelemetryAdapter : IControllerTelemetryAdapter
     {

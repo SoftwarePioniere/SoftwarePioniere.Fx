@@ -1,4 +1,4 @@
-﻿namespace SoftwarePioniere.ReadModel.Services
+﻿namespace SoftwarePioniere.ReadModel
 {
     /// <inheritdoc />
     /// <summary>

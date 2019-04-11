@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using MongoDB.Driver;
 
-namespace SoftwarePioniere.ReadModel.Services.MongoDb
+namespace SoftwarePioniere.ReadModel
 {
     public class MongoDbEntityStore : EntityStoreBase<MongoDbOptions>
     {
