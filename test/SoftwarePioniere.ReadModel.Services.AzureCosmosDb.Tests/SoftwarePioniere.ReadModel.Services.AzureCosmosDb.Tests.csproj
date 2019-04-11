@@ -1,0 +1,12 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\SoftwarePioniere.ReadModel.Services.AzureCosmosDb\SoftwarePioniere.ReadModel.Services.AzureCosmosDb.csproj" />
+    <ProjectReference Include="..\..\src\SoftwarePioniere.ReadModel.TestHarness\SoftwarePioniere.ReadModel.TestHarness.csproj" />
+  </ItemGroup>
+
+</Project>

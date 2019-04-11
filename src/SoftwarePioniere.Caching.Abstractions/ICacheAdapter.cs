@@ -23,10 +23,12 @@ namespace SoftwarePioniere.Caching
 
         Task<bool> AddAsync<T>(string key, T value);
 
+        string GetCacheLockId(string prefix);
+
         //Task LockPrefix(string prefix);
 
         //Task ReleasePrefix(string prefix);
-        
+
     }
     
     public interface ICacheKeyBuilder

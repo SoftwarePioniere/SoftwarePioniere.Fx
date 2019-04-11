@@ -127,10 +127,26 @@ Task("DockerTest")
     .IsDependentOn("Version")
     .Does(context =>
 {
+    MyDotNet.DockerTestProject(image + ".clients.tests" , "SoftwarePioniere.Clients.Tests", artifactsDirectory);
+
     MyDotNet.DockerTestProject(image + ".domainmodel.services.tests" , "SoftwarePioniere.DomainModel.Services.Tests", artifactsDirectory);
     MyDotNet.DockerTestProject(image + ".domainmodel.tests" , "SoftwarePioniere.DomainModel.Tests", artifactsDirectory);
 
+    MyDotNet.DockerComposeTestProject(image + ".tests" , "SoftwarePioniere.EventStore.Tests", artifactsDirectory, new [] {
+         "SOPI_TESTS_EventStore__IpEndPoint=eventstore"
+    });
+
+    MyDotNet.DockerTestProject(image + ".extensions.tests" , "SoftwarePioniere.Extensions.Tests", artifactsDirectory);
+
     MyDotNet.DockerTestProject(image + ".messaging.tests" , "SoftwarePioniere.Messaging.Tests", artifactsDirectory);
+
+    MyDotNet.DockerTestProject(image + ".tests" , "SoftwarePioniere.ReadModel.Services.AzureCosmosDb.Tests", artifactsDirectory, new [] {
+                $"SOPI_TESTS_AZURECOSMOSDB__AUTHKEY={EnvironmentVariable("SOPI_TESTS_AZURECOSMOSDB__AUTHKEY")}",
+                $"SOPI_TESTS_AZURECOSMOSDB__ENDPOINTURL={EnvironmentVariable("SOPI_TESTS_AZURECOSMOSDB__ENDPOINTURL")}",
+                $"SOPI_TESTS_AZURECOSMOSDB__CollectionId=sopi-test-run"
+            });
+
+    MyDotNet.DockerComposeTestProject(image + ".tests" , "SoftwarePioniere.ReadModel.Services.MongoDb.Tests", artifactsDirectory);
 
     MyDotNet.DockerTestProject(image + ".readmodel.services.tests" , "SoftwarePioniere.ReadModel.Services.Tests", artifactsDirectory);
     MyDotNet.DockerTestProject(image + ".readmodel.tests" , "SoftwarePioniere.ReadModel.Tests", artifactsDirectory);

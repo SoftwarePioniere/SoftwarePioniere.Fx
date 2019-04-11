@@ -163,8 +163,7 @@ public class MyDotNet {
             NoRestore = true,
             Verbosity = Verbosity,
             EnvironmentVariables = new Dictionary<string, string> {
-                { "NuGetVersionV2", MyGitVersion.GetVersion() },
-                { "AssemblySemVer", MyGitVersion.GetAssemblyVersion() }
+                { "Version", MyGitVersion.GetVersion() }
             }
         };
 
@@ -187,8 +186,7 @@ public class MyDotNet {
             IncludeSymbols = true,
             Verbosity = Verbosity,
             EnvironmentVariables = new Dictionary<string, string> {
-                { "NuGetVersionV2", MyGitVersion.GetVersion() },
-                { "AssemblySemVer", MyGitVersion.GetAssemblyVersion() }
+                { "Version", MyGitVersion.GetVersion() }
             }
         };
 
@@ -232,8 +230,7 @@ public class MyDotNet {
                 Configuration = _configuration,
                 Verbosity = Verbosity,
                 EnvironmentVariables = new Dictionary<string, string> {
-                    { "NuGetVersionV2", MyGitVersion.GetVersion() },
-                    { "AssemblySemVer", MyGitVersion.GetAssemblyVersion() }
+                    { "Version", MyGitVersion.GetVersion() }
                 },
                 NoBuild = true,
                 NoRestore = true
@@ -267,8 +264,7 @@ public class MyDotNet {
                 Verbosity = Verbosity,
                 NoRestore = true,
                 EnvironmentVariables = new Dictionary<string, string> {
-                    { "NuGetVersionV2", MyGitVersion.GetVersion() },
-                    { "AssemblySemVer", MyGitVersion.GetAssemblyVersion() }
+                    { "Version", MyGitVersion.GetVersion() }
                 }
             };
 
@@ -291,8 +287,7 @@ public class MyDotNet {
         Pull = true,
         BuildArg = new [] {
             $"CONFIGURATION={_configuration}",
-            $"NUGETVERSIONV2={MyGitVersion.GetVersion()}",
-            $"ASSEMBLYSEMVER={MyGitVersion.GetAssemblyVersion()}",
+            $"Version={MyGitVersion.GetVersion()}"
         },
         Tag = GetDockerTags(image)
         };
@@ -313,8 +308,7 @@ public class MyDotNet {
         Pull = true,
         BuildArg = new [] {
             $"CONFIGURATION={_configuration}",
-            $"NUGETVERSIONV2={MyGitVersion.GetVersion()}",
-            $"ASSEMBLYSEMVER={MyGitVersion.GetAssemblyVersion()}",
+            $"Version={MyGitVersion.GetVersion()}"
             $"PROJECT={project}",
             $"PROJECTDLL={project}.dll",
         },
@@ -337,8 +331,7 @@ public class MyDotNet {
             Pull = true,
             BuildArg = new [] {
                 $"CONFIGURATION={_configuration}",
-                $"NUGETVERSIONV2={MyGitVersion.GetVersion()}",
-                $"ASSEMBLYSEMVER={MyGitVersion.GetAssemblyVersion()}",
+                $"Version={MyGitVersion.GetVersion()}"
                 $"PROJECT={project}"
             },
             Tag = GetDockerTestRunnerTags(image),
@@ -383,7 +376,7 @@ public class MyDotNet {
             // _context.DockerRun(settings, tag, "") ; //, "test", "--logger:trx", "--no-build", "-k", _nugetApiKey);
             _context.DockerRun(settings, tag, "dotnet", "test", "--logger:trx", "--no-build", "--no-restore"
                         , "-r" , "/testresults", "-c", _configuration
-                        , $"/p:NuGetVersionV2={MyGitVersion.GetVersion()}" , $"/p:AssemblySemVer={MyGitVersion.GetAssemblyVersion()}"
+                        , $"/p:Version={MyGitVersion.GetVersion()}"
                       );
         } else {
             _context.Verbose("Dry Run, skipping DockerRun");
@@ -421,8 +414,7 @@ public class MyDotNet {
         }
         tempEnv.AddRange(  new [] {
                 $"CONFIGURATION={_configuration}",
-                $"NUGETVERSIONV2={MyGitVersion.GetVersion()}",
-                $"ASSEMBLYSEMVER={MyGitVersion.GetAssemblyVersion()}",
+                $"Version={MyGitVersion.GetVersion()}"
                 $"IMAGE={image}",
                 $"TAG={tag}",
                 $"PROJECT={project}",
@@ -507,8 +499,7 @@ public class MyDotNet {
         Pull = true,
         BuildArg = new [] {
             $"CONFIGURATION={_configuration}",
-            $"NUGETVERSIONV2={MyGitVersion.GetVersion()}",
-            $"ASSEMBLYSEMVER={MyGitVersion.GetAssemblyVersion()}"
+            $"Version={MyGitVersion.GetVersion()}"
         },
         Tag = GetDockerPackTags(image),
         Target = "pack"

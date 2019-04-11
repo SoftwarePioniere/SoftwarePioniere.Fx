@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <Description>Software Pioniere Fx Event Store Domain Services</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SoftwarePioniere.EventStore\SoftwarePioniere.EventStore.csproj" />
+    <ProjectReference Include="..\SoftwarePioniere.DomainModel.Services\SoftwarePioniere.DomainModel.Services.csproj" />
+    <ProjectReference Include="..\SoftwarePioniere.DomainModel.Abstractions\SoftwarePioniere.DomainModel.Abstractions.csproj" />
+  </ItemGroup>
+
+
+</Project>

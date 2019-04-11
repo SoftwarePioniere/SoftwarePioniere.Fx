@@ -43,8 +43,7 @@ namespace SoftwarePioniere.Projections
 
         private string GetCacheLockId()
         {
-            var lockId = $"CACHE-{EntityTypeKey}";
-            return lockId;
+            return Cache.GetCacheLockId(EntityTypeKey);
         }
 
         protected async Task DeleteItemIfAsync(IMessage message, Func<T, bool> predicate, IDictionary<string, string> state)

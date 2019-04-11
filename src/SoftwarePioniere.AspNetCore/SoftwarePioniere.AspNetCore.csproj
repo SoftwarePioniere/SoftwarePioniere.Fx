@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <Description>Software Pioniere Fx AspNet Core Base</Description>    
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.2.0" />   
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SoftwarePioniere.Messaging.Abstractions\SoftwarePioniere.Messaging.Abstractions.csproj" />
+    <ProjectReference Include="..\SoftwarePioniere.Messaging\SoftwarePioniere.Messaging.csproj" />
+    <ProjectReference Include="..\SoftwarePioniere.Projections\SoftwarePioniere.Projections.csproj" />
+  </ItemGroup>
+</Project>

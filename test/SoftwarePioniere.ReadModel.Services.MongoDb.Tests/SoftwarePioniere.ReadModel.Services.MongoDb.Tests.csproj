@@ -1,0 +1,12 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\SoftwarePioniere.ReadModel.TestHarness\SoftwarePioniere.ReadModel.TestHarness.csproj" />
+    <ProjectReference Include="..\..\src\SoftwarePioniere.ReadModel.Services.MongoDb\SoftwarePioniere.ReadModel.Services.MongoDb.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
+using SoftwarePioniere.Clients.AzureAd;
 using Xunit;
 using Xunit.Abstractions;
 

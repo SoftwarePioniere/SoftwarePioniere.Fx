@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="2.2.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SoftwarePioniere.DomainModel.Abstractions\SoftwarePioniere.DomainModel.Abstractions.csproj" />
+    <ProjectReference Include="..\SoftwarePioniere.Messaging.Abstractions\SoftwarePioniere.Messaging.Abstractions.csproj" />
+    <ProjectReference Include="..\SoftwarePioniere.Projections\SoftwarePioniere.Projections.csproj" />
+  </ItemGroup>
+
+</Project>

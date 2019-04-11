@@ -19,10 +19,9 @@ COPY . .
 
 FROM src AS buildsln
 ARG CONFIGURATION=Release
-ARG NUGETVERSIONV2=99.99.99
-ARG ASSEMBLYSEMVER=99.99.99.99
+ARG VERSION=99.99.99
 WORKDIR /proj/src/
-RUN dotnet build /proj/SoftwarePioniere.Fx.sln -c $CONFIGURATION --no-restore /p:NuGetVersionV2=$NUGETVERSIONV2 /p:AssemblySemVer=$ASSEMBLYSEMVER
+RUN dotnet build /proj/SoftwarePioniere.Fx.sln -c $CONFIGURATION --no-restore /p:Version=$VERSION
 
 FROM buildsln as testrunner
 ARG PROJECT=SoftwarePioniere.Messaging.Tests
@@ -35,7 +34,6 @@ WORKDIR /proj/test/$PROJECT
 
 FROM buildsln as pack
 ARG CONFIGURATION=Release
-ARG NUGETVERSIONV2=99.99.99
-ARG ASSEMBLYSEMVER=99.99.99.99
-RUN dotnet pack /proj/SoftwarePioniere.Fx.sln -c $CONFIGURATION --no-restore --no-build /p:NuGetVersionV2=$NUGETVERSIONV2 /p:AssemblySemVer=$ASSEMBLYSEMVER -o /proj/packages
+ARG VERSION=99.99.99
+RUN dotnet pack /proj/SoftwarePioniere.Fx.sln -c $CONFIGURATION --no-restore --no-build /p:Version=$VERSION -o /proj/packages
 WORKDIR /proj/packages/
