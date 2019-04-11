@@ -1,4 +1,5 @@
 ﻿using SoftwarePioniere.Messaging;
+using SoftwarePioniere.Messaging.Services;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.Extensions.DependencyInjection
