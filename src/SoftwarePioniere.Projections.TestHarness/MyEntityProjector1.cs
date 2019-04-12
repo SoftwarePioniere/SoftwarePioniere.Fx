@@ -1,6 +1,6 @@
-﻿using System.Threading;
+﻿using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
-using Foundatio.Messaging;
 using Microsoft.Extensions.Logging;
 using SoftwarePioniere.Messaging;
 using SoftwarePioniere.ReadModel;
@@ -9,7 +9,7 @@ namespace SoftwarePioniere.Projections
 {
     public class MyEntityProjector1 : ReadModelProjectorBase<MyEntity1>
     {
-        public MyEntityProjector1(ILoggerFactory loggerFactory, IMessageBus bus) : base(loggerFactory, bus)
+        public MyEntityProjector1(ILoggerFactory loggerFactory, IMessageBusAdapter bus) : base(loggerFactory, bus)
         {
             StreamName = "$ce-SoftwarePionierTests_Fake";
         }
@@ -19,7 +19,7 @@ namespace SoftwarePioniere.Projections
 
         }
 
-        public override async Task HandleAsync(IDomainEvent domainEvent)
+        public override async Task ProcessEventAsync(IDomainEvent domainEvent, IDictionary<string, string> state = null)
         {
             if (domainEvent is FakeEvent fe)
             {
@@ -29,7 +29,7 @@ namespace SoftwarePioniere.Projections
                 var item = await LoadAsync(evnt.AggregateId);
                 var entity = item.Entity;
 
-               // await Task.Delay(200);
+                // await Task.Delay(200);
 
                 entity.StringValue = evnt.Text;
 
@@ -37,4 +37,6 @@ namespace SoftwarePioniere.Projections
             }
         }
     }
+
+
 }

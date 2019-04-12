@@ -11,7 +11,7 @@ using SoftwarePioniere.DomainModel;
 using SoftwarePioniere.Messaging;
 using SoftwarePioniere.Projections;
 
-namespace SoftwarePioniere.Hosting
+namespace SoftwarePioniere.Extensions.Hosting
 {
     public class SopiAppService: BackgroundService
     {

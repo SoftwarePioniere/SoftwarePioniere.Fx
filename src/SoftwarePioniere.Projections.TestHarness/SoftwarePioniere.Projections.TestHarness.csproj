@@ -7,7 +7,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SoftwarePioniere.Messaging.TestHarness\SoftwarePioniere.Messaging.TestHarness.csproj" />
-    <ProjectReference Include="..\SoftwarePioniere.Projections.Abstractions\SoftwarePioniere.Projections.Abstractions.csproj" />
+    <ProjectReference Include="..\SoftwarePioniere.Projections.Services.Abstractions\SoftwarePioniere.Projections.Services.Abstractions.csproj" />
     <ProjectReference Include="..\SoftwarePioniere.ReadModel.TestHarness\SoftwarePioniere.ReadModel.TestHarness.csproj" />
   </ItemGroup>
 
