@@ -31,7 +31,7 @@ namespace SoftwarePioniere
             ConfigurationRoot = builder.Build();
         }
 
-        // ReSharper disable once MemberCanBePrivate.Global        
+        // ReSharper disable once MemberCanBePrivate.Global
         public IConfiguration ConfigurationRoot { get; }
 
         public T Get<T>(string sectionName)

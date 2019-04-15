@@ -25,9 +25,6 @@ RUN dotnet build /proj/SoftwarePioniere.Fx.sln -c $CONFIGURATION --no-restore /p
 
 FROM buildsln as testrunner
 ARG PROJECT=SoftwarePioniere.Messaging.Tests
-# ARG CONFIGURATION=Release
-# ARG NUGETVERSIONV2=99.99.99
-# ARG ASSEMBLYSEMVER=99.99.99.99
 WORKDIR /proj/test/$PROJECT
 # ENTRYPOINT ["dotnet", "test", "--logger:trx"]
 # RUN dotnet test -c $CONFIGURATION --no-restore --no-build /p:NuGetVersionV2=$NUGETVERSIONV2 /p:AssemblySemVer=$ASSEMBLYSEMVER -r /testresults

@@ -331,8 +331,8 @@ public class MyDotNet {
             Pull = true,
             BuildArg = new [] {
                 $"CONFIGURATION={_configuration}",
-                $"Version={MyGitVersion.GetVersion()}",
-                $"PROJECT={project}"
+                $"Version={MyGitVersion.GetVersion()}"
+                // ,                $"PROJECT={project}"
             },
             Tag = GetDockerTestRunnerTags(image),
             Target = "testrunner"
