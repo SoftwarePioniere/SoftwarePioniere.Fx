@@ -163,7 +163,7 @@ public class MyDotNet {
             NoRestore = true,
             Verbosity = Verbosity,
             EnvironmentVariables = new Dictionary<string, string> {
-                { "Version", MyGitVersion.GetVersion() }
+                { "VERSION", MyGitVersion.GetVersion() }
             }
         };
 
@@ -186,7 +186,7 @@ public class MyDotNet {
             IncludeSymbols = true,
             Verbosity = Verbosity,
             EnvironmentVariables = new Dictionary<string, string> {
-                { "Version", MyGitVersion.GetVersion() }
+                { "VERSION", MyGitVersion.GetVersion() }
             }
         };
 
@@ -230,7 +230,7 @@ public class MyDotNet {
                 Configuration = _configuration,
                 Verbosity = Verbosity,
                 EnvironmentVariables = new Dictionary<string, string> {
-                    { "Version", MyGitVersion.GetVersion() }
+                    { "VERSION", MyGitVersion.GetVersion() }
                 },
                 NoBuild = true,
                 NoRestore = true
@@ -264,7 +264,7 @@ public class MyDotNet {
                 Verbosity = Verbosity,
                 NoRestore = true,
                 EnvironmentVariables = new Dictionary<string, string> {
-                    { "Version", MyGitVersion.GetVersion() }
+                    { "VERSION", MyGitVersion.GetVersion() }
                 }
             };
 
@@ -287,7 +287,7 @@ public class MyDotNet {
         Pull = true,
         BuildArg = new [] {
             $"CONFIGURATION={_configuration}",
-            $"Version={MyGitVersion.GetVersion()}"
+            $"VERSION={MyGitVersion.GetVersion()}"
         },
         Tag = GetDockerTags(image)
         };
@@ -308,7 +308,7 @@ public class MyDotNet {
         Pull = true,
         BuildArg = new [] {
             $"CONFIGURATION={_configuration}",
-            $"Version={MyGitVersion.GetVersion()}",
+            $"VERSION={MyGitVersion.GetVersion()}",
             $"PROJECT={project}",
             $"PROJECTDLL={project}.dll",
         },
@@ -331,7 +331,7 @@ public class MyDotNet {
             Pull = true,
             BuildArg = new [] {
                 $"CONFIGURATION={_configuration}",
-                $"Version={MyGitVersion.GetVersion()}"
+                $"VERSION={MyGitVersion.GetVersion()}"
                 // ,                $"PROJECT={project}"
             },
             Tag = GetDockerTestRunnerTags(image),
@@ -414,7 +414,7 @@ public class MyDotNet {
         }
         tempEnv.AddRange(  new [] {
                 $"CONFIGURATION={_configuration}",
-                $"Version={MyGitVersion.GetVersion()}",
+                $"VERSION={MyGitVersion.GetVersion()}",
                 $"IMAGE={image}",
                 $"TAG={tag}",
                 $"PROJECT={project}",
@@ -500,7 +500,7 @@ public class MyDotNet {
         Pull = true,
         BuildArg = new [] {
             $"CONFIGURATION={_configuration}",
-            $"Version={MyGitVersion.GetVersion()}"
+            $"VERSION={MyGitVersion.GetVersion()}"
         },
         Tag = GetDockerPackTags(image),
         Target = "pack"
