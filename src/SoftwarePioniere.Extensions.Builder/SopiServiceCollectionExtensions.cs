@@ -1,4 +1,5 @@
 ﻿using System;
+using Microsoft.Extensions.Configuration;
 using SoftwarePioniere.Extensions.Builder;
 
 // ReSharper disable once CheckNamespace
@@ -6,23 +7,26 @@ namespace Microsoft.Extensions.DependencyInjection
 {
     public static class SopiServiceCollectionExtensions
     {
-        public static ISopiBuilder AddSopi(this IServiceCollection services, Action<SopiOptions> setupAction)
+        public static ISopiBuilder AddSopi(this IServiceCollection services, IConfiguration config)
         {
             if (services == null)
             {
                 throw new ArgumentNullException(nameof(services));
             }
 
-            if (setupAction == null)
+            if (config == null)
             {
-                throw new ArgumentNullException(nameof(setupAction));
+                throw new ArgumentNullException(nameof(config));
             }
 
-            var sopiBuilder = services.AddSopi();
-            sopiBuilder.Services.Configure(setupAction);
+            //if (setupAction == null)
+            //{
+            //    throw new ArgumentNullException(nameof(setupAction));
+            //}
 
-            sopiBuilder.Options = new SopiOptions();
-            setupAction(sopiBuilder.Options);
+            var sopiBuilder = services.AddSopi();
+            sopiBuilder.AddConfiguration(config);
+
 
             return sopiBuilder;
         }
@@ -33,6 +37,13 @@ namespace Microsoft.Extensions.DependencyInjection
             {
                 throw new ArgumentNullException(nameof(services));
             }
+
+            services
+                .Configure<DevOptions>(c =>
+                {
+                    c.BadRequestForPost = false;
+                    c.RaiseCommandFailed = false;
+                });
 
             return new SopiBuilder(services);
         }

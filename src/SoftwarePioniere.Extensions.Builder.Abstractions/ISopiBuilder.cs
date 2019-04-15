@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using System.Collections.Generic;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace SoftwarePioniere.Extensions.Builder
@@ -7,14 +8,12 @@ namespace SoftwarePioniere.Extensions.Builder
     {
         IServiceCollection Services { get; }
 
-        object MvcBuilder { get; set; }
+        IDictionary<string, object> Features { get; }
 
-        object HealthChecksBuilder { get; set; }
-        
         SopiOptions Options { get; set; }
 
         IConfiguration Config { get; set; }
 
-        string Version { get;  }
+        string Version { get; }
     }
 }

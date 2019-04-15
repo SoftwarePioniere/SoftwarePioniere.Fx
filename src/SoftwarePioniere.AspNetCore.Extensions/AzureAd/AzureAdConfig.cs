@@ -17,6 +17,8 @@ namespace SoftwarePioniere.AspNetCore.AzureAd
             var authOptions = new AzureAdOptions();
             config.Bind("AzureAd", authOptions);
 
+            services.AddSingleton<ISwaggerClientOptions>(authOptions);
+
             return authOptions;
         }
     }

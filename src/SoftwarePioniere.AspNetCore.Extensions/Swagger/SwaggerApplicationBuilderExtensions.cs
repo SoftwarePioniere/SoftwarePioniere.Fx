@@ -1,5 +1,7 @@
 ﻿using System;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 // ReSharper disable UnusedMember.Global
 // ReSharper disable ClassNeverInstantiated.Global
@@ -9,11 +11,21 @@ namespace SoftwarePioniere.AspNetCore.Swagger
 {
     public static class SwaggerApplicationBuilderExtensions
     {
-
         public static IApplicationBuilder UseMySwagger(this IApplicationBuilder app, Action<MySwaggerOptions> setupAction)
         {
             var options = new MySwaggerOptions();
             setupAction(options);
+            return app.UseMySwagger(options);
+        }
+
+        public static IApplicationBuilder UseMySwagger(this IApplicationBuilder app)
+        {
+            var options = app.ApplicationServices.GetRequiredService<IOptions<MySwaggerOptions>>().Value;
+            return app.UseMySwagger(options);
+        }
+
+        public static IApplicationBuilder UseMySwagger(this IApplicationBuilder app, MySwaggerOptions options)
+        {
 
             app.UseSwagger(c =>
             {

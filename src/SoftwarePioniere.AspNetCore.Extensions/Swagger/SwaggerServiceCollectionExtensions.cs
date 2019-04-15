@@ -14,6 +14,7 @@ namespace SoftwarePioniere.AspNetCore.Swagger
         {
             var options = new MySwaggerOptions();
             configureOptions(options);
+
             services
                 .Configure(configureOptions)
                 .AddSwaggerGen(c =>
@@ -45,9 +46,12 @@ namespace SoftwarePioniere.AspNetCore.Swagger
                     });
                 }
 
-                foreach (var xmlFile in options.XmlFiles)
+                if (options.XmlFiles != null)
                 {
-                    IncludeXmlCommentsIfExist(c, xmlFile);
+                    foreach (var xmlFile in options.XmlFiles)
+                    {
+                        IncludeXmlCommentsIfExist(c, xmlFile);
+                    }
                 }
 
                 c.EnableAnnotations();

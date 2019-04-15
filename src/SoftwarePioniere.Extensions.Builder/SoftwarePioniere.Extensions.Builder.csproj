@@ -25,6 +25,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SoftwarePioniere.Extensions.Builder.Abstractions\SoftwarePioniere.Extensions.Builder.Abstractions.csproj" />
+    <ProjectReference Include="..\SoftwarePioniere.Foundatio.Redis\SoftwarePioniere.Foundatio.Redis.csproj" />
   </ItemGroup>
 
 </Project>

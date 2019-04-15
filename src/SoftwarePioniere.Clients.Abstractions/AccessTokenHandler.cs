@@ -9,14 +9,14 @@ namespace SoftwarePioniere.Clients
     /// <summary>
     /// Token in Client Request einfügen
     /// </summary>
-    public class TokenHandler : DelegatingHandler
+    public class AccessTokenHandler : DelegatingHandler
     {
         private readonly ITokenProvider _tokenProvider;
         private readonly string _audience;
         private readonly ILogger _logger;
 
         /// <inheritdoc />
-        public TokenHandler(ILoggerFactory loggerFactory, ITokenProvider tokenProvider, string audience)
+        public AccessTokenHandler(ILoggerFactory loggerFactory, ITokenProvider tokenProvider, string audience)
         {
             if (loggerFactory == null)
             {

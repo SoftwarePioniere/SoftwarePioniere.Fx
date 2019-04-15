@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
+using SoftwarePioniere.AspNetCore.Swagger;
 using SoftwarePioniere.Extensions.Builder;
 
 namespace SoftwarePioniere.Extensions.Hosting
@@ -16,18 +17,43 @@ namespace SoftwarePioniere.Extensions.Hosting
         {
             webHostBuilder.ConfigureAppConfiguration(configBuilderAction)
                 .UseSerilog()
+                .UseApplicationInsights()
                 .UseKestrel(k => k.AddServerHeader = false)
                 .ConfigureServices((context, services) =>
                 {
-                    var sopiBuilder = services.AddSopi(opt => context.Configuration.Bind(opt));
+                    var sopiBuilder = services.AddSopi(context.Configuration);
+                 
+                    sopiBuilder  
+                        .AddPlatformServices()
+                        .AddDevOptions()
+                        .AddReportingOptions()
+                        .AddAppInsightsTelemetry()
+                        .AddMvcServices()
+                        .AddAuthentication()
+                        .AddSystemServicesByConfiguration()          
+                        .AddClients()
+                        ;
+
                     setupAction(sopiBuilder);
 
                     services.AddHostedService<SopiAppService>();
                 })
                 .Configure(app =>
                 {
-                    app.UseMiddleware<SerilogMiddleware>();
+                    app
+                        .UseMiddleware<SerilogMiddleware>()
+                        .UseSopiHealthChecks()
+                        .UseCors()
+                        .UseDefaultFiles()
+                        .UseStaticFiles()
+                        .UseAuthentication()
+                        .UseMvc()
+                        .UseMySwagger()                     
+                        ;                    
+
                     configureApp(app);
+
+                    app.ApplicationServices.CheckSystemState();
                 });
 
             return webHostBuilder;

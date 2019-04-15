@@ -19,6 +19,8 @@ namespace SoftwarePioniere.AspNetCore.Auth0
             var authOptions = new Auth0Options();
             config.Bind("Auth0", authOptions);
 
+            services.AddSingleton<ISwaggerClientOptions>(authOptions);
+
             return authOptions;
         }
     }

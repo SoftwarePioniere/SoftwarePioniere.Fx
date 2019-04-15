@@ -23,8 +23,19 @@ namespace SoftwarePioniere.Extensions.Hosting
                 .ConfigureHostConfiguration(configBuilderAction)
                 .ConfigureServices((context, services) =>
                 {
-                    var sopiBuilder = services.AddSopi(opt => context.Configuration.Bind(opt));
+                    var sopiBuilder = services.AddSopi(context.Configuration);
+
+                    sopiBuilder
+                        .AddPlatformServices()
+                        .AddDevOptions()
+                        .AddReportingOptions()
+                        .AddDefaultTelemetry()
+                        .AddSystemServicesByConfiguration()
+                        .AddClients()
+                        ;
+
                     setupAction(sopiBuilder);
+
 
                     services.AddHostedService<SopiAppService>();
                 })

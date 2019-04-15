@@ -7,11 +7,30 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="2.2.0" />
+    <PackageReference Include="AspNetCore.HealthChecks.AzureStorage" Version="2.2.2" />
+
+    <PackageReference Include="AspNetCore.HealthChecks.DocumentDb" Version="2.2.0" />
+
+    <PackageReference Include="AspNetCore.HealthChecks.MongoDb" Version="2.2.2" />
+
+    <PackageReference Include="AspNetCore.HealthChecks.Redis" Version="2.2.2" />
+
+    <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="2.2.0" />
+       <PackageReference Include="Foundatio.AzureStorage" Version="8.0.1525" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\SoftwarePioniere.Caching\SoftwarePioniere.Caching.csproj" />
+    <ProjectReference Include="..\SoftwarePioniere.Clients\SoftwarePioniere.Clients.csproj" />
+    <ProjectReference Include="..\SoftwarePioniere.DomainModel.Services.EventStore\SoftwarePioniere.DomainModel.Services.EventStore.csproj" />
+    <ProjectReference Include="..\SoftwarePioniere.EventStore\SoftwarePioniere.EventStore.csproj" />
     <ProjectReference Include="..\SoftwarePioniere.Extensions.Builder\SoftwarePioniere.Extensions.Builder.csproj" />
-    <ProjectReference Include="..\SoftwarePioniere.Extensions.Hosting.Abstractions\SoftwarePioniere.Extensions.Hosting.Abstractions.csproj" />    
+    <ProjectReference Include="..\SoftwarePioniere.Extensions.Hosting.Abstractions\SoftwarePioniere.Extensions.Hosting.Abstractions.csproj" />
+    <ProjectReference Include="..\SoftwarePioniere.Foundatio.Redis\SoftwarePioniere.Foundatio.Redis.csproj" />
+    <ProjectReference Include="..\SoftwarePioniere.Messaging.Services\SoftwarePioniere.Messaging.Services.csproj" />
+    <ProjectReference Include="..\SoftwarePioniere.Projections.Services.EventStore\SoftwarePioniere.Projections.Services.EventStore.csproj" />
+    <ProjectReference Include="..\SoftwarePioniere.ReadModel.Services.AzureCosmosDb\SoftwarePioniere.ReadModel.Services.AzureCosmosDb.csproj" />
+    <ProjectReference Include="..\SoftwarePioniere.ReadModel.Services.MongoDb\SoftwarePioniere.ReadModel.Services.MongoDb.csproj" />    
   </ItemGroup>
 
 </Project>

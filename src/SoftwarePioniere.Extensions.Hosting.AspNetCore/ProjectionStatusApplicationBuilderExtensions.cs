@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using SoftwarePioniere.Projections;
 
-namespace SoftwarePioniere.AspNetCore
+namespace SoftwarePioniere.Extensions.Hosting
 {
     public static class ProjectionStatusApplicationBuilderExtensions
     {

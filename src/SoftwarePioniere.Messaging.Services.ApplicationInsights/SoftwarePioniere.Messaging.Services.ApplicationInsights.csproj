@@ -16,6 +16,7 @@
     <ProjectReference Include="..\SoftwarePioniere.Extensions\SoftwarePioniere.Extensions.csproj" />
     <ProjectReference Include="..\SoftwarePioniere.Foundatio\SoftwarePioniere.Foundatio.csproj" />
     <ProjectReference Include="..\SoftwarePioniere.Messaging\SoftwarePioniere.Messaging.csproj" />
+    <ProjectReference Include="..\SoftwarePioniere.ReadModel\SoftwarePioniere.ReadModel.csproj" />
   </ItemGroup>
 
 </Project>

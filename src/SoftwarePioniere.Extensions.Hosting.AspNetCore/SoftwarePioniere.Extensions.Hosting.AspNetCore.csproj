@@ -16,8 +16,9 @@
   </ItemGroup>
 
    <ItemGroup>
-     <ProjectReference Include="..\SoftwarePioniere.Extensions.Builder\SoftwarePioniere.Extensions.Builder.csproj" />
-     <ProjectReference Include="..\SoftwarePioniere.Extensions.Hosting.Abstractions\SoftwarePioniere.Extensions.Hosting.Abstractions.csproj" />
+     <ProjectReference Include="..\SoftwarePioniere.AspNetCore.Extensions\SoftwarePioniere.AspNetCore.Extensions.csproj" />
+     <ProjectReference Include="..\SoftwarePioniere.Extensions.Hosting\SoftwarePioniere.Extensions.Hosting.csproj" />
+     <ProjectReference Include="..\SoftwarePioniere.Messaging.Services.ApplicationInsights\SoftwarePioniere.Messaging.Services.ApplicationInsights.csproj" />
    </ItemGroup>
   
 </Project>

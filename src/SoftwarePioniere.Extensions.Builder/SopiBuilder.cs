@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -8,11 +9,12 @@ namespace SoftwarePioniere.Extensions.Builder
     public class SopiBuilder : ISopiBuilder
     {
         public IServiceCollection Services { get; }
-        public object MvcBuilder { get; set; }
+        public IDictionary<string, object> Features { get; } = new Dictionary<string, object>();
+        //public object MvcBuilder { get; set; }
         public SopiOptions Options { get; set; }
         public IConfiguration Config { get; set; }
         public string Version { get; }
-        public object HealthChecksBuilder { get; set; }
+        //public object HealthChecksBuilder { get; set; }
 
         public SopiBuilder(IServiceCollection services)
         {

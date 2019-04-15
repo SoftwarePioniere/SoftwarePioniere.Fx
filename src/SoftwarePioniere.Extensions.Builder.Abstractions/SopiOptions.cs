@@ -1,4 +1,7 @@
-﻿namespace SoftwarePioniere.Extensions.Builder
+﻿// ReSharper disable UnusedMember.Global
+// ReSharper disable UnusedAutoPropertyAccessor.Global
+// ReSharper disable AutoPropertyCanBeMadeGetOnly.Global
+namespace SoftwarePioniere.Extensions.Builder
 {
 
     public class SopiOptions
@@ -17,22 +20,18 @@
 
         public int TaskQueueMaxItems { get; set; } = int.MaxValue;
 
-        // ReSharper disable once UnusedAutoPropertyAccessor.Global
         public string AppId { get; set; } //= "sopi-test";
         public string AppContext { get; set; }
 
-        // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Global
         public string AllowedOrigins { get; set; } = "*"; //"http://localhost:4200;http://localhost:8100;https://fliegel365-dev-start.azurewebsites.net/";
-        public string Auth { get; set; }
+        public string Auth { get; set; } = AuthAuth0;
         public string MessageBus { get; set; }
         public string EntityStore { get; set; }
         public string DomainEventStore { get; set; }
         public string CacheClient { get; set; }
-        // ReSharper disable once UnusedAutoPropertyAccessor.Global
         public bool AllowDevMode { get; set; }
-        // ReSharper disable once UnusedAutoPropertyAccessor.Global
         public string Storage { get; set; }
         public string WebSocketPaths { get; set; }
-        
+
     }
 }
