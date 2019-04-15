@@ -4,7 +4,7 @@ namespace SoftwarePioniere.AspNetCore
 {
     public class AuthorizeUserAttribute : AuthorizeAttribute
     {
-        public AuthorizeUserAttribute() : base(Constants.IsUserPolicy)
+        public AuthorizeUserAttribute() : base(PolicyConstants.IsUserPolicy)
         {
 
         }

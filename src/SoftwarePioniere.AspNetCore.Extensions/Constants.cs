@@ -1,7 +1,7 @@
 ﻿
 namespace SoftwarePioniere.AspNetCore
 {
-    public static class Constants
+    public static class PolicyConstants
     {
         public static string IsAdminPolicy = "admin";
 

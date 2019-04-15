@@ -88,10 +88,10 @@ namespace Microsoft.AspNetCore.Authentication
             Console.WriteLine("AddAuth0: Adding AddAuthorization Admin Policy");
             builder.Services.AddAuthorization(authorizationOptions =>
             {
-                authorizationOptions.AddPolicy(Constants.IsAdminPolicy, policy => policy.RequireClaim(auth0Options.GroupClaimType, auth0Options.AdminGroupId));
+                authorizationOptions.AddPolicy(PolicyConstants.IsAdminPolicy, policy => policy.RequireClaim(auth0Options.GroupClaimType, auth0Options.AdminGroupId));
                 if (!string.IsNullOrEmpty(auth0Options.UserGroupId))
                 {
-                    authorizationOptions.AddPolicy(Constants.IsUserPolicy, policy => policy.RequireClaim(auth0Options.GroupClaimType, auth0Options.UserGroupId));
+                    authorizationOptions.AddPolicy(PolicyConstants.IsUserPolicy, policy => policy.RequireClaim(auth0Options.GroupClaimType, auth0Options.UserGroupId));
                 }
             });
 

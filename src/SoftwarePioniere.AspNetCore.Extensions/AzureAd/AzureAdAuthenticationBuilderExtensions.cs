@@ -112,11 +112,11 @@ namespace Microsoft.AspNetCore.Authentication
             Console.WriteLine("AddAzureAd: Adding AddAuthorization Admin Policy");
             builder.Services.AddAuthorization(authorizationOptions =>
             {
-                authorizationOptions.AddPolicy(Constants.IsAdminPolicy, policy => policy.RequireClaim("groups", azureAdOptions.AdminGroupId));
+                authorizationOptions.AddPolicy(PolicyConstants.IsAdminPolicy, policy => policy.RequireClaim("groups", azureAdOptions.AdminGroupId));
 
                 if (!string.IsNullOrEmpty(azureAdOptions.UserGroupId))
                 {
-                    authorizationOptions.AddPolicy(Constants.IsAdminPolicy, policy => policy.RequireClaim("groups", azureAdOptions.UserGroupId));
+                    authorizationOptions.AddPolicy(PolicyConstants.IsAdminPolicy, policy => policy.RequireClaim("groups", azureAdOptions.UserGroupId));
                 }
 
                 configureAuthorization?.Invoke(authorizationOptions);
