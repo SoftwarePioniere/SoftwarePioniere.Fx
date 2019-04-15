@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 
 namespace SoftwarePioniere.Extensions.Builder
 {
-    public static  class LoggingExtensions
+    public static class ServiceProviderLoggingExtensions
     {
         public static ILogger GetStartupLogger(this IServiceProvider provider)
         {
