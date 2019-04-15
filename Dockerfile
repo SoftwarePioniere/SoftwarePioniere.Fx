@@ -15,15 +15,20 @@ RUN for file in $(ls *.csproj); do mkdir -p test/${file%.*}/ && mv $file test/${
 RUN dotnet restore SoftwarePioniere.Fx.sln
 
 FROM restore as src
+ARG CONFIGURATION=Release
+ARG NUGETVERSIONV2=99.99.99
+ARG ASSEMBLYSEMVER=99.99.99.99
 COPY . .
 
 FROM src AS buildsln
 ARG CONFIGURATION=Release
-ARG VERSION=99.99.99
+ARG NUGETVERSIONV2=99.99.99
+ARG ASSEMBLYSEMVER=99.99.99.99
 WORKDIR /proj/src/
-RUN dotnet build /proj/SoftwarePioniere.Fx.sln -c $CONFIGURATION --no-restore /p:Version=$VERSION
+RUN dotnet build /proj/SoftwarePioniere.Fx.sln -c $CONFIGURATION --no-restore /p:NuGetVersionV2=$NUGETVERSIONV2 /p:AssemblySemVer=$ASSEMBLYSEMVER
 
 FROM buildsln as testrunner
+ARG CONFIGURATION=Release
 ARG PROJECT=SoftwarePioniere.Messaging.Tests
 WORKDIR /proj/test/$PROJECT
 # ENTRYPOINT ["dotnet", "test", "--logger:trx"]
@@ -31,6 +36,7 @@ WORKDIR /proj/test/$PROJECT
 
 FROM buildsln as pack
 ARG CONFIGURATION=Release
-ARG VERSION=99.99.99
-RUN dotnet pack /proj/SoftwarePioniere.Fx.sln -c $CONFIGURATION --no-restore --no-build /p:Version=$VERSION -o /proj/packages
+ARG NUGETVERSIONV2=99.99.99
+ARG ASSEMBLYSEMVER=99.99.99.99
+RUN dotnet pack /proj/SoftwarePioniere.Fx.sln -c $CONFIGURATION --no-restore --no-build /p:NuGetVersionV2=$NUGETVERSIONV2 /p:AssemblySemVer=$ASSEMBLYSEMVER -o /proj/packages
 WORKDIR /proj/packages/

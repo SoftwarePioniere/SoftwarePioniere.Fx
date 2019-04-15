@@ -20,7 +20,7 @@
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
-   <PropertyGroup Condition="'$(Version)' == ''">
+   <!-- <PropertyGroup Condition="'$(Version)' == ''">
       <Version>99.99.99</Version>
   </PropertyGroup>
 
@@ -28,13 +28,34 @@
       <AssemblyVersion>$(Version).0</AssemblyVersion>
       <FileVersion>$(Version).0</FileVersion>
       <InformationalVersion>$(Version).0</InformationalVersion>
-  </PropertyGroup>
+  </PropertyGroup> -->
 
   <PropertyGroup>
+      <MyVersion>99.99.99</MyVersion>
       <IsPackable>True</IsPackable>
       <Authors>SoftwarePioniere</Authors>
       <PackageProjectUrl>https://github.com/SoftwarePioniere/SoftwarePioniere.Fx</PackageProjectUrl>
       <RepositoryUrl>https://github.com/SoftwarePioniere/SoftwarePioniere.Fx</RepositoryUrl>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(NuGetVersionV2)' == '' ">
+      <Version>$(MyVersion)</Version>
+      <InformationalVersion>$(MyVersion)</InformationalVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(AssemblySemVer)' == '' ">
+      <AssemblyVersion>$(MyVersion)</AssemblyVersion>
+      <FileVersion>$(MyVersion)</FileVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(NuGetVersionV2)' != '' ">
+        <Version>$(NuGetVersionV2)</Version>
+        <InformationalVersion>$(NuGetVersionV2)</InformationalVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(AssemblySemVer)' != '' ">
+        <AssemblyVersion>$(AssemblySemVer)</AssemblyVersion>
+        <FileVersion>$(AssemblySemVer)</FileVersion>
   </PropertyGroup>
 
 

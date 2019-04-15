@@ -198,7 +198,7 @@ Task("DockerBuildPack")
     .IsDependentOn("Clean")
     .IsDependentOn("Version")
     .IsDependentOn("DockerBuild")
-    .IsDependentOn("DockerTest")
+   // .IsDependentOn("DockerTest")
     .IsDependentOn("DockerPack")
     ;
 
