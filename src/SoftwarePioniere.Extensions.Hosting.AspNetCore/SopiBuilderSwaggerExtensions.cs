@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using SoftwarePioniere.AspNetCore.Swagger;
 using SoftwarePioniere.Extensions.Builder;
@@ -10,7 +11,8 @@ namespace SoftwarePioniere.Extensions.Hosting
     {
 
 
-        public static ISopiBuilder AddSwaggerForMultipleServices(this ISopiBuilder builder, string titleName, string baseRoute, string serviceName, string[] apiKeys)
+        public static ISopiBuilder AddSwaggerForMultipleServices(this ISopiBuilder builder, string titleName, string baseRoute, string serviceName, string[] apiKeys
+        , Action<MySwaggerOptions> configureOptions = null)
         {
             var swaggerClientOptions = builder.GetSwaggerClientOptions();
 
@@ -25,7 +27,7 @@ namespace SoftwarePioniere.Extensions.Hosting
 
                 var scopes = new Dictionary<string, string>();
                 //{
-                    //    {"admin", "admin access"}
+                //    {"admin", "admin access"}
                 //};
 
                 c.OAuth2Scheme = new OAuth2Scheme
@@ -44,12 +46,15 @@ namespace SoftwarePioniere.Extensions.Hosting
 
                 c.OAuthClientId = swaggerClientOptions.SwaggerClientId;
                 c.OAuthClientSecret = swaggerClientOptions.SwaggerClientSecret;
+
+                configureOptions?.Invoke(c);
             });
 
             return builder;
         }
 
-        public static ISopiBuilder AddSwaggerForSingleService(this ISopiBuilder builder, string apiKey, string baseRoute, string serviceName)
+        public static ISopiBuilder AddSwaggerForSingleService(this ISopiBuilder builder, string apiKey, string baseRoute, string serviceName
+        , Action<MySwaggerOptions> configureOptions = null)
         {
             var swaggerClientOptions = builder.GetSwaggerClientOptions();
 
@@ -85,6 +90,8 @@ namespace SoftwarePioniere.Extensions.Hosting
 
                 c.OAuthClientId = swaggerClientOptions.SwaggerClientId;
                 c.OAuthClientSecret = swaggerClientOptions.SwaggerClientSecret;
+
+                configureOptions?.Invoke(c);
             });
 
             return builder;

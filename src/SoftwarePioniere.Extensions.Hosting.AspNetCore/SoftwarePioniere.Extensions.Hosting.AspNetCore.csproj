@@ -17,6 +17,7 @@
 
    <ItemGroup>
      <ProjectReference Include="..\SoftwarePioniere.AspNetCore.Extensions\SoftwarePioniere.AspNetCore.Extensions.csproj" />
+     <ProjectReference Include="..\SoftwarePioniere.Extensions.Builder.AspNetCore\SoftwarePioniere.Extensions.Builder.AspNetCore.csproj" />
      <ProjectReference Include="..\SoftwarePioniere.Extensions.Hosting\SoftwarePioniere.Extensions.Hosting.csproj" />
      <ProjectReference Include="..\SoftwarePioniere.Messaging.Services.ApplicationInsights\SoftwarePioniere.Messaging.Services.ApplicationInsights.csproj" />
    </ItemGroup>

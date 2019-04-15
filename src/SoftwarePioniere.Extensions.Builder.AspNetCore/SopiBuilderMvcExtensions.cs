@@ -1,9 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using SoftwarePioniere.AspNetCore;
-using SoftwarePioniere.Extensions.Builder;
 
-namespace SoftwarePioniere.Extensions.Hosting
+namespace SoftwarePioniere.Extensions.Builder
 {
     public static class SopiBuilderMvcExtensions
     {
