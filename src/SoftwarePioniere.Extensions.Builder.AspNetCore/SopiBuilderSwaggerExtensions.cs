@@ -2,14 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using SoftwarePioniere.AspNetCore.Swagger;
-using SoftwarePioniere.Extensions.Builder;
 using Swashbuckle.AspNetCore.Swagger;
 
-namespace SoftwarePioniere.Extensions.Hosting
+namespace SoftwarePioniere.Extensions.Builder
 {
     public static class SopiBuilderSwaggerExtensions
     {
-
 
         public static ISopiBuilder AddSwaggerForMultipleServices(this ISopiBuilder builder, string titleName, string baseRoute, string serviceName, string[] apiKeys
         , Action<MySwaggerOptions> configureOptions = null)

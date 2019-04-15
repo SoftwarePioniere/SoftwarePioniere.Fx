@@ -2,9 +2,8 @@
 using SoftwarePioniere.AspNetCore;
 using SoftwarePioniere.AspNetCore.Auth0;
 using SoftwarePioniere.AspNetCore.AzureAd;
-using SoftwarePioniere.Extensions.Builder;
 
-namespace SoftwarePioniere.Extensions.Hosting
+namespace SoftwarePioniere.Extensions.Builder
 {
     public static class SopiBuilderAuthenticationExtensions
     {
