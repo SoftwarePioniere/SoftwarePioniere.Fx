@@ -57,10 +57,9 @@ namespace SoftwarePioniere.Extensions.Hosting
                     if (configureAppDefault)
                     {
                         app.UseMvc();
+                        app.ApplicationServices.CheckSystemState();
                     }
-
-
-                    app.ApplicationServices.CheckSystemState();
+                  
                 });
 
             return webHostBuilder;
