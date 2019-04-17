@@ -13,7 +13,7 @@ namespace SoftwarePioniere.Extensions.Hosting
     {
         public static IWebHostBuilder UseSopi(this IWebHostBuilder webHostBuilder,
             Action<IConfigurationBuilder> configBuilderAction, Action<ISopiBuilder> setupAction,
-            Action<IApplicationBuilder> configureApp)
+            Action<IApplicationBuilder> configureApp, bool configureAppDefault = true)
         {
             webHostBuilder.ConfigureAppConfiguration(configBuilderAction)
                 .UseSerilog()
@@ -22,15 +22,15 @@ namespace SoftwarePioniere.Extensions.Hosting
                 .ConfigureServices((context, services) =>
                 {
                     var sopiBuilder = services.AddSopi(context.Configuration);
-                 
-                    sopiBuilder  
+
+                    sopiBuilder
                         .AddPlatformServices()
                         .AddDevOptions()
                         .AddReportingOptions()
                         .AddAppInsightsTelemetry()
                         .AddMvcServices()
                         .AddAuthentication()
-                        .AddSystemServicesByConfiguration()          
+                        .AddSystemServicesByConfiguration()
                         .AddClients()
                         ;
 
@@ -40,19 +40,25 @@ namespace SoftwarePioniere.Extensions.Hosting
                 })
                 .Configure(app =>
                 {
-                    app
-                        .UseMiddleware<SerilogMiddleware>()
-                        .UseSopiHealthChecks()
-                        .UseCors()
-                        .UseDefaultFiles()
-                        .UseStaticFiles()
-                        .UseAuthentication()                      
-                        .UseMySwagger()                     
-                        ;                    
-
+                    if (configureAppDefault)
+                    {
+                        app
+                            .UseMiddleware<SerilogMiddleware>()
+                            .UseSopiHealthChecks()
+                            .UseCors()
+                            .UseDefaultFiles()
+                            .UseStaticFiles()
+                            .UseAuthentication()
+                            .UseMySwagger()
+                            ;
+                    }
                     configureApp(app);
 
-                    app.UseMvc();
+                    if (configureAppDefault)
+                    {
+                        app.UseMvc();
+                    }
+
 
                     app.ApplicationServices.CheckSystemState();
                 });
