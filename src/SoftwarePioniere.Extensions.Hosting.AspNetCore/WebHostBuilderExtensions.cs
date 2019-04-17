@@ -46,12 +46,13 @@ namespace SoftwarePioniere.Extensions.Hosting
                         .UseCors()
                         .UseDefaultFiles()
                         .UseStaticFiles()
-                        .UseAuthentication()
-                        .UseMvc()
+                        .UseAuthentication()                      
                         .UseMySwagger()                     
                         ;                    
 
                     configureApp(app);
+
+                    app.UseMvc();
 
                     app.ApplicationServices.CheckSystemState();
                 });
