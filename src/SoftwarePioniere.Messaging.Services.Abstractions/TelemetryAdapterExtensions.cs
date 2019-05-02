@@ -39,7 +39,7 @@ namespace SoftwarePioniere.Messaging
             return state;
         }
 
-         
+
         public static IDictionary<string, string> CreateState(this ICommand cmd)
         {
             return new Dictionary<string, string>().AppendCommand(cmd);

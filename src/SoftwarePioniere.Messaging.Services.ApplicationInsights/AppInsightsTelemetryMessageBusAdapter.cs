@@ -7,7 +7,9 @@ using System.Threading.Tasks;
 using Foundatio.Messaging;
 using Microsoft.ApplicationInsights;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using SoftwarePioniere.DomainModel;
+using SoftwarePioniere.Extensions.Builder;
 using SoftwarePioniere.Messaging.Notifications;
 using SoftwarePioniere.ReadModel;
 
@@ -16,15 +18,21 @@ namespace SoftwarePioniere.Messaging
     public class AppInsightsTelemetryMessageBusAdapter : IMessageBusAdapter
     {
         private readonly IMessageBus2 _bus;
+        private readonly IOptions<DevOptions> _devOptions;
+        //  private readonly IApplicationLifetime _applicationLifetime;
+        private readonly IOptions<SopiOptions> _fliegel365Options;
         private readonly ILogger _logger;
         private readonly AppInsightsTelemetryAdapter _telemetryAdapter;
 
 
         public AppInsightsTelemetryMessageBusAdapter(ILoggerFactory loggerFactory, IMessageBus2 bus
             , AppInsightsTelemetryAdapter telemetryAdapter
+            , IOptions<SopiOptions> sopiOptions
+            , IOptions<DevOptions> devOptions
         //  , IApplicationLifetime applicationLifetime
         )
         {
+
             if (loggerFactory == null)
             {
                 throw new ArgumentNullException(nameof(loggerFactory));
@@ -36,48 +44,17 @@ namespace SoftwarePioniere.Messaging
 
             _logger = loggerFactory.CreateLogger(GetType());
 
-            //   _applicationLifetime = applicationLifetime ?? throw new ArgumentNullException(nameof(applicationLifetime));
-
-            //_internalBus = new Lazy<IMessageBus>(() => new InMemoryMessageBus(builder => builder.LoggerFactory(loggerFactory).TaskQueueMaxItems(Int32.MaxValue)), LazyThreadSafetyMode.ExecutionAndPublication);
-        }
-        //private readonly Lazy<IMessageBus> _internalBus;
-        //private static readonly SemaphoreSlim SemaphoreSlim = new SemaphoreSlim(1, 1);
-
-        //private async Task<IMessageSubscriber> GetSubscriber()
-        //{
-
-        //    if (!_internalBus.IsValueCreated)
-        //    {
-        //        //https://blog.cdemi.io/async-waiting-inside-c-sharp-locks/
-        //        await SemaphoreSlim.WaitAsync();
-
-        //        try
-        //        {
-        //            //die events aus dem externen bus an den internen weiter geben, damit sie schneller gefiltert werden könnne
-        //            await _bus.SubscribeAsync<MessageWrapper>(async (wrappedMessage, token) =>
-        //                {
-        //                    await _internalBus.Value.PublishAsync(wrappedMessage);
-        //                }
-        //                , _applicationLifetime.ApplicationStopping);
-        //        }
-        //        finally
-        //        {
-        //            //When the task is ready, release the semaphore. It is vital to ALWAYS release the semaphore when we are ready, or else we will end up with a Semaphore that is forever locked.
-        //            //This is why it is important to do the Release within a try...finally clause; program execution may crash or take a different path, this way you are guaranteed execution
-        //            SemaphoreSlim.Release();
-        //        }
-        //    }
-
-        //    return _internalBus.Value;
-        //}
-
+            _fliegel365Options = sopiOptions ?? throw new ArgumentNullException(nameof(sopiOptions));
+            _devOptions = devOptions ?? throw new ArgumentNullException(nameof(devOptions));
+         }
+      
 
         public async Task PublishAsync(Type messageType, object message, TimeSpan? delay = null,
             CancellationToken cancellationToken = new CancellationToken(),
             IDictionary<string, string> parentState = null)
         {
             var state = new Dictionary<string, string>();
-            state.Merge(parentState);
+            //state.Merge(parentState);
 
             var operationName = $"PUBLISH {messageType.GetTypeShortName()}";
 
@@ -85,38 +62,39 @@ namespace SoftwarePioniere.Messaging
 
             try
             {
-                state.SetParentRequestId(operationTelemetry.Telemetry.Id);
+                //state.SetParentRequestId(operationTelemetry.Telemetry.Id);
+                //state.SetOperationId(operationTelemetry.Telemetry.Context.Operation.Id);
 
-                using (_logger.BeginScope(state.CreateLoggerScope()))
+                //using (_logger.BeginScope(state.CreateLoggerScope()))
+                //{
+                _logger.LogInformation(operationName);
+
+                var sw = Stopwatch.StartNew();
+                _logger.LogDebug($"{operationName} Starting");
+
+                if (!typeof(IMessageWrapper).IsAssignableFrom(messageType) &&
+                    typeof(IMessage).IsAssignableFrom(messageType))
                 {
-                    _logger.LogInformation(operationName);
-
-                    var sw = Stopwatch.StartNew();
-                    _logger.LogDebug($"{operationName} Starting");
-
-                    if (!typeof(IMessageWrapper).IsAssignableFrom(messageType) &&
-                        typeof(IMessage).IsAssignableFrom(messageType))
-                    {
-                        var imessage = (IMessage)message;
-                        var created = imessage.CreateMessageWrapper(state);
-                        await _bus.PublishAsync(created.GetType(), created, delay, cancellationToken);
-                    }
-                    else
-                    {
-                        await _bus.PublishAsync(messageType, message, delay, cancellationToken);
-                    }
-
-                    sw.Stop();
-                    _logger.LogInformation(operationName + " Finished in {Elapsed:0.0000} ms", sw.ElapsedMilliseconds);
+                    var imessage = (IMessage)message;
+                    var created = imessage.CreateMessageWrapper(state);
+                    await _bus.PublishAsync(created.GetType(), created, delay, cancellationToken);
                 }
+                else
+                {
+                    await _bus.PublishAsync(messageType, message, delay, cancellationToken);
+                }
+
+                sw.Stop();
+                _logger.LogInformation(operationName + " Finished in {Elapsed:0.0000} ms", sw.ElapsedMilliseconds);
+                //}
             }
-            catch (AuthorizationException e) when (LogError(e))
+            catch (AuthorizationException e) when (LogError(e, message))
             {
                 operationTelemetry.Telemetry.Success = false;
                 _telemetryAdapter.TelemetryClient.TrackException(e);
                 throw;
             }
-            catch (Exception e) when (LogError(e))
+            catch (Exception e) when (LogError(e, message))
             {
                 operationTelemetry.Telemetry.Success = false;
                 _telemetryAdapter.TelemetryClient.TrackException(e);
@@ -132,39 +110,39 @@ namespace SoftwarePioniere.Messaging
             IDictionary<string, string> parentState = null) where T : class, IMessage
         {
             var state = new Dictionary<string, string>();
-            state.Merge(parentState);
+            //state.Merge(parentState);
 
-            var messageType = typeof(T);
+            var t = typeof(T);
 
-            var operationName = $"PUBLISH {messageType.GetTypeShortName()}";
+            var operationName = $"PUBLISH {t.GetTypeShortName()}";
 
             var operationTelemetry = _telemetryAdapter.CreateRequestOperation(operationName, state);
 
             try
             {
-                state.SetParentRequestId(operationTelemetry.Telemetry.Id);
+                //state.SetParentRequestId(operationTelemetry.Telemetry.Id);
 
-                using (_logger.BeginScope(state.CreateLoggerScope()))
-                {
-                    _logger.LogInformation(operationName);
+                //using (_logger.BeginScope(state.CreateLoggerScope()))
+                //{
+                _logger.LogInformation(operationName);
 
-                    var sw = Stopwatch.StartNew();
-                    _logger.LogDebug($"{operationName} Starting");
+                var sw = Stopwatch.StartNew();
+                _logger.LogDebug($"{operationName} Starting");
 
-                    var created = message.CreateMessageWrapper(state);
-                    await _bus.PublishAsync(created, delay);
+                var created = message.CreateMessageWrapper(state);
+                await _bus.PublishAsync(created, delay);
 
-                    sw.Stop();
-                    _logger.LogInformation(operationName + " Finished in {Elapsed:0.0000} ms", sw.ElapsedMilliseconds);
-                }
+                sw.Stop();
+                _logger.LogInformation(operationName + " Finished in {Elapsed:0.0000} ms", sw.ElapsedMilliseconds);
+                //}
             }
-            catch (AuthorizationException e) when (LogError(e))
+            catch (AuthorizationException e) when (LogError(e, message))
             {
                 operationTelemetry.Telemetry.Success = false;
                 _telemetryAdapter.TelemetryClient.TrackException(e);
                 throw;
             }
-            catch (Exception e) when (LogError(e))
+            catch (Exception e) when (LogError(e, message))
             {
                 operationTelemetry.Telemetry.Success = false;
                 _telemetryAdapter.TelemetryClient.TrackException(e);
@@ -180,72 +158,73 @@ namespace SoftwarePioniere.Messaging
             IDictionary<string, string> parentState = null) where T : class, ICommand
         {
             var state = cmd.CreateState();
-            state.Merge(parentState);
+            //state.Merge(parentState);
 
-            var messageType = cmd.GetType();
-            var operationName = $"PUBLISH COMMAND {messageType.GetTypeShortName()}";
+            var t = cmd.GetType();
+            var operationName = $"PUBLISH COMMAND {t.GetTypeShortName()}";
 
             var operationTelemetry = _telemetryAdapter.CreateRequestOperation(operationName, state);
 
             try
             {
-                state.SetParentRequestId(operationTelemetry.Telemetry.Id);
+                //state.SetParentRequestId(operationTelemetry.Telemetry.Id);
+                //state.SetOperationId(operationTelemetry.Telemetry.Context.Operation.Id);
 
-                using (_logger.BeginScope(state.CreateLoggerScope()))
+                //using (_logger.BeginScope(state.CreateLoggerScope()))
+                //{
+                _logger.LogInformation(operationName);
+
+                if (_fliegel365Options.Value.AllowDevMode)
                 {
-                    _logger.LogInformation(operationName);
-
-                    //if (_fliegel365Options.Value.AllowDevMode)
-                    //{
-                    //    if (_devOptions.Value.RaiseCommandFailed)
-                    //    {
-                    //        _logger.LogInformation("CommadFailed Notification from DevOptions");
-
-                    //        var msg = CommandFailedNotification.Create(cmd,
-                    //            new Exception("CommandFailed from DevOptions"),
-                    //            state);
-
-                    //        await _bus.PublishAsync(msg.CreateMessageWrapper(state));
-
-                    //        return new MessageResponse
-                    //        {
-                    //            UserId = cmd.UserId,
-                    //            MessageId = cmd.Id
-                    //        };
-                    //    }
-
-                    //    if (_devOptions.Value.BadRequestForPost)
-                    //    {
-                    //        _logger.LogInformation("BadRequest from DevOptions");
-                    //        throw new ApplicationException("BadRequest from DevOptions");
-                    //    }
-                    //}
-
-                    var sw = Stopwatch.StartNew();
-                    _logger.LogDebug($"{operationName} Starting");
-
-                    await _bus.PublishAsync(cmd.CreateMessageWrapper(state));
-
-                    sw.Stop();
-                    _logger.LogInformation(operationName + " Finished in {Elapsed:0.0000} ms", sw.ElapsedMilliseconds);
-
-                    var x = new MessageResponse
+                    if (_devOptions.Value.RaiseCommandFailed)
                     {
-                        UserId = cmd.UserId,
-                        MessageId = cmd.Id
-                    };
-                    x.Properties.Merge(state);
+                        _logger.LogInformation("CommadFailed Notification from DevOptions");
 
-                    return x;
+                        var msg = CommandFailedNotification.Create(cmd,
+                            new Exception("CommandFailed from DevOptions"),
+                            state);
+
+                        await _bus.PublishAsync(msg.CreateMessageWrapper(state));
+
+                        return new MessageResponse
+                        {
+                            UserId = cmd.UserId,
+                            MessageId = cmd.Id
+                        };
+                    }
+
+                    if (_devOptions.Value.BadRequestForPost)
+                    {
+                        _logger.LogInformation("BadRequest from DevOptions");
+                        throw new ApplicationException("BadRequest from DevOptions");
+                    }
                 }
+
+                var sw = Stopwatch.StartNew();
+                _logger.LogDebug($"{operationName} Starting");
+
+                await _bus.PublishAsync(cmd.CreateMessageWrapper(state));
+
+                sw.Stop();
+                _logger.LogInformation(operationName + " Finished in {Elapsed:0.0000} ms", sw.ElapsedMilliseconds);
+
+                var x = new MessageResponse
+                {
+                    UserId = cmd.UserId,
+                    MessageId = cmd.Id
+                };
+                //x.Properties.Merge(state);
+
+                return x;
+                //}
             }
-            catch (AuthorizationException e) when (LogError(e))
+            catch (AuthorizationException e) when (LogError(e, cmd))
             {
                 operationTelemetry.Telemetry.Success = false;
                 _telemetryAdapter.TelemetryClient.TrackException(e);
                 throw;
             }
-            catch (Exception e) when (LogError(e))
+            catch (Exception e) when (LogError(e, cmd))
             {
                 operationTelemetry.Telemetry.Success = false;
                 _telemetryAdapter.TelemetryClient.TrackException(e);
@@ -255,7 +234,7 @@ namespace SoftwarePioniere.Messaging
                     UserId = cmd.UserId,
                     MessageId = cmd.Id
                 };
-                x.Properties.Merge(state);
+                //x.Properties.Merge(state);
                 return x;
             }
             finally
@@ -266,8 +245,11 @@ namespace SoftwarePioniere.Messaging
 
         public async Task<MessageResponse> PublishCommandsAsync<T>(IEnumerable<T> cmds,
             CancellationToken cancellationToken = new CancellationToken(),
-            IDictionary<string, string> state = null) where T : class, ICommand
+            IDictionary<string, string> parentState = null) where T : class, ICommand
         {
+            var state = new Dictionary<string, string>();
+            //state.Merge(parentState);
+
             var results = new List<MessageResponse>();
 
             foreach (var cmd in cmds)
@@ -314,7 +296,9 @@ namespace SoftwarePioniere.Messaging
                     var aggregateId = message.AggregateId;
                     var eventName = typeof(TDomainEvent).Name;
 
-                    var state = wrappedMessage.Properties ?? new Dictionary<string, string>();
+                    var state = new Dictionary<string, string>();
+                    //state.Merge(wrappedMessage.Properties);
+
                     state.AddProperty("EventType", eventType)
                         .AddProperty("EventId", eventId)
                         .AddProperty("EventName", eventName)
@@ -330,34 +314,23 @@ namespace SoftwarePioniere.Messaging
 
                     try
                     {
-                        state.SetParentRequestId(operationTelemetry.Telemetry.Id);
+                        //state.SetParentRequestId(operationTelemetry.Telemetry.Id);
+                        //state.SetOperationId(operationTelemetry.Telemetry.Context.Operation.Id);
 
-                        using (_logger.BeginScope(state.CreateLoggerScope()))
-                        {
-                            _logger.LogInformation(operationName);
+                        //using (_logger.BeginScope(state.CreateLoggerScope()))
+                        //{
+                        _logger.LogInformation(operationName);
 
-                            var sw = Stopwatch.StartNew();
+                        var sw = Stopwatch.StartNew();
+                        _logger.LogDebug($"{operationName} Starting");
 
-                            _logger.LogDebug(
-                                "HandleAggregateEvent Started {AggregateName} {MessageType} {MessageId}",
-                                aggregateName,
-                                eventType,
-                                eventId);
+                        await handler(domainEvent, new AggregateTypeInfo<TAggregate>(message.AggregateId), state);
 
-                            await handler(domainEvent,
-                                new AggregateTypeInfo<TAggregate>(message.AggregateId),
-                                state.Copy());
-
-                            sw.Stop();
-                            _logger.LogDebug(
-                                "HandleAggregateEvent Finished {AggregateName} {MessageType} {MessageId} in {Elapsed:0.0000} ms ",
-                                aggregateName,
-                                eventType,
-                                eventId,
-                                sw.ElapsedMilliseconds);
-                        }
+                        sw.Stop();
+                        _logger.LogInformation(operationName + " Finished in {Elapsed:0.0000} ms", sw.ElapsedMilliseconds);
+                        //}
                     }
-                    catch (Exception e) when (LogError(e))
+                    catch (Exception e) when (LogError(e, message))
                     {
                         operationTelemetry.Telemetry.Success = false;
                         _telemetryAdapter.TelemetryClient.TrackException(e);
@@ -388,68 +361,66 @@ namespace SoftwarePioniere.Messaging
 
             var bus = _bus; // await GetSubscriber();
             await bus.SubscribeAsync<MessageWrapper>(async (wrappedMessage, token) =>
+            {
+                if (!wrappedMessage.IsWrappedType<T>())
+                    return;
+
+                var message = wrappedMessage.GetWrappedMessage<T>();
+
+                var messageType = typeof(T).GetTypeShortName();
+
+                var state = new Dictionary<string, string>();
+                //state.Merge(wrappedMessage.Properties);
+
+                var operationName = $"HANDLE COMMAND {messageType}";
+
+                var operationTelemetry = _telemetryAdapter.CreateDependencyOperation(operationName, state);
+                operationTelemetry.Telemetry.Type = "BUS";
+
+                try
                 {
-                    if (!wrappedMessage.IsWrappedType<T>())
-                        return;
+                    //state.SetParentRequestId(operationTelemetry.Telemetry.Id);
+                    //state.SetOperationId(operationTelemetry.Telemetry.Context.Operation.Id);
 
-                    var message = wrappedMessage.GetWrappedMessage<T>();
 
-                    var messageType = typeof(T).GetTypeShortName();
-                    var state = wrappedMessage.Properties ?? new Dictionary<string, string>();
+                    //using (_logger.BeginScope(state.CreateLoggerScope()))
+                    //{
+                    _logger.LogInformation(operationName);
 
-                    var operationName = $"HANDLE COMMAND {messageType}";
+                    var sw = Stopwatch.StartNew();
+                    _logger.LogDebug($"{operationName} Starting");
+                    await handler(message, state);
 
-                    var operationTelemetry = _telemetryAdapter.CreateDependencyOperation(operationName, state);
-                    operationTelemetry.Telemetry.Type = "BUS";
-
-                    try
+                    //only send to bus if its coming from external request
+                    if (!string.IsNullOrEmpty(state.GetTraceIdentifier()))
                     {
-                        state.SetParentRequestId(operationTelemetry.Telemetry.Id);
-
-                        using (_logger.BeginScope(state.CreateLoggerScope()))
-                        {
-                            _logger.LogInformation(operationName);
-
-                            var sw = Stopwatch.StartNew();
-                            _logger.LogDebug("HandleCommand Started {CommandType} {MessageId}",
-                                messageType,
-                                message.Id);
-                            await handler(message, state.Copy());
-
-                            //only send to bus if its coming from external request
-                            if (!string.IsNullOrEmpty(state.GetTraceIdentifier()))
-                            {
-                                await PublishAsync(CommandSucceededNotification.Create(message, state),
-                                    cancellationToken: token,
-                                    parentState: state);
-                            }
-
-                            sw.Stop();
-                            _logger.LogInformation(
-                                "HandleCommand Finished {CommandType} {MessageId} in {Elapsed:0.0000} ms ",
-                                messageType,
-                                message.Id,
-                                sw.ElapsedMilliseconds);
-                        }
+                        await PublishAsync(CommandSucceededNotification.Create(message, state),
+                            cancellationToken: token,
+                            parentState: state);
                     }
-                    catch (Exception e) when (LogError(e))
+
+                    sw.Stop();
+                    _logger.LogInformation(operationName + " Finished in {Elapsed:0.0000} ms", sw.ElapsedMilliseconds);
+                    //}
+                }
+                catch (Exception e) when (LogError(e, message))
+                {
+                    operationTelemetry.Telemetry.Success = false;
+                    _telemetryAdapter.TelemetryClient.TrackException(e);
+
+                    //only send to bus if its coming from external request
+                    if (!string.IsNullOrEmpty(state.GetTraceIdentifier()))
                     {
-                        operationTelemetry.Telemetry.Success = false;
-                        _telemetryAdapter.TelemetryClient.TrackException(e);
-
-                        //only send to bus if its coming from external request
-                        if (!string.IsNullOrEmpty(state.GetTraceIdentifier()))
-                        {
-                            await PublishAsync(CommandFailedNotification.Create(message, e, state),
-                                cancellationToken: token,
-                                parentState: state);
-                        }
+                        await PublishAsync(CommandFailedNotification.Create(message, e, state),
+                            cancellationToken: token,
+                            parentState: state);
                     }
-                    finally
-                    {
-                        _telemetryAdapter.TelemetryClient.StopOperation(operationTelemetry);
-                    }
-                },
+                }
+                finally
+                {
+                    _telemetryAdapter.TelemetryClient.StopOperation(operationTelemetry);
+                }
+            },
                 wrapper =>
                 {
                     if (!wrapper.IsWrappedType<T>())
@@ -466,51 +437,51 @@ namespace SoftwarePioniere.Messaging
 
             var bus = _bus; // await GetSubscriber();
             await bus.SubscribeAsync<MessageWrapper>(async (wrappedMessage, token) =>
+            {
+                if (!wrappedMessage.IsWrappedType<T>())
+                    return;
+
+                var message = wrappedMessage.GetWrappedMessage<T>();
+
+                var messageType = typeof(T).GetTypeShortName();
+
+                var state = new Dictionary<string, string>();
+                //state.Merge(wrappedMessage.Properties);
+
+                var operationName = $"HANDLE MESSAGE {messageType}";
+
+                var operationTelemetry = _telemetryAdapter.CreateDependencyOperation(operationName, state);
+                operationTelemetry.Telemetry.Type = "BUS";
+
+                try
                 {
-                    if (!wrappedMessage.IsWrappedType<T>())
-                        return;
+                    //state.SetParentRequestId(operationTelemetry.Telemetry.Id);
+                    //state.SetOperationId(operationTelemetry.Telemetry.Context.Operation.Id);
 
-                    var message = wrappedMessage.GetWrappedMessage<T>();
 
-                    var messageType = typeof(T).GetTypeShortName();
-                    var state = wrappedMessage.Properties ?? new Dictionary<string, string>();
-                    var operationName = $"HANDLE MESSAGE {messageType}";
+                    //using (_logger.BeginScope(state.CreateLoggerScope()))
+                    //{
+                    _logger.LogInformation(operationName);
 
-                    var operationTelemetry = _telemetryAdapter.CreateDependencyOperation(operationName, state);
-                    operationTelemetry.Telemetry.Type = "BUS";
+                    var sw = Stopwatch.StartNew();
+                    _logger.LogDebug($"{operationName} Starting");
 
-                    try
-                    {
-                        state.SetParentRequestId(operationTelemetry.Telemetry.Id);
+                    await handler(message, state);
 
-                        using (_logger.BeginScope(state.CreateLoggerScope()))
-                        {
-                            _logger.LogInformation(operationName);
-
-                            var sw = Stopwatch.StartNew();
-                            _logger.LogDebug("HandleMessage Started {MessageType} {MessageId}",
-                                messageType,
-                                message.Id);
-                            await handler(message
-                                , state.Copy());
-                            sw.Stop();
-                            _logger.LogInformation(
-                                "HandleMessage Finished {MessageType} {MessageId} in {Elapsed:0.0000} ms ",
-                                messageType,
-                                message.Id,
-                                sw.ElapsedMilliseconds);
-                        }
-                    }
-                    catch (Exception e) when (LogError(e))
-                    {
-                        operationTelemetry.Telemetry.Success = false;
-                        _telemetryAdapter.TelemetryClient.TrackException(e);
-                    }
-                    finally
-                    {
-                        _telemetryAdapter.TelemetryClient.StopOperation(operationTelemetry);
-                    }
-                },
+                    sw.Stop();
+                    _logger.LogInformation(operationName + " Finished in {Elapsed:0.0000} ms", sw.ElapsedMilliseconds);
+                    //}
+                }
+                catch (Exception e) when (LogError(e, message))
+                {
+                    operationTelemetry.Telemetry.Success = false;
+                    _telemetryAdapter.TelemetryClient.TrackException(e);
+                }
+                finally
+                {
+                    _telemetryAdapter.TelemetryClient.StopOperation(operationTelemetry);
+                }
+            },
                 wrapper =>
                 {
                     if (!wrapper.IsWrappedType<T>())
@@ -521,9 +492,9 @@ namespace SoftwarePioniere.Messaging
         }
 
 
-        private bool LogError(Exception ex)
+        private bool LogError(Exception ex, object msg)
         {
-            _logger.LogError(ex, "Ein Fehler ist aufgetreten {Message}", ex.GetBaseException().Message);
+            _logger.LogError(ex, "Ein Fehler ist aufgetreten {Message} {@MessageData}", ex.GetBaseException().Message, msg);
             return true;
         }
     }

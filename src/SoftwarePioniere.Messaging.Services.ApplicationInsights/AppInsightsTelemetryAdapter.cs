@@ -15,63 +15,64 @@ namespace SoftwarePioniere.Messaging
 {
     public class AppInsightsTelemetryAdapter : IControllerTelemetryAdapter
     {
-    
+
         private readonly ILogger _logger;
-        
+
         public AppInsightsTelemetryAdapter(ILoggerFactory loggerFactory
-            , TelemetryClient telemetryClient        
+            , TelemetryClient telemetryClient
         )
         {
             if (loggerFactory == null)
             {
                 throw new ArgumentNullException(nameof(loggerFactory));
             }
-        
+
             TelemetryClient = telemetryClient ?? throw new ArgumentNullException(nameof(telemetryClient));
 
             _logger = loggerFactory.CreateLogger(GetType());
 
-         
+
         }
 
         public IDictionary<string, string> CreateState(HttpContext httpContext)
         {
-            return  httpContext.CreateState();
+            return httpContext.CreateState();
         }
 
 
         public TelemetryClient TelemetryClient { get; }
-   
+
 
         public async Task<ActionResult<T>> RunWithActionResultAsync<T>(string operationName,
             Func<IDictionary<string, string>, Task<T>> runx, IDictionary<string, string> parentState, ILogger logger)
         {
             if (logger == null)
                 logger = _logger;
-                                       
+
             var state = new Dictionary<string, string>();
-            state.Merge(parentState);
+            //   state.Merge(parentState);
 
             var operationTelemetry = CreateRequestOperation(operationName, state);
 
             try
             {
-                state.SetParentRequestId(operationTelemetry.Telemetry.Id);
+                //state.SetParentRequestId(operationTelemetry.Telemetry.Id);
+                //state.SetOperationId(operationTelemetry.Telemetry.Context.Operation.Id);
 
-                using (logger.BeginScope(state.CreateLoggerScope()))
-                {
-                    logger.LogInformation(operationName);
+                //using (logger.BeginScope(state.CreateLoggerScope()))
+                //{
+                logger.LogInformation(operationName);
 
-                    var sw = Stopwatch.StartNew();
-                    logger.LogDebug($"{operationName} Starting");
+                var sw = Stopwatch.StartNew();
+                logger.LogDebug($"{operationName} Starting");
 
-                    var result = await runx(state);
+                var result = await runx(state);
 
-                    sw.Stop();
-                    logger.LogInformation(operationName + " Finished in {Elapsed:0.0000} ms", sw.ElapsedMilliseconds);
+                sw.Stop();
+                logger.LogInformation(operationName + " Finished in {Elapsed:0.0000} ms", sw.ElapsedMilliseconds);
 
-                    return result;
-                }
+                return result;
+                //}
             }
             catch (AuthorizationException e) when (LogError(e))
             {
@@ -106,30 +107,31 @@ namespace SoftwarePioniere.Messaging
         {
             if (logger == null)
                 logger = _logger;
-                                       
+
             var state = new Dictionary<string, string>();
-            state.Merge(parentState);
+            //state.Merge(parentState);
 
             var operationTelemetry = CreateRequestOperation(operationName, state);
 
             try
             {
-                state.SetParentRequestId(operationTelemetry.Telemetry.Id);
+                //state.SetParentRequestId(operationTelemetry.Telemetry.Id);
+                //state.SetOperationId(operationTelemetry.Telemetry.Context.Operation.Id);
 
-                using (logger.BeginScope(state.CreateLoggerScope()))
-                {
-                    logger.LogInformation(operationName);
+                //using (logger.BeginScope(state.CreateLoggerScope()))
+                //{
+                logger.LogInformation(operationName);
 
-                    var sw = Stopwatch.StartNew();
-                    logger.LogDebug($"{operationName} Starting");
+                var sw = Stopwatch.StartNew();
+                logger.LogDebug($"{operationName} Starting");
 
-                    var result = await runx(state);
+                var result = await runx(state);
 
-                    sw.Stop();
-                    logger.LogInformation(operationName + " Finished in {Elapsed:0.0000} ms", sw.ElapsedMilliseconds);
+                sw.Stop();
+                logger.LogInformation(operationName + " Finished in {Elapsed:0.0000} ms", sw.ElapsedMilliseconds);
 
-                    return result;
-                }
+                return result;
+                //}
             }
             catch (Exception e) when (LogError(e))
             {
@@ -155,28 +157,30 @@ namespace SoftwarePioniere.Messaging
                 logger = _logger;
 
             var state = new Dictionary<string, string>();
-            state.Merge(parentState);
+            //state.Merge(parentState);
 
             var operationTelemetry = CreateDependencyOperation(operationName, state);
             operationTelemetry.Telemetry.Type = type;
 
             try
             {
-                state.SetParentRequestId(operationTelemetry.Telemetry.Id);
 
-                using (logger.BeginScope(state.CreateLoggerScope()))
-                {
-                    logger.LogInformation(operationName);
+                //state.SetParentRequestId(operationTelemetry.Telemetry.Id);
+                //state.SetOperationId(operationTelemetry.Telemetry.Context.Operation.Id);
 
-                    var sw = Stopwatch.StartNew();
-                    logger.LogDebug($"{operationName} Starting");
+                //using (logger.BeginScope(state.CreateLoggerScope()))
+                //{
+                logger.LogInformation(operationName);
 
-                    await runx(state);
+                var sw = Stopwatch.StartNew();
+                logger.LogDebug($"{operationName} Starting");
 
-                    sw.Stop();
-                    logger.LogInformation(operationName + " Finished in {Elapsed:0.0000} ms", sw.ElapsedMilliseconds);
+                await runx(state);
 
-                }
+                sw.Stop();
+                logger.LogInformation(operationName + " Finished in {Elapsed:0.0000} ms", sw.ElapsedMilliseconds);
+
+                //}
             }
             catch (Exception e) when (LogError(e))
             {
@@ -195,7 +199,9 @@ namespace SoftwarePioniere.Messaging
                 return true;
             }
         }
-        
+
+        //private readonly object stateLock = new object();
+
         public IOperationHolder<DependencyTelemetry> CreateDependencyOperation(
             string operationName,
             IDictionary<string, string> state)
@@ -215,9 +221,22 @@ namespace SoftwarePioniere.Messaging
                 operationTelemetry = TelemetryClient.StartOperation<DependencyTelemetry>(operationName);
             }
 
-            operationTelemetry.Telemetry.Properties.Merge(state);
+            //try
+            //{
+            //    lock (stateLock)
+            //    {
+            //        operationTelemetry.Telemetry.Properties.Merge(state);
+            //    }
+            //}
+            //catch (Exception e)
+            //{
+            //    Console.WriteLine(e);
+            //}
+
             return operationTelemetry;
         }
+
+        //private readonly object reqLock = new object();
 
         public IOperationHolder<RequestTelemetry> CreateRequestOperation(
             string operationName,
@@ -238,12 +257,23 @@ namespace SoftwarePioniere.Messaging
                 operationTelemetry = TelemetryClient.StartOperation<RequestTelemetry>(operationName);
             }
 
-            operationTelemetry.Telemetry.Properties.Merge(state);
+            //try
+            //{
+            //    lock (reqLock)
+            //    {
+            //        operationTelemetry.Telemetry.Properties.Merge(state);
+            //    }
+            //}
+            //catch (Exception e)
+            //{
+            //    Console.WriteLine(e);
+            //}
+
             return operationTelemetry;
         }
 
-      
 
-       
+
+
     }
 }

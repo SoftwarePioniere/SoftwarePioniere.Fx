@@ -13,6 +13,8 @@ using SoftwarePioniere.Projections;
 
 namespace SoftwarePioniere.Extensions.Hosting
 {
+
+    
     public class SopiAppService: BackgroundService
     {
         private readonly IServiceProvider _provider;
@@ -31,6 +33,16 @@ namespace SoftwarePioniere.Extensions.Hosting
             _logger = loggerFactory.CreateLogger(GetType());
         }
 
+
+        public static string GetInnerExceptionMessage(Exception ex)
+        {
+            if (ex.InnerException != null)
+            {
+                return GetInnerExceptionMessage(ex.InnerException);
+            }
+
+            return ex.Message;
+        }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
@@ -51,8 +63,17 @@ namespace SoftwarePioniere.Extensions.Hosting
                     {
                         if (!done.Contains(initializer.GetType()))
                         {
+
                             _logger.LogInformation("Initialize IEventStoreInitializer {EventStoreInitializer}", initializer.GetType().FullName);
-                            await initializer.InitializeAsync(stoppingToken);
+                            try
+                            {
+                                await initializer.InitializeAsync(stoppingToken);
+                            }
+                            catch (Exception e)
+                            {
+                                _logger.LogError(e, "{Type} {Inner}", initializer.GetType().FullName, GetInnerExceptionMessage(e));
+                                throw;
+                            }
                             done.Add(initializer.GetType());
                         }
                     }
@@ -72,8 +93,16 @@ namespace SoftwarePioniere.Extensions.Hosting
                     var sw1 = Stopwatch.StartNew();
                     foreach (var saga in sagas)
                     {
-                        _logger.LogInformation("Start Saga {Saga}", saga.GetType().FullName);
-                        await saga.StartAsync(stoppingToken);
+                        _logger.LogInformation("Start Saga {Saga}", saga.GetType().Name);
+                        try
+                        {
+                            await saga.StartAsync(stoppingToken);
+                        }
+                        catch (Exception e)
+                        {
+                            _logger.LogError(e, "{Type} {Inner}", saga.GetType().FullName, GetInnerExceptionMessage(e));
+                            throw;
+                        }
                     }
 
                     sw1.Stop();
@@ -91,8 +120,16 @@ namespace SoftwarePioniere.Extensions.Hosting
                     var sw1 = Stopwatch.StartNew();
                     foreach (var handler in handlers)
                     {
-                        _logger.LogInformation("Start MessageHandler {MessageHandler}", handler.GetType().FullName);
-                        await handler.StartAsync(stoppingToken);
+                        _logger.LogInformation("Start MessageHandler {MessageHandler}", handler.GetType().Name);
+                        try
+                        {
+                            await handler.StartAsync(stoppingToken);
+                        }
+                        catch (Exception e)
+                        {
+                            _logger.LogError(e, "{Type} {Inner}", handler.GetType().FullName, GetInnerExceptionMessage(e));
+                            throw;
+                        }
                     }
 
                     sw1.Stop();
@@ -111,8 +148,16 @@ namespace SoftwarePioniere.Extensions.Hosting
                     var sw1 = Stopwatch.StartNew();
                     foreach (var registry in registries)
                     {
-                        _logger.LogInformation("Start ProjectorRegistry {ProjectorRegistry}", registry.GetType().FullName);
-                        await registry.StartAsync(stoppingToken);
+                        _logger.LogInformation("Start ProjectorRegistry {ProjectorRegistry}", registry.GetType().Name);
+                        try
+                        {
+                            await registry.StartAsync(stoppingToken);
+                        }
+                        catch (Exception e)
+                        {
+                            _logger.LogError(e, "{Type}", registry.GetType().FullName);
+                            throw;
+                        }
                     }
 
                     sw1.Stop();

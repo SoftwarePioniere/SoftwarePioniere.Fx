@@ -20,14 +20,14 @@ namespace SoftwarePioniere.Messaging
             _logger = loggerFactory.CreateLogger(GetType());
         }
 
-        
+
         public async Task<T> RunWithResultAsync<T>(string operationName, Func<IDictionary<string, string>, Task<T>> runx, IDictionary<string, string> parentState, ILogger logger)
         {
             if (logger == null)
                 logger = _logger;
 
             var state = new Dictionary<string, string>();
-            state.Merge(parentState);
+            //state.Merge(parentState);
 
             try
             {
@@ -65,7 +65,7 @@ namespace SoftwarePioniere.Messaging
                 logger = _logger;
 
             var state = new Dictionary<string, string>();
-            state.Merge(parentState);
+            //state.Merge(parentState);
 
             try
             {

@@ -13,7 +13,7 @@ namespace SoftwarePioniere.Messaging
     {
         private readonly IMessageBus2 _bus;
         private readonly ITelemetryAdapter _telemetryAdapter;
-   
+
         private readonly ILogger _logger;
 
         public DefaultMessageBusAdapter(ILoggerFactory loggerFactory, IMessageBus2 bus, ITelemetryAdapter telemetryAdapter)
@@ -25,7 +25,7 @@ namespace SoftwarePioniere.Messaging
             _logger = loggerFactory.CreateLogger(GetType());
 
             _bus = bus ?? throw new ArgumentNullException(nameof(bus));
-            _telemetryAdapter = telemetryAdapter ?? throw new ArgumentNullException(nameof(telemetryAdapter));        
+            _telemetryAdapter = telemetryAdapter ?? throw new ArgumentNullException(nameof(telemetryAdapter));
         }
 
         private bool LogError(Exception ex)

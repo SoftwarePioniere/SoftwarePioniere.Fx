@@ -13,6 +13,7 @@
   <ItemGroup>
     <ProjectReference Include="..\SoftwarePioniere.AspNetCore\SoftwarePioniere.AspNetCore.csproj" />
     <ProjectReference Include="..\SoftwarePioniere.DomainModel\SoftwarePioniere.DomainModel.csproj" />
+    <ProjectReference Include="..\SoftwarePioniere.Extensions.Builder.Abstractions\SoftwarePioniere.Extensions.Builder.Abstractions.csproj" />
     <ProjectReference Include="..\SoftwarePioniere.Extensions\SoftwarePioniere.Extensions.csproj" />
     <ProjectReference Include="..\SoftwarePioniere.Foundatio\SoftwarePioniere.Foundatio.csproj" />
     <ProjectReference Include="..\SoftwarePioniere.Messaging\SoftwarePioniere.Messaging.csproj" />

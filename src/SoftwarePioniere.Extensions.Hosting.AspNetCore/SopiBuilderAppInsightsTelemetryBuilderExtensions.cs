@@ -13,8 +13,7 @@ namespace SoftwarePioniere.Extensions.Hosting
 
             services
                 .AddSingleton<AppInsightsTelemetryMessageBusAdapter>()
-                .AddSingleton<IMessageBusAdapter>(c => c.GetRequiredService<AppInsightsTelemetryMessageBusAdapter>())
-                //.AddSingleton<IMessageBusAdapter>(c => c.GetRequiredService<AppInsightsTelemetryMessageBusAdapter>())
+                .AddSingleton<IMessageBusAdapter>(c => c.GetRequiredService<AppInsightsTelemetryMessageBusAdapter>())       
                 .AddSingleton<AppInsightsTelemetryAdapter>()
                 .AddSingleton<ITelemetryAdapter>(c => c.GetRequiredService<AppInsightsTelemetryAdapter>())
                 .AddSingleton<IControllerTelemetryAdapter>(c => c.GetRequiredService<AppInsightsTelemetryAdapter>())
