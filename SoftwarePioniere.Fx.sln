@@ -112,7 +112,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SoftwarePioniere.Extensions
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SoftwarePioniere.Extensions.Hosting.Abstractions", "src\SoftwarePioniere.Extensions.Hosting.Abstractions\SoftwarePioniere.Extensions.Hosting.Abstractions.csproj", "{C7E7B5E3-51A2-4522-A417-20C23EBCE1E1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoftwarePioniere.Extensions.Builder.AspNetCore", "src\SoftwarePioniere.Extensions.Builder.AspNetCore\SoftwarePioniere.Extensions.Builder.AspNetCore.csproj", "{05B9AC3B-4B76-4C1D-8348-EFB652F89D07}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SoftwarePioniere.Extensions.Builder.AspNetCore", "src\SoftwarePioniere.Extensions.Builder.AspNetCore\SoftwarePioniere.Extensions.Builder.AspNetCore.csproj", "{05B9AC3B-4B76-4C1D-8348-EFB652F89D07}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
