@@ -21,6 +21,7 @@ namespace SoftwarePioniere.ReadModel.Services
 
         public ILoggerFactory LoggerFactory { get; set; }
         public ICacheClient CacheClient { get; set; }
+        public int CacheMinutes { get; set; }
         public bool CachingDisabled { get; set; }
     }
 }

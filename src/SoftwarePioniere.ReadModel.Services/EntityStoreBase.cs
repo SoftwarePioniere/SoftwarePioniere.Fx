@@ -43,7 +43,8 @@ namespace SoftwarePioniere.ReadModel.Services
 
             if (!Options.CachingDisabled)
             {
-                await ClearCache<T>();
+                await CacheClient.RemoveAsync(entityId);
+                //    await ClearCache<T>();
             }
 
             await InternalDeleteItemAsync<T>(entityId, token);
@@ -60,7 +61,8 @@ namespace SoftwarePioniere.ReadModel.Services
 
             if (!Options.CachingDisabled)
             {
-                await ClearCache<T>();
+                await CacheClient.AddAsync(item.EntityId, item, TimeSpan.FromMinutes(Options.CacheMinutes));
+                //await ClearCache<T>();
             }
             await InternalInsertItemAsync(item, token);
         }
@@ -78,7 +80,11 @@ namespace SoftwarePioniere.ReadModel.Services
 
             if (!Options.CachingDisabled)
             {
-                await ClearCache<T>();
+                foreach (var item in enumerable)
+                {
+                    await CacheClient.AddAsync(item.EntityId, item, TimeSpan.FromMinutes(Options.CacheMinutes));
+                }
+                //await ClearCache<T>();
             }
 
             await InternalBulkInsertItemsAsync(enumerable, token);
@@ -98,7 +104,7 @@ namespace SoftwarePioniere.ReadModel.Services
 
             if (!Options.CachingDisabled)
             {
-                await ClearCache<T>();
+                await CacheClient.AddAsync(item.EntityId, item, TimeSpan.FromMinutes(Options.CacheMinutes));
             }
             await InternalInsertOrUpdateItemAsync(item, token);
         }
@@ -151,6 +157,11 @@ namespace SoftwarePioniere.ReadModel.Services
                 throw new ArgumentNullException(nameof(parms));
             }
 
+            if (Options.CachingDisabled)
+            {
+                return await LoadPagedResultAsync(parms, token);
+            }
+
             if (string.IsNullOrEmpty(cacheKey))
             {
                 throw new ArgumentNullException(nameof(cacheKey));
@@ -158,10 +169,6 @@ namespace SoftwarePioniere.ReadModel.Services
 
             Logger.LogDebug("LoadItemsAsync: {EntityType} {PagedLoadingParameters}  {CacheKey}", typeof(T), parms, cacheKey);
 
-            if (Options.CachingDisabled)
-            {
-                return await LoadPagedResultAsync(parms, token);
-            }
 
             return await CacheLoadPagedResult(() => LoadPagedResultAsync(parms, token), cacheKey);
         }
@@ -180,7 +187,7 @@ namespace SoftwarePioniere.ReadModel.Services
 
             if (!Options.CachingDisabled)
             {
-                await ClearCache<T>();
+                await CacheClient.AddAsync(item.EntityId, item, TimeSpan.FromMinutes(Options.CacheMinutes));
             }
 
             await InternalUpdateItemAsync(item, token);
@@ -200,36 +207,36 @@ namespace SoftwarePioniere.ReadModel.Services
 
         private Task<T> CacheLoadItem<T>(Func<Task<T>> loader, string cacheKey)
         {
-            return CacheClient.CacheLoadItem(loader, cacheKey, 30, Logger);
+            return CacheClient.CacheLoadItem(loader, cacheKey, Options.CacheMinutes, Logger);
         }
 
         private Task<T[]> CacheLoadItems<T>(Func<Task<T[]>> loader, string cacheKey)
         {
-            return CacheClient.CacheLoadItems(loader, cacheKey, 30, Logger);
+            return CacheClient.CacheLoadItems(loader, cacheKey, Options.CacheMinutes, Logger);
         }
 
 
         private Task<PagedResults<T>> CacheLoadPagedResult<T>(Func<Task<PagedResults<T>>> loader, string cacheKey)
         {
-            return CacheClient.CacheLoadPagedItems(loader, cacheKey, 30, Logger);
+            return CacheClient.CacheLoadPagedItems(loader, cacheKey, Options.CacheMinutes, Logger);
         }
 
-        private Task ClearCache<T>() where T : Entity
-        {
-            var t = Activator.CreateInstance<T>();
-            var cachePrefix = t.EntityType;
+        //private Task ClearCache<T>() where T : Entity
+        //{
+        //    var t = Activator.CreateInstance<T>();
+        //    var cachePrefix = t.EntityType;
 
-            if (!string.IsNullOrEmpty(cachePrefix))
-            {
-                if (Logger.IsEnabled(LogLevel.Debug))
-                {
-                    Logger.LogTrace("Clearing Cache for EntityType: {EntityType}", typeof(T));
-                }
+        //    if (!string.IsNullOrEmpty(cachePrefix))
+        //    {
+        //        if (Logger.IsEnabled(LogLevel.Debug))
+        //        {
+        //            Logger.LogTrace("Clearing Cache for EntityType: {EntityType}", typeof(T));
+        //        }
 
-                return CacheClient.RemoveByPrefixAsync(cachePrefix);
-            }
+        //        return CacheClient.RemoveByPrefixAsync(cachePrefix);
+        //    }
 
-            return Task.CompletedTask;
-        }
+        //    return Task.CompletedTask;
+        //}
     }
 }

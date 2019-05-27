@@ -167,7 +167,7 @@ namespace SoftwarePioniere.ReadModel
                 {
                     if (tmp.Count > 0)
                     {
-                        tmp.Add(".");
+                        tmp.Add(":");
                     }
 
                     tmp.Add(s.ToString());
