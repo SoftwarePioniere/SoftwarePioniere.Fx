@@ -123,7 +123,7 @@ namespace SoftwarePioniere.ReadModel.Services
                 return await InternalLoadItemAsync<T>(entityId, token);
             }
 
-            return await CacheLoadItem(() => InternalLoadItemAsync<T>(entityId, token), CacheKeys.Create<T>(nameof(T), entityId));
+            return await CacheLoadItem(() => InternalLoadItemAsync<T>(entityId, token), CacheKeys.Create<T>(entityId));
         }
 
         public abstract Task<T[]> LoadItemsAsync<T>(CancellationToken token = default(CancellationToken)) where T : Entity;
