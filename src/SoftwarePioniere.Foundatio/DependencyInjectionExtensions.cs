@@ -19,17 +19,15 @@ namespace Microsoft.Extensions.DependencyInjection
         public static IServiceCollection AddInMemoryMessageBus(this IServiceCollection services)
         {
             
-            return services.AddSingleton<IMessageBus2>(p =>
+            return services.AddSingleton<IMessageBus>(p =>
                     {
                         var b = new InMemoryMessageBusOptionsBuilder()
                             .LoggerFactory(p.GetRequiredService<ILoggerFactory>());
 
-                        return new InMemoryMessageBus2(b.Build());
+                        return new InMemoryMessageBus(b.Build());
                     })
-                    .AddSingleton<IMessageBus>(c => c.GetRequiredService<IMessageBus2>())
-                    .AddSingleton<IMessageSubscriber2>(c => c.GetRequiredService<IMessageBus2>())
-                    .AddSingleton<IMessageSubscriber>(c => c.GetRequiredService<IMessageBus2>())
-                    .AddSingleton<IMessagePublisher>(c => c.GetRequiredService<IMessageBus2>())
+                    .AddSingleton<IMessageSubscriber>(c => c.GetRequiredService<IMessageBus>())
+                    .AddSingleton<IMessagePublisher>(c => c.GetRequiredService<IMessageBus>())
                     .AddSingleton<IQueueFactory,InMemoryQueueFactory>()
                 ;
         }

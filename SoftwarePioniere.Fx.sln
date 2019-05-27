@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.26124.0
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28922.388
 MinimumVisualStudioVersion = 15.0.26124.0
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{0EB1A462-6A2B-42AC-B99C-8D61CBAD1ED2}"
 EndProject
@@ -67,7 +67,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SoftwarePioniere.ReadModel.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SoftwarePioniere.Extensions.Tests", "test\SoftwarePioniere.Extensions.Tests\SoftwarePioniere.Extensions.Tests.csproj", "{FB3C543B-A918-462B-AA49-84E497378E8A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoftwarePioniere.Caching.Services", "src\SoftwarePioniere.Caching.Services\SoftwarePioniere.Caching.Services.csproj", "{BB3A17F6-ED6D-4DEF-9BF5-F2DC8ED0DEB6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SoftwarePioniere.Caching.Services", "src\SoftwarePioniere.Caching.Services\SoftwarePioniere.Caching.Services.csproj", "{BB3A17F6-ED6D-4DEF-9BF5-F2DC8ED0DEB6}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SoftwarePioniere.Messaging.Services", "src\SoftwarePioniere.Messaging.Services\SoftwarePioniere.Messaging.Services.csproj", "{599D2C17-749F-431A-BA42-D4490AEB4D79}"
 EndProject
