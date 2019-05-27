@@ -1,22 +1,22 @@
-﻿using System.Collections.Generic;
+﻿//using System.Collections.Generic;
 
-namespace SoftwarePioniere.Messaging
-{
-    public interface IMessageWrapper
-    {
-        string MessageType { get; }
+//namespace SoftwarePioniere.Messaging
+//{
+//    public interface IMessageWrapper
+//    {
+//        string MessageType { get; }
 
-        string MessageContent { get; }
+//        string MessageContent { get; }
 
-        IDictionary<string, string> Properties { get; }
-    }
+//        IDictionary<string, string> Properties { get; }
+//    }
 
-    //public interface IMessageWrapper<out T> where T : IMessage
-    //{
-    //    string MessageType { get; }
+//    //public interface IMessageWrapper<out T> where T : IMessage
+//    //{
+//    //    string MessageType { get; }
 
-    //    T MessageContent { get; }
+//    //    T MessageContent { get; }
 
-    //    IDictionary<string, string> Properties { get; }
-    //}
-}
+//    //    IDictionary<string, string> Properties { get; }
+//    //}
+//}
