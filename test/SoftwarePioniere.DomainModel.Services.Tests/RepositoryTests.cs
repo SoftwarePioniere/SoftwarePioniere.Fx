@@ -69,41 +69,39 @@ namespace SoftwarePioniere.DomainModel.Services.Tests
             }
 
             public Task PublishAsync(Type messageType, object message, TimeSpan? delay = null,
-                CancellationToken cancellationToken = default, IDictionary<string, string> state = null)
+                CancellationToken cancellationToken = default)
             {
                 return _bus.PublishAsync(messageType, message, delay, cancellationToken);
             }
 
             public Task PublishAsync<T>(T message, TimeSpan? delay = null,
-                CancellationToken cancellationToken = default, IDictionary<string, string> state = null) where T : class, IMessage
+                CancellationToken cancellationToken = default) where T : class, IMessage
             {
                 return _bus.PublishAsync(typeof(T), message, delay, cancellationToken);
             }
 
-            public Task SubscribeMessage<T>(Func<T, IDictionary<string, string>, Task> handler, CancellationToken cancellationToken = default) where T : class, IMessage
+            public Task SubscribeMessage<T>(Func<T, Task> handler, CancellationToken cancellationToken = default) where T : class, IMessage
             {
                 throw new NotImplementedException();
             }
 
-            public Task SubscribeCommand<T>(Func<T, IDictionary<string, string>, Task> handler, CancellationToken cancellationToken = default) where T : class, ICommand
+            public Task SubscribeCommand<T>(Func<T, Task> handler, CancellationToken cancellationToken = default) where T : class, ICommand
             {
                 throw new NotImplementedException();
             }
 
-            public Task SubscribeAggregateDomainEvent<TAggregate, TDomainEvent>(Func<TDomainEvent, AggregateTypeInfo<TAggregate>, IDictionary<string, string>, Task> handler,
+            public Task SubscribeAggregateDomainEvent<TAggregate, TDomainEvent>(Func<TDomainEvent, AggregateTypeInfo<TAggregate>, Task> handler,
                 CancellationToken cancellationToken = default) where TAggregate : IAggregateRoot where TDomainEvent : class, IDomainEvent
             {
                 throw new NotImplementedException();
             }
 
-            public Task<MessageResponse> PublishCommandAsync<T>(T cmd, CancellationToken cancellationToken = default,
-                IDictionary<string, string> state = null) where T : class, ICommand
+            public Task<MessageResponse> PublishCommandAsync<T>(T cmd, CancellationToken cancellationToken = default) where T : class, ICommand
             {
                 throw new NotImplementedException();
             }
 
-            public Task<MessageResponse> PublishCommandsAsync<T>(IEnumerable<T> cmds, CancellationToken cancellationToken = default,
-                IDictionary<string, string> state = null) where T : class, ICommand
+            public Task<MessageResponse> PublishCommandsAsync<T>(IEnumerable<T> cmds, CancellationToken cancellationToken = default) where T : class, ICommand
             {
                 throw new NotImplementedException();
             }

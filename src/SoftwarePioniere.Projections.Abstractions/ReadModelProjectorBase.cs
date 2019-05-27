@@ -50,7 +50,7 @@ namespace SoftwarePioniere.Projections
                 if (noti != null)
                 {
                     configureNotification?.Invoke(noti);
-                    await Bus.PublishAsync(noti, state: state);
+                    await Bus.PublishAsync(noti);//, state: state);
                 }
             }
         }
@@ -78,7 +78,7 @@ namespace SoftwarePioniere.Projections
                     if (noti != null)
                     {
                         configureNotification?.Invoke(noti);
-                        await Bus.PublishAsync(noti, state: state);
+                        await Bus.PublishAsync(noti);//, state: state);
                     }
                 }
             }
