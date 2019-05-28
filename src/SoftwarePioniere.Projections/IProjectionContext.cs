@@ -15,5 +15,7 @@ namespace SoftwarePioniere.Projections
         bool IsLiveProcessing { get; }
 
         string StreamName { get; }
+
+        bool IsReady { get; }
     }
 }
