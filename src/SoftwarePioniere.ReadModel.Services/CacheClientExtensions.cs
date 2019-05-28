@@ -8,7 +8,7 @@ namespace SoftwarePioniere.ReadModel.Services
     public static class CacheClientExtensions
     {
         public static async Task<T> CacheLoadItem<T>(this ICacheClient cache, Func<Task<T>> loader, string cacheKey,
-            int minutes = 20, ILogger logger = null)
+            int minutes = 120, ILogger logger = null)
         {
             logger?.LogTrace("CacheLoad for EntityType: {EntityType} with Key {CacheKey}", typeof(T), cacheKey);
 
@@ -38,7 +38,7 @@ namespace SoftwarePioniere.ReadModel.Services
 
 
         public static async Task<T[]> CacheLoadItems<T>(this ICacheClient cache, Func<Task<T[]>> loader, string cacheKey,
-            int minutes = 20, ILogger logger = null)
+            int minutes = 120, ILogger logger = null)
         {
             logger?.LogTrace("CacheLoad for EntityType: {EntityType} with Key {CacheKey}", typeof(T), cacheKey);
 
@@ -69,7 +69,7 @@ namespace SoftwarePioniere.ReadModel.Services
 
 
         public static async Task<PagedResults<T>> CacheLoadPagedItems<T>(this ICacheClient cache, Func<Task<PagedResults<T>>> loader, string cacheKey,
-            int minutes = 20, ILogger logger = null)
+            int minutes = 120, ILogger logger = null)
         {
             logger?.LogTrace("CacheLoad for EntityType: {EntityType} with Key {CacheKey}", typeof(T), cacheKey);
 
