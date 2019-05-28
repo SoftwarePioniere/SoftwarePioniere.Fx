@@ -76,8 +76,7 @@ namespace SoftwarePioniere.ReadModel
 
             var obj2 = await store.LoadItemAsync<FakeEntity>(obj1.EntityId);
             CompareEntitities(obj1, obj2);
-
-
+            
             await store.DeleteItemAsync<FakeEntity>(obj1.EntityId);
 
             var obj3 = await store.LoadItemAsync<FakeEntity>(obj1.EntityId);

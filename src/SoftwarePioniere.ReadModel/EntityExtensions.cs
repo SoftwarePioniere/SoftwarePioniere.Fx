@@ -19,7 +19,7 @@ namespace SoftwarePioniere.ReadModel
             if (value == null)
                 throw new ArgumentNullException(nameof(value));
 
-            return string.Concat(item.EntityType, "-", value);
+            return string.Concat(item.EntityType, ":", value);
         }
 
         public static string CalculateEntityId<T>(this string value) where T : Entity
@@ -35,7 +35,7 @@ namespace SoftwarePioniere.ReadModel
           public static string ExtractIdValue<T>(this string entityId) where T: Entity
         {
             var sendung = Activator.CreateInstance<T>();
-            var id = entityId.Replace($"{sendung.EntityType}-", string.Empty);
+            var id = entityId.Replace($"{sendung.EntityType}:", string.Empty);
             return id;
         }
         

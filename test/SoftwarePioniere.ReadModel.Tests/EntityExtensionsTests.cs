@@ -5,7 +5,7 @@ namespace SoftwarePioniere.ReadModel.Tests
 {
     public class EntityExtensionsTests
     {
-        private const string EntityId = "My:FakeEntity-fakeid";
+        private const string EntityId = "My:FakeEntity:fakeid";
 
         [Fact]
         public void CanCalculateEntityIdFromType()

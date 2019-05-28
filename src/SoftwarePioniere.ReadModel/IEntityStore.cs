@@ -47,11 +47,11 @@ namespace SoftwarePioniere.ReadModel
         /// <returns></returns>
         Task<T[]> LoadItemsAsync<T>(Expression<Func<T, bool>> where, CancellationToken token = default(CancellationToken)) where T : Entity;
 
-        /// <summary>
-        /// Alle Elemente mit where gefieltert zurück geben, es wird aber vorher im cahe geprüft, ob es den eintrage bereits gibt
-        /// </summary>        
-        /// <returns></returns>
-        Task<T[]> LoadItemsAsync<T>(Expression<Func<T, bool>> where, string cacheKey, CancellationToken token = default(CancellationToken)) where T : Entity;
+        ///// <summary>
+        ///// Alle Elemente mit where gefieltert zurück geben, es wird aber vorher im cahe geprüft, ob es den eintrage bereits gibt
+        ///// </summary>        
+        ///// <returns></returns>
+        //Task<T[]> LoadItemsAsync<T>(Expression<Func<T, bool>> where, string cacheKey, CancellationToken token = default(CancellationToken)) where T : Entity;
 
         /// <summary>
         ///     Eine Paged List laden
@@ -59,11 +59,11 @@ namespace SoftwarePioniere.ReadModel
         /// <returns></returns>
         Task<PagedResults<T>> LoadPagedResultAsync<T>(PagedLoadingParameters<T> parms, CancellationToken token = default(CancellationToken)) where T : Entity;
 
-        /// <summary>
-        ///     Eine Paged List laden, vorher mit im Cache geprüft, ob es den eintrag bereits gibts
-        /// </summary>
-        /// <returns></returns>
-        Task<PagedResults<T>> LoadPagedResultAsync<T>(PagedLoadingParameters<T> parms, string cacheKey, CancellationToken token = default(CancellationToken)) where T : Entity;
+        ///// <summary>
+        /////     Eine Paged List laden, vorher mit im Cache geprüft, ob es den eintrag bereits gibts
+        ///// </summary>
+        ///// <returns></returns>
+        //Task<PagedResults<T>> LoadPagedResultAsync<T>(PagedLoadingParameters<T> parms, string cacheKey, CancellationToken token = default(CancellationToken)) where T : Entity;
 
         /// <summary>
         ///     Aktualisieren eines elements

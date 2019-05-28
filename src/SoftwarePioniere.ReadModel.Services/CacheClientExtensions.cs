@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Foundatio.Caching;
 using Microsoft.Extensions.Logging;
@@ -31,7 +32,7 @@ namespace SoftwarePioniere.ReadModel.Services
 
             var ret = await loader();
             if (ret != null)
-                await cache.SetAsync(cacheKey, ret, DateTime.UtcNow.AddMinutes(minutes));
+                await cache.SetAsync(cacheKey, ret, TimeSpan.FromMinutes(minutes));
 
             return ret;
         }
@@ -46,13 +47,11 @@ namespace SoftwarePioniere.ReadModel.Services
             {
                 logger?.LogTrace("Cache Key {CacheKey} exists", cacheKey);
 
-
-                var l = await cache.GetAsync<T[]>(cacheKey);
+                var l = await cache.GetSetAsync<T>(cacheKey);
                 if (l.HasValue)
                 {
                     logger?.LogTrace("Return result from Cache");
-
-                    return l.Value;
+                    return l.Value.ToArray();
                 }
             }
 
@@ -61,41 +60,42 @@ namespace SoftwarePioniere.ReadModel.Services
             var ret = await loader();
             if (ret != null && ret.Length > 0)
             {
-                await cache.SetAsync(cacheKey, ret, DateTime.UtcNow.AddMinutes(minutes));
+
+                await cache.SetAddAsync(cacheKey, ret, TimeSpan.FromMinutes(minutes));
             }
 
             return ret;
         }
 
 
-        public static async Task<PagedResults<T>> CacheLoadPagedItems<T>(this ICacheClient cache, Func<Task<PagedResults<T>>> loader, string cacheKey,
-            int minutes = 120, ILogger logger = null)
-        {
-            logger?.LogTrace("CacheLoad for EntityType: {EntityType} with Key {CacheKey}", typeof(T), cacheKey);
+        //public static async Task<PagedResults<T>> CacheLoadPagedItems<T>(this ICacheClient cache, Func<Task<PagedResults<T>>> loader, string cacheKey,
+        //    int minutes = 120, ILogger logger = null)
+        //{
+        //    logger?.LogTrace("CacheLoad for EntityType: {EntityType} with Key {CacheKey}", typeof(T), cacheKey);
 
-            if (await cache.ExistsAsync(cacheKey))
-            {
-                logger?.LogTrace("Cache Key {CacheKey} exists", cacheKey);
+        //    if (await cache.ExistsAsync(cacheKey))
+        //    {
+        //        logger?.LogTrace("Cache Key {CacheKey} exists", cacheKey);
 
 
-                var l = await cache.GetAsync<PagedResults<T>>(cacheKey);
-                if (l.HasValue)
-                {
-                    logger?.LogTrace("Return result from Cache");
+        //        var l = await cache.GetAsync<PagedResults<T>>(cacheKey);
+        //        if (l.HasValue)
+        //        {
+        //            logger?.LogTrace("Return result from Cache");
 
-                    return l.Value;
-                }
-            }
-            logger?.LogTrace("No Cache Result. Loading and Set to Cache");
+        //            return l.Value;
+        //        }
+        //    }
+        //    logger?.LogTrace("No Cache Result. Loading and Set to Cache");
 
-            var ret = await loader();
-            if (ret != null && ret.ResultCount > 0)
-            {
-                await cache.SetAsync(cacheKey, ret, DateTime.UtcNow.AddMinutes(minutes));
-            }
+        //    var ret = await loader();
+        //    if (ret != null && ret.ResultCount > 0)
+        //    {
+        //        await cache.SetAsync(cacheKey, ret, DateTime.UtcNow.AddMinutes(minutes));
+        //    }
 
-            return ret;
-        }
+        //    return ret;
+        //}
 
     }
 }
