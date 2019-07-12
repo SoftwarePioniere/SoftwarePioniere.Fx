@@ -6,7 +6,7 @@ using EventStore.ClientAPI;
 using EventStore.ClientAPI.Projections;
 using EventStore.ClientAPI.UserManagement;
 using Microsoft.Extensions.Logging;
-using SoftwarePioniere.Messaging;
+using SoftwarePioniere.Domain;
 using ILogger = Microsoft.Extensions.Logging.ILogger;
 
 namespace SoftwarePioniere.EventStore

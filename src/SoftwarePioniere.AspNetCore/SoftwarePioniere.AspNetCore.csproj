@@ -10,8 +10,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SoftwarePioniere.AspNetCore.Extensions\SoftwarePioniere.AspNetCore.Extensions.csproj" />
-    <ProjectReference Include="..\SoftwarePioniere.Extensions\SoftwarePioniere.Extensions.csproj" />
-    <ProjectReference Include="..\SoftwarePioniere.Messaging.Services.Abstractions\SoftwarePioniere.Messaging.Services.Abstractions.csproj" />
+    <ProjectReference Include="..\SoftwarePioniere.Extensions.AspNetCore\SoftwarePioniere.Extensions.AspNetCore.csproj" />
+    <ProjectReference Include="..\SoftwarePioniere\SoftwarePioniere.csproj" />
   </ItemGroup>
 </Project>

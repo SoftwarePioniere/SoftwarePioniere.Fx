@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Reflection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 
@@ -14,7 +15,7 @@ namespace SoftwarePioniere.AspNetCore
                     applicationBuilder.Run(async context =>
                     {
                         var assembly = Assembly.GetEntryAssembly();
-                        var ret = assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>().InformationalVersion;
+                        var ret = (assembly ?? throw new InvalidOperationException()).GetCustomAttribute<AssemblyInformationalVersionAttribute>().InformationalVersion;
                         context.Response.ContentType = "text/plain";
                         await context.Response.WriteAsync(ret);
 
@@ -27,7 +28,7 @@ namespace SoftwarePioniere.AspNetCore
                     applicationBuilder.Run(async context =>
                     {
                         var assembly = Assembly.GetEntryAssembly();
-                        var ret = assembly.GetCustomAttribute<AssemblyTitleAttribute>()?.Title ?? assembly.GetName().Name;
+                        var ret = (assembly ?? throw new InvalidOperationException()).GetCustomAttribute<AssemblyTitleAttribute>()?.Title ?? assembly.GetName().Name;
                         context.Response.ContentType = "text/plain";
                         await context.Response.WriteAsync(ret);
 

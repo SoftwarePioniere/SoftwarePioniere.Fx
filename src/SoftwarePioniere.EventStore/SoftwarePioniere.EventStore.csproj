@@ -14,9 +14,12 @@
 
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\SoftwarePioniere\SoftwarePioniere.csproj" />
+  </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SoftwarePioniere.Messaging\SoftwarePioniere.Messaging.csproj" />
+    <Folder Include="Subscriptions" />
   </ItemGroup>
 
 </Project>

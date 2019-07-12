@@ -19,8 +19,9 @@ namespace SoftwarePioniere
             var builder = new ConfigurationBuilder()
                 //.AddEnvironmentVariables()
                 .SetBasePath(fullPath)
-                .AddJsonFile("appsettings.secret.json", true, true)
-                .AddJsonFile("appsettings.json", true, true);
+                .AddJsonFile("appsettings.json", true, true)
+                .AddUserSecrets("sopitest")
+                ;
 
 #if !DEBUG
            builder.AddEnvironmentVariables("SOPI_TESTS_");

@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using SoftwarePioniere.Domain;
 
-namespace SoftwarePioniere.EventStore
+namespace SoftwarePioniere.EventStore.Domain
 {
     public class EmptyEventStoreInitializer : IEventStoreInitializer
     {

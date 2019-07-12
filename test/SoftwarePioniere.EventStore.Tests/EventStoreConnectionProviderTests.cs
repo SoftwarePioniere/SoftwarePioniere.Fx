@@ -62,7 +62,7 @@ namespace SoftwarePioniere.EventStore.Tests
          
             var loggerConfiguration = new LoggerConfiguration()
                     .MinimumLevel.Verbose()
-                    .WriteTo.Console()
+                    .WriteTo.LiterateConsole()
 //#if !DEBUG
                     .WriteTo.File("/testresults/log.txt")
 //#endif

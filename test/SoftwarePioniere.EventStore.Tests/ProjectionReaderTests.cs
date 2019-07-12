@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using SoftwarePioniere.DomainModel;
+using SoftwarePioniere.Domain;
 using SoftwarePioniere.DomainModel.FakeDomain;
 using SoftwarePioniere.Messaging;
 using Xunit;
@@ -20,7 +20,7 @@ namespace SoftwarePioniere.EventStore.Tests
         {
             var setup = GetService<EventStoreSetup>();
             var store = GetService<IEventStore>();
-            var proj = GetService<IProjectionReader>();
+            var proj = GetService<IEventStoreProjectionReader>();
 
             var name = $"tests{Guid.NewGuid().ToString().Replace("-", "")}";
             var query = TestFiles.GetFileContent("FakeCounterProjection.js");
@@ -58,7 +58,7 @@ namespace SoftwarePioniere.EventStore.Tests
         {
             var setup = GetService<EventStoreSetup>();
             var store = GetService<IEventStore>();
-            var proj = GetService<IProjectionReader>();
+            var proj = GetService<IEventStoreProjectionReader>();
 
             var name = $"tests{Guid.NewGuid().ToString().Replace("-", "")}";
             var query = TestFiles.GetFileContent("FakeCounterProjection.js");

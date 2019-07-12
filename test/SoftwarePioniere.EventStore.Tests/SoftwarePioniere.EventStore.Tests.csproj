@@ -5,10 +5,20 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\SoftwarePioniere.DomainModel.TestHarness\SoftwarePioniere.DomainModel.TestHarness.csproj" />
-    <ProjectReference Include="..\..\src\SoftwarePioniere.DomainModel.Services.EventStore\SoftwarePioniere.DomainModel.Services.EventStore.csproj" />
-    <ProjectReference Include="..\..\src\SoftwarePioniere.EventStore.TestHarness\SoftwarePioniere.EventStore.TestHarness.csproj" />
+    <None Remove="files\FakeCounterProjection.js" />
+    <None Remove="files\TestSubscription.js" />
+    <None Remove="files\TestSubscription1.js" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="files\FakeCounterProjection.js" />
+    <EmbeddedResource Include="files\TestSubscription.js" />
+    <EmbeddedResource Include="files\TestSubscription1.js" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\src\SoftwarePioniere.EventStore\SoftwarePioniere.EventStore.csproj" />
+    <ProjectReference Include="..\..\src\SoftwarePioniere.TestHarness\SoftwarePioniere.TestHarness.csproj" />
   </ItemGroup>
 
    <ItemGroup>

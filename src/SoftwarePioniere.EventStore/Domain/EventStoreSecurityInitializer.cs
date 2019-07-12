@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using SoftwarePioniere.Domain;
 
-namespace SoftwarePioniere.EventStore
+namespace SoftwarePioniere.EventStore.Domain
 {
     public class EventStoreSecurityInitializer : IEventStoreInitializer
     {

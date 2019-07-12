@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using SoftwarePioniere.Messaging;
+using SoftwarePioniere.Telemetry;
 
 namespace SoftwarePioniere.AspNetCore
 {
