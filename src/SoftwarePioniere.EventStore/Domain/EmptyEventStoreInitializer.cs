@@ -1,6 +1,6 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using SoftwarePioniere.Messaging;
+using SoftwarePioniere.Domain;
 
 namespace SoftwarePioniere.EventStore
 {
