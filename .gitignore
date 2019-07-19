@@ -6,6 +6,7 @@
 .env
 tools
 eventstore/logs
+GitVersion.json
 
 # User-specific files
 *.suo

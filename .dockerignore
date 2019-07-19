@@ -16,6 +16,4 @@ Dockerfile*
 **/*.md
 *.ps1
 *.cake
-GitVersion.yml
-nuget*.*
-!nuget.config.build.tmp
+GitVersion.*

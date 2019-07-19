@@ -30,7 +30,7 @@ namespace SoftwarePioniere.Hosting
             var options = config.CreateLoggingOptions();
 
             var assembly = Assembly.GetEntryAssembly();
-            var version = assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>().InformationalVersion;
+            var version = assembly?.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
             Console.WriteLine($"ConfigureSerilog:: AppVersion: {version}");
 
             if (!Directory.Exists(options.LogDir))
@@ -54,7 +54,7 @@ namespace SoftwarePioniere.Hosting
                 .Enrich.FromLogContext()
                 .Enrich.WithMachineName()
                 .Enrich.WithThreadId()
-                .Enrich.WithProperty("Assembly", assembly.FullName)
+                .Enrich.WithProperty("Assembly", assembly?.FullName)
                 .Enrich.WithProperty("AppId", sopiOptions.AppId)
                 .Enrich.WithProperty("AppVersion", version)
                 .WriteTo.LiterateConsole(outputTemplate: options.Template)

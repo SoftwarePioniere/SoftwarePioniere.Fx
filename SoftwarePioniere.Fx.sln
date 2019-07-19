@@ -55,18 +55,21 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SoftwarePioniere.AzureAd.Tests", "test\SoftwarePioniere.AzureAd.Tests\SoftwarePioniere.AzureAd.Tests.csproj", "{F86830C9-1904-4F4F-A46B-57E9A5A53193}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{FA7AC0DC-F083-4388-B3A1-8493B96B2FBD}"
+	ProjectSection(SolutionItems) = preProject
+		samples\Directory.Build.props = samples\Directory.Build.props
+	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuthSample", "samples\AuthSample\AuthSample.csproj", "{D9AB3605-0B1F-4177-93A0-59EBB42AB20D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AuthSample", "samples\AuthSample\AuthSample.csproj", "{D9AB3605-0B1F-4177-93A0-59EBB42AB20D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleApp", "samples\ConsoleApp\ConsoleApp.csproj", "{7C2530FC-7A95-4C8A-866B-53F559BDE8D8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleApp", "samples\ConsoleApp\ConsoleApp.csproj", "{7C2530FC-7A95-4C8A-866B-53F559BDE8D8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lib.Hosting", "samples\Lib.Hosting\Lib.Hosting.csproj", "{BCC8AB31-45C2-4AFA-8C88-661E899ECE6B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lib.Hosting", "samples\Lib.Hosting\Lib.Hosting.csproj", "{BCC8AB31-45C2-4AFA-8C88-661E899ECE6B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApp", "samples\WebApp\WebApp.csproj", "{CF77F35F-8E88-4AE9-A688-C21FF11C2FC9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebApp", "samples\WebApp\WebApp.csproj", "{CF77F35F-8E88-4AE9-A688-C21FF11C2FC9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApp.Clients", "samples\WebApp.Clients\WebApp.Clients.csproj", "{AD54E6C2-1639-44F8-990E-5C5CE38CE6A9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebApp.Clients", "samples\WebApp.Clients\WebApp.Clients.csproj", "{AD54E6C2-1639-44F8-990E-5C5CE38CE6A9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApp.Host", "samples\WebApp.Host\WebApp.Host.csproj", "{0E519804-B203-4017-9B45-0BE18D1113A7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebApp.Host", "samples\WebApp.Host\WebApp.Host.csproj", "{0E519804-B203-4017-9B45-0BE18D1113A7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

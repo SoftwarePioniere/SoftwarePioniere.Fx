@@ -22,6 +22,9 @@ var isDryRun            = HasArgument("dryrun1");
 
 var skipTest            = HasArgument("skiptest");
 
+var nugetApiKey         = Argument("nugetapikey", EnvironmentVariable("NUGET_API_KEY") );
+var mygetApiKey         = Argument("mygetapikey", EnvironmentVariable("MYGET_API_KEY") );
+
 ///////////////////////////////////////////////////////////////////////////////
 // Variables
 ///////////////////////////////////////////////////////////////////////////////
@@ -217,6 +220,43 @@ Task("PublishLocalPackages")
         }
     }
 
+});
+
+///////////////////////////////////////////////////////////////////////////////
+
+Task("PublishPackages")
+    .IsDependentOn("Clean")
+    .IsDependentOn("Build")
+    .IsDependentOn("GitVersion")  
+    .IsDependentOn("Pack") 
+    .Does( () => {
+
+  
+    var settings = new DotNetCoreNuGetPushSettings {
+        Source = "https://api.nuget.org/v3/index.json",
+        ApiKey = nugetApiKey
+    };
+
+
+    if (gitVersion.BranchName == "dev") {
+        Verbose("dev branch, publish to azure devops");
+
+        settings.Source = "https://www.myget.org/F/softwarepioniere/api/v3/index.json";
+        settings.ApiKey = mygetApiKey;
+    }
+
+    var pkgs = GetFiles($"{artifactsDirectory.Path.FullPath}/packages/**/*.symbols.nupkg");
+
+    foreach(var pk in pkgs)
+    {
+        Information("Starting DotNetCoreNuGetPush on Package: {0}", pk.FullPath);
+
+        if (!isDryRun) {
+            DotNetCoreNuGetPush(pk.FullPath, settings);
+        } else {
+            Verbose("Dry Run, skipping DotNetCoreNuGetPush");
+        }
+    }
 
 });
 
