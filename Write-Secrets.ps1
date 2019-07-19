@@ -24,6 +24,7 @@ if ($LASTEXITCODE -eq 1) {
     az login
 }
 
+az account set --subscription $subscription
 
 $x = (az keyvault secret show --vault-name $keyVaultName --name SopiTestCosmosDbPrimaryKey --subscription $subscription --query 'value' --output tsv)
 secret 'AZURECOSMOSDB__AUTHKEY' $x
