@@ -3,7 +3,7 @@ using Swashbuckle.AspNetCore.Swagger;
 
 namespace SoftwarePioniere.Extensions.AspNetCore.Swagger
 {
-    public class MySwaggerOptions
+    public class SopiSwaggerOptions
     {
         public string[] XmlFiles { get; set; }
         public OAuth2Scheme OAuth2Scheme { get; set; }

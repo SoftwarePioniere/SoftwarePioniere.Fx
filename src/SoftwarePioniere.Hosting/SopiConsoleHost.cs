@@ -1,4 +1,6 @@
 ﻿using System;
+using System.IO;
+using System.Reflection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -15,7 +17,17 @@ namespace SoftwarePioniere.Hosting
         {
             var hostBuilder = new HostBuilder();
 
-            var config = AppConfiguration.CreateConfiguration(configBuilderAction);
+            var config = AppConfiguration.CreateConfiguration(b =>
+            {
+                var ass = Assembly.GetEntryAssembly();
+                if (ass != null)
+                {
+                    var path = Path.GetDirectoryName(ass.Location);
+                    Console.WriteLine("Setting config base Path {0}", path);
+                    b.SetBasePath(path);
+                    
+                }
+            }, configBuilderAction);
             var logger = config.CreateSerilogger().ForContext(typeof(SopiConsoleHost));
 
             try
@@ -34,7 +46,6 @@ namespace SoftwarePioniere.Hosting
                 host.Run();
                 logger.Information("Host stopped");
                 return 0;
-
             }
             catch (Exception ex)
             {

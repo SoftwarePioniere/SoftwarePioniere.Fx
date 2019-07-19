@@ -11,7 +11,7 @@ namespace SoftwarePioniere.AspNetCore.Builder
     public static class SopiBuilderSwaggerExtensions
     {
         public static ISopiBuilder AddSwaggerForMultipleServices(this ISopiBuilder builder, string titleName, string baseRoute, string serviceName, string[] apiKeys
-        , Action<MySwaggerOptions> configureOptions = null)
+        , Action<SopiSwaggerOptions> configureOptions = null)
         {
             var swaggerClientOptions = builder.GetSwaggerClientOptions();
 
@@ -53,7 +53,7 @@ namespace SoftwarePioniere.AspNetCore.Builder
         }
 
         public static ISopiBuilder AddSwaggerForSingleService(this ISopiBuilder builder, string apiKey, string baseRoute, string serviceName
-        , Action<MySwaggerOptions> configureOptions = null)
+        , Action<SopiSwaggerOptions> configureOptions = null)
         {
             var swaggerClientOptions = builder.GetSwaggerClientOptions();
 

@@ -10,9 +10,9 @@ namespace SoftwarePioniere.Extensions.AspNetCore.Swagger
 {
     public static class SwaggerServiceCollectionExtensions
     {
-        public static IServiceCollection AddMySwagger(this IServiceCollection services, Action<MySwaggerOptions> configureOptions)
+        public static IServiceCollection AddMySwagger(this IServiceCollection services, Action<SopiSwaggerOptions> configureOptions)
         {
-            var options = new MySwaggerOptions();
+            var options = new SopiSwaggerOptions();
             configureOptions(options);
 
             services

@@ -3,16 +3,17 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using SoftwarePioniere.Caching;
 using SoftwarePioniere.Messaging;
-using SoftwarePioniere.Projections;
 using SoftwarePioniere.ReadModel;
+using SoftwarePioniere.Telemetry;
 
 // ReSharper disable once CheckNamespace
-namespace Fliegel365
+namespace SoftwarePioniere.Projections
 {
     public abstract class ReadModelProjectorBase2<T> : ReadModelProjectorBase<T> where T : Entity
     {
-        protected ITelemetryAdapter0 TelemetryAdapter { get; private set; }
+        protected ITelemetryAdapter TelemetryAdapter { get; private set; }
 
         protected CancellationToken CancellationToken { get; private set; }
 

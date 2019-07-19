@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using SoftwarePioniere.Messaging;
-using SoftwarePioniere.Projections;
+using SoftwarePioniere.Telemetry;
 
-namespace Fliegel365
+namespace SoftwarePioniere.Projections
 {
     public abstract class CompositeReadModelProjectorBase2 : CompositeReadModelProjectorBase
     {
-        protected readonly ITelemetryAdapter0 TelemetryAdapter;
+        protected readonly ITelemetryAdapter TelemetryAdapter;
 
         protected CompositeReadModelProjectorBase2(ILoggerFactory loggerFactory, IProjectorServices services) : base(loggerFactory)
         {

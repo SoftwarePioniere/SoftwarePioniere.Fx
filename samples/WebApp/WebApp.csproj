@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.SignalR" Version="1.1.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\SoftwarePioniere.AspNetCore\SoftwarePioniere.AspNetCore.csproj" />
+    <ProjectReference Include="..\..\src\SoftwarePioniere.TestHarness\SoftwarePioniere.TestHarness.csproj" />
+    <ProjectReference Include="..\..\src\SoftwarePioniere\SoftwarePioniere.csproj" />
+    <ProjectReference Include="..\WebApp.Clients\WebApp.Clients.csproj" />
+  </ItemGroup>
+
+
+</Project>

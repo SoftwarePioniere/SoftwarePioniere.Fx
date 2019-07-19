@@ -3,16 +3,18 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using SoftwarePioniere.Caching;
 using SoftwarePioniere.Messaging;
-using SoftwarePioniere.Projections;
 using SoftwarePioniere.ReadModel;
+using SoftwarePioniere.Telemetry;
+
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 
-namespace Fliegel365
+namespace SoftwarePioniere.Projections
 {
     public abstract class ReadModelProjectorBase4<T> : ReadModelProjectorBase<T> where T : Entity
     {
-        protected ITelemetryAdapter0 TelemetryAdapter { get; private set; }
+        protected ITelemetryAdapter TelemetryAdapter { get; private set; }
 
         protected CancellationToken CancellationToken { get; private set; }
 
@@ -181,6 +183,7 @@ namespace Fliegel365
 
         }
 
+        // ReSharper disable once UnusedMethodReturnValue.Local
         private async Task<T> SaveItemAsync(EntityDescriptor<T> item, IMessage domainEvent)//, IDictionary<string, string> state)
         {
 

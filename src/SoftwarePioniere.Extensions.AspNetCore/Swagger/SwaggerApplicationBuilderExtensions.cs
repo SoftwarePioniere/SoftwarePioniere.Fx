@@ -11,20 +11,20 @@ namespace SoftwarePioniere.Extensions.AspNetCore.Swagger
 {
     public static class SwaggerApplicationBuilderExtensions
     {
-        public static IApplicationBuilder UseMySwagger(this IApplicationBuilder app, Action<MySwaggerOptions> setupAction)
+        public static IApplicationBuilder UseMySwagger(this IApplicationBuilder app, Action<SopiSwaggerOptions> setupAction)
         {
-            var options = new MySwaggerOptions();
+            var options = new SopiSwaggerOptions();
             setupAction(options);
             return app.UseMySwagger(options);
         }
 
         public static IApplicationBuilder UseMySwagger(this IApplicationBuilder app)
         {
-            var options = app.ApplicationServices.GetRequiredService<IOptions<MySwaggerOptions>>().Value;
+            var options = app.ApplicationServices.GetRequiredService<IOptions<SopiSwaggerOptions>>().Value;
             return app.UseMySwagger(options);
         }
 
-        public static IApplicationBuilder UseMySwagger(this IApplicationBuilder app, MySwaggerOptions options)
+        public static IApplicationBuilder UseMySwagger(this IApplicationBuilder app, SopiSwaggerOptions options)
         {
 
             app.UseSwagger(c =>

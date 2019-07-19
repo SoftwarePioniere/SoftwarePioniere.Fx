@@ -9,7 +9,7 @@
   </ItemGroup>
 
   <ItemGroup>    
-    <PackageReference Include="Auth0.AuthenticationApi" Version="6.2.0" />
+    <PackageReference Include="Auth0.AuthenticationApi" Version="6.3.0" />
   </ItemGroup>
 
 </Project>
