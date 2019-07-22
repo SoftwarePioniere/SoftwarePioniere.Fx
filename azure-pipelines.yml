@@ -1,0 +1,29 @@
+# https://aka.ms/yaml
+
+trigger:
+- dev
+
+pool:
+  name: 'default'
+
+steps:
+
+- pwsh: if (!(Test-Path -Path tools/dotnet-cake-tool-0-33-0)) { dotnet tool install Cake.Tool --tool-path tools/dotnet-cake-tool-0-33-0 --version 0.33.0 --add-source https://api.nuget.org/v3/index.json }
+  displayName: 'install cake global tool'
+
+- pwsh: ./tools/dotnet-cake-tool-0-33-0/dotnet-cake.exe build.cake --target="BuildAndPublish"
+  displayName: 'run cake'
+  env:
+    NUGET_API_KEY: $(NuGetApiKey)
+    MYGET_API_KEY: $(MyGetApiKey)
+
+- task: CopyFiles@2
+  inputs:
+    sourceFolder: 'artifacts'
+    contents: '**/**' 
+    targetFolder: $(Build.ArtifactStagingDirectory) 
+
+- task: PublishPipelineArtifact@0
+  inputs:
+    artifactName: 'drop' 
+    targetPath: $(Build.ArtifactStagingDirectory)

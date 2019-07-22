@@ -119,7 +119,7 @@ Task("Test")
     .Does(() =>
 {
 
-    StopTestEnv();
+    // StopTestEnv();
     StartTestEnv();
 
     var settings = new DotNetCoreTestSettings
@@ -267,6 +267,13 @@ Task("Default")
   .IsDependentOn("Build")
   .IsDependentOn("Test")
   .IsDependentOn("Pack") 
+  ;
+
+Task("BuildAndPublish")  
+  .IsDependentOn("Build")
+  .IsDependentOn("Test")
+  .IsDependentOn("Pack") 
+  .IsDependentOn("PublishPackages") 
   ;
 
 // Task("DockerPublish")
