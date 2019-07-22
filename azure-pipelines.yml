@@ -16,6 +16,12 @@ steps:
   env:
     NUGET_API_KEY: $(NuGetApiKey)
     MYGET_API_KEY: $(MyGetApiKey)
+    AZURECOSMOSDB__AUTHKEY: $(SopiTestCosmosDbPrimaryKey)
+    AZURECOSMOSDB__ENDPOINTURL: $(SopiTestCosmosDbEndpint)
+    AZUREADCLIENT__CLIENTID: $(SopiTestAzureAdClientId)
+    AZUREADCLIENT__CLIENTSECRET: $(SopiTestAzureAdClientSecret)
+    AUTH0CLIENT__CLIENTID: $(SopiTestAuth0ClientId)
+    AUTH0CLIENT__CLIENTSECRET: $(SopiTestAuth0ClientSecret)    
 
 - task: CopyFiles@2
   inputs:
