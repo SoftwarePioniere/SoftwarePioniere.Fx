@@ -12,11 +12,9 @@ namespace SoftwarePioniere.EventStore.Tests
         public DomainEventStoreTests(ITestOutputHelper output) : base(output)
         { 
             ServiceCollection
-                .AddEventStoreConnection();
+                .AddEventStoreConnection(c => new TestConfiguration().ConfigurationRoot.Bind("EventStore", c));
 
-            ServiceCollection.AddOptions()
-                .Configure<EventStoreOptions>(c => new TestConfiguration().ConfigurationRoot.Bind("EventStore", c));
-
+      
             ServiceCollection.AddEventStoreDomainServices();
         }
 

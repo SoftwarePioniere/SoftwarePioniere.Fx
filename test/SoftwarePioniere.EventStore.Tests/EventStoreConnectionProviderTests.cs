@@ -15,16 +15,9 @@ namespace SoftwarePioniere.EventStore.Tests
         private EventStoreConnectionProvider CreateProvider(Action<EventStoreOptions> config = null)
         {
             ServiceCollection
-                .AddEventStoreConnection();
-
-            var opt = ServiceCollection.AddOptions()
-                   .Configure<EventStoreOptions>(c => new TestConfiguration().ConfigurationRoot.Bind("EventStore", c));
-
-            if (config != null)
-            {
-                opt.PostConfigure(config);
-            }
-
+                .AddEventStoreConnection(c => new TestConfiguration().ConfigurationRoot.Bind("EventStore", c));
+            
+            
             return GetService<EventStoreConnectionProvider>();
         }
 

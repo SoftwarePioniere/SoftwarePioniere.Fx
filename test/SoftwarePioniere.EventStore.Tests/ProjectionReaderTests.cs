@@ -14,7 +14,7 @@ namespace SoftwarePioniere.EventStore.Tests
 {
     public class ProjectionReaderTests : TestBase
     {
-       
+
         [Fact]
         public async Task ProjectionReaderTest()
         {
@@ -85,7 +85,7 @@ namespace SoftwarePioniere.EventStore.Tests
             {
                 Ids = new string[0]
             };
-            
+
             var result = await proj.GetStateAsyncAnonymousType(name, definition, save.First().AggregateId.Replace("-", ""));
 
             result.Should().NotBeNull();
@@ -96,13 +96,9 @@ namespace SoftwarePioniere.EventStore.Tests
         public ProjectionReaderTests(ITestOutputHelper output) : base(output)
         {
             ServiceCollection
-                .AddEventStoreConnection()
+                .AddEventStoreConnection(c => new TestConfiguration().ConfigurationRoot.Bind("EventStore", c))
                 .AddEventStoreDomainServices()
                 ;
-
-            ServiceCollection
-                .AddOptions()
-                .Configure<EventStoreOptions>(c => new TestConfiguration().ConfigurationRoot.Bind("EventStore", c));
 
         }
     }
