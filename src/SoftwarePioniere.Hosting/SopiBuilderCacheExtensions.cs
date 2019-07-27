@@ -55,12 +55,7 @@ namespace SoftwarePioniere.Hosting
 
             return builder;
         }
-
-        public static ISopiBuilder AddRedisCacheClient(this ISopiBuilder builder)
-        {
-            return builder.AddRedisCacheClient(_ => { });
-        }
-
+        
         public static ISopiBuilder AddRedisCacheClient(this ISopiBuilder builder,
             Action<RedisOptions> configureOptions)
         {

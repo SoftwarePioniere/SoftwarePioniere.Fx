@@ -36,6 +36,7 @@ namespace SoftwarePioniere.Hosting
         {
             builder.Config = config;
 
+
             builder.Services.Configure<SopiOptions>(config.Bind);
 
             builder.Options = new SopiOptions();

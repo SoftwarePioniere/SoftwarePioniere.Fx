@@ -81,14 +81,8 @@ namespace SoftwarePioniere.Hosting
             return builder;
         }
 
-        public static ISopiBuilder AddAzureCosmosDbEntityStore(this ISopiBuilder builder)
-        {
-            return builder.AddAzureCosmosDbEntityStore(_ => { });
-        }
-
-
         public static ISopiBuilder AddAzureCosmosDbEntityStore(this ISopiBuilder builder,
-            Action<AzureCosmosDbOptions> configureOptions)
+               Action<AzureCosmosDbOptions> configureOptions)
         {
             builder.Services.AddAzureCosmosDbEntityStore(configureOptions);
 
@@ -110,11 +104,6 @@ namespace SoftwarePioniere.Hosting
                     "azurecosmosdb-entitystore");
 
             return builder;
-        }
-
-        public static ISopiBuilder AddMongoDbEntityStore(this ISopiBuilder builder)
-        {
-            return builder.AddMongoDbEntityStore(_ => { });
         }
 
         public static ISopiBuilder AddMongoDbEntityStore(this ISopiBuilder builder,

@@ -13,12 +13,7 @@ namespace Microsoft.Extensions.DependencyInjection
 {
     public static class RedisDependencyInjectionExtensions
     {
-
-        public static IServiceCollection AddRedisMessageBus(this IServiceCollection services, string topic)
-        {
-            return services.AddRedisMessageBus(topic, _ => { });
-        }
-
+        
         public static IServiceCollection AddRedisMessageBus(this IServiceCollection services, string topic, Action<RedisOptions> configureOptions)
         {
             services
@@ -45,12 +40,7 @@ namespace Microsoft.Extensions.DependencyInjection
             return services;
         }
 
-
-        public static IServiceCollection AddRedisCacheClient(this IServiceCollection services)
-        {
-            return services.AddRedisCacheClient(_ => { });
-        }
-
+        
         public static IServiceCollection AddRedisCacheClient(this IServiceCollection services,
             Action<RedisOptions> configureOptions)
         {
