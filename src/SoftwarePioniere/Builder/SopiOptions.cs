@@ -9,6 +9,7 @@ namespace SoftwarePioniere.Builder
         public const string AuthAuth0 = "Auth0";
         public const string AuthAzureAd = "AzureAd";
         public const string MessageBusRedis = "Redis";
+        public const string MessageBusAzureServiceBus = "AzureServiceBus";
         //public const string MessageBusRabbitMq = "RabbitMQ";
         public const string EntityStoreMongoDb = "MongoDb";
         public const string EntityStoreAzureCosmosDb = "AzureCosmosDb";

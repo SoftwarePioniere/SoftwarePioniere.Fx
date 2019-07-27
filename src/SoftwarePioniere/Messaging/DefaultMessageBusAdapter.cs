@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Foundatio.Messaging;
 using Microsoft.Extensions.Logging;
 using SoftwarePioniere.Domain;
+using SoftwarePioniere.Hosting;
 using SoftwarePioniere.Telemetry;
 
 namespace SoftwarePioniere.Messaging
@@ -14,10 +15,11 @@ namespace SoftwarePioniere.Messaging
     {
         private readonly IMessageBus _bus;
         private readonly ITelemetryAdapter _telemetryAdapter;
+        private readonly ISopiApplicationLifetime _applicationLifetime;
 
         private readonly ILogger _logger;
 
-        public DefaultMessageBusAdapter(ILoggerFactory loggerFactory, IMessageBus bus, ITelemetryAdapter telemetryAdapter)
+        public DefaultMessageBusAdapter(ILoggerFactory loggerFactory, IMessageBus bus, ITelemetryAdapter telemetryAdapter, ISopiApplicationLifetime applicationLifetime)
         {
             if (loggerFactory == null)
             {
@@ -27,6 +29,7 @@ namespace SoftwarePioniere.Messaging
 
             _bus = bus ?? throw new ArgumentNullException(nameof(bus));
             _telemetryAdapter = telemetryAdapter ?? throw new ArgumentNullException(nameof(telemetryAdapter));
+            _applicationLifetime = applicationLifetime;
         }
 
         private bool LogError(Exception ex)
@@ -124,6 +127,8 @@ namespace SoftwarePioniere.Messaging
 
         public async Task SubscribeCommand<T>(Func<T, Task> handler, CancellationToken cancellationToken = new CancellationToken()) where T : class, ICommand
         {
+            var cts = CancellationTokenSource.CreateLinkedTokenSource(_applicationLifetime.CommandHandlerStopped, cancellationToken);
+            
             _logger.LogDebug("Subscribing to Command {CommandType}", typeof(T).GetTypeShortName());
             var bus = _bus;
             await bus.SubscribeAsync<T>(async (message, token) =>
@@ -142,7 +147,7 @@ namespace SoftwarePioniere.Messaging
                 //        return false;
                 //    return true;
                 //},
-                cancellationToken);
+                cts.Token);
         }
 
         public async Task SubscribeAggregateDomainEvent<TAggregate, TDomainEvent>(Func<TDomainEvent, AggregateTypeInfo<TAggregate>, Task> handler,

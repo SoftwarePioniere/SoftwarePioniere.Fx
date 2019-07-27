@@ -50,7 +50,7 @@ namespace SoftwarePioniere.Hosting.AspNetCore
                             .UseDefaultFiles()
                             .UseStaticFiles()
                             .UseAuthentication()
-                            .UseMySwagger()
+                            .UseSopiSwagger()
                             ;
                     }
                     configureApp(app);

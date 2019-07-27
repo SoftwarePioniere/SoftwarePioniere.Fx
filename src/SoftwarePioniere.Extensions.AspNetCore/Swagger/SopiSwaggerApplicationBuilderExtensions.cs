@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
@@ -9,33 +8,21 @@ using Microsoft.Extensions.Options;
 
 namespace SoftwarePioniere.Extensions.AspNetCore.Swagger
 {
-    public static class SwaggerApplicationBuilderExtensions
+    public static class SopiSwaggerApplicationBuilderExtensions
     {
-        public static IApplicationBuilder UseMySwagger(this IApplicationBuilder app, Action<SopiSwaggerOptions> setupAction)
-        {
-            var options = new SopiSwaggerOptions();
-            setupAction(options);
-            return app.UseMySwagger(options);
-        }
 
-        public static IApplicationBuilder UseMySwagger(this IApplicationBuilder app)
+        public static IApplicationBuilder UseSopiSwagger(this IApplicationBuilder app)
         {
             var options = app.ApplicationServices.GetRequiredService<IOptions<SopiSwaggerOptions>>().Value;
-            return app.UseMySwagger(options);
-        }
-
-        public static IApplicationBuilder UseMySwagger(this IApplicationBuilder app, SopiSwaggerOptions options)
-        {
-
             app.UseSwagger(c =>
-            {
-                c.PreSerializeFilters.Add((swagger, httpReq) => swagger.Host = httpReq.Host.Value);
+             {
+                 c.PreSerializeFilters.Add((swagger, httpReq) => swagger.Host = httpReq.Host.Value);
 
-                if (!string.IsNullOrEmpty(options.RouteTemplate))
-                {
-                    c.RouteTemplate = options.RouteTemplate;
-                }
-            });
+                 if (!string.IsNullOrEmpty(options.RouteTemplate))
+                 {
+                     c.RouteTemplate = options.RouteTemplate;
+                 }
+             });
 
             if (options.UseSwaggerUi)
             {
@@ -92,6 +79,7 @@ namespace SoftwarePioniere.Extensions.AspNetCore.Swagger
 
             return app;
         }
+
 
     }
 

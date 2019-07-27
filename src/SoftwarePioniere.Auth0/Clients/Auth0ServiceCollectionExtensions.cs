@@ -19,10 +19,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.Configure(configureOptions)
                 .AddSingleton<Auth0TokenProvider>()
                 ;
-
-            var settings = new Auth0ClientOptions();
-            configureOptions(settings);
-
+            
             return services;
         }
 

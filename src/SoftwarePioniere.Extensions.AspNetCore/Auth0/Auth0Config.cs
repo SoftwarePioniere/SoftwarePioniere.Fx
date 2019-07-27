@@ -5,21 +5,18 @@ namespace SoftwarePioniere.Extensions.AspNetCore.Auth0
 {
     public static class Auth0Config
     {
-        public static ISwaggerClientOptions ConfigureAuth0(IConfiguration config, IServiceCollection services)
+        public static IServiceCollection ConfigureAuth0(this IServiceCollection services, IConfiguration config)
         {
             services.AddAuth0Options(config);
 
             services.AddAuthentication(AuthConfig.AuthenticationConfig)
-                .AddAuth0(options => config.Bind("Auth0", options))
-                //  .AddAzureAd(options => context.Configuration.Bind("AzureAd", options))
+                .AddAuth0Bearer()
                 ;
 
-            var authOptions = new Auth0Options();
-            config.Bind("Auth0", authOptions);
+            services.AddAuth0Authorization()
+                ;
 
-            services.AddSingleton<ISwaggerClientOptions>(authOptions);
-
-            return authOptions;
+            return services;
         }
     }
 }

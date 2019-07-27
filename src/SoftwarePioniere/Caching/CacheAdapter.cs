@@ -11,9 +11,6 @@ using SoftwarePioniere.ReadModel;
 
 namespace SoftwarePioniere.Caching
 {
-
-
-
     public class CacheAdapter : ICacheAdapter
     {
         private readonly ILockProvider _lockProvider;

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Azure.CosmosDB.BulkExecutor;
@@ -130,13 +131,21 @@ namespace SoftwarePioniere.AzureCosmosDb
             {
                 throw new ArgumentNullException(nameof(item));
             }
-
-
+            
             Logger.LogTrace("InternalInsertItemAsync: {EntityType} {EntityId}", typeof(T), item.EntityId);
 
             token.ThrowIfCancellationRequested();
 
-            await _provider.AddItemAsync(item).ConfigureAwait(false);
+            try
+            {
+                await _provider.AddItemAsync(item).ConfigureAwait(false);
+            }
+            catch (DocumentClientException e) when (e.StatusCode == HttpStatusCode.Conflict)
+            {
+                Logger.LogWarning("Insert Failed, Try Update {EntityId} // {ExceptionMessage}", item.EntityId, e.Message);
+                await _provider.UpdateItemAsync(item, item.EntityId).ConfigureAwait(false);
+            }
+
         }
 
         protected override async Task InternalBulkInsertItemsAsync<T>(T[] items, CancellationToken token = new CancellationToken())
@@ -288,8 +297,15 @@ namespace SoftwarePioniere.AzureCosmosDb
 
             token.ThrowIfCancellationRequested();
 
-
-            await _provider.UpdateItemAsync(item, item.EntityId);
+            try
+            {
+                await _provider.UpdateItemAsync(item, item.EntityId);
+            }
+            catch (DocumentClientException e) when (e.StatusCode == HttpStatusCode.NotFound)
+            {
+                Logger.LogWarning("Update Failed, Try Insert {EntityId} // {ExceptionMessage}", item.EntityId, e.Message);
+                await _provider.AddItemAsync(item).ConfigureAwait(false);
+            }
         }
     }
 }

@@ -4,7 +4,7 @@
 
 namespace SoftwarePioniere.Extensions.AspNetCore.Auth0
 {
-    public class Auth0Options : ISwaggerClientOptions
+    public class Auth0Options
     {
         public string TenantId { get; set; }
         public string Domain => $"https://{TenantId}/";

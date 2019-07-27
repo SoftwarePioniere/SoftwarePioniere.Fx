@@ -5,45 +5,57 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace SoftwarePioniere.Extensions.AspNetCore.Auth0
 {
-
     public static class Auth0AuthenticationBuilderExtensions
     {
-        public static AuthenticationBuilder AddAuth0(this AuthenticationBuilder builder, Action<Auth0Options> configureOptions)
+       
+        public static AuthenticationBuilder AddAuth0Bearer(this AuthenticationBuilder builder)
         {
-            Console.WriteLine("AddAuth0");
-            Console.WriteLine("AddAuth0: Adding Configuration");
+            Console.WriteLine("AddAuth0Bearer");
 
-            var auth0Options = new Auth0Options();
-            configureOptions(auth0Options);
+            builder.Services.AddSingleton<IConfigureOptions<JwtBearerOptions>, ConfigureAuth0JwtBearerOptions>();
+            builder.AddJwtBearer();
 
-            string[] contextTokenAddPaths = null;
-            if (!string.IsNullOrEmpty(auth0Options.ContextTokenAddPaths))
+            return builder;
+        }
+
+        private class ConfigureAuth0JwtBearerOptions : IConfigureNamedOptions<JwtBearerOptions>
+        {
+            private readonly Auth0Options _auth0Options;
+
+            public ConfigureAuth0JwtBearerOptions(IOptions<Auth0Options> auth0Options)
             {
-                contextTokenAddPaths = auth0Options.ContextTokenAddPaths.Split(';');
+                _auth0Options = auth0Options.Value;
             }
 
-            Console.WriteLine("AddAuth0: Adding JwtBeaerer");
-            builder.AddJwtBearer(jwtBearerOptions =>
+            public void Configure(JwtBearerOptions options)
             {
-                jwtBearerOptions.Audience = auth0Options.Audience;
-                jwtBearerOptions.Authority = auth0Options.Domain;
+                Configure(Options.DefaultName, options);
+            }
 
-                jwtBearerOptions.Events = new JwtBearerEvents
+            public void Configure(string name, JwtBearerOptions options)
+            {
+                string[] contextTokenAddPaths = null;
+                if (!string.IsNullOrEmpty(_auth0Options.ContextTokenAddPaths)) contextTokenAddPaths = _auth0Options.ContextTokenAddPaths.Split(';');
+
+
+                options.Audience = _auth0Options.Audience;
+                options.Authority = _auth0Options.Domain;
+
+                options.Events = new JwtBearerEvents
                 {
                     OnTokenValidated = context =>
                     {
                         if (context.SecurityToken is JwtSecurityToken token)
-                        {
                             if (context.Principal.Identity is ClaimsIdentity identity)
                             {
                                 identity.AddClaim(new Claim("access_token", token.RawData));
-                                identity.AddClaim(new Claim("tenant", auth0Options.TenantId));
+                                identity.AddClaim(new Claim("tenant", _auth0Options.TenantId));
                                 identity.AddClaim(new Claim("provider", "auth0"));
                             }
-                        }
 
                         return Task.CompletedTask;
                     },
@@ -55,7 +67,7 @@ namespace SoftwarePioniere.Extensions.AspNetCore.Auth0
                         {
                             var accessToken = context.Request.Query["access_token"];
 
-                            bool matchesAny = false;
+                            var matchesAny = false;
 
                             if (!string.IsNullOrEmpty(accessToken))
                             {
@@ -63,39 +75,24 @@ namespace SoftwarePioniere.Extensions.AspNetCore.Auth0
                                 var path = context.HttpContext.Request.Path;
 
                                 foreach (var s in contextTokenAddPaths)
-                                {
                                     if (path.StartsWithSegments(s))
                                     {
                                         matchesAny = true;
                                         break;
                                     }
-                                }
                             }
 
                             if (matchesAny)
-                            {
                                 // Read the token out of the query string
                                 context.Token = accessToken;
-                            }
                         }
 
                         return Task.CompletedTask;
                     }
                 };
-            });
-
-            Console.WriteLine("AddAuth0: Adding AddAuthorization Admin Policy");
-            builder.Services.AddAuthorization(authorizationOptions =>
-            {
-                authorizationOptions.AddPolicy(PolicyConstants.IsAdminPolicy, policy => policy.RequireClaim(auth0Options.GroupClaimType, auth0Options.AdminGroupId));
-                if (!string.IsNullOrEmpty(auth0Options.UserGroupId))
-                {
-                    authorizationOptions.AddPolicy(PolicyConstants.IsUserPolicy, policy => policy.RequireClaim(auth0Options.GroupClaimType, auth0Options.UserGroupId));
-                }
-            });
-
-            return builder;
-
+            }
         }
+
+   
     }
 }

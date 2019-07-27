@@ -27,4 +27,12 @@ namespace SoftwarePioniere.Extensions.AspNetCore.Swagger
         public string Url { get; set; }
         public string Title { get; set; }
     }
+
+    public class SopiSwaggerClientOptions
+    {
+        public string ClientId { get; set; }
+        public string ClientSecret { get; set; }
+        public string AuthorizationUrl { get; set; }
+        public string Resource { get; set; }
+    }
 }

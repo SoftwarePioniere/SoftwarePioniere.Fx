@@ -1,10 +1,10 @@
 ﻿{  
   "profiles": {
-    "SoftwarePioniere.Auth.SampleApp": {
+    "AuthSample": {
       "commandName": "Project",
       "launchBrowser": true,
       "launchUrl": "swagger",
-      "applicationUrl": "http://localhost:5098",
+      "applicationUrl": "http://localhost:5000",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }

@@ -5,20 +5,18 @@ namespace SoftwarePioniere.Extensions.AspNetCore.AzureAd
 {
     public static class AzureAdConfig
     {
-        public static ISwaggerClientOptions ConfigureAzureAd(IConfiguration config, IServiceCollection services)
+        public static IServiceCollection ConfigureAzureAd(this IServiceCollection services, IConfiguration config)
         {
             services.AddAzureAdOptions(config);
 
-            services.AddAuthentication(AuthConfig.AuthenticationConfig)
-                .AddAzureAd(options => config.Bind("AzureAd", options))
+            services
+                .AddAuthentication(AuthConfig.AuthenticationConfig)
+                .AddAzureAdBearer()
                 ;
 
-            var authOptions = new AzureAdOptions();
-            config.Bind("AzureAd", authOptions);
+            services.AddAzureAdAuthorization();
 
-            services.AddSingleton<ISwaggerClientOptions>(authOptions);
-
-            return authOptions;
+            return services;
         }
     }
 }

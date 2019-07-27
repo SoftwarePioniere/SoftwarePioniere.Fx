@@ -9,6 +9,7 @@
     <PackageReference Include="AspNetCore.HealthChecks.DocumentDb" Version="2.2.1" />
     <PackageReference Include="AspNetCore.HealthChecks.MongoDb" Version="2.2.3" />
     <PackageReference Include="AspNetCore.HealthChecks.Redis" Version="2.2.3" />
+    <PackageReference Include="Foundatio.AzureServiceBus" Version="8.0.1512" />
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.7.1" />
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics.HealthChecks" Version="2.2.0" />
     <PackageReference Include="Polly" Version="7.1.0" />

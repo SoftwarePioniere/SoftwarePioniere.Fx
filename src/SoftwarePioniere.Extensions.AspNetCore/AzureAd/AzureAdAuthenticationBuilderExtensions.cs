@@ -5,56 +5,69 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
 namespace SoftwarePioniere.Extensions.AspNetCore.AzureAd
 {
     public static class AzureAdAuthenticationBuilderExtensions
     {
-        public static AuthenticationBuilder AddAzureAd(this AuthenticationBuilder builder, Action<AzureAdOptions> configureOptions, Action<AuthorizationOptions> configureAuthorization = null)
+        public static AuthenticationBuilder AddAzureAdBearer(this AuthenticationBuilder builder)
         {
-            Console.WriteLine("AddAzureAd");
+            Console.WriteLine("AddAzureAdBearer");
 
-            Console.WriteLine("AddAzureAd: Adding Configuration");
-            builder.Services.Configure(configureOptions);
+            builder.Services.AddSingleton<IConfigureOptions<JwtBearerOptions>, ConfigureAzureJwtBearerOptions>();
+            builder.AddJwtBearer();
 
-            var azureAdOptions = new AzureAdOptions();
-            configureOptions(azureAdOptions);
+            return builder;
 
-            var tokenValParam = new TokenValidationParameters()
+        }
+
+        private class ConfigureAzureJwtBearerOptions : IConfigureNamedOptions<JwtBearerOptions>
+        {
+            private readonly AzureAdOptions _azureAdOptions;
+
+            public ConfigureAzureJwtBearerOptions(IOptions<AzureAdOptions> azureOptions)
             {
-                ValidateLifetime = true,
-                ValidateIssuer = true,
-                ValidIssuer = azureAdOptions.IssuerUrl,
-                ValidateAudience = true,
-                ValidAudience = azureAdOptions.Resource
-            };
-
-            if (!string.IsNullOrEmpty(azureAdOptions.IssuerSigningKey) && !string.Equals(azureAdOptions.IssuerSigningKey, "XXX", StringComparison.InvariantCultureIgnoreCase))
-            {
-                tokenValParam.ValidateIssuerSigningKey = true;
-                tokenValParam.IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(azureAdOptions.IssuerSigningKey));
+                _azureAdOptions = azureOptions.Value;
             }
 
-            string[] contextTokenAddPaths = null;
-            if (!string.IsNullOrEmpty(azureAdOptions.ContextTokenAddPaths))
+            public void Configure(string name, JwtBearerOptions options)
             {
-                contextTokenAddPaths = azureAdOptions.ContextTokenAddPaths.Split(';');
-            }
+                
+                var tokenValParam = new TokenValidationParameters()
+                {
+                    ValidateLifetime = true,
+                    ValidateIssuer = true,
+                    ValidIssuer = $"https://sts.windows.net/{_azureAdOptions.TenantId}/",
+                    ValidateAudience = true,
+                    ValidAudience = _azureAdOptions.Resource
+                };
 
-            Console.WriteLine("AddAzureAd: Adding JwtBeaerer");
-            builder.AddJwtBearer(jwtBearerOptions =>
-            {
-                jwtBearerOptions.Audience = azureAdOptions.Resource;
-                jwtBearerOptions.Authority = azureAdOptions.Authority;
-                jwtBearerOptions.ClaimsIssuer = azureAdOptions.IssuerUrl;
-                jwtBearerOptions.RequireHttpsMetadata = false;
-                jwtBearerOptions.SaveToken = true;
-                jwtBearerOptions.TokenValidationParameters = tokenValParam;
+                if (!string.IsNullOrEmpty(_azureAdOptions.IssuerSigningKey) && !string.Equals(_azureAdOptions.IssuerSigningKey, "XXX", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    tokenValParam.ValidateIssuerSigningKey = true;
+                    tokenValParam.IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_azureAdOptions.IssuerSigningKey));
+                }
 
-                jwtBearerOptions.Events = new JwtBearerEvents
+                string[] contextTokenAddPaths = null;
+                if (!string.IsNullOrEmpty(_azureAdOptions.ContextTokenAddPaths))
+                {
+                    contextTokenAddPaths = _azureAdOptions.ContextTokenAddPaths.Split(';');
+                }
+
+                Console.WriteLine("AddAzureAd: Adding JwtBeaerer");
+
+
+                options.Audience = _azureAdOptions.Resource;
+                options.Authority =  $"https://login.microsoftonline.com/{_azureAdOptions.TenantId}/" ;
+                options.ClaimsIssuer =$"https://sts.windows.net/{_azureAdOptions.TenantId}/";
+                options.RequireHttpsMetadata = false;
+                options.SaveToken = true;
+                options.TokenValidationParameters = tokenValParam;
+
+                options.Events = new JwtBearerEvents
                 {
                     OnTokenValidated = context =>
                     {
@@ -63,7 +76,7 @@ namespace SoftwarePioniere.Extensions.AspNetCore.AzureAd
                             if (context.Principal.Identity is ClaimsIdentity identity)
                             {
                                 identity.AddClaim(new Claim("access_token", token.RawData));
-                                identity.AddClaim(new Claim("tenant", azureAdOptions.TenantId));
+                                identity.AddClaim(new Claim("tenant", _azureAdOptions.TenantId));
                                 identity.AddClaim(new Claim("provider", "aad"));
                             }
                         }
@@ -105,23 +118,14 @@ namespace SoftwarePioniere.Extensions.AspNetCore.AzureAd
                         return Task.CompletedTask;
                     }
                 };
-            });
 
-            Console.WriteLine("AddAzureAd: Adding AddAuthorization Admin Policy");
-            builder.Services.AddAuthorization(authorizationOptions =>
+
+            }
+
+            public void Configure(JwtBearerOptions options)
             {
-                authorizationOptions.AddPolicy(PolicyConstants.IsAdminPolicy, policy => policy.RequireClaim("groups", azureAdOptions.AdminGroupId));
-
-                if (!string.IsNullOrEmpty(azureAdOptions.UserGroupId))
-                {
-                    authorizationOptions.AddPolicy(PolicyConstants.IsAdminPolicy, policy => policy.RequireClaim("groups", azureAdOptions.UserGroupId));
-                }
-
-                configureAuthorization?.Invoke(authorizationOptions);
-            });
-
-            return builder;
-
+                Configure(Options.DefaultName, options);
+            }
         }
     }
 }

@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using SoftwarePioniere.AspNetCore;
 using SoftwarePioniere.AspNetCore.Builder;
 using SoftwarePioniere.Domain;
+using SoftwarePioniere.Extensions.AspNetCore.Swagger;
 using SoftwarePioniere.Hosting;
 using SoftwarePioniere.Hosting.AspNetCore;
 using SoftwarePioniere.Projections;
@@ -29,16 +30,17 @@ namespace WebApp.Host
                 {
 
                     sopiBuilder
-                        .AddSwaggerForMultipleServices(Constants.ApiTitle,
-                            Constants.ApiBaseRoute,
-                            "sample",
-                            new[]
-                            {
-                                Constants.ApiKey, "api", "api2", "cmd1", "qry1"
-                            })
-                        .AddDomainServices()
+                     .AddDomainServices()
                         .AddProjectionServices()
                         ;
+
+                    sopiBuilder.Services.AddSopiSwaggerForMultipleServices(Constants.ApiTitle,
+                        Constants.ApiBaseRoute,
+                        "sample",
+                        new[]
+                        {
+                            Constants.ApiKey, "api", "api2", "cmd1", "qry1"
+                        });
 
                     sopiBuilder.Services
                         .AddTestClientOptions(c => { c.BaseAddress = "http://localhost:5099"; })

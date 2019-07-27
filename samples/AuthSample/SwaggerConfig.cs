@@ -1,40 +1,60 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using SoftwarePioniere.Extensions.AspNetCore;
+using Microsoft.Extensions.Options;
 using SoftwarePioniere.Extensions.AspNetCore.Swagger;
 using Swashbuckle.AspNetCore.Swagger;
 
 namespace AuthSample
 {
-    public static class SwaggerConfig
+    public class SwaggerConfig : IConfigureOptions<SopiSwaggerOptions>
     {
-        public static void TestApi(SopiSwaggerOptions c, ISwaggerClientOptions swaggerClientOptions)
+        private readonly SopiSwaggerClientOptions _swaggerClientOptions;
+
+        public SwaggerConfig(IOptions<SopiSwaggerClientOptions> cwco)
         {
-            c.Title = "Test Api";
-            c.Docs = new[] { "api", "test" }.Select(apiKey => new SwaggerDocOptions { Name = apiKey, Title = $"{c.Title} [{apiKey}]", Url = $"/swagger/{apiKey}/swagger.json" }).ToArray();
-            c.XmlFiles = new string[0];
+            _swaggerClientOptions = cwco.Value;
+        }
+
+        public void Configure(SopiSwaggerOptions options)
+        {
+            options.Title = "Test Api";
+            options.Docs = new[]
+            {
+                "api", "test"
+            }
+            .Select(apiKey => new SwaggerDocOptions
+            {
+                Name = apiKey,
+                Title = $"{options.Title} [{apiKey}]",
+                Url = $"/swagger/{apiKey}/swagger.json"
+            }).ToArray();
+
+            options.XmlFiles = new string[0];
 
             var scopes = new Dictionary<string, string>
-            {
-                {"admin", "admin access"}
-            };
+                {
+                    {"admin", "admin access"}
+                };
 
-            c.OAuth2Scheme = new OAuth2Scheme
+            options.OAuth2Scheme = new OAuth2Scheme
             {
                 Type = "oauth2",
                 Flow = "implicit",
-                AuthorizationUrl = swaggerClientOptions.SwaggerAuthorizationUrl,
+                AuthorizationUrl = _swaggerClientOptions.AuthorizationUrl,
                 Scopes = scopes
             };
 
-            c.OAuthAdditionalQueryStringParams = new Dictionary<string, string>
-            {
-                {"resource", swaggerClientOptions.SwaggerResource},
-                {"Audience", swaggerClientOptions.SwaggerResource}
-            };
+            options.OAuthAdditionalQueryStringParams = new Dictionary<string, string>
+                {
+                    {"resource", _swaggerClientOptions.Resource},
+                    {"Audience", _swaggerClientOptions.Resource}
+                };
 
-            c.OAuthClientId = swaggerClientOptions.SwaggerClientId;
-            c.OAuthClientSecret = swaggerClientOptions.SwaggerClientSecret;
+            options.OAuthClientId = _swaggerClientOptions.ClientId;
+            options.OAuthClientSecret = _swaggerClientOptions.ClientSecret;
         }
+
     }
+
 }
+

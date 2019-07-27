@@ -4,5 +4,6 @@ namespace SoftwarePioniere.Caching
     {
         public int CacheMinutes { get; set; } = 120;
         public int CacheLoadSplitSize { get; set; } = 500;
+        public string CacheScope { get; set; }
     }
 }

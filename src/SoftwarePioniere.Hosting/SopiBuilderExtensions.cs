@@ -45,7 +45,10 @@ namespace SoftwarePioniere.Hosting
 
             services.AddOptions();
 
-            builder.AddHealthChecks();
+            builder.AddHealthChecks()
+                ;
+
+            services.AddSingleton<ISopiApplicationLifetime, SopiApplicationLifetime>();
 
             services.AddSingleton(
                 resolver => resolver.GetRequiredService<IOptions<SopiOptions>>().Value);

@@ -139,7 +139,7 @@ namespace SoftwarePioniere.ReadModel
             var list = new List<FakeEntity>();
 
             for (var i = 0; i < 1000; i++) list.Add(FakeEntity.Create(Guid.NewGuid().ToString()));
-            
+
             var store = CreateInstance();
 
             await store.BulkInsertItemsAsync(list);
@@ -424,13 +424,46 @@ namespace SoftwarePioniere.ReadModel
         }
 
 
-        private static void CompareEntitities(FakeEntity obj1, FakeEntity obj2)
+        // ReSharper disable once MemberCanBePrivate.Global
+        protected static void CompareEntitities(FakeEntity obj1, FakeEntity obj2)
         {
             obj2.EntityId.Should().Be(obj1.EntityId);
             obj2.DateTimeValueUtc.Should().Be(obj1.DateTimeValueUtc);
             obj2.DoubleValue.Should().Be(obj1.DoubleValue);
             obj2.GuidValue.Should().Be(obj1.GuidValue);
             obj2.StringValue.Should().Be(obj1.StringValue);
+        }
+
+
+        public virtual async Task InsertExistingWillUpdate()
+        {
+            var id = Guid.NewGuid().ToString();
+
+            var obj1 = FakeEntity.Create(id);
+
+            var store = CreateInstance();
+            await store.InsertItemAsync(obj1);
+
+            var obj2 = FakeEntity.Create(id);
+            obj2.StringValue = Guid.NewGuid().ToString();
+            await store.InsertItemAsync(obj2);
+
+            obj1 = await store.LoadItemAsync<FakeEntity>(obj1.EntityId);
+
+            CompareEntitities(obj1, obj2);
+        }
+
+        public virtual async Task UpdateNonExistingWillInsert()
+        {
+            var id = Guid.NewGuid().ToString();
+            var obj1 = FakeEntity.Create(id);
+
+            var store = CreateInstance();
+            await store.UpdateItemAsync(obj1);
+
+            var obj2 = await store.LoadItemAsync<FakeEntity>(obj1.EntityId);
+            
+            CompareEntitities(obj1, obj2);
         }
     }
 }
