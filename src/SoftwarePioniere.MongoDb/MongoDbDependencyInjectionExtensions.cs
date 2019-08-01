@@ -10,9 +10,7 @@ namespace Microsoft.Extensions.DependencyInjection
 {
     public static class MongoDbDependencyInjectionExtensions
     {
-        public static IServiceCollection AddMongoDbEntityStore(this IServiceCollection services) =>
-            services.AddMongoDbEntityStore(_ => { });
-
+     
         public static IServiceCollection AddMongoDbEntityStore(this IServiceCollection services, Action<MongoDbOptions> configureOptions)
         {
 

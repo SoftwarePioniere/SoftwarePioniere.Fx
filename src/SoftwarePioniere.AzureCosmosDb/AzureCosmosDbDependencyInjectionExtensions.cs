@@ -10,9 +10,7 @@ namespace Microsoft.Extensions.DependencyInjection
 {
     public static class AzureCosmosDbDependencyInjectionExtensions
     {
-        public static IServiceCollection AddAzureCosmosDbEntityStore(this IServiceCollection services) =>
-            services.AddAzureCosmosDbEntityStore(_ => { });
-
+      
         public static IServiceCollection AddAzureCosmosDbEntityStore(this IServiceCollection services, Action<AzureCosmosDbOptions> configureOptions)
         {
 

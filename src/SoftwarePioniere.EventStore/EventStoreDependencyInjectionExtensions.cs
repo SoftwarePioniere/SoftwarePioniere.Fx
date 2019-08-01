@@ -9,9 +9,7 @@ namespace Microsoft.Extensions.DependencyInjection
 {
     public static class EventStoreDependencyInjectionExtensions
     {
-        public static IServiceCollection AddEventStoreConnection(this IServiceCollection services) =>
-            services.AddEventStoreConnection(_ => { });
-
+    
         public static IServiceCollection AddEventStoreConnection(this IServiceCollection services, Action<EventStoreOptions> configureOptions,
             Action<ConnectionSettingsBuilder> connectionSetup = null)
         {

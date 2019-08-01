@@ -18,8 +18,7 @@ namespace SoftwarePioniere.Hosting
             var config = builder.Config;
 
             builder.Services.AddCachingOptions();
-
-
+            
             Console.WriteLine($"Fliegel 365 MessageBus Config Value: {builder.Options.MessageBus}");
             switch (builder.Options.MessageBus)
             {
@@ -60,11 +59,6 @@ namespace SoftwarePioniere.Hosting
 
 
             return builder;
-        }
-
-        public static ISopiBuilder AddRedisMessageBus(this ISopiBuilder builder)
-        {
-            return builder.AddRedisMessageBus(_ => { });
         }
 
         public static ISopiBuilder AddRedisMessageBus(this ISopiBuilder builder,

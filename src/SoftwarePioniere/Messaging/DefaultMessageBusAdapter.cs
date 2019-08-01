@@ -14,12 +14,12 @@ namespace SoftwarePioniere.Messaging
     public class DefaultMessageBusAdapter : IMessageBusAdapter
     {
         private readonly IMessageBus _bus;
-        private readonly ITelemetryAdapter _telemetryAdapter;
+        //private readonly ITelemetryAdapter _telemetryAdapter;
         private readonly ISopiApplicationLifetime _applicationLifetime;
 
         private readonly ILogger _logger;
 
-        public DefaultMessageBusAdapter(ILoggerFactory loggerFactory, IMessageBus bus, ITelemetryAdapter telemetryAdapter, ISopiApplicationLifetime applicationLifetime)
+        public DefaultMessageBusAdapter(ILoggerFactory loggerFactory, IMessageBus bus, ISopiApplicationLifetime applicationLifetime)
         {
             if (loggerFactory == null)
             {
@@ -28,7 +28,7 @@ namespace SoftwarePioniere.Messaging
             _logger = loggerFactory.CreateLogger(GetType());
 
             _bus = bus ?? throw new ArgumentNullException(nameof(bus));
-            _telemetryAdapter = telemetryAdapter ?? throw new ArgumentNullException(nameof(telemetryAdapter));
+            //_telemetryAdapter = telemetryAdapter ?? throw new ArgumentNullException(nameof(telemetryAdapter));
             _applicationLifetime = applicationLifetime;
         }
 
@@ -41,31 +41,31 @@ namespace SoftwarePioniere.Messaging
         public Task PublishAsync(Type messageType, object message, TimeSpan? delay = null,
             CancellationToken cancellationToken = new CancellationToken())
         {
+            return _bus.PublishAsync(messageType, message, delay, cancellationToken);
 
+            ////if (parentState == null)
+            //var parentState = new Dictionary<string, string>();
 
-            //if (parentState == null)
-            var parentState = new Dictionary<string, string>();
+            //var operationName = $"PUBLISH {messageType.GetTypeShortName()}";
 
-            var operationName = $"PUBLISH {messageType.GetTypeShortName()}";
-
-            return _telemetryAdapter.RunDependencyAsync(operationName,
-                "BUS",
-                async state =>
-                {
-                    if (!typeof(IMessageWrapper).IsAssignableFrom(messageType) &&
-                        typeof(IMessage).IsAssignableFrom(messageType))
-                    {
-                        var imessage = (IMessage)message;
-                        var created = imessage.CreateMessageWrapper(state);
-                        await _bus.PublishAsync(created.GetType(), created, delay, cancellationToken);
-                    }
-                    else
-                    {
-                        await _bus.PublishAsync(messageType, message, delay, cancellationToken);
-                    }
-                },
-                parentState,
-                _logger);
+            //return _telemetryAdapter.RunDependencyAsync(operationName,
+            //    "BUS",
+            //    async state =>
+            //    {
+            //        if (!typeof(IMessageWrapper).IsAssignableFrom(messageType) &&
+            //            typeof(IMessage).IsAssignableFrom(messageType))
+            //        {
+            //            var imessage = (IMessage)message;
+            //            var created = imessage.CreateMessageWrapper(state);
+            //            await _bus.PublishAsync(created.GetType(), created, delay, cancellationToken);
+            //        }
+            //        else
+            //        {
+            //            await _bus.PublishAsync(messageType, message, delay, cancellationToken);
+            //        }
+            //    },
+            //    parentState,
+            //    _logger);
         }
 
         public Task PublishAsync<T>(T message, TimeSpan? delay = null
@@ -73,31 +73,32 @@ namespace SoftwarePioniere.Messaging
         //    ,IDictionary<string, string> parentState = null
             ) where T : class, IMessage
         {
-            // if (parentState == null)
-            var parentState = new Dictionary<string, string>();
-
             var messageType = typeof(T);
+            return _bus.PublishAsync(messageType, message, delay, cancellationToken);
 
-            var operationName = $"PUBLISH {messageType.GetTypeShortName()}";
+            //// if (parentState == null)
+            //var parentState = new Dictionary<string, string>()
 
-            return _telemetryAdapter.RunDependencyAsync(operationName,
-                "BUS",
-                async state =>
-                {
-                    if (!typeof(IMessageWrapper).IsAssignableFrom(messageType) &&
-                        typeof(IMessage).IsAssignableFrom(messageType))
-                    {
-                        var imessage = (IMessage)message;
-                        var created = imessage.CreateMessageWrapper(state);
-                        await _bus.PublishAsync(created.GetType(), created, delay, cancellationToken);
-                    }
-                    else
-                    {
-                        await _bus.PublishAsync(messageType, message, delay, cancellationToken);
-                    }
-                },
-                parentState,
-                _logger);
+            //var operationName = $"PUBLISH {messageType.GetTypeShortName()}";
+
+            //return _telemetryAdapter.RunDependencyAsync(operationName,
+            //    "BUS",
+            //    async state =>
+            //    {
+            //        if (!typeof(IMessageWrapper).IsAssignableFrom(messageType) &&
+            //            typeof(IMessage).IsAssignableFrom(messageType))
+            //        {
+            //            var imessage = (IMessage)message;
+            //            var created = imessage.CreateMessageWrapper(state);
+            //            await _bus.PublishAsync(created.GetType(), created, delay, cancellationToken);
+            //        }
+            //        else
+            //        {
+            //            await _bus.PublishAsync(messageType, message, delay, cancellationToken);
+            //        }
+            //    },
+            //    parentState,
+            //    _logger);
         }
 
         public async Task SubscribeMessage<T>(Func<T, Task> handler
@@ -128,7 +129,7 @@ namespace SoftwarePioniere.Messaging
         public async Task SubscribeCommand<T>(Func<T, Task> handler, CancellationToken cancellationToken = new CancellationToken()) where T : class, ICommand
         {
             var cts = CancellationTokenSource.CreateLinkedTokenSource(_applicationLifetime.CommandHandlerStopped, cancellationToken);
-            
+
             _logger.LogDebug("Subscribing to Command {CommandType}", typeof(T).GetTypeShortName());
             var bus = _bus;
             await bus.SubscribeAsync<T>(async (message, token) =>
@@ -213,12 +214,38 @@ namespace SoftwarePioniere.Messaging
         public async Task<MessageResponse> PublishCommandAsync<T>(T cmd, CancellationToken cancellationToken = new CancellationToken()
           ) where T : class, ICommand
         {
-            //if (parentState == null)
-            var parentState = new Dictionary<string, string>();
-            //parentState.Merge(cmd.CreateState());
+            try
+            {
 
-            var messageType = cmd.GetType();
-            var operationName = $"PUBLISH COMMAND {messageType.GetTypeShortName()}";
+                await _bus.PublishAsync(cmd);
+
+                var x = new MessageResponse
+                {
+                    UserId = cmd.UserId,
+                    MessageId = cmd.Id
+                };
+                x.Properties.Merge(cmd.CreateState());
+
+                return x;
+            }
+            catch (Exception e) when (LogError(e))
+            {
+                var x = new MessageResponse
+                {
+                    Error = e.GetInnerExceptionMessage(),
+                    UserId = cmd.UserId,
+                    MessageId = cmd.Id
+                };
+                x.Properties.Merge(cmd.CreateState());
+                return x;
+            }
+
+            ////if (parentState == null)
+            //var parentState = new Dictionary<string, string>();
+            ////parentState.Merge(cmd.CreateState());
+
+            //var messageType = cmd.GetType();
+            //var operationName = $"PUBLISH COMMAND {messageType.GetTypeShortName()}";
 
             //if (_fliegel365Options.Value.AllowDevMode)
             //{
@@ -246,36 +273,36 @@ namespace SoftwarePioniere.Messaging
             //    }
             //}
 
-            try
-            {
-                await _telemetryAdapter.RunDependencyAsync(operationName,
-                    "BUS",
-                    async state =>
-                    {
-                        await _bus.PublishAsync(cmd.CreateMessageWrapper(state));
-                    }, parentState,
-                    _logger);
+            //try
+            //{
+            //    await _telemetryAdapter.RunDependencyAsync(operationName,
+            //        "BUS",
+            //        async state =>
+            //        {
+            //            await _bus.PublishAsync(cmd.CreateMessageWrapper(state));
+            //        }, parentState,
+            //        _logger);
 
-                var x = new MessageResponse
-                {
-                    UserId = cmd.UserId,
-                    MessageId = cmd.Id
-                };
-                x.Properties.Merge(parentState);
+            //    var x = new MessageResponse
+            //    {
+            //        UserId = cmd.UserId,
+            //        MessageId = cmd.Id
+            //    };
+            //    x.Properties.Merge(parentState);
 
-                return x;
-            }
-            catch (Exception e) when (LogError(e))
-            {
-                var x = new MessageResponse
-                {
-                    Error = e.GetInnerExceptionMessage(),
-                    UserId = cmd.UserId,
-                    MessageId = cmd.Id
-                };
-                x.Properties.Merge(parentState);
-                return x;
-            }
+            //    return x;
+            //}
+            //catch (Exception e) when (LogError(e))
+            //{
+            //    var x = new MessageResponse
+            //    {
+            //        Error = e.GetInnerExceptionMessage(),
+            //        UserId = cmd.UserId,
+            //        MessageId = cmd.Id
+            //    };
+            //    x.Properties.Merge(parentState);
+            //    return x;
+            //}
         }
 
         public async Task<MessageResponse> PublishCommandsAsync<T>(IEnumerable<T> cmds, CancellationToken cancellationToken = new CancellationToken()

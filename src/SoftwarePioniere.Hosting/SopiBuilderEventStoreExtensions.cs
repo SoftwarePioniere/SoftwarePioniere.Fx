@@ -25,11 +25,6 @@ namespace SoftwarePioniere.Hosting
             return builder;
         }
 
-        public static ISopiBuilder AddDomainEventStore(this ISopiBuilder builder)
-        {
-            return builder.AddDomainEventStore(c => { });
-        }
-
         public static ISopiBuilder AddDomainEventStore(this ISopiBuilder builder,
             Action<EventStoreOptions> configureOptions)
         {
