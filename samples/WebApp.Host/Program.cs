@@ -25,16 +25,19 @@ namespace WebApp.Host
             AppConfig.SetWebSocketEnvironmentVariables(Constants.NotificationsBaseRouteAuth);
 
 
-            return SopiWebHost.Run(WebHost.CreateDefaultBuilder(args), AppConfig.Configure,
+            return SopiWebHost.Run(WebHost.CreateDefaultBuilder(args), 
+                AppConfig.Configure,
                 sopiBuilder =>
                 {
 
                     sopiBuilder
                      .AddDomainServices()
-                        .AddProjectionServices()
+                     .AddProjectionServices()
                         ;
 
-                    sopiBuilder.Services.AddSopiSwaggerForMultipleServices(Constants.ApiTitle,
+                    var services = sopiBuilder.Services;
+
+                    services.AddSopiSwaggerForMultipleServices(Constants.ApiTitle,
                         Constants.ApiBaseRoute,
                         "sample",
                         new[]
@@ -42,7 +45,7 @@ namespace WebApp.Host
                             Constants.ApiKey, "api", "api2", "cmd1", "qry1"
                         });
 
-                    sopiBuilder.Services
+                    services
                         .AddTestClientOptions(c => { c.BaseAddress = "http://localhost:5099"; })
                         .AddTestSystemClient()
                         .AddTestUserClient()
@@ -56,6 +59,7 @@ namespace WebApp.Host
                         .AddSignalR(options => { options.EnableDetailedErrors = true; })
                         ;
 
+                    
                     sopiBuilder.GetMvcBuilder().AddApplicationPart(typeof(HomeController).Assembly);
 
                 },
@@ -75,7 +79,7 @@ namespace WebApp.Host
                 },
                 (context, services) =>
                 {
-
+                  
                 }
             );
 

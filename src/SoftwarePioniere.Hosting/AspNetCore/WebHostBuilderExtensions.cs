@@ -13,10 +13,12 @@ namespace SoftwarePioniere.Hosting.AspNetCore
     public static class WebHostBuilderExtensions
     {
         public static IWebHostBuilder UseSopi(this IWebHostBuilder webHostBuilder,
-            Action<IConfigurationBuilder> configBuilderAction, Action<ISopiBuilder> setupAction,
-            Action<IApplicationBuilder> configureApp, bool configureAppDefault = true)
+            Action<IConfigurationBuilder> configureConfigurationBuilder,
+            Action<ISopiBuilder> configureSopiBuilder,
+            Action<IApplicationBuilder> configureApp,
+            bool configureAppDefault = true)
         {
-            webHostBuilder.ConfigureAppConfiguration(configBuilderAction)
+            webHostBuilder.ConfigureAppConfiguration(configureConfigurationBuilder)
                 .UseSerilog()
                 .UseApplicationInsights()
                 .UseKestrel(k => k.AddServerHeader = false)
@@ -35,7 +37,7 @@ namespace SoftwarePioniere.Hosting.AspNetCore
                         .AddClients()
                         ;
 
-                    setupAction(sopiBuilder);
+                    configureSopiBuilder(sopiBuilder);
 
                     services.AddHostedService<SopiAppService>();
                 })
@@ -60,7 +62,7 @@ namespace SoftwarePioniere.Hosting.AspNetCore
                         app.UseMvc();
                         app.ApplicationServices.CheckSystemState();
                     }
-                  
+
                 });
 
             return webHostBuilder;

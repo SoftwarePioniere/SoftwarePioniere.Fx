@@ -11,10 +11,9 @@ namespace SoftwarePioniere.Hosting.AspNetCore
     public static class SopiWebHost
     {
         public static int Run(IWebHostBuilder webHostBuilder, Action<IConfigurationBuilder> configBuilderAction,
-            Action<ISopiBuilder> setupAction,
+            Action<ISopiBuilder> configureBuilder,
             Action<IApplicationBuilder> configureApp,
-            Action<WebHostBuilderContext,
-            IServiceCollection> configureServices = null,
+            Action<WebHostBuilderContext, IServiceCollection> configureServices = null,
             bool configureAppDefault = true)
         {
             var config = AppConfiguration.CreateConfiguration(configBuilderAction);
@@ -26,7 +25,7 @@ namespace SoftwarePioniere.Hosting.AspNetCore
                 logger.Debug("Starting Building Host");
 
                 //var builder = WebHost.CreateDefaultBuilder(args)
-                webHostBuilder.UseSopi(configBuilderAction, setupAction, configureApp, configureAppDefault);
+                webHostBuilder.UseSopi(configBuilderAction, configureBuilder, configureApp, configureAppDefault);
 
                 if (configureServices != null)
                 {
