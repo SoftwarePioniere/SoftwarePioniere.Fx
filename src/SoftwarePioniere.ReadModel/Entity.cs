@@ -13,12 +13,15 @@ namespace SoftwarePioniere.ReadModel
         {
             EntityType = entityType;
         }
+
+        
         /// <summary>
         /// Object unique identifier
         /// </summary>
         [Key]
         [Required]
         [JsonProperty("id")]
+        [MongoDB.Bson.Serialization.Attributes.BsonId]
         public string EntityId { get; set; }
 
         /// <summary>
