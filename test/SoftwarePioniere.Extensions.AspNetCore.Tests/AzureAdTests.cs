@@ -17,11 +17,7 @@ namespace SoftwarePioniere.Extensions.AspNetCore.Tests
         public const string AzureAdUserGroupId = "717f59a3-17e0-44a3-9c2d-fbf16e7333d7";
         public const string AzureAdSwaggerClientId = "90b324a8-eff9-4bda-a5e8-19eafc709b10";
 
-        public AzureAdConfigurationTests()
-        {
-
-        }
-
+        
         [Fact]
         public void CanRegisterAzureAdOptions()
         {

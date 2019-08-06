@@ -12,6 +12,7 @@ namespace SoftwarePioniere.EventStore.Tests
 {
     public class EventStoreConnectionProviderTests : TestBase
     {
+        // ReSharper disable once UnusedParameter.Local
         private EventStoreConnectionProvider CreateProvider(Action<EventStoreOptions> config = null)
         {
             ServiceCollection

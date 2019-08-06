@@ -25,7 +25,7 @@ namespace SoftwarePioniere.MongoDb
             Logger.LogTrace("LoadItemsAsync: {EntityType}", typeof(T));
 
             var collection = _provider.GetCol<T>();
-            var filter = new ExpressionFilterDefinition<MongoEntity<T>>(x => x.Entity.EntityType == _provider.KeyCache.GetEntityTypeKey<T>());
+            var filter = new ExpressionFilterDefinition<T>(x => x.EntityType == _provider.KeyCache.GetEntityTypeKey<T>());
 
             var items = await collection.FindAsync(filter, null, token);
 
@@ -33,7 +33,7 @@ namespace SoftwarePioniere.MongoDb
 
             while (await items.MoveNextAsync(token))
             {
-                ret.AddRange(items.Current.Select(x => x.Entity));
+                ret.AddRange(items.Current);
             }
 
             return ret.ToArray();
@@ -43,9 +43,19 @@ namespace SoftwarePioniere.MongoDb
         {
             Logger.LogTrace("LoadItemsAsync: {EntityType} {Expression}", typeof(T), predicate);
 
-            //TODO: echten filter einbauen
-            var items = await LoadItemsAsync<T>(token);
-            return items.AsQueryable().Where(predicate).ToArray();
+            var collection = _provider.GetCol<T>();
+            var filter = new ExpressionFilterDefinition<T>(predicate);
+
+            var items = await collection.FindAsync(filter, null, token);
+
+            var ret = new List<T>();
+
+            while (await items.MoveNextAsync(token))
+            {
+                ret.AddRange(items.Current);
+            }
+
+            return ret.Where(x => x.EntityType == _provider.KeyCache.GetEntityTypeKey<T>()).ToArray();
         }
 
         public override async Task<PagedResults<T>> LoadPagedResultAsync<T>(PagedLoadingParameters<T> parms, CancellationToken token = default(CancellationToken))
@@ -55,15 +65,17 @@ namespace SoftwarePioniere.MongoDb
                 throw new ArgumentNullException(nameof(parms));
             }
 
-
             Logger.LogTrace("LoadPagedResultAsync: {EntityType} {Paramter}", typeof(T), parms);
 
-
-            var items = (await LoadItemsAsync<T>(token)).AsQueryable();
+            IQueryable<T> items;
 
             if (parms.Where != null)
             {
-                items = items.Where(parms.Where);
+                items = (await LoadItemsAsync<T>(parms.Where, token)).AsQueryable();
+            }
+            else
+            {
+                items = (await LoadItemsAsync<T>(token)).AsQueryable();
             }
 
             if (parms.OrderByDescending != null)
@@ -88,9 +100,8 @@ namespace SoftwarePioniere.MongoDb
 
             Logger.LogTrace("InternalDeleteItemAsync: {EntityType} {EntityId}", typeof(T), entityId);
 
-
             var collection = _provider.GetCol<T>();
-            var filter = new ExpressionFilterDefinition<MongoEntity<T>>(x => x._id == entityId);
+            var filter = new ExpressionFilterDefinition<T>(x => x.EntityId == entityId);
             await collection.DeleteOneAsync(filter, token);
         }
 
@@ -105,7 +116,7 @@ namespace SoftwarePioniere.MongoDb
 
 
             var collection = _provider.GetCol<T>();
-            await collection.InsertOneAsync(new MongoEntity<T> { _id = item.EntityId, Entity = item }, null, token).ConfigureAwait(false);
+            await collection.InsertOneAsync(item, null, token).ConfigureAwait(false);
         }
 
         protected override async Task InternalBulkInsertItemsAsync<T>(T[] items, CancellationToken token = new CancellationToken())
@@ -118,9 +129,9 @@ namespace SoftwarePioniere.MongoDb
 
             var collection = _provider.GetCol<T>();
 
-            var entities = items.Select(item => new MongoEntity<T> { _id = item.EntityId, Entity = item });
+            //var entities = items.Select(item => new MongoEntity<T> { _id = item.EntityId, Entity = item });
 
-            await collection.InsertManyAsync(entities, null, token);
+            await collection.InsertManyAsync(items, null, token);
 
         }
 
@@ -135,7 +146,7 @@ namespace SoftwarePioniere.MongoDb
 
             var collection = _provider.GetCol<T>();
 
-            var filter = new ExpressionFilterDefinition<MongoEntity<T>>(x => x.Entity.EntityType == _provider.KeyCache.GetEntityTypeKey<T>() && x._id == item.EntityId);
+            var filter = new ExpressionFilterDefinition<T>(x => x.EntityType == _provider.KeyCache.GetEntityTypeKey<T>() && x.EntityId == item.EntityId);
 
             var exi = await collection.FindAsync(filter, null, token);
 
@@ -160,7 +171,7 @@ namespace SoftwarePioniere.MongoDb
 
             var collection = _provider.GetCol<T>();
 
-            var filter = new ExpressionFilterDefinition<MongoEntity<T>>(x => x.Entity.EntityType == _provider.KeyCache.GetEntityTypeKey<T>() && x._id == entityId);
+            var filter = new ExpressionFilterDefinition<T>(x => x.EntityType == _provider.KeyCache.GetEntityTypeKey<T>() && x.EntityId == entityId);
 
             var exi = await collection.FindAsync(filter, null, token);
 
@@ -168,7 +179,7 @@ namespace SoftwarePioniere.MongoDb
             {
                 var cu = exi.Current.FirstOrDefault();
                 if (cu != null)
-                    return cu.Entity;
+                    return cu;
             }
 
             return null;
@@ -185,9 +196,9 @@ namespace SoftwarePioniere.MongoDb
             Logger.LogTrace("InternalUpdateItemAsync: {EntityType} {EntityId}", typeof(T), item.EntityId);
 
             var collection = _provider.GetCol<T>();
-            var filter = new ExpressionFilterDefinition<MongoEntity<T>>(x => x.Entity.EntityType == _provider.KeyCache.GetEntityTypeKey<T>() && x._id == item.EntityId);
+            var filter = new ExpressionFilterDefinition<T>(x => x.EntityType == _provider.KeyCache.GetEntityTypeKey<T>() && x.EntityId == item.EntityId);
 
-            await collection.ReplaceOneAsync(filter, new MongoEntity<T> { _id = item.EntityId, Entity = item }, null, token);
+            await collection.ReplaceOneAsync(filter, item, null, token);
         }
     }
 }

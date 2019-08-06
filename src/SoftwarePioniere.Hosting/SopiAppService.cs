@@ -14,8 +14,8 @@ using SoftwarePioniere.Projections;
 namespace SoftwarePioniere.Hosting
 {
 
-    
-    public class SopiAppService: BackgroundService
+
+    public class SopiAppService : BackgroundService
     {
         private readonly IServiceProvider _provider;
         private readonly ILogger _logger;
@@ -46,7 +46,7 @@ namespace SoftwarePioniere.Hosting
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-               var sw = Stopwatch.StartNew();
+            var sw = Stopwatch.StartNew();
             _logger.LogInformation("Starting SopiAppService");
 
             //eventstore initializer

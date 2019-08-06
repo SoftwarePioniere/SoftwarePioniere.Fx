@@ -28,9 +28,12 @@ namespace AuthSample.Controller
         {
             var assembly = Assembly.GetEntryAssembly();
 
+            if (assembly == null)
+                return new ApiInfo();
+
             return new ApiInfo
             {
-                Title1 = assembly.GetCustomAttribute<AssemblyTitleAttribute>()?.Title ?? assembly?.GetName().Name,
+                Title1 = assembly.GetCustomAttribute<AssemblyTitleAttribute>()?.Title ?? assembly.GetName().Name,
                 Version1 = assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>().InformationalVersion,               
             };
         }
