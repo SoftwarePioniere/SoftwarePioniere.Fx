@@ -7,7 +7,7 @@
           'geschlossene': 0
       };
   },
-  'MeldungAngelegtEvent': function (state, ev) {
+   'MeldungAngelegtEvent': function (state, ev) {
     state.gesamtzahl += 1;
     state.offene += 1;
 

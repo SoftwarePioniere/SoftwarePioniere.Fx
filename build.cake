@@ -194,7 +194,7 @@ Task("PublishLocalPackages")
     .IsDependentOn("Pack") 
     .Does( () => {
 
-    var outDir = Directory(@"c:/temp/packages-debug1");
+    var outDir = Directory(@"c:/temp/packages-debug");
 
     if (!DirectoryExists(outDir)) {
         CreateDirectory(outDir);

@@ -23,6 +23,10 @@ namespace SoftwarePioniere.Extensions.AspNetCore.Swagger
                     titleName, baseRoute, serviceName, apiKeys, configureOptions
                     ));
 
+            services
+                .AddSopiSwagger()
+                .AddSwaggerGen();
+
             return services;
         }
 

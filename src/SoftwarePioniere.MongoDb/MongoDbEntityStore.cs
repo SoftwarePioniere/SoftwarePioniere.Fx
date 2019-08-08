@@ -71,7 +71,7 @@ namespace SoftwarePioniere.MongoDb
 
             if (parms.Where != null)
             {
-                items = (await LoadItemsAsync<T>(parms.Where, token)).AsQueryable();
+                items = (await LoadItemsAsync(parms.Where, token)).AsQueryable();
             }
             else
             {
