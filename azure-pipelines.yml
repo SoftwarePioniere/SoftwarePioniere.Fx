@@ -4,7 +4,7 @@ trigger:
 - dev
 
 pool:
-  name: 'default'
+  name: 'windows-latest'
 
 steps:
 
