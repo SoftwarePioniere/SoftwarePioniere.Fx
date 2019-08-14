@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <Description>Software Pioniere Fx Event Store Library</Description>
+    <PackageId>SoftwarePioniere.Fx.EventStore</PackageId>
   </PropertyGroup>
 
   <ItemGroup>

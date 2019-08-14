@@ -2,7 +2,9 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <Description>Software Pioniere Fx AspNet Core Base</Description>    
+    <Description>Software Pioniere Fx AspNet Core Base</Description>
+    <AssemblyName>SoftwarePioniere.AspNetCore</AssemblyName>
+    <PackageId>SoftwarePioniere.Fx.AspNetCore</PackageId>    
   </PropertyGroup>
 
   <ItemGroup>

@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <PackageId>SoftwarePioniere.Fx.Auth0</PackageId>
   </PropertyGroup>
 
   <ItemGroup>

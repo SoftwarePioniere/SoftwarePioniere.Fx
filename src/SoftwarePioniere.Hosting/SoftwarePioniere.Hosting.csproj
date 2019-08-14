@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <PackageId>SoftwarePioniere.Fx.Hosting</PackageId>
   </PropertyGroup>
 
   <ItemGroup>
