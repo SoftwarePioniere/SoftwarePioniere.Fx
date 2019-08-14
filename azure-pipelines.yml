@@ -3,8 +3,8 @@
 trigger:
 - dev
 
-pool:
-  name: 'windows-2019'
+# pool:
+#   name: 'windows-2019'
 
 steps:
 
