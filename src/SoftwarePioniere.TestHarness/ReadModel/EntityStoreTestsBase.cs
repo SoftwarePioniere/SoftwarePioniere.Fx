@@ -155,11 +155,11 @@ namespace SoftwarePioniere.ReadModel
         {
             var store = CreateInstance();
 
-            var act1 = new Action(() => store.DeleteItemAsync<FakeEntity>(null).Wait());
-            act1.Should().Throw<ArgumentNullException>();
+            Func<Task> f1 = async () => { await store.DeleteItemAsync<FakeEntity>(null); };
+            f1.Should().Throw<ArgumentNullException>();
 
-            var act2 = new Action(() => store.DeleteItemAsync<FakeEntity>(string.Empty).Wait());
-            act2.Should().Throw<ArgumentNullException>();
+            Func<Task> f2 = async () => { await store.DeleteItemAsync<FakeEntity>(string.Empty); };
+            f2.Should().Throw<ArgumentNullException>();
         }
 
         public virtual void DeleteWithCancelationThrowsError()
@@ -167,9 +167,13 @@ namespace SoftwarePioniere.ReadModel
             var store = CreateInstance();
 
             var token = new CancellationToken(true);
-            var act1 = new Action(() =>
-                store.DeleteItemAsync<FakeEntity>(Guid.NewGuid().ToString(), token).Wait(token));
-            act1.Should().Throw<Exception>();
+
+            Func<Task> f1 = async () =>
+            {
+                await store.DeleteItemAsync<FakeEntity>(Guid.NewGuid().ToString(), token);
+            };
+            
+            f1.Should().Throw<Exception>();
         }
 
         public virtual void InsertWithCancelationThrowsError()
@@ -177,8 +181,12 @@ namespace SoftwarePioniere.ReadModel
             var store = CreateInstance();
 
             var token = new CancellationToken(true);
-            var act1 = new Action(() => store.InsertItemAsync(new FakeEntity(), token).Wait(token));
-            act1.Should().Throw<Exception>();
+            Func<Task> f1 = async () =>
+            {
+                await store.InsertItemAsync(new FakeEntity(), token);
+            };
+
+            f1.Should().Throw<Exception>();
         }
 
 
@@ -250,8 +258,12 @@ namespace SoftwarePioniere.ReadModel
             var store = CreateInstance();
 
             var token = new CancellationToken(true);
-            var act1 = new Action(() => store.LoadPagedResultAsync(new PagedLoadingParameters<FakeEntity>(), token).Wait(token));
-            act1.Should().Throw<Exception>();
+            Func<Task> f1 = async () =>
+                {
+                    await store.LoadPagedResultAsync(new PagedLoadingParameters<FakeEntity>(), token);
+                };
+
+            f1.Should().Throw<Exception>();
         }
 
         //public virtual async Task LoadItemsWithPagingAndOrderingWorks()
@@ -309,8 +321,8 @@ namespace SoftwarePioniere.ReadModel
             var store = CreateInstance();
 
             var token = new CancellationToken(true);
-            var act1 = new Action(() => store.LoadItemsAsync<FakeEntity>(entity => true, token).Wait());
-            act1.Should().Throw<Exception>();
+            Func<Task> f1 = async () => { await store.LoadItemsAsync<FakeEntity>(entity => true, token); };
+            f1.Should().Throw<Exception>();
         }
 
 
@@ -318,21 +330,20 @@ namespace SoftwarePioniere.ReadModel
         {
             var store = CreateInstance();
 
-            var act1 = new Action(() =>
+            Func<Task> f1 = async () =>
             {
-                var e = store.LoadItemAsync<FakeEntity>(null).Result;
+                var e = await store.LoadItemAsync<FakeEntity>(null);
                 e.Should().NotBeNull();
-            });
+            };
 
-            act1.Should().Throw<ArgumentNullException>();
+            f1.Should().Throw<ArgumentNullException>();
 
-            var act2 = new Action(() =>
+            Func<Task> f2 = async () =>
             {
-                var e = store.LoadItemAsync<FakeEntity>(string.Empty).Result;
+                var e = await store.LoadItemAsync<FakeEntity>(string.Empty);
                 e.Should().NotBeNull();
-            });
-
-            act2.Should().Throw<ArgumentNullException>();
+            };
+            f2.Should().Throw<ArgumentNullException>();
         }
 
         public virtual void LoadItemWithCancelationThrowsError()
@@ -340,8 +351,12 @@ namespace SoftwarePioniere.ReadModel
             var store = CreateInstance();
 
             var token = new CancellationToken(true);
-            var act1 = new Action(() => store.LoadItemAsync<FakeEntity>(Guid.NewGuid().ToString(), token).Wait(token));
-            act1.Should().Throw<Exception>();
+            Func<Task> f1 = async () =>
+            {
+                await store.LoadItemAsync<FakeEntity>(Guid.NewGuid().ToString(), token);
+            };
+
+            f1.Should().Throw<Exception>();
         }
 
         public virtual async Task SaveAndLoadItemPropertiesEquals()
@@ -399,14 +414,14 @@ namespace SoftwarePioniere.ReadModel
         {
             var store = CreateInstance();
 
-            var act1 = new Action(() => store.UpdateItemAsync<FakeEntity>(null).Wait());
-            act1.Should().Throw<AggregateException>().WithInnerException<ArgumentNullException>();
+            Func<Task> f1 = async () => { await store.UpdateItemAsync<FakeEntity>(null); };
+            f1.Should().Throw<AggregateException>().WithInnerException<ArgumentNullException>();
 
-            var act2 = new Action(() => store.InsertItemAsync<FakeEntity>(null).Wait());
-            act2.Should().Throw<ArgumentNullException>();
+            Func<Task> f2 = async () => { await store.InsertItemAsync<FakeEntity>(null); };
+            f2.Should().Throw<ArgumentNullException>();
 
-            var act3 = new Action(() => store.InsertOrUpdateItemAsync<FakeEntity>(null).Wait());
-            act3.Should().Throw<ArgumentNullException>();
+            Func<Task> f3 = async () => { await store.InsertOrUpdateItemAsync<FakeEntity>(null); };
+            f3.Should().Throw<ArgumentNullException>();
         }
 
         public virtual void UpdateWithCancelationThrowsError()
@@ -414,8 +429,9 @@ namespace SoftwarePioniere.ReadModel
             var store = CreateInstance();
 
             var token = new CancellationToken(true);
-            var act1 = new Action(() => store.UpdateItemAsync(new FakeEntity(), token).Wait(token));
-            act1.Should().Throw<Exception>();
+
+            Func<Task> f1 = async () => { await store.UpdateItemAsync(new FakeEntity(), token); };
+            f1.Should().Throw<Exception>();
         }
 
         protected IEntityStore CreateInstance()
@@ -462,7 +478,7 @@ namespace SoftwarePioniere.ReadModel
             await store.UpdateItemAsync(obj1);
 
             var obj2 = await store.LoadItemAsync<FakeEntity>(obj1.EntityId);
-            
+
             CompareEntitities(obj1, obj2);
         }
     }

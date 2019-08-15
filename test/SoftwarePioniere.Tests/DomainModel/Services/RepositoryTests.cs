@@ -33,8 +33,13 @@ namespace SoftwarePioniere.Tests.DomainModel.Services
 
             var repo = CreateInstance();
             var token = new CancellationToken(true);
-            var act1 = new Action(() => repo.SaveAsync(FakeAggregate.Factory.Create(), token).Wait(token));
-            act1.Should().Throw<Exception>();
+
+            Func<Task> f1 = async () =>
+            {
+                await repo.SaveAsync(FakeAggregate.Factory.Create(), token);
+            };
+
+            f1.Should().Throw<Exception>();
         }
 
         [Fact]
@@ -82,7 +87,7 @@ namespace SoftwarePioniere.Tests.DomainModel.Services
                 return _bus.PublishAsync(typeof(T), message, delay, cancellationToken);
             }
 
-            public Task SubscribeMessage<T>(Func<T,Task> handler, 
+            public Task SubscribeMessage<T>(Func<T, Task> handler,
                 CancellationToken cancellationToken = default) where T : class, IMessage
             {
                 throw new NotImplementedException();
@@ -173,8 +178,13 @@ namespace SoftwarePioniere.Tests.DomainModel.Services
 
             var repo = CreateInstance();
             var token = new CancellationToken(true);
-            var act1 = new Action(() => repo.GetByIdAsync<FakeAggregate>(Guid.NewGuid().ToString(), token).Wait(token));
-            act1.Should().Throw<Exception>();
+
+            Func<Task> f1 = async () =>
+            {
+                await repo.GetByIdAsync<FakeAggregate>(Guid.NewGuid().ToString(), token);
+            };
+    
+            f1.Should().Throw<Exception>();
 
         }
 
@@ -187,8 +197,12 @@ namespace SoftwarePioniere.Tests.DomainModel.Services
 
             var repo = CreateInstance();
             var token = new CancellationToken(true);
-            var act1 = new Action(() => repo.CheckAggregateExists<FakeAggregate>(Guid.NewGuid().ToString(), token).Wait(token));
-            act1.Should().Throw<Exception>();
+
+            Func<Task> f1 = async () =>
+            {
+                await repo.CheckAggregateExists<FakeAggregate>(Guid.NewGuid().ToString(), token);
+            };
+            f1.Should().Throw<Exception>();
         }
 
         [Fact]

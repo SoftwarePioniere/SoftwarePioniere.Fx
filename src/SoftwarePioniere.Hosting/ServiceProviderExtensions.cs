@@ -13,7 +13,7 @@ namespace SoftwarePioniere.Hosting
 {
     public static class CheckSystemStateExtensions
     {
-       
+
         public static void CheckSystemState(this IServiceProvider serviceProvider)
         {
             var logger = serviceProvider.GetStartupLogger();
@@ -91,14 +91,14 @@ namespace SoftwarePioniere.Hosting
                         TimeSpan.FromSeconds(5),
                         TimeSpan.FromSeconds(10),
                         TimeSpan.FromSeconds(20)
-                    }).Execute(() =>
+                    }).Execute(async () =>
                     {
                         var con = serviceProvider.GetRequiredService<MongoDbConnectionProvider>();
 
                         try
                         {
-                            var dbs = con.Client.Value.ListDatabasesAsync().Result;
-                            dbs.MoveNextAsync().Wait();
+                            var dbs = await con.Client.Value.ListDatabasesAsync();
+                            await dbs.MoveNextAsync();
                             logger.LogInformation("MongoDb Is Connected..", dbs.Current.ToArray().Length);
 
                         }

@@ -46,18 +46,18 @@ namespace SoftwarePioniere.DomainModel
 
             {
                 var @event = FakeEvent.Create();
-                store.SaveEventsAsync<FakeAggregate>(@event.AggregateId, new IDomainEvent[] { @event }, 0).Wait();
+                await store.SaveEventsAsync<FakeAggregate>(@event.AggregateId, new IDomainEvent[] { @event }, 0);
 
-                var loaded = store.GetEventsForAggregateAsync<FakeAggregate>(@event.AggregateId).Result;
+                var loaded = await store.GetEventsForAggregateAsync<FakeAggregate>(@event.AggregateId);
                 loaded.Should().Contain(x => x.EventData.Id == @event.Id);
             }
 
 
             {
                 var save = FakeEvent.CreateList(155).ToArray();
-                store.SaveEventsAsync<FakeAggregate>(save.First().AggregateId, save, 154).Wait();
+                await store.SaveEventsAsync<FakeAggregate>(save.First().AggregateId, save, 154);
 
-                var loaded = store.GetEventsForAggregateAsync<FakeAggregate>(save.First().AggregateId).Result;
+                var loaded = await store.GetEventsForAggregateAsync<FakeAggregate>(save.First().AggregateId);
                 foreach (var savedEvent in save)
                 {
                     loaded.Should().Contain(x => x.EventData.Id == savedEvent.Id);
@@ -73,8 +73,9 @@ namespace SoftwarePioniere.DomainModel
 
             var store = CreateInstance();
 
-            Action act = () => store.GetEventsForAggregateAsync<FakeAggregate>(Guid.NewGuid().ToString()).Wait();
-            act.Should().Throw<AggregateNotFoundException>();
+            Func<Task> f = async () => { await store.GetEventsForAggregateAsync<FakeAggregate>(Guid.NewGuid().ToString()); };
+
+            f.Should().Throw<AggregateNotFoundException>();
         }
 
         public virtual async Task SaveThrowsErrorIfVersionsNotMatch()
@@ -86,12 +87,13 @@ namespace SoftwarePioniere.DomainModel
             await Task.Delay(0);
 
             var event1 = FakeEvent.Create();
-            store.SaveEventsAsync<FakeAggregate>(event1.AggregateId, new IDomainEvent[] { event1 }, 0).Wait();
+            await store.SaveEventsAsync<FakeAggregate>(event1.AggregateId, new IDomainEvent[] { event1 }, 0);
 
             var event2 = FakeEvent.Create();
 
-            Action act = () => store.SaveEventsAsync<FakeAggregate>(event1.AggregateId, new IDomainEvent[] { event2 }, 42).Wait();
-            act.Should().Throw<AggregateException>().WithInnerException<ConcurrencyException>();
+            Func<Task> f = async () => { await store.SaveEventsAsync<FakeAggregate>(event1.AggregateId, new IDomainEvent[] { event2 }, 42); };
+
+            f.Should().Throw<AggregateException>().WithInnerException<ConcurrencyException>();
 
         }
 
@@ -109,32 +111,39 @@ namespace SoftwarePioniere.DomainModel
                 {
                     agg.DoFakeEvent($"schleife {i}");
                 }
-                store.SaveEventsAsync<FakeAggregate>(agg.Id, agg.GetUncommittedChanges(), agg.Version).Wait();
+                await store.SaveEventsAsync<FakeAggregate>(agg.Id, agg.GetUncommittedChanges(), agg.Version);
                 agg.MarkChangesAsCommitted();
 
                 agg.DoFakeEvent2("fake 2");
-                store.SaveEventsAsync<FakeAggregate>(agg.Id, agg.GetUncommittedChanges(), agg.Version).Wait();
+                await store.SaveEventsAsync<FakeAggregate>(agg.Id, agg.GetUncommittedChanges(), agg.Version);
                 agg.MarkChangesAsCommitted();
 
-                var events = store.GetEventsForAggregateAsync<FakeAggregate>(agg.Id).Result;
+                var events = await store.GetEventsForAggregateAsync<FakeAggregate>(agg.Id);
                 var lastEvent = events.Last();
 
                 agg.Version.Should().Be(lastEvent.Version);
 
 
                 agg.DoFakeEvent2("fake 3");
-                Action act = () => store.SaveEventsAsync<FakeAggregate>(agg.Id, agg.GetUncommittedChanges(), agg.Version + 99).Wait();
-                act.Should().Throw<AggregateException>().WithInnerException<ConcurrencyException>();
+
+                Func<Task> f = async () =>
+                {
+                    await store.SaveEventsAsync<FakeAggregate>(agg.Id,
+                        agg.GetUncommittedChanges(),
+                        agg.Version + 99);
+                };
+
+                f.Should().Throw<AggregateException>().WithInnerException<ConcurrencyException>();
 
 
             }
 
             {
                 var event1 = FakeEvent.Create();
-                store.SaveEventsAsync<FakeAggregate>(event1.AggregateId, new IDomainEvent[] { event1 }, 0).Wait();
-                store.SaveEventsAsync<FakeAggregate>(event1.AggregateId, new IDomainEvent[] { FakeEvent.Create() }, 1).Wait();
-                store.SaveEventsAsync<FakeAggregate>(event1.AggregateId, new IDomainEvent[] { FakeEvent.Create() }, 2).Wait();
-                store.SaveEventsAsync<FakeAggregate>(event1.AggregateId, new IDomainEvent[] { FakeEvent.Create(), FakeEvent.Create() }, 4).Wait();
+                await store.SaveEventsAsync<FakeAggregate>(event1.AggregateId, new IDomainEvent[] { event1 }, 0);
+                await store.SaveEventsAsync<FakeAggregate>(event1.AggregateId, new IDomainEvent[] { FakeEvent.Create() }, 1);
+                await store.SaveEventsAsync<FakeAggregate>(event1.AggregateId, new IDomainEvent[] { FakeEvent.Create() }, 2);
+                await store.SaveEventsAsync<FakeAggregate>(event1.AggregateId, new IDomainEvent[] { FakeEvent.Create(), FakeEvent.Create() }, 4);
             }
 
 
