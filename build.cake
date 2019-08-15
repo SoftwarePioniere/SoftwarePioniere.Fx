@@ -130,7 +130,8 @@ Task("Test")
             { "AssemblySemVer", GetAssemblyVersion() }
         },
         NoBuild = true,
-        NoRestore = true
+        NoRestore = true,
+        Logger = "trx"
     };
 
     var projects = GetFiles("./**/test/**/*.csproj");

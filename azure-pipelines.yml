@@ -26,6 +26,10 @@ steps:
     SOPI_TESTS_AUTH0CLIENT__CLIENTID: $(SopiTestAuth0ClientId)
     SOPI_TESTS_AUTH0CLIENT__CLIENTSECRET: $(SopiTestAuth0ClientSecret)    
 
+- task: PublishTestResults@2
+  inputs: 
+    testResultsFiles: '**/*.trx'
+
 - task: CopyFiles@2
   inputs:
     sourceFolder: 'artifacts'

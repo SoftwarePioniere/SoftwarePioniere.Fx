@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
+using Microsoft.Extensions.Logging;
 using SoftwarePioniere.Domain;
 using SoftwarePioniere.Domain.Exceptions;
 using SoftwarePioniere.DomainModel.FakeDomain;
@@ -24,6 +25,7 @@ namespace SoftwarePioniere.DomainModel
 
         public virtual async Task CheckAggregateExists()
         {
+            _logger.LogInformation("Running CheckAggregateExists");
             var @event = FakeEvent.Create();
 
             var store = CreateInstance();
@@ -37,6 +39,7 @@ namespace SoftwarePioniere.DomainModel
 
         public virtual async Task SaveAndLoadContainsAllEventsForAnAggregate()
         {
+            _logger.LogInformation("Running SaveAndLoadContainsAllEventsForAnAggregate");
             await Task.Delay(0);
 
             var store = CreateInstance();
@@ -65,6 +68,9 @@ namespace SoftwarePioniere.DomainModel
 
         public virtual void LoadThrowsErrorIfAggregateWithIdNotFound()
         {
+            _logger.LogInformation("Running LoadThrowsErrorIfAggregateWithIdNotFound");
+
+
             var store = CreateInstance();
 
             Action act = () => store.GetEventsForAggregateAsync<FakeAggregate>(Guid.NewGuid().ToString()).Wait();
@@ -73,6 +79,8 @@ namespace SoftwarePioniere.DomainModel
 
         public virtual async Task SaveThrowsErrorIfVersionsNotMatch()
         {
+            _logger.LogInformation("Running SaveThrowsErrorIfVersionsNotMatch");
+
             var store = CreateInstance();
 
             await Task.Delay(0);
@@ -89,6 +97,9 @@ namespace SoftwarePioniere.DomainModel
 
         public virtual async Task SavesEventsWithExpectedVersion()
         {
+            _logger.LogInformation("Running SavesEventsWithExpectedVersion");
+
+
             var store = CreateInstance();
             await Task.Delay(0);
 
