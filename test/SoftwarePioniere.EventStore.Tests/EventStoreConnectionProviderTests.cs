@@ -17,17 +17,17 @@ namespace SoftwarePioniere.EventStore.Tests
         {
             ServiceCollection
                 .AddEventStoreConnection(c => new TestConfiguration().ConfigurationRoot.Bind("EventStore", c));
-            
-            
+
+
             return GetService<EventStoreConnectionProvider>();
         }
 
         [Fact]
-        public  async Task CanConnectToStoreWithOutSsl()
+        public async Task CanConnectToStoreWithOutSsl()
         {
             var provider = CreateProvider(c => c.UseSslCertificate = false);
             var con = await provider.GetActiveConnection();
-            var meta = con.GetStreamMetadataAsync("$all", provider.AdminCredentials).Result;
+            var meta = await con.GetStreamMetadataAsync("$all", provider.AdminCredentials);
             meta.Stream.Should().Be("$all");
         }
 
@@ -36,7 +36,7 @@ namespace SoftwarePioniere.EventStore.Tests
         {
             var provider = CreateProvider(c => c.UseSslCertificate = true);
             var con = await provider.GetActiveConnection();
-            var meta = con.GetStreamMetadataAsync("$all", provider.AdminCredentials).Result;
+            var meta = await con.GetStreamMetadataAsync("$all", provider.AdminCredentials);
             meta.Stream.Should().Be("$all");
         }
 
@@ -52,22 +52,22 @@ namespace SoftwarePioniere.EventStore.Tests
 
         public EventStoreConnectionProviderTests(ITestOutputHelper output) : base(output)
         {
-            
-         
+
+
             var loggerConfiguration = new LoggerConfiguration()
                     .MinimumLevel.Verbose()
                     .WriteTo.LiterateConsole()
-//#if !DEBUG
+                    //#if !DEBUG
                     .WriteTo.File("/testresults/log.txt")
-//#endif
+                //#endif
 
                 ;
-//           log.Debug("Test Loggy");
+            //           log.Debug("Test Loggy");
 
             var lf = new TestLoggerSerilogFactory(output, loggerConfiguration);
             ServiceCollection
                 .AddSingleton<ILoggerFactory>(lf);
-            
+
             //Log.AddSerilog(loggerConfiguration);
 
             //output.WriteLine("ctor");

@@ -15,82 +15,82 @@ namespace SoftwarePioniere.EventStore.Tests
     public class ProjectionReaderTests : TestBase
     {
 
-        [Fact]
-        public async Task ProjectionReaderTest()
-        {
-            var setup = GetService<EventStoreSetup>();
-            var store = GetService<IEventStore>();
-            var proj = GetService<IEventStoreProjectionReader>();
+        //[Fact]
+        //public async Task ProjectionReaderTest()
+        //{
+        //    var setup = GetService<EventStoreSetup>();
+        //    var store = GetService<IEventStore>();
+        //    var proj = GetService<IEventStoreProjectionReader>();
 
-            var name = $"tests{Guid.NewGuid().ToString().Replace("-", "")}";
-            var query = TestFiles.GetFileContent("FakeCounterProjection.js");
+        //    var name = $"tests{Guid.NewGuid().ToString().Replace("-", "")}";
+        //    var query = TestFiles.GetFileContent("FakeCounterProjection.js");
 
-            await setup.AddOpsUserToAdminsAsync();
+        //    await setup.AddOpsUserToAdminsAsync();
 
-            if (!await setup.CheckProjectionIsRunningAsync("$by_category"))
-            {
-                await setup.EnableProjectionAsync("$by_category");
-            }
-            (await setup.CheckProjectionIsRunningAsync("$by_category")).Should().BeTrue();
-
-
-            await setup.CreateContinousProjectionAsync(name, query);
-            (await setup.CheckContinousProjectionIsCreatedAsync(name, query)).Should().BeTrue();
-            (await setup.CheckProjectionIsRunningAsync(name)).Should().BeTrue();
-
-            var save = FakeEvent.CreateList(155).ToArray();
-            store.SaveEventsAsync<FakeAggregate>(save.First().AggregateId, save, 154).Wait();
-            await Task.Delay(1500);
-
-            var result = await proj.GetStateAsync<X1>(name, save.First().AggregateId.Replace("-", ""));
-
-            result.Should().NotBeNull();
-            result.Ids.Length.Should().Be(save.Length);
-        }
-
-        public class X1
-        {
-            public string[] Ids { get; set; }
-        }
-
-        [Fact]
-        public async Task ProjectionReaderTest2()
-        {
-            var setup = GetService<EventStoreSetup>();
-            var store = GetService<IEventStore>();
-            var proj = GetService<IEventStoreProjectionReader>();
-
-            var name = $"tests{Guid.NewGuid().ToString().Replace("-", "")}";
-            var query = TestFiles.GetFileContent("FakeCounterProjection.js");
-
-            await setup.AddOpsUserToAdminsAsync();
-
-            if (!await setup.CheckProjectionIsRunningAsync("$by_category"))
-            {
-                await setup.EnableProjectionAsync("$by_category");
-            }
-            (await setup.CheckProjectionIsRunningAsync("$by_category")).Should().BeTrue();
+        //    if (!await setup.CheckProjectionIsRunningAsync("$by_category"))
+        //    {
+        //        await setup.EnableProjectionAsync("$by_category");
+        //    }
+        //    (await setup.CheckProjectionIsRunningAsync("$by_category")).Should().BeTrue();
 
 
-            await setup.CreateContinousProjectionAsync(name, query);
-            (await setup.CheckContinousProjectionIsCreatedAsync(name, query)).Should().BeTrue();
-            (await setup.CheckProjectionIsRunningAsync(name)).Should().BeTrue();
+        //    await setup.CreateContinousProjectionAsync(name, query);
+        //    (await setup.CheckContinousProjectionIsCreatedAsync(name, query)).Should().BeTrue();
+        //    (await setup.CheckProjectionIsRunningAsync(name)).Should().BeTrue();
 
-            var save = FakeEvent.CreateList(155).ToArray();
-            store.SaveEventsAsync<FakeAggregate>(save.First().AggregateId, save, 154).Wait();
+        //    var save = FakeEvent.CreateList(155).ToArray();
+        //    await store.SaveEventsAsync<FakeAggregate>(save.First().AggregateId, save, 154);
+        //    await Task.Delay(1500);
 
-            await Task.Delay(1500);
+        //    var result = await proj.GetStateAsync<X1>(name, save.First().AggregateId.Replace("-", ""));
 
-            var definition = new
-            {
-                Ids = new string[0]
-            };
+        //    result.Should().NotBeNull();
+        //    result.Ids.Length.Should().Be(save.Length);
+        //}
 
-            var result = await proj.GetStateAsyncAnonymousType(name, definition, save.First().AggregateId.Replace("-", ""));
+        //public class X1
+        //{
+        //    public string[] Ids { get; set; }
+        //}
 
-            result.Should().NotBeNull();
-            result.Ids.Length.Should().Be(save.Length);
-        }
+        //[Fact]
+        //public async Task ProjectionReaderTest2()
+        //{
+        //    var setup = GetService<EventStoreSetup>();
+        //    var store = GetService<IEventStore>();
+        //    var proj = GetService<IEventStoreProjectionReader>();
+
+        //    var name = $"tests{Guid.NewGuid().ToString().Replace("-", "")}";
+        //    var query = TestFiles.GetFileContent("FakeCounterProjection.js");
+
+        //    await setup.AddOpsUserToAdminsAsync();
+
+        //    if (!await setup.CheckProjectionIsRunningAsync("$by_category"))
+        //    {
+        //        await setup.EnableProjectionAsync("$by_category");
+        //    }
+        //    (await setup.CheckProjectionIsRunningAsync("$by_category")).Should().BeTrue();
+
+
+        //    await setup.CreateContinousProjectionAsync(name, query);
+        //    (await setup.CheckContinousProjectionIsCreatedAsync(name, query)).Should().BeTrue();
+        //    (await setup.CheckProjectionIsRunningAsync(name)).Should().BeTrue();
+
+        //    var save = FakeEvent.CreateList(155).ToArray();
+        //    await store.SaveEventsAsync<FakeAggregate>(save.First().AggregateId, save, 154);
+
+        //    await Task.Delay(1500);
+
+        //    var definition = new
+        //    {
+        //        Ids = new string[0]
+        //    };
+
+        //    var result = await proj.GetStateAsyncAnonymousType(name, definition, save.First().AggregateId.Replace("-", ""));
+
+        //    result.Should().NotBeNull();
+        //    result.Ids.Length.Should().Be(save.Length);
+        //}
 
 
         public ProjectionReaderTests(ITestOutputHelper output) : base(output)

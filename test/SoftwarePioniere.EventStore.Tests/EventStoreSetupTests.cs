@@ -18,81 +18,81 @@ namespace SoftwarePioniere.EventStore.Tests
             return GetService<EventStoreSetup>();
         }
 
+        ////[Fact]
+        ////public async Task CanEnableProjectionTest()
+        ////{
+        ////    var setup = CreateSetup();
+        ////    const string projectionName = "$streams";
+        ////    if (await setup.CheckProjectionIsRunningAsync(projectionName))
+        ////    {
+        ////        throw new InvalidOperationException($"Please disable Projection {projectionName} before testing");
+        ////    }
+
+        ////    await setup.EnableProjectionAsync(projectionName);
+        ////    (await setup.CheckProjectionIsRunningAsync(projectionName)).Should().BeTrue();
+        ////}
+
         //[Fact]
-        //public async Task CanEnableProjectionTest()
+        //public async Task CanAddOpsUserToAdminTest()
         //{
         //    var setup = CreateSetup();
-        //    const string projectionName = "$streams";
-        //    if (await setup.CheckProjectionIsRunningAsync(projectionName))
+        //    if (await setup.CheckOpsUserIsInAdminGroupAsync())
         //    {
-        //        throw new InvalidOperationException($"Please disable Projection {projectionName} before testing");
+        //        return;
+        //        //throw new InvalidOperationException("Please remove ops user from admins");
         //    }
 
-        //    await setup.EnableProjectionAsync(projectionName);
-        //    (await setup.CheckProjectionIsRunningAsync(projectionName)).Should().BeTrue();
+        //    await setup.AddOpsUserToAdminsAsync();
+        //    (await setup.CheckOpsUserIsInAdminGroupAsync()).Should().BeTrue();
         //}
 
-        [Fact]
-        public async Task CanAddOpsUserToAdminTest()
-        {
-            var setup = CreateSetup();
-            if (await setup.CheckOpsUserIsInAdminGroupAsync())
-            {
-                return;
-                //throw new InvalidOperationException("Please remove ops user from admins");
-            }
+        //[Fact]
+        //public async Task CanCreateContinousProjectionTest()
+        //{
+        //    var setup = CreateSetup();
 
-            await setup.AddOpsUserToAdminsAsync();
-            (await setup.CheckOpsUserIsInAdminGroupAsync()).Should().BeTrue();
-        }
+        //    var name = $"tests{Guid.NewGuid().ToString().Replace("-", "")}";
+        //    var query = TestFiles.GetFileContent("TestSubscription.js");
 
-        [Fact]
-        public async Task CanCreateContinousProjectionTest()
-        {
-            var setup = CreateSetup();
+        //    if (await setup.CheckContinousProjectionIsCreatedAsync(name, query))
+        //    {
+        //        throw new InvalidOperationException($"Please remove projection {name}");
+        //    }
 
-            var name = $"tests{Guid.NewGuid().ToString().Replace("-", "")}";
-            var query = TestFiles.GetFileContent("TestSubscription.js");
+        //    await setup.CreateContinousProjectionAsync(name, query);
+        //    (await setup.CheckContinousProjectionIsCreatedAsync(name, query)).Should().BeTrue();
 
-            if (await setup.CheckContinousProjectionIsCreatedAsync(name, query))
-            {
-                throw new InvalidOperationException($"Please remove projection {name}");
-            }
+        //    (await setup.CheckProjectionIsRunningAsync(name)).Should().BeTrue();
+        //}
 
-            await setup.CreateContinousProjectionAsync(name, query);
-            (await setup.CheckContinousProjectionIsCreatedAsync(name, query)).Should().BeTrue();
+        //[Fact]
+        //public async Task CanUpdateContinousProjectionTest()
+        //{
+        //    var setup = CreateSetup();
 
-            (await setup.CheckProjectionIsRunningAsync(name)).Should().BeTrue();
-        }
+        //    var name = $"tests{Guid.NewGuid().ToString().Replace("-", "")}";
+        //    var query = TestFiles.GetFileContent("TestSubscription.js");
 
-        [Fact]
-        public async Task CanUpdateContinousProjectionTest()
-        {
-            var setup = CreateSetup();
+        //    if (await setup.CheckContinousProjectionIsCreatedAsync(name, query))
+        //    {
+        //        throw new InvalidOperationException($"Please remove projection {name}");
+        //    }
 
-            var name = $"tests{Guid.NewGuid().ToString().Replace("-", "")}";
-            var query = TestFiles.GetFileContent("TestSubscription.js");
+        //    //erstes erstellen
+        //    await setup.CreateContinousProjectionAsync(name, query);
+        //    (await setup.CheckContinousProjectionIsCreatedAsync(name, query)).Should().BeTrue();
 
-            if (await setup.CheckContinousProjectionIsCreatedAsync(name, query))
-            {
-                throw new InvalidOperationException($"Please remove projection {name}");
-            }
+        //    (await setup.CheckProjectionIsRunningAsync(name)).Should().BeTrue();
 
-            //erstes erstellen
-            await setup.CreateContinousProjectionAsync(name, query);
-            (await setup.CheckContinousProjectionIsCreatedAsync(name, query)).Should().BeTrue();
+        //    //neu laden und updaten
+        //    query = TestFiles.GetFileContent("TestSubscription1.js");
+        //    (await setup.CheckContinousProjectionIsCreatedAsync(name, query)).Should().BeFalse();
 
-            (await setup.CheckProjectionIsRunningAsync(name)).Should().BeTrue();
+        //    await setup.CreateContinousProjectionAsync(name, query);
+        //    (await setup.CheckContinousProjectionIsCreatedAsync(name, query)).Should().BeTrue();
 
-            //neu laden und updaten
-            query = TestFiles.GetFileContent("TestSubscription1.js");
-            (await setup.CheckContinousProjectionIsCreatedAsync(name, query)).Should().BeFalse();
-
-            await setup.CreateContinousProjectionAsync(name, query);
-            (await setup.CheckContinousProjectionIsCreatedAsync(name, query)).Should().BeTrue();
-
-            (await setup.CheckProjectionIsRunningAsync(name)).Should().BeTrue();
-        }
+        //    (await setup.CheckProjectionIsRunningAsync(name)).Should().BeTrue();
+        //}
 
         public EventStoreSetupTests(ITestOutputHelper output) : base(output)
         {
