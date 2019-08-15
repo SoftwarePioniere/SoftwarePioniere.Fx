@@ -1,7 +1,10 @@
 # https://aka.ms/yaml
 
 trigger:
-- dev
+  branches:
+    include: dev
+  paths:
+    exclude: [ 'README.md' ]
 
 pool:
     vmimage: 'ubuntu-16.04'    
