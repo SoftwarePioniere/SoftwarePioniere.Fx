@@ -93,7 +93,7 @@ namespace SoftwarePioniere.DomainModel
 
             Func<Task> f = async () => { await store.SaveEventsAsync<FakeAggregate>(event1.AggregateId, new IDomainEvent[] { event2 }, 42); };
 
-            f.Should().Throw<AggregateException>().WithInnerException<ConcurrencyException>();
+            f.Should().Throw<ConcurrencyException>(); //.WithInnerException<ConcurrencyException>();
 
         }
 
@@ -133,7 +133,7 @@ namespace SoftwarePioniere.DomainModel
                         agg.Version + 99);
                 };
 
-                f.Should().Throw<AggregateException>().WithInnerException<ConcurrencyException>();
+                f.Should().Throw<ConcurrencyException>();
 
 
             }

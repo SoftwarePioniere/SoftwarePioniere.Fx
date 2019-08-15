@@ -415,7 +415,7 @@ namespace SoftwarePioniere.ReadModel
             var store = CreateInstance();
 
             Func<Task> f1 = async () => { await store.UpdateItemAsync<FakeEntity>(null); };
-            f1.Should().Throw<AggregateException>().WithInnerException<ArgumentNullException>();
+            f1.Should().Throw<ArgumentNullException>();
 
             Func<Task> f2 = async () => { await store.InsertItemAsync<FakeEntity>(null); };
             f2.Should().Throw<ArgumentNullException>();
