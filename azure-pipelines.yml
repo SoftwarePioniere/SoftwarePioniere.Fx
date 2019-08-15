@@ -28,6 +28,7 @@ steps:
 
 - task: PublishTestResults@2
   inputs: 
+    testResultsFormat: VSTest
     testResultsFiles: '**/*.trx'
 
 - task: CopyFiles@2
