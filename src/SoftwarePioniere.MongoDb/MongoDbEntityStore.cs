@@ -211,7 +211,7 @@ namespace SoftwarePioniere.MongoDb
 
             var res = await collection.ReplaceOneAsync(filter, item, null, token);
 
-            if (res.ModifiedCount == 0)
+            if (res.MatchedCount == 0)
             {
                 Logger.LogWarning("Update Failed, Try Insert {EntityId}", item.EntityId);
                 await collection.InsertOneAsync(item, null, token).ConfigureAwait(false);
