@@ -130,5 +130,18 @@ namespace SoftwarePioniere.MongoDb.Tests
         {
             return base.CanInsertManyItems();
         }
+
+        [Fact]
+        public override Task InsertExistingWillUpdate()
+        {
+            return base.InsertExistingWillUpdate();
+        }
+
+
+        [Fact]
+        public override Task UpdateNonExistingWillInsert()
+        {
+            return base.UpdateNonExistingWillInsert();
+        }
     }
 }

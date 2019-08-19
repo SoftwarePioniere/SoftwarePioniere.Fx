@@ -116,7 +116,18 @@ namespace SoftwarePioniere.MongoDb
 
 
             var collection = _provider.GetCol<T>();
-            await collection.InsertOneAsync(item, null, token).ConfigureAwait(false);
+
+            try
+            {
+                await collection.InsertOneAsync(item, null, token).ConfigureAwait(false);
+            }
+            catch (MongoWriteException e) when (e.WriteError.Code == 11000)
+            {
+                Logger.LogWarning("Insert Failed, Try Update {EntityId} // {ExceptionMessage}", item.EntityId, e.Message);
+                var filter = new ExpressionFilterDefinition<T>(x => x.EntityType == _provider.KeyCache.GetEntityTypeKey<T>() && x.EntityId == item.EntityId);
+                await collection.ReplaceOneAsync(filter, item, null, token);
+            }
+
         }
 
         protected override async Task InternalBulkInsertItemsAsync<T>(T[] items, CancellationToken token = new CancellationToken())
@@ -198,7 +209,13 @@ namespace SoftwarePioniere.MongoDb
             var collection = _provider.GetCol<T>();
             var filter = new ExpressionFilterDefinition<T>(x => x.EntityType == _provider.KeyCache.GetEntityTypeKey<T>() && x.EntityId == item.EntityId);
 
-            await collection.ReplaceOneAsync(filter, item, null, token);
+            var res = await collection.ReplaceOneAsync(filter, item, null, token);
+
+            if (res.ModifiedCount == 0)
+            {
+                Logger.LogWarning("Update Failed, Try Insert {EntityId}", item.EntityId);
+                await collection.InsertOneAsync(item, null, token).ConfigureAwait(false);
+            }
         }
     }
 }
