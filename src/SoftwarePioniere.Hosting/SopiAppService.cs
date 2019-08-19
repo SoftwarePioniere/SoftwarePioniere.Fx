@@ -165,6 +165,35 @@ namespace SoftwarePioniere.Hosting
                 }
             }
 
+
+            
+            //sopi services
+            {
+
+                var services = _provider.GetServices<ISopiService>().ToList();
+                if (services.Count > 0)
+                {
+                    _logger.LogInformation("Starting SopiServices");
+                    var sw1 = Stopwatch.StartNew();
+                    foreach (var service in services)
+                    {
+                        _logger.LogInformation("Start SopiService {SopiService}", service.GetType().Name);
+                        try
+                        {
+                            await service.StartAsync(stoppingToken);
+                        }
+                        catch (Exception e)
+                        {
+                            _logger.LogError(e, "{Type}", service.GetType().FullName);
+                            throw;
+                        }
+                    }
+
+                    sw1.Stop();
+                    _logger.LogInformation("SopiServices Start Finished in {Elapsed:0.0000} ms", sw1.ElapsedMilliseconds);
+                }
+            }
+
             sw.Stop();
             _logger.LogInformation("SopiAppService Started in {Elapsed:0.0000} ms", sw.ElapsedMilliseconds);
         }
