@@ -11,7 +11,7 @@ namespace SoftwarePioniere.Messaging
         public static IDictionary<string, string> AddProperty(this IDictionary<string, string> dict, string key, string value)
         {
             if (dict == null)
-                return dict;
+                return null;
 
             if (dict.ContainsKey(key))
                 dict.Remove(key);

@@ -32,13 +32,13 @@ namespace SoftwarePioniere.Domain
             //,IDictionary<string, string> state = null
             ) where T : AggregateRoot;
 
-        /// <summary>
-        /// Prüft, ob das Aggregate existiert aus einem custom Stream
-        /// </summary>
-        /// <returns></returns>
-        Task<bool> CheckAggregateExists<T>(string aggregateId, string streamName, CancellationToken token = default(CancellationToken)
-            // ,IDictionary<string, string> state = null
-            ) where T : AggregateRoot;
+        ///// <summary>
+        ///// Prüft, ob das Aggregate existiert aus einem custom Stream
+        ///// </summary>
+        ///// <returns></returns>
+        //Task<bool> CheckAggregateExists<T>(string aggregateId, string streamName, CancellationToken token = default(CancellationToken)
+        //    // ,IDictionary<string, string> state = null
+        //    ) where T : AggregateRoot;
 
         /// <summary>
         /// Laden aller Events und Erzeugung des Aggregats

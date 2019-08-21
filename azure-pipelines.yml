@@ -4,6 +4,7 @@ trigger:
   branches:
     include:
     - dev
+    - master
   paths:
     include:
     - src/*

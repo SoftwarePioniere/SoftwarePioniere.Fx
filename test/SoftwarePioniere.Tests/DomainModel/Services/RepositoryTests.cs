@@ -154,7 +154,7 @@ namespace SoftwarePioniere.Tests.DomainModel.Services
             IList<EventDescriptor> list = new List<EventDescriptor> { new EventDescriptor(@event, 0) };
 
             var mockStore = new Mock<IEventStore>();
-            mockStore.Setup(x => x.GetEventsForAggregateAsync<FakeAggregate>(@event.AggregateId.ToString()))
+            mockStore.Setup(x => x.GetEventsForAggregateAsync<FakeAggregate>(@event.AggregateId))
                 .ReturnsAsync(list);
 
             ServiceCollection
@@ -218,7 +218,7 @@ namespace SoftwarePioniere.Tests.DomainModel.Services
             }
 
             var mockStore = new Mock<IEventStore>();
-            mockStore.Setup(x => x.GetEventsForAggregateAsync<FakeAggregate>(@event.AggregateId.ToString()))
+            mockStore.Setup(x => x.GetEventsForAggregateAsync<FakeAggregate>(@event.AggregateId))
                 .ReturnsAsync(list);
 
             ServiceCollection
