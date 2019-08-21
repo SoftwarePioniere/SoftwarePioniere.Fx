@@ -1,0 +1,50 @@
+﻿using System;
+using System.Threading.Tasks;
+using FluentAssertions;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Xunit;
+using Xunit.Abstractions;
+
+namespace SoftwarePioniere.MongoDb.Tests
+{
+    [Collection("MongoDbCollection")]
+    public class MongoDbConnectionProviderTests  : TestBase
+    {
+        
+        private MongoDbConnectionProvider CreateProvider()
+        {
+            return GetService<MongoDbConnectionProvider>();
+        }
+
+        public MongoDbConnectionProviderTests(ITestOutputHelper output) : base(output)
+        {
+            ServiceCollection
+                .AddOptions()
+                .AddMongoDbEntityStore(options => new TestConfiguration().ConfigurationRoot.Bind("MongoDb", options));
+        }
+
+        [Fact]
+        public async Task CanConnectToClient()
+        {
+            var provider = CreateProvider();
+            await provider.Client.Value.ListDatabasesAsync();
+        }
+
+        [Fact]
+        public async Task CanClearDatabase()
+        {
+            var provider = CreateProvider();
+
+            await provider.Database.Value.CreateCollectionAsync(Guid.NewGuid().ToString());
+            (await provider.CheckDatabaseExists()).Should().BeTrue();
+
+            await provider.ClearDatabaseAsync();
+            (await provider.CheckDatabaseExists()).Should().BeFalse();
+
+            await provider.Database.Value.CreateCollectionAsync(Guid.NewGuid().ToString());
+            (await provider.CheckDatabaseExists()).Should().BeTrue();
+
+        }
+    }
+}

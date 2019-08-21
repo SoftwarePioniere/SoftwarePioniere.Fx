@@ -4,23 +4,26 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <RootNamespace>SoftwarePioniere</RootNamespace>
     <Description>Software Pioniere Fx Test Harness</Description>
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SoftwarePioniere.Foundatio\SoftwarePioniere.Foundatio.csproj" />
-    <ProjectReference Include="..\SoftwarePioniere.Messaging\SoftwarePioniere.Messaging.csproj" />
-  </ItemGroup>
-  
-  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="2.2.0" />
+    <PackageReference Include="Serilog" Version="2.8.0" />
+    <PackageReference Include="Serilog.Sinks.Literate" Version="3.0.0" />
+    <PackageReference Include="Serilog.Sinks.File" Version="4.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="2.2.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="2.2.4" />
     <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="2.2.4" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="2.2.0" />
     <PackageReference Include="Foundatio.Logging.Xunit" Version="8.1.2058" />
-    <PackageReference Include="xunit" Version="2.4.1" />
-    <PackageReference Include="FluentAssertions" Version="5.6.0" />
-    <PackageReference Include="Moq" Version="4.10.1" />
-    <PackageReference Include="Xbehave" Version="2.4.0" />
+    <PackageReference Include="FluentAssertions" Version="5.7.0" />
+ 
+    
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SoftwarePioniere\SoftwarePioniere.csproj" />
   </ItemGroup>
 
 </Project>

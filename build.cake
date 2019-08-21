@@ -1,60 +1,79 @@
-#load "./scripts/utils.cake"
-#load "./scripts/gitversion.cake"
-#load "./scripts/dotnet.cake"
-#load "./scripts/git.cake"
+// dotnet cake build.cake --target=GitVersion --verbosity=Verbose
+// dotnet cake build.cake --target=Build --verbosity=Verbose --skiptest
+// dotnet cake build.cake --target=PublishLocalPackages --verbosity=Verbose --skiptest --configuration=Debug
 
-///////////////////////////////////////////////////////////////////////////////
-// ARGUMENTS
-///////////////////////////////////////////////////////////////////////////////
-var target          = Argument("target", "Default");
-var configuration   = Argument("configuration", "Release");
-var isDryRun        = HasArgument("dryrun1");
 
 
 ///////////////////////////////////////////////////////////////////////////////
-// VARIABLES
+// AddIns
 ///////////////////////////////////////////////////////////////////////////////
+#addin "nuget:?package=Cake.Docker&version=0.10.0"
+#addin "nuget:?package=Cake.FileHelpers&version=3.2.0"
+#addin "nuget:?package=Newtonsoft.Json&version=11.0.2"
+#tool "nuget:?package=GitVersion.CommandLine&version=4.0.0"
 
+///////////////////////////////////////////////////////////////////////////////
+// Params
+///////////////////////////////////////////////////////////////////////////////
+var target              = Argument<string>("target", "Default");
+var configuration       = Argument<string>("configuration", "Release");
+
+var isDryRun            = HasArgument("dryrun1");
+
+var skipTest            = HasArgument("skiptest");
+
+var nugetApiKey         = Argument("nugetapikey", EnvironmentVariable("NUGET_API_KEY") );
+var mygetApiKey         = Argument("mygetapikey", EnvironmentVariable("MYGET_API_KEY") );
+
+///////////////////////////////////////////////////////////////////////////////
+// Variables
+///////////////////////////////////////////////////////////////////////////////
+var tfsBuild            = HasEnvironmentVariable("TF_BUILD");
 var artifactsDirectory  = Directory("./artifacts");
-var version             = "0.0.0";
+var isWindows           = IsRunningOnWindows();
 var solutionFile        = File("./SoftwarePioniere.Fx.sln");
-var image               = "softwarepioniere/softwarepioniere.fx";
-var nugetApiKey         = "VSTS";
-var vstsToken           = "XXX";
+GitVersion gitVersion;
+
 
 ///////////////////////////////////////////////////////////////////////////////
-// SETUP/TEARDOWN
+// Setup
 ///////////////////////////////////////////////////////////////////////////////
 
 Setup(context =>
 {
-    vstsToken           = EnvironmentVariable("VSTS_TOKEN") ?? vstsToken;
-    nugetApiKey         = EnvironmentVariable("NUGET_API_KEY") ?? nugetApiKey;
 
-    if (IsTfs(context)) {
-        vstsToken = EnvironmentVariable("SYSTEM_ACCESSTOKEN");
-        if (string.IsNullOrEmpty(vstsToken))
-            throw new System.InvalidOperationException("Please allow VSTS Token Access");
-    }
+    if (tfsBuild) {
+        GitVersion(new GitVersionSettings {
+            UpdateAssemblyInfo = false,
+            OutputType = GitVersionOutput.BuildServer
+        });
+    }   
 
-    MyGitVersion.Init(context);
-    MyDotNet.Init(context, configuration, isDryRun, vstsToken, nugetApiKey);
+    gitVersion = GitVersion(new GitVersionSettings {
+        UpdateAssemblyInfo = false
+    });
 
+    Information("Version: {0}" , GetVersion() );
+    Information("AssemblyVersion: {0}" , GetAssemblyVersion() );
 });
+
+///////////////////////////////////////////////////////////////////////////////
+// GitVersion
+///////////////////////////////////////////////////////////////////////////////
+Task("GitVersion")
+    .IsDependentOn("Clean")
+    .Does( () => {
+
+    var json = Newtonsoft.Json.JsonConvert.SerializeObject(gitVersion);
+
+    System.IO.File.WriteAllText("./GitVersion.json", json); 
+    CopyFiles("./GitVersion.json", artifactsDirectory );
+});
+
 
 ///////////////////////////////////////////////////////////////////////////////
 // TASKS
 ///////////////////////////////////////////////////////////////////////////////
-
-Task("Version")
- .Does((context) =>
-{
-    version = MyGitVersion.Calculate();
-    Information("Version: {0}", version);
-    SetBuildNumber(context, version);
-
-    MyGitVersion.WriteArtifacts(artifactsDirectory);
-});
 
 Task("Clean")
     .Does(() =>
@@ -62,133 +81,245 @@ Task("Clean")
     CleanDirectories(new DirectoryPath[] { artifactsDirectory });
 });
 
-
-Task("Restore")
-    .IsDependentOn("Clean")
-    .IsDependentOn("Version")
-    .Does(context =>
-{
-    MyDotNet.RestoreSolution(solutionFile);
-});
+///////////////////////////////////////////////////////////////////////////////
 
 Task("Build")
     .IsDependentOn("Clean")
-    .IsDependentOn("Version")
-    .IsDependentOn("Restore")
-    .Does(context =>
+    .IsDependentOn("GitVersion") 
+    .Does(() =>
 {
+    
+    var settings = new DotNetCoreBuildSettings
+    {
+        Configuration = configuration,
+        // NoRestore = true,
+        EnvironmentVariables = new Dictionary<string, string> {
+            { "NuGetVersionV2", GetVersion() },
+            { "AssemblySemVer", GetAssemblyVersion() }
+        }
+    };
 
-    MyDotNet.BuildSolution(solutionFile);
+    Information("Starting DotNetCoreBuild on Solution: {0}", solutionFile.Path.FullPath);
+    if (!isDryRun) {
+            DotNetCoreBuild( solutionFile.Path.FullPath, settings);
+        }
+        else {
+            Verbose("Dry Run, skipping Build");      
+    }
 
 });
 
+///////////////////////////////////////////////////////////////////////////////
 
 Task("Test")
     .IsDependentOn("Clean")
-    .IsDependentOn("Version")
-    .IsDependentOn("Restore")
     .IsDependentOn("Build")
-    .Does(context =>
+    .IsDependentOn("GitVersion") 
+    .WithCriteria(!skipTest)
+    .Does(() =>
 {
-    MyDotNet.TestProjects("./test/**/*.csproj");
+
+    // StopTestEnv();
+    StartTestEnv();
+
+    var settings = new DotNetCoreTestSettings
+    {
+        Configuration = configuration,
+        EnvironmentVariables = new Dictionary<string, string> {
+            { "NuGetVersionV2", GetVersion() },
+            { "AssemblySemVer", GetAssemblyVersion() }
+        },
+        NoBuild = true,
+        NoRestore = true,
+        Logger = "trx"
+    };
+
+    var projects = GetFiles("./**/test/**/*.csproj");
+    foreach(var project in projects)
+    {
+        Information("Starting DotNetCoreTest on Project: {0}", project.GetDirectory().FullPath);
+
+         if (!isDryRun) {
+            DotNetCoreTest(project.FullPath, settings);
+        }
+        else {
+            Verbose("Dry Run, skipping Build");
+        }
+    }
+})
+.Finally(() =>
+{
+    StopTestEnv();
 });
+
+///////////////////////////////////////////////////////////////////////////////
 
 Task("Pack")
     .IsDependentOn("Clean")
-    .IsDependentOn("Version")
-    .Does(context =>
-{
-    MyDotNet.PackSolution(solutionFile, artifactsDirectory);
-});
-
-Task("PushPackagesLocal")
-    .Does(context =>
-{
-    var packageSource = context.Directory(@"c:\temp\packages-debug");
-    context.Information("PackageSource Dir: {0}", packageSource);
-
-    var settings = new DotNetCoreNuGetPushSettings {
-        Source =  packageSource.Path.FullPath
-    };
-
-    MyDotNet.PushPackages(artifactsDirectory, settings);
-});
-
-Task("DockerBuild")
-    .IsDependentOn("Clean")
-    .IsDependentOn("Version")
-    .Does(context =>
-{
-    MyDotNet.DockerBuild(image);
-});
-
-Task("DockerTest")
-    .IsDependentOn("Clean")
-    .IsDependentOn("Version")
-    .Does(context =>
-{
-    MyDotNet.DockerTestProject(image + ".domainmodel.services.tests" , "SoftwarePioniere.DomainModel.Services.Tests", artifactsDirectory);
-    MyDotNet.DockerTestProject(image + ".domainmodel.tests" , "SoftwarePioniere.DomainModel.Tests", artifactsDirectory);
-
-    MyDotNet.DockerTestProject(image + ".messaging.tests" , "SoftwarePioniere.Messaging.Tests", artifactsDirectory);
-
-    MyDotNet.DockerTestProject(image + ".readmodel.services.tests" , "SoftwarePioniere.ReadModel.Services.Tests", artifactsDirectory);
-    MyDotNet.DockerTestProject(image + ".readmodel.tests" , "SoftwarePioniere.ReadModel.Tests", artifactsDirectory);
-});
-
-Task("DockerPack")
-    .IsDependentOn("Clean")
-    .IsDependentOn("Version")
-    .Does(context =>
-{
-    MyDotNet.DockerPack(image);
-});
-
-Task("DockerPushPackages")
-    .IsDependentOn("Clean")
-    .IsDependentOn("Version")
-    .Does(context =>
-{
-    MyDotNet.DockerPushPackages(image);
-});
-
-
-///////////////////////////////////////////////////////////////////////////////
-// TARGETS
-///////////////////////////////////////////////////////////////////////////////
-
-Task("Default");
-
-
-Task("BuildTestPackLocalPush")
-    .IsDependentOn("Clean")
-    .IsDependentOn("Version")
-    .IsDependentOn("Restore")
     .IsDependentOn("Build")
     .IsDependentOn("Test")
-    .IsDependentOn("Pack")
-    .IsDependentOn("PushPackagesLocal")
-    ;
+    .IsDependentOn("GitVersion")  
+    .Does( () => {
 
-Task("DockerBuildPack")
-    .IsDependentOn("Clean")
-    .IsDependentOn("Version")
-    .IsDependentOn("DockerBuild")
-    .IsDependentOn("DockerTest")
-    .IsDependentOn("DockerPack")
-    ;
+    var settings = new DotNetCorePackSettings
+    {
+        Configuration = configuration,
+        EnvironmentVariables = new Dictionary<string, string> {
+            { "NuGetVersionV2", GetVersion() },
+            { "AssemblySemVer", GetAssemblyVersion() }
+        },
+        NoBuild = true,
+        NoRestore = true,
+        IncludeSymbols = true,
+        IncludeSource = true,
+        OutputDirectory = artifactsDirectory + Directory("packages")
+    };
 
-Task("DockerBuildPush")
-    .IsDependentOn("Clean")
-    .IsDependentOn("Version")
-    .IsDependentOn("DockerBuild")
-    .IsDependentOn("DockerTest")
-    .IsDependentOn("DockerPack")
-    .IsDependentOn("DockerPushPackages")
-    ;
+    Information("Starting DotNetCorePack");
+
+        if (!isDryRun) {
+        DotNetCorePack(solutionFile, settings);
+    }
+    else {
+        Verbose("Dry Run, skipping Build");
+    }
+
+});
 
 ///////////////////////////////////////////////////////////////////////////////
-// EXECUTION
+
+Task("PublishLocalPackages")
+    .IsDependentOn("Clean")
+    .IsDependentOn("Build")
+    .IsDependentOn("GitVersion")  
+    .IsDependentOn("Pack") 
+    .Does( () => {
+
+    var outDir = Directory(@"c:/temp/packages-debug");
+
+    if (!DirectoryExists(outDir)) {
+        CreateDirectory(outDir);
+    }
+
+    var dir = MakeAbsolute(outDir).FullPath;
+    Information("OutDir: {0}", dir);
+    
+    var settings = new DotNetCoreNuGetPushSettings {
+        Source = dir
+    };
+
+    var pkgs = GetFiles($"{artifactsDirectory.Path.FullPath}/packages/**/*.symbols.nupkg");
+
+    foreach(var pk in pkgs)
+    {
+        Information("Starting DotNetCoreNuGetPush on Package: {0}", pk.FullPath);
+
+        if (!isDryRun) {
+            DotNetCoreNuGetPush(pk.FullPath, settings);
+        } else {
+            Verbose("Dry Run, skipping DotNetCoreNuGetPush");
+        }
+    }
+
+});
+
 ///////////////////////////////////////////////////////////////////////////////
+
+Task("PublishPackages")
+    .IsDependentOn("Clean")
+    .IsDependentOn("Build")
+    .IsDependentOn("GitVersion")  
+    .IsDependentOn("Pack") 
+    .Does( () => {
+
+  
+    var settings = new DotNetCoreNuGetPushSettings {
+        Source = "https://api.nuget.org/v3/index.json",
+        ApiKey = nugetApiKey
+    };
+
+
+    if (gitVersion.BranchName == "dev") {
+        Verbose("dev branch, publish to azure devops");
+
+        settings.Source = "https://www.myget.org/F/softwarepioniere/api/v3/index.json";
+        settings.ApiKey = mygetApiKey;
+    }
+
+    var pkgs = GetFiles($"{artifactsDirectory.Path.FullPath}/packages/**/*.symbols.nupkg");
+
+    foreach(var pk in pkgs)
+    {
+        Information("Starting DotNetCoreNuGetPush on Package: {0}", pk.FullPath);
+
+        if (!isDryRun) {
+            DotNetCoreNuGetPush(pk.FullPath, settings);
+        } else {
+            Verbose("Dry Run, skipping DotNetCoreNuGetPush");
+        }
+    }
+
+});
+
+///////////////////////////////////////////////////////////////////////////////
+// RunTarget
+///////////////////////////////////////////////////////////////////////////////
+Task("Default")
+  .IsDependentOn("Build")
+  .IsDependentOn("Test")
+  .IsDependentOn("Pack") 
+  ;
+
+Task("BuildAndPublish")  
+  .IsDependentOn("Build")
+  .IsDependentOn("Test")
+  .IsDependentOn("Pack") 
+  .IsDependentOn("PublishPackages") 
+  ;
+
+// Task("DockerPublish")
+//   .IsDependentOn("Default")
+//   .IsDependentOn("BuildDockerImage")
+//   .IsDependentOn("PushDockerImage")
+//   ;
+
 
 RunTarget(target);
+
+///////////////////////////////////////////////////////////////////////////////
+// Utils
+///////////////////////////////////////////////////////////////////////////////
+private string GetVersion() {
+    Verbose("Reading Version");
+
+    var v = gitVersion.NuGetVersionV2;
+    Verbose("NuGetVersionV2: {0}", v);
+    return v;
+}
+
+private string GetAssemblyVersion() {
+    Verbose("Reading AssemblyVersion");
+    var v = gitVersion.AssemblySemVer;
+    Verbose("AssemblySemVer: {0}", v);
+    return v;
+}
+
+
+private void StartTestEnv(){
+    Information("Starting Test Environment");
+
+    DockerComposeUp( new DockerComposeUpSettings{
+                Files = new [] { "docker-compose.yml" },
+                DetachedMode = true,
+                ForceRecreate = true
+        });
+}
+
+private void StopTestEnv(){
+    Information("Stopping Test Environment");
+
+    DockerComposeDown( new DockerComposeDownSettings{
+            Files = new [] { "docker-compose.yml" },
+            RemoveOrphans = true
+    });
+}

@@ -481,7 +481,8 @@ public class MyDotNet {
                     Files = dcFiles,
                     RemoveOrphans = true,
                     // Verbose = true,
-                    ProjectName = projectName
+                    ProjectName = projectName,
+                    Volumes = true
                 };
 
                 _context.DockerComposeDown(settings);

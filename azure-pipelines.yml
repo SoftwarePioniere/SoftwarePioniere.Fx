@@ -1,0 +1,51 @@
+# https://aka.ms/yaml
+
+trigger:
+  branches:
+    include:
+    - dev
+  paths:
+    include:
+    - src/*
+    - nuget.config
+    exclude:
+    - README.md
+
+pool:
+    vmimage: 'ubuntu-16.04'    
+
+steps:
+
+- pwsh: if (!(Test-Path -Path tools/dotnet-cake-tool-0-33-0)) { dotnet tool install Cake.Tool --tool-path tools/dotnet-cake-tool-0-33-0 --version 0.33.0 --add-source https://api.nuget.org/v3/index.json }
+  displayName: 'install cake global tool'
+
+- task: Bash@3
+  displayName: 'run cake'
+  inputs:
+    targetType: inline
+    script: exec ./tools/dotnet-cake-tool-0-33-0/dotnet-cake build.cake --target="BuildAndPublish"
+  env:
+    NUGET_API_KEY: $(NuGetApiKey)
+    MYGET_API_KEY: $(MyGetApiKey)
+    SOPI_TESTS_AZURECOSMOSDB__AUTHKEY: $(SopiTestCosmosDbPrimaryKey)
+    SOPI_TESTS_AZURECOSMOSDB__ENDPOINTURL: $(SopiTestCosmosDbEndpint)
+    SOPI_TESTS_AZUREADCLIENT__CLIENTID: $(SopiTestAzureAdClientId)
+    SOPI_TESTS_AZUREADCLIENT__CLIENTSECRET: $(SopiTestAzureAdClientSecret)
+    SOPI_TESTS_AUTH0CLIENT__CLIENTID: $(SopiTestAuth0ClientId)
+    SOPI_TESTS_AUTH0CLIENT__CLIENTSECRET: $(SopiTestAuth0ClientSecret)    
+
+- task: PublishTestResults@2
+  inputs: 
+    testResultsFormat: VSTest
+    testResultsFiles: '**/*.trx'
+
+- task: CopyFiles@2
+  inputs:
+    sourceFolder: 'artifacts'
+    contents: '**/**' 
+    targetFolder: $(Build.ArtifactStagingDirectory) 
+
+- task: PublishPipelineArtifact@0
+  inputs:
+    artifactName: 'drop' 
+    targetPath: $(Build.ArtifactStagingDirectory)

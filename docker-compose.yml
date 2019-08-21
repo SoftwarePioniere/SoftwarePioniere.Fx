@@ -1,0 +1,35 @@
+version: '3.6'
+
+services:
+
+  mongodb:
+    image: mongo:4.0.10
+    command: --smallfiles --port 27097
+    ports:
+      - "27097:27097"
+    volumes:
+      - 'mongodbdata:/data/db'
+
+  redis:
+    image: redis:4.0
+    ports:
+      - "6399:6379"
+
+  eventstore:
+    image: softwarepioniere/eventstore:latest
+    ports:
+      - "2193:2193"
+      - "1193:1193"
+      - "1195:1195"
+    environment:
+      - EVENTSTORE_STATS_PERIOD_SEC=120
+      - EVENTSTORE_RUN_PROJECTIONS=ALL
+      - EVENTSTORE_DB=/data
+      - EVENTSTORE_EXT_TCP_HEARTBEAT_TIMEOUT=10000   
+    volumes:
+      - 'eventstoredata:/data'
+      
+volumes:
+  mongodbdata:
+  eventstoredata:
+

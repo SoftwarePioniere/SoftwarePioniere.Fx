@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <PackageId>SoftwarePioniere.Fx.AzureAd</PackageId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SoftwarePioniere\SoftwarePioniere.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>    
+    <PackageReference Include="Microsoft.IdentityModel.Clients.ActiveDirectory" Version="4.5.1" />
+  </ItemGroup>
+
+</Project>

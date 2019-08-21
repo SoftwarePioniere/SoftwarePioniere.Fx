@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <PackageId>SoftwarePioniere.Fx.Auth0</PackageId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SoftwarePioniere\SoftwarePioniere.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>    
+    <PackageReference Include="Auth0.AuthenticationApi" Version="6.3.0" />
+  </ItemGroup>
+
+</Project>
