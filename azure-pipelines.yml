@@ -2,9 +2,14 @@
 
 trigger:
   branches:
-    include: [ 'dev' ]
+    include:
+    - dev
   paths:
-    exclude: [ 'README.md' ]
+    include:
+    - src/*
+    - nuget.config
+    exclude:
+    - README.md
 
 pool:
     vmimage: 'ubuntu-16.04'    
