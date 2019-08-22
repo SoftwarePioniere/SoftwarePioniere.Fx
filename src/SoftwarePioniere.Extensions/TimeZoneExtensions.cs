@@ -20,6 +20,11 @@ namespace SoftwarePioniere
             } while (d <= jetzt.AddDays(untilDays));
 
             return list.ToArray();
-        }      
+        }
+
+        public static DateTime ConvertTimeFromUtc(this TimeZoneInfo tz, DateTime dateTimeUtc)
+        {
+            return TimeZoneInfo.ConvertTimeFromUtc(dateTimeUtc, tz);
+        }
     }
 }
