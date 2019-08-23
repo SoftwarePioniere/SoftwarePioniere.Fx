@@ -15,7 +15,7 @@ namespace SoftwarePioniere.Hosting
             Console.WriteLine("CreateSerilogger");
             var loggerConfig = new LoggerConfiguration();
             loggerConfig.ConfigureSerilog(config, setupAction);
-            var logger = loggerConfig.CreateLogger();           
+            var logger = loggerConfig.CreateLogger();
             Log.Logger = logger;
             return logger;
         }
@@ -46,6 +46,10 @@ namespace SoftwarePioniere.Hosting
 
             Console.WriteLine($"ConfigureSerilog:: MinimumLevel: {minLevel}");
 
+            var logFile = Path.Combine(options.LogDir, "log.txt");
+            Console.WriteLine($"ConfigureSerilog:: LogFile: {logFile}");
+
+
             loggerConfiguration
                 .MinimumLevel.Is(minLevel)
                 .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
@@ -59,7 +63,7 @@ namespace SoftwarePioniere.Hosting
                 .Enrich.WithProperty("AppId", sopiOptions.AppId)
                 .Enrich.WithProperty("AppVersion", version)
                 .WriteTo.LiterateConsole(outputTemplate: options.Template)
-                .WriteTo.File($"{options.LogDir}/log.txt", rollingInterval: RollingInterval.Day, outputTemplate: options.Template)
+                .WriteTo.File(logFile, rollingInterval: RollingInterval.Day, outputTemplate: options.Template)
                 ;
 
             if (options.UseSeq)
