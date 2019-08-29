@@ -105,6 +105,21 @@ namespace SoftwarePioniere.MongoDb
             await collection.DeleteOneAsync(filter, token);
         }
 
+        protected override async Task InternalDeleteItemsAsync<T>(Expression<Func<T, bool>> @where, CancellationToken token = default(CancellationToken))
+        {
+            Logger.LogTrace("InternalDeleteItemsAsync: {EntityType} ", typeof(T));
+
+            var collection = _provider.GetCol<T>();
+            var filter = new ExpressionFilterDefinition<T>(@where);
+            await collection.DeleteManyAsync(filter, token);
+        }
+
+        protected override async Task InternalDeleteAllItemsAsync<T>(CancellationToken token = default(CancellationToken))
+        {
+            Logger.LogTrace("InternalDeleteAllItemsAsync: {EntityType} ", typeof(T));
+            await _provider.Database.Value.DropCollectionAsync(_provider.KeyCache.GetEntityTypeKey<T>(), token);
+        }
+
         protected override async Task InternalInsertItemAsync<T>(T item, CancellationToken token = default(CancellationToken))
         {
             if (item == null)

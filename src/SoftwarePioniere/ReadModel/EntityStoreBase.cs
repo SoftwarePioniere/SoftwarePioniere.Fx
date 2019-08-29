@@ -50,6 +50,26 @@ namespace SoftwarePioniere.ReadModel
             await InternalDeleteItemAsync<T>(entityId, token);
         }
 
+        public async Task DeleteItemsAsync<T>(Expression<Func<T, bool>> @where, CancellationToken token = default(CancellationToken)) where T : Entity
+        {
+            if (!Options.CachingDisabled)
+            {
+                await CacheClient.RemoveByPrefixAsync(CacheKeys.Create<T>());
+            }
+
+            await InternalDeleteItemsAsync(@where, token);
+        }
+
+        public async Task DeleteAllItemsAsync<T>(CancellationToken token = default(CancellationToken)) where T : Entity
+        {
+            if (!Options.CachingDisabled)
+            {
+                await CacheClient.RemoveByPrefixAsync(CacheKeys.Create<T>());
+            }
+
+            await InternalDeleteAllItemsAsync<T>(token);
+        }
+
         public async Task InsertItemAsync<T>(T item, CancellationToken token = default(CancellationToken)) where T : Entity
         {
             if (item == null)
@@ -89,7 +109,6 @@ namespace SoftwarePioniere.ReadModel
 
             await InternalBulkInsertItemsAsync(enumerable, token);
         }
-
 
         public async Task InsertOrUpdateItemAsync<T>(T item, CancellationToken token = default(CancellationToken)) where T : Entity
         {
@@ -194,6 +213,10 @@ namespace SoftwarePioniere.ReadModel
         }
 
         protected abstract Task InternalDeleteItemAsync<T>(string entityId, CancellationToken token = default(CancellationToken)) where T : Entity;
+
+        protected abstract Task InternalDeleteItemsAsync<T>(Expression<Func<T, bool>> @where, CancellationToken token = default(CancellationToken)) where T : Entity;
+
+        protected abstract Task InternalDeleteAllItemsAsync<T>(CancellationToken token = default(CancellationToken)) where T : Entity;
 
         protected abstract Task InternalInsertItemAsync<T>(T item, CancellationToken token = default(CancellationToken)) where T : Entity;
 

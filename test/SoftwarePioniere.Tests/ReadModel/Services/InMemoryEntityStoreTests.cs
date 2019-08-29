@@ -134,5 +134,29 @@ namespace SoftwarePioniere.Tests.ReadModel.Services
         {
             base.UpdateWithCancelationThrowsError();
         }
+     
+        [Fact]
+        public override Task CanInsertAndDeleteAllItems()
+        {
+            return base.CanInsertAndDeleteAllItems();
+        }
+       
+        [Fact]
+        public override Task CanInsertAndDeleteItemWithWhere()
+        {
+            return base.CanInsertAndDeleteItemWithWhere();
+        }
+      
+        [Fact]
+        public override Task InsertExistingWillUpdate()
+        {
+            return base.InsertExistingWillUpdate();
+        }
+     
+        [Fact]
+        public override Task UpdateNonExistingWillInsert()
+        {
+            return base.UpdateNonExistingWillInsert();
+        }
     }
 }

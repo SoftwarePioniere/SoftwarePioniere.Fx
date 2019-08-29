@@ -139,6 +139,33 @@ namespace SoftwarePioniere.ReadModel
             return Task.CompletedTask;
         }
 
+        protected override Task InternalDeleteItemsAsync<T>(Expression<Func<T, bool>> @where, CancellationToken token = default(CancellationToken))
+        {
+
+            Logger.LogTrace("InternalDeleteItemsAsync: {EntityType}", typeof(T));
+
+
+            var items = _provider.GetItems(typeof(T));
+
+            var values = items.Values.Cast<T>();
+
+            var w = @where.Compile();
+            var filteredItems = values.Where(w);
+
+            foreach (var id in filteredItems.Select(x => x.EntityId).ToArray())
+            {
+                if (items.ContainsKey(id))
+                    items.Remove(id);
+            }
+
+            return Task.CompletedTask;
+        }
+
+        protected override Task InternalDeleteAllItemsAsync<T>(CancellationToken token = default(CancellationToken))
+        {
+            return InternalDeleteItemsAsync<T>(x => true, token);
+        }
+
         protected override Task InternalInsertItemAsync<T>(T item, CancellationToken token = default(CancellationToken))
         {
             if (item == null)

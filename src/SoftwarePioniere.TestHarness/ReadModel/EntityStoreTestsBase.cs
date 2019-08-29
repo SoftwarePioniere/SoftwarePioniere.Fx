@@ -10,51 +10,51 @@ using Xunit.Abstractions;
 
 namespace SoftwarePioniere.ReadModel
 {
-    public interface IEntityStoreTests
-    {
-        Task CanInsertAndDeleteItem();
+    //public interface IEntityStoreTests
+    //{
+    //    Task CanInsertAndDeleteItem();
 
-        Task CanInsertAndUpdateItem();
+    //    Task CanInsertAndUpdateItem();
 
-        Task CanInsertItem();
+    //    Task CanInsertItem();
 
-        Task CanInsertManyItems();
+    //    Task CanInsertManyItems();
 
-        Task CanBulkInsertManyItems();
+    //    Task CanBulkInsertManyItems();
 
-        void DeleteThrowsErrorWithKeyNullOrEmpty();
+    //    void DeleteThrowsErrorWithKeyNullOrEmpty();
 
-        void DeleteWithCancelationThrowsError();
+    //    void DeleteWithCancelationThrowsError();
 
-        void InsertWithCancelationThrowsError();
+    //    void InsertWithCancelationThrowsError();
 
-        Task LoadItemsWithPagingWorks();
+    //    Task LoadItemsWithPagingWorks();
 
-        void LoadItemsWithPagingAndCancelationThrowsError();
+    //    void LoadItemsWithPagingAndCancelationThrowsError();
 
-        //Task LoadItemsWithPagingAndOrderingWorks();
+    //    //Task LoadItemsWithPagingAndOrderingWorks();
 
 
-        Task LoadItemsWithWhereWorks();
+    //    Task LoadItemsWithWhereWorks();
 
-        void LoadItemsWithCancelationThrowsError();
+    //    void LoadItemsWithCancelationThrowsError();
 
-        void LoadItemThrowsErrorWithKeyNullOrEmpty();
+    //    void LoadItemThrowsErrorWithKeyNullOrEmpty();
 
-        void LoadItemWithCancelationThrowsError();
+    //    void LoadItemWithCancelationThrowsError();
 
-        Task SaveAndLoadItemPropertiesEquals();
+    //    Task SaveAndLoadItemPropertiesEquals();
 
-        Task SaveAndLoadItemsContainsAll();
+    //    Task SaveAndLoadItemsContainsAll();
 
-        Task SaveAndUpdateItemPropertiesEquals();
+    //    Task SaveAndUpdateItemPropertiesEquals();
 
-        void SaveThrowsErrorWithItemNull();
+    //    void SaveThrowsErrorWithItemNull();
 
-        void UpdateWithCancelationThrowsError();
-    }
+    //    void UpdateWithCancelationThrowsError();
+    //}
 
-    public abstract class EntityStoreTestsBase : TestBase, IEntityStoreTests
+    public abstract class EntityStoreTestsBase : TestBase
     {
         protected EntityStoreTestsBase(ITestOutputHelper output) : base(output)
         {
@@ -76,8 +76,51 @@ namespace SoftwarePioniere.ReadModel
 
             var obj2 = await store.LoadItemAsync<FakeEntity>(obj1.EntityId);
             CompareEntitities(obj1, obj2);
-            
+
             await store.DeleteItemAsync<FakeEntity>(obj1.EntityId);
+
+            var obj3 = await store.LoadItemAsync<FakeEntity>(obj1.EntityId);
+            obj3.Should().BeNull();
+        }
+
+
+        public virtual async Task CanInsertAndDeleteItemWithWhere()
+        {
+            var id = Guid.NewGuid().ToString();
+            var obj1 = FakeEntity.Create(id);
+
+            var store = CreateInstance();
+
+            await store.InsertItemAsync(obj1);
+
+            obj1.StringValue = "changed string";
+            await store.UpdateItemAsync(obj1);
+
+            var obj2 = await store.LoadItemAsync<FakeEntity>(obj1.EntityId);
+            CompareEntitities(obj1, obj2);
+
+            await store.DeleteItemsAsync<FakeEntity>(entity => entity.EntityId == obj1.EntityId);
+
+            var obj3 = await store.LoadItemAsync<FakeEntity>(obj1.EntityId);
+            obj3.Should().BeNull();
+        }
+
+        public virtual async Task CanInsertAndDeleteAllItems()
+        {
+            var id = Guid.NewGuid().ToString();
+            var obj1 = FakeEntity.Create(id);
+
+            var store = CreateInstance();
+
+            await store.InsertItemAsync(obj1);
+
+            obj1.StringValue = "changed string";
+            await store.UpdateItemAsync(obj1);
+
+            var obj2 = await store.LoadItemAsync<FakeEntity>(obj1.EntityId);
+            CompareEntitities(obj1, obj2);
+
+            await store.DeleteAllItemsAsync<FakeEntity>();
 
             var obj3 = await store.LoadItemAsync<FakeEntity>(obj1.EntityId);
             obj3.Should().BeNull();
@@ -171,7 +214,7 @@ namespace SoftwarePioniere.ReadModel
             {
                 await store.DeleteItemAsync<FakeEntity>(Guid.NewGuid().ToString(), token);
             };
-            
+
             f1.Should().Throw<Exception>();
         }
 

@@ -143,5 +143,19 @@ namespace SoftwarePioniere.MongoDb.Tests
         {
             return base.UpdateNonExistingWillInsert();
         }
+
+        [Fact]
+        public override Task CanInsertAndDeleteAllItems()
+        {
+            return base.CanInsertAndDeleteAllItems();
+        }
+       
+        [Fact]
+        public override Task CanInsertAndDeleteItemWithWhere()
+        {
+            return base.CanInsertAndDeleteItemWithWhere();
+        }
+      
+       
     }
 }

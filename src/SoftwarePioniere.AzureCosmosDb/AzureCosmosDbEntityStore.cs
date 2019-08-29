@@ -125,6 +125,16 @@ namespace SoftwarePioniere.AzureCosmosDb
             await _provider.DeleteItemAsync(entityId, TypeKeyCache.GetEntityTypeKey<T>());
         }
 
+        protected override Task InternalDeleteItemsAsync<T>(Expression<Func<T, bool>> @where, CancellationToken token = default(CancellationToken))
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task InternalDeleteAllItemsAsync<T>(CancellationToken token = default(CancellationToken))
+        {
+            throw new NotImplementedException();
+        }
+
         protected override async Task InternalInsertItemAsync<T>(T item, CancellationToken token = default(CancellationToken))
         {
             if (item == null)
