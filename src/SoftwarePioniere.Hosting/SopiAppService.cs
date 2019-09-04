@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Polly;
 using SoftwarePioniere.Domain;
 using SoftwarePioniere.Messaging;
 using SoftwarePioniere.Projections;
@@ -15,6 +16,7 @@ namespace SoftwarePioniere.Hosting
 {
 
 
+    // ReSharper disable once ClassNeverInstantiated.Global
     public class SopiAppService : BackgroundService
     {
         private readonly IServiceProvider _provider;
@@ -43,7 +45,8 @@ namespace SoftwarePioniere.Hosting
 
             return ex.Message;
         }
-
+        
+       
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             var sw = Stopwatch.StartNew();
@@ -67,12 +70,14 @@ namespace SoftwarePioniere.Hosting
                             _logger.LogInformation("Initialize IEventStoreInitializer {EventStoreInitializer}", initializer.GetType().FullName);
                             try
                             {
-                                await initializer.InitializeAsync(stoppingToken);
+                                await Policy
+                                    .Handle<Exception>()
+                                    .WaitAndRetryAsync(5, i => TimeSpan.FromSeconds(i * 0.5))
+                                    .ExecuteAsync(() => initializer.InitializeAsync(stoppingToken));
                             }
                             catch (Exception e)
                             {
-                                _logger.LogError(e, "{Type} {Inner}", initializer.GetType().FullName, GetInnerExceptionMessage(e));
-                                throw;
+                                _logger.LogCritical(e, "{Type} {Inner}", initializer.GetType().FullName, GetInnerExceptionMessage(e));
                             }
                             done.Add(initializer.GetType());
                         }
@@ -100,8 +105,7 @@ namespace SoftwarePioniere.Hosting
                         }
                         catch (Exception e)
                         {
-                            _logger.LogError(e, "{Type} {Inner}", saga.GetType().FullName, GetInnerExceptionMessage(e));
-                            throw;
+                            _logger.LogCritical(e, "{Type} {Inner}", saga.GetType().FullName, GetInnerExceptionMessage(e));
                         }
                     }
 
@@ -127,8 +131,7 @@ namespace SoftwarePioniere.Hosting
                         }
                         catch (Exception e)
                         {
-                            _logger.LogError(e, "{Type} {Inner}", handler.GetType().FullName, GetInnerExceptionMessage(e));
-                            throw;
+                            _logger.LogCritical(e, "{Type} {Inner}", handler.GetType().FullName, GetInnerExceptionMessage(e));
                         }
                     }
 
@@ -155,8 +158,7 @@ namespace SoftwarePioniere.Hosting
                         }
                         catch (Exception e)
                         {
-                            _logger.LogError(e, "{Type}", registry.GetType().FullName);
-                            throw;
+                            _logger.LogCritical(e, "{Type}", registry.GetType().FullName);
                         }
                     }
 
@@ -166,7 +168,7 @@ namespace SoftwarePioniere.Hosting
             }
 
 
-            
+
             //sopi services
             {
 
@@ -184,8 +186,7 @@ namespace SoftwarePioniere.Hosting
                         }
                         catch (Exception e)
                         {
-                            _logger.LogError(e, "{Type}", service.GetType().FullName);
-                            throw;
+                            _logger.LogCritical(e, "{Type}", service.GetType().FullName);
                         }
                     }
 
