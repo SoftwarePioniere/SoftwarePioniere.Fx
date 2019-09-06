@@ -14,15 +14,15 @@ using SoftwarePioniere.Projections;
 
 namespace SoftwarePioniere.Hosting
 {
-
-
+    
     // ReSharper disable once ClassNeverInstantiated.Global
     public class SopiAppService : BackgroundService
     {
         private readonly IServiceProvider _provider;
+        private readonly SopiApplicationLifetime _applicationLifetime;
         private readonly ILogger _logger;
 
-        public SopiAppService(ILoggerFactory loggerFactory, IServiceProvider provider)
+        public SopiAppService(ILoggerFactory loggerFactory, IServiceProvider provider, SopiApplicationLifetime applicationLifetime)
         {
             if (loggerFactory == null)
             {
@@ -30,6 +30,7 @@ namespace SoftwarePioniere.Hosting
             }
 
             _provider = provider ?? throw new ArgumentNullException(nameof(provider));
+            _applicationLifetime = applicationLifetime ?? throw new ArgumentNullException(nameof(applicationLifetime));
 
 
             _logger = loggerFactory.CreateLogger(GetType());
@@ -45,10 +46,12 @@ namespace SoftwarePioniere.Hosting
 
             return ex.Message;
         }
-        
-       
+
+
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
+            _applicationLifetime.IsStarting = true;
+
             var sw = Stopwatch.StartNew();
             _logger.LogInformation("Starting SopiAppService");
 
@@ -167,8 +170,7 @@ namespace SoftwarePioniere.Hosting
                 }
             }
 
-
-
+            
             //sopi services
             {
 
@@ -197,6 +199,9 @@ namespace SoftwarePioniere.Hosting
 
             sw.Stop();
             _logger.LogInformation("SopiAppService Started in {Elapsed:0.0000} ms", sw.ElapsedMilliseconds);
+
+            _applicationLifetime.IsStarting = false;
+            _applicationLifetime.IsStarted = true;
         }
     }
 }

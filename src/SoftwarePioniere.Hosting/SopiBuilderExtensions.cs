@@ -33,7 +33,7 @@ namespace SoftwarePioniere.Hosting
             services
                 .AddDefaultTelemetryAdapter()
                 .AddDefaultMessageBusAdapter();
-            
+
             return builder;
 
         }
@@ -48,7 +48,9 @@ namespace SoftwarePioniere.Hosting
             builder.AddHealthChecks()
                 ;
 
-            services.AddSingleton<ISopiApplicationLifetime, SopiApplicationLifetime>();
+            services.AddSingleton<SopiApplicationLifetime>()
+                .AddSingleton<ISopiApplicationLifetime>(p => p.GetRequiredService<SopiApplicationLifetime>())
+                ;
 
             services.AddSingleton(
                 resolver => resolver.GetRequiredService<IOptions<SopiOptions>>().Value);
@@ -76,7 +78,7 @@ namespace SoftwarePioniere.Hosting
             if (builder.Options.DomainEventStore == SopiOptions.DomainEventStoreEventStore)
             {
                 builder.Services.AddEventStoreDomainServices()
-                    .AddEventStorePersistentSubscription(); 
+                    .AddEventStorePersistentSubscription();
             }
             else
             {

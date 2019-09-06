@@ -128,7 +128,7 @@ namespace SoftwarePioniere.Messaging
 
         public async Task SubscribeCommand<T>(Func<T, Task> handler, CancellationToken cancellationToken = new CancellationToken()) where T : class, ICommand
         {
-            var cts = CancellationTokenSource.CreateLinkedTokenSource(_applicationLifetime.CommandHandlerStopped, cancellationToken);
+            var cts = CancellationTokenSource.CreateLinkedTokenSource(_applicationLifetime.Stopped, cancellationToken);
 
             _logger.LogDebug("Subscribing to Command {CommandType}", typeof(T).GetTypeShortName());
             var bus = _bus;

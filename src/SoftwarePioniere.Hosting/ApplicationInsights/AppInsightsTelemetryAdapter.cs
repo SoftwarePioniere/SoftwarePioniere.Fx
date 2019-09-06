@@ -62,15 +62,15 @@ namespace SoftwarePioniere.Hosting.ApplicationInsights
 
                 //using (logger.BeginScope(state.CreateLoggerScope()))
                 //{
-                logger.LogInformation(operationName);
+                logger.LogDebug(operationName);
 
                 var sw = Stopwatch.StartNew();
-                logger.LogDebug($"{operationName} Starting");
+                logger.LogTrace($"{operationName} Starting");
 
                 var result = await runx(state);
 
                 sw.Stop();
-                logger.LogInformation(operationName + " Finished in {Elapsed:0.0000} ms", sw.ElapsedMilliseconds);
+                logger.LogDebug(operationName + " Finished in {Elapsed:0.0000} ms", sw.ElapsedMilliseconds);
 
                 return result;
                 //}
@@ -121,15 +121,15 @@ namespace SoftwarePioniere.Hosting.ApplicationInsights
 
                 //using (logger.BeginScope(state.CreateLoggerScope()))
                 //{
-                logger.LogInformation(operationName);
+                logger.LogDebug(operationName);
 
                 var sw = Stopwatch.StartNew();
-                logger.LogDebug($"{operationName} Starting");
+                logger.LogTrace($"{operationName} Starting");
 
                 var result = await runx(state);
 
                 sw.Stop();
-                logger.LogInformation(operationName + " Finished in {Elapsed:0.0000} ms", sw.ElapsedMilliseconds);
+                logger.LogDebug(operationName + " Finished in {Elapsed:0.0000} ms", sw.ElapsedMilliseconds);
 
                 return result;
                 //}
@@ -171,15 +171,15 @@ namespace SoftwarePioniere.Hosting.ApplicationInsights
 
                 //using (logger.BeginScope(state.CreateLoggerScope()))
                 //{
-                logger.LogInformation(operationName);
+                logger.LogDebug(operationName);
 
                 var sw = Stopwatch.StartNew();
-                logger.LogDebug($"{operationName} Starting");
+                logger.LogTrace($"{operationName} Starting");
 
                 await runx(state);
 
                 sw.Stop();
-                logger.LogInformation(operationName + " Finished in {Elapsed:0.0000} ms", sw.ElapsedMilliseconds);
+                logger.LogDebug(operationName + " Finished in {Elapsed:0.0000} ms", sw.ElapsedMilliseconds);
 
                 //}
             }

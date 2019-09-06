@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using SoftwarePioniere.Builder;
+using SoftwarePioniere.Hosting;
 using SoftwarePioniere.ReadModel;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -16,18 +17,27 @@ namespace WebApp.Controller
     public class HomeController : ControllerBase
     {
         private readonly ILogger<HomeController> _logger;
-
-
+        
         public HomeController(ILogger<HomeController> logger)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
+
         [HttpGet("x")]
         [SwaggerOperation(OperationId = "GetX")]
         public ActionResult<string> GetX()
         {
             _logger.LogDebug("a");
             return "Hallo";
+        }
+        
+        [HttpPost("stop")]
+        [SwaggerOperation(("PostStop"))]
+        public ActionResult<string> PostStop(
+            [FromServices] ISopiApplicationLifetime lifetime)
+        {
+            lifetime.Stop();
+            return "ok";
         }
 
         [HttpPost("postx")]

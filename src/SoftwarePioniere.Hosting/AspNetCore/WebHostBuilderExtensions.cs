@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
@@ -24,8 +25,16 @@ namespace SoftwarePioniere.Hosting.AspNetCore
                 .UseKestrel(k => k.AddServerHeader = false)
                 .ConfigureServices((context, services) =>
                 {
-                    var sopiBuilder = services.AddSopi(context.Configuration);
+                    services.AddScoped<SopiLifetimeActionFilter>();
 
+                    services.Configure<MvcOptions>(options =>
+                    {
+                        options.Filters.Add(typeof(SopiLifetimeActionFilter));
+
+                    });
+
+                    var sopiBuilder = services.AddSopi(context.Configuration);
+                    
                     sopiBuilder
                         .AddPlatformServices()
                         .AddDevOptions()
@@ -36,7 +45,8 @@ namespace SoftwarePioniere.Hosting.AspNetCore
                         .AddMvcServices()
                         .AddClients()
                         ;
-
+                    
+                  
                     configureSopiBuilder(sopiBuilder);
 
                     services.AddHostedService<SopiAppService>();
@@ -47,6 +57,7 @@ namespace SoftwarePioniere.Hosting.AspNetCore
                     {
                         app
                             .UseMiddleware<SerilogMiddleware>()
+                            //.UseMiddleware<SopiLifetimeMiddleware>()
                             .UseSopiHealthChecks()
                             .UseCors()
                             .UseDefaultFiles()

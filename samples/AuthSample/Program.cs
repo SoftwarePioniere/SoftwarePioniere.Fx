@@ -36,7 +36,7 @@ namespace AuthSample
                     services.ConfigureAuth0(context.Configuration);
                     services.AddSingleton<IConfigureOptions<SopiSwaggerOptions>, SwaggerConfig>();
                     
-                    services.AddMvc(MvcConfig.DefaultConfig)
+                    services.AddMvc()
                         .SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
                     services.AddSopiSwagger();

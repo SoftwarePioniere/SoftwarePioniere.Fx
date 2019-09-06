@@ -4,9 +4,13 @@ namespace SoftwarePioniere.Hosting
 {
     public interface ISopiApplicationLifetime
     {
-        CancellationToken CommandHandlerStopped { get; }
+        CancellationToken Stopped { get; }
 
-        void StopCommandHandler();
+        void Stop();
+
+        bool IsStarted { get; }
+
+        bool IsStarting { get; }
 
     }
 }

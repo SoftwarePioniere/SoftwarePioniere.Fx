@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using SoftwarePioniere.Builder;
-using SoftwarePioniere.Extensions.AspNetCore;
 
 namespace SoftwarePioniere.AspNetCore.Builder
 {
@@ -11,7 +10,7 @@ namespace SoftwarePioniere.AspNetCore.Builder
         {
             var services = builder.Services;
 
-            var mvc = services.AddMvc(MvcConfig.DefaultConfig)
+            var mvc = services.AddMvc()
                 .AddJsonOptions(options =>
                 {
                     //      options.SerializerSettings.NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore;
@@ -41,7 +40,7 @@ namespace SoftwarePioniere.AspNetCore.Builder
 
         public static IMvcBuilder GetMvcBuilder(this ISopiBuilder builder)
         {
-            return builder.GetFeature<IMvcBuilder>("MvcBuilder");         
+            return builder.GetFeature<IMvcBuilder>("MvcBuilder");
         }
 
     }

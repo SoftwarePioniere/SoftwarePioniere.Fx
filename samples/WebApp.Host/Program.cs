@@ -3,6 +3,7 @@ using Lib.Hosting;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
+using SoftwarePioniere;
 using SoftwarePioniere.AspNetCore;
 using SoftwarePioniere.AspNetCore.Builder;
 using SoftwarePioniere.Domain;
@@ -25,7 +26,7 @@ namespace WebApp.Host
             AppConfig.SetWebSocketEnvironmentVariables(Constants.NotificationsBaseRouteAuth);
 
 
-            return SopiWebHost.Run(WebHost.CreateDefaultBuilder(args), 
+            return SopiWebHost.Run(WebHost.CreateDefaultBuilder(args),
                 AppConfig.Configure,
                 sopiBuilder =>
                 {
@@ -56,17 +57,23 @@ namespace WebApp.Host
                         .AddSingleton<MyProjector1>()
                         .AddSingleton<IReadModelProjector, MyCompositeProjector1>()
 
+                        .AddSopiService<DelayStartService>()
+
+                    
                         .AddSignalR(options => { options.EnableDetailedErrors = true; })
                         ;
 
-                    
+
                     sopiBuilder.GetMvcBuilder().AddApplicationPart(typeof(HomeController).Assembly);
 
                 },
                 app =>
                 {
                     app.UseVersionInfo(Constants.ApiBaseRoute);
+                    app.UseSopiLifetimeEndpoint(Constants.ApiBaseRoute);
                     app.UseProjectionStatusEndpoint(Constants.ProjectionBaseRoute);
+
+                 //   app.UseSopiLifetime();
 
                     Console.WriteLine("WebSocket Url: {0}", Constants.NotificationsBaseRoute);
                     Console.WriteLine("WebSocket Auth Url: {0}", Constants.NotificationsBaseRouteAuth);
@@ -79,7 +86,7 @@ namespace WebApp.Host
                 },
                 (context, services) =>
                 {
-                  
+
                 }
             );
 
