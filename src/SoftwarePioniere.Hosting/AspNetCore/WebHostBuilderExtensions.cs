@@ -71,7 +71,7 @@ namespace SoftwarePioniere.Hosting.AspNetCore
                     if (configureAppDefault)
                     {
                         app.UseMvc();
-                        app.ApplicationServices.CheckSystemState();
+                      //  app.ApplicationServices.CheckSystemState();
                     }
 
                 });

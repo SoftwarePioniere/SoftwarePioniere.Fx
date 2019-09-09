@@ -55,6 +55,43 @@ namespace SoftwarePioniere.Hosting
             var sw = Stopwatch.StartNew();
             _logger.LogInformation("Starting SopiAppService");
 
+            //connection provider initializier
+            {
+                {
+
+                    var initializers = _provider.GetServices<IConnectionProvider>().ToList();
+                    if (initializers.Count > 0)
+                    {
+                        _logger.LogInformation("Starting ConnectionProvider Initialization");
+                        var sw1 = Stopwatch.StartNew();
+                        var done = new List<Type>();
+
+                        foreach (var initializer in initializers)
+                        {
+                            if (!done.Contains(initializer.GetType()))
+                            {
+
+                                _logger.LogInformation("Initialize IConnectionProvider {ConnectionProvider}", initializer.GetType().FullName);
+                                try
+                                {
+                                    await Policy
+                                        .Handle<Exception>()
+                                        .WaitAndRetryAsync(5, i => TimeSpan.FromSeconds(i * 0.5))
+                                        .ExecuteAsync(() => initializer.InitializeAsync(stoppingToken));
+                                }
+                                catch (Exception e)
+                                {
+                                    _logger.LogCritical(e, "{Type} {Inner}", initializer.GetType().FullName, GetInnerExceptionMessage(e));
+                                }
+                                done.Add(initializer.GetType());
+                            }
+                        }
+                        sw1.Stop();
+                        _logger.LogInformation("ConnectionProvider Initialization Finished in {Elapsed:0.0000} ms", sw1.ElapsedMilliseconds);
+                    }
+                }
+            }
+
             //eventstore initializer
             {
 

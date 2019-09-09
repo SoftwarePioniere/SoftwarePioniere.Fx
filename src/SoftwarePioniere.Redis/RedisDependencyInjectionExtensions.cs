@@ -2,7 +2,7 @@
 using Foundatio.Caching;
 using Foundatio.Messaging;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
+using SoftwarePioniere.Hosting;
 using SoftwarePioniere.Messaging;
 using SoftwarePioniere.Redis;
 using SoftwarePioniere.Redis.Queues;
@@ -13,16 +13,38 @@ namespace Microsoft.Extensions.DependencyInjection
 {
     public static class RedisDependencyInjectionExtensions
     {
-        
-        public static IServiceCollection AddRedisMessageBus(this IServiceCollection services, string topic, Action<RedisOptions> configureOptions)
+        public static IServiceCollection AddRedis(this IServiceCollection services, Action<RedisOptions> configureOptions)
         {
             services
                 .AddOptions()
                 .Configure(configureOptions);
 
             services
-               .AddSingleton(p => ConnectionMultiplexer.Connect(p.GetRequiredService<IOptions<RedisOptions>>().Value.ConnectionString))
-               .AddSingleton<IConnectionMultiplexer>(c => c.GetRequiredService<ConnectionMultiplexer>())
+                .AddSingleton<RedisConnectionProvider>()
+                .AddSingleton<IConnectionProvider>(p => p.GetRequiredService<RedisConnectionProvider>())
+
+                .AddSingleton(p => p.GetRequiredService<RedisConnectionProvider>().Connection)
+
+              //  .AddSingleton(p => ConnectionMultiplexer.Connect(p.GetRequiredService<IOptions<RedisOptions>>().Value.ConnectionString))
+                
+                .AddSingleton<IConnectionMultiplexer>(c => c.GetRequiredService<ConnectionMultiplexer>())
+
+                //.AddSingleton(p => ConnectionMultiplexer.Connect(p.GetRequiredService<IOptions<RedisOptions>>().Value.ConnectionString))
+                //.AddSingleton<IConnectionMultiplexer>(c => c.GetRequiredService<ConnectionMultiplexer>())
+                ;
+
+
+            return services;
+
+        }
+
+        public static IServiceCollection AddRedisMessageBus(this IServiceCollection services, string topic, Action<RedisOptions> configureOptions)
+        {
+
+            services.AddRedis(configureOptions);
+
+            services
+
                .AddSingleton<IQueueFactory, RedisQueueFactory>()
                ;
 
@@ -40,23 +62,22 @@ namespace Microsoft.Extensions.DependencyInjection
             return services;
         }
 
-        
+
         public static IServiceCollection AddRedisCacheClient(this IServiceCollection services,
             Action<RedisOptions> configureOptions)
         {
-            services
-                .AddOptions()
-                .Configure(configureOptions);
-
-            services
-               .AddSingleton(p => ConnectionMultiplexer.Connect(p.GetRequiredService<IOptions<RedisOptions>>().Value.ConnectionString))
-               .AddSingleton<IConnectionMultiplexer>(c => c.GetRequiredService<ConnectionMultiplexer>())
-               ;
+            services.AddRedis(configureOptions);
 
             services.AddSingleton<ICacheClient>(p =>
                 new RedisCacheClient(o =>
                     o.LoggerFactory(p.GetRequiredService<ILoggerFactory>())
-                        .ConnectionMultiplexer(p.GetRequiredService<ConnectionMultiplexer>())
+                        .ConnectionMultiplexer(
+
+                            p.GetRequiredService<RedisConnectionProvider>().Connection
+
+                            //p.GetRequiredService<ConnectionMultiplexer>()
+
+                            )
                 ));
 
             return services;
