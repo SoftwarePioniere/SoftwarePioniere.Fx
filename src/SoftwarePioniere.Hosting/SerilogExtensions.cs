@@ -64,7 +64,7 @@ namespace SoftwarePioniere.Hosting
                                 .WriteTo.File(logFile, rollingInterval: RollingInterval.Day, outputTemplate: options.Template)
                 ;
 
-            if (string.Equals(Environment.GetEnvironmentVariable(Microsoft.AspNetCore.Hosting.WebHostDefaults.EnvironmentKey), Microsoft.AspNetCore.Hosting.EnvironmentName.Development))
+            if (string.Equals(Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT"), Microsoft.AspNetCore.Hosting.EnvironmentName.Development))
             {
                 loggerConfiguration.WriteTo.LiterateConsole(outputTemplate: options.Template);
 
