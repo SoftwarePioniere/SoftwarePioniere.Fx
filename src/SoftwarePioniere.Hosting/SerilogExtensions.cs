@@ -49,7 +49,6 @@ namespace SoftwarePioniere.Hosting
             var logFile = Path.Combine(options.LogDir, "log.txt");
             Console.WriteLine($"ConfigureSerilog:: LogFile: {logFile}");
 
-
             loggerConfiguration
                 .MinimumLevel.Is(minLevel)
                 .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
@@ -62,9 +61,14 @@ namespace SoftwarePioniere.Hosting
                 .Enrich.WithProperty("Assembly", assembly?.FullName)
                 .Enrich.WithProperty("AppId", sopiOptions.AppId)
                 .Enrich.WithProperty("AppVersion", version)
-                .WriteTo.LiterateConsole(outputTemplate: options.Template)
-                .WriteTo.File(logFile, rollingInterval: RollingInterval.Day, outputTemplate: options.Template)
+                                .WriteTo.File(logFile, rollingInterval: RollingInterval.Day, outputTemplate: options.Template)
                 ;
+
+            if (string.Equals(Environment.GetEnvironmentVariable(Microsoft.AspNetCore.Hosting.WebHostDefaults.EnvironmentKey), Microsoft.AspNetCore.Hosting.EnvironmentName.Development))
+            {
+                loggerConfiguration.WriteTo.LiterateConsole(outputTemplate: options.Template);
+
+            }
 
             if (options.UseSeq)
             {

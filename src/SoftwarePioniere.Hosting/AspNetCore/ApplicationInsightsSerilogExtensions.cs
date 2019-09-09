@@ -13,7 +13,8 @@ namespace SoftwarePioniere.Hosting.AspNetCore
 
             var appInsightsKey = config.GetSection("ApplicationInsights").GetValue<string>("InstrumentationKey");
 
-            return config.CreateSerilogger(logggerConfiguration =>
+            return config.CreateSerilogger(
+                logggerConfiguration =>
             {
                 setupAction?.Invoke(logggerConfiguration);
 

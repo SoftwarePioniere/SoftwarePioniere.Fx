@@ -18,7 +18,7 @@ namespace SoftwarePioniere.Hosting
             var config = builder.Config;
 
             builder.Services.AddCachingOptions();
-            
+
             Console.WriteLine($"Fliegel 365 MessageBus Config Value: {builder.Options.MessageBus}");
             switch (builder.Options.MessageBus)
             {
@@ -87,7 +87,6 @@ namespace SoftwarePioniere.Hosting
             services
                 .AddOptions()
                 .Configure(configureOptions);
-
 
             services.AddSingleton<IMessageBus>(p =>
             {

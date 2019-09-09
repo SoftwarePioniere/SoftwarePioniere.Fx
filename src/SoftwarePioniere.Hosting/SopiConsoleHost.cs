@@ -9,6 +9,9 @@ using SoftwarePioniere.Builder;
 
 namespace SoftwarePioniere.Hosting
 {
+
+
+
     public static class SopiConsoleHost
     {
         public static int Run(Action<IConfigurationBuilder> configBuilderAction,
@@ -25,10 +28,14 @@ namespace SoftwarePioniere.Hosting
                     var path = Path.GetDirectoryName(ass.Location);
                     Console.WriteLine("Setting config base Path {0}", path);
                     b.SetBasePath(path);
-                    
+
                 }
             }, configBuilderAction);
-            var logger = config.CreateSerilogger().ForContext(typeof(SopiConsoleHost));
+
+            var logger = config
+                .CreateSerilogger()
+                .ForContext(typeof(SopiConsoleHost));
+
 
             try
             {
