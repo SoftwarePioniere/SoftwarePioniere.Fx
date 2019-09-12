@@ -12,7 +12,12 @@ namespace SoftwarePioniere.Hosting
         {
             if (!_commandHandlerCts.IsCancellationRequested)
                 _commandHandlerCts.Cancel();
+
+            IsStarted = false;
+            IsStarting = false;
         }
+
+        public bool IsStopped => Stopped.IsCancellationRequested;
 
         public bool IsStarted { get; set; }
         public bool IsStarting { get; set; }

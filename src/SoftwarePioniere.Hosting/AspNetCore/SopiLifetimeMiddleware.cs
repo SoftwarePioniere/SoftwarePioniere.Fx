@@ -58,7 +58,7 @@ namespace SoftwarePioniere.Hosting.AspNetCore
         {
             var lifetime = context.HttpContext.RequestServices.GetRequiredService<ISopiApplicationLifetime>();
 
-            if (lifetime.IsStarting || !lifetime.IsStarted || lifetime.Stopped.IsCancellationRequested)
+            if (lifetime.IsStarting || !lifetime.IsStarted || lifetime.IsStopped)
             {
                 var text = "SopiAppService ";
 
@@ -66,8 +66,8 @@ namespace SoftwarePioniere.Hosting.AspNetCore
                     text = string.Concat(text, "starting");
                 else if (!lifetime.IsStarted)
                     text = string.Concat(text, "not started");
-                else if (lifetime.Stopped.IsCancellationRequested)
-                    text = string.Concat(text, "commandhandlerstopped");
+                else if (lifetime.IsStopped)
+                    text = string.Concat(text, "stopped");
 
                 var result = new ObjectResult(text) { StatusCode = (int)HttpStatusCode.ServiceUnavailable };
                 context.Result = result;
@@ -100,8 +100,8 @@ namespace SoftwarePioniere.Hosting.AspNetCore
                             await context.Response.WriteAsync("started", Encoding.UTF8);
                         if (lifetime.IsStarting)
                             await context.Response.WriteAsync("starting", Encoding.UTF8);
-                        if (lifetime.Stopped.IsCancellationRequested)
-                            await context.Response.WriteAsync("commandhandlerstopped", Encoding.UTF8);
+                        if (lifetime.IsStopped)
+                            await context.Response.WriteAsync("stopped", Encoding.UTF8);
 
 
                     });
