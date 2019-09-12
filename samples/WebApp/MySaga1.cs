@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Foundatio.Lock;
 using Microsoft.Extensions.Logging;
 using SoftwarePioniere.Domain;

@@ -2,13 +2,17 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Foundatio.Lock;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using SoftwarePioniere.Hosting;
 using SoftwarePioniere.Messaging;
 
 namespace SoftwarePioniere.Domain
 {
     public abstract class SagaBase2 : ISaga
     {
+        protected ISagaServices Services { get; }
+
         protected readonly IMessageBusAdapter Bus;
 
         protected readonly ILogger Logger;
@@ -19,6 +23,8 @@ namespace SoftwarePioniere.Domain
             {
                 throw new ArgumentNullException(nameof(loggerFactory));
             }
+
+            Services = services;
 
             Logger = loggerFactory.CreateLogger(GetType());
             Bus = services.Bus;
@@ -34,9 +40,10 @@ namespace SoftwarePioniere.Domain
 
         protected abstract Task RegisterMessagesAsync();
 
-        public Task StartAsync(CancellationToken cancellationToken)
+        public virtual Task StartAsync(CancellationToken cancellationToken)
         {
-            CancellationToken = cancellationToken;
+            var sopiLifetime = Services.ServiceProvider.GetRequiredService<ISopiApplicationLifetime>();
+            CancellationToken = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, sopiLifetime.Stopped).Token;
             return RegisterMessagesAsync();
         }
     }

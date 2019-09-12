@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
-using Serilog.Core;
 using SoftwarePioniere.Builder;
 
 namespace SoftwarePioniere.Hosting.AspNetCore

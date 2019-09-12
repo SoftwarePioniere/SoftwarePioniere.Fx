@@ -1,4 +1,5 @@
-﻿using Foundatio.Lock;
+﻿using System;
+using Foundatio.Lock;
 using SoftwarePioniere.Messaging;
 
 namespace SoftwarePioniere.Domain
@@ -9,5 +10,6 @@ namespace SoftwarePioniere.Domain
         IRepository Repository { get; }
         ILockProvider LockProvider { get; }
         IPersistentSubscriptionFactory PersistentSubscriptionFactory { get; }
+        IServiceProvider ServiceProvider { get; }
     }
 }
