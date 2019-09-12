@@ -3,9 +3,11 @@ using Lib.Hosting;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using SoftwarePioniere;
 using SoftwarePioniere.AspNetCore;
 using SoftwarePioniere.AspNetCore.Builder;
+using SoftwarePioniere.Builder;
 using SoftwarePioniere.Domain;
 using SoftwarePioniere.Extensions.AspNetCore.Swagger;
 using SoftwarePioniere.Hosting;
@@ -59,7 +61,7 @@ namespace WebApp.Host
 
                         .AddSopiService<DelayStartService>()
 
-                    
+
                         .AddSignalR(options => { options.EnableDetailedErrors = true; })
                         ;
 
@@ -69,14 +71,15 @@ namespace WebApp.Host
                 },
                 app =>
                 {
+                    var logger = app.ApplicationServices.GetStartupLogger();
+
                     app.UseVersionInfo(Constants.ApiBaseRoute);
                     app.UseSopiLifetimeEndpoint(Constants.ApiBaseRoute);
                     app.UseProjectionStatusEndpoint(Constants.ProjectionBaseRoute);
 
-                 //   app.UseSopiLifetime();
-
-                    Console.WriteLine("WebSocket Url: {0}", Constants.NotificationsBaseRoute);
-                    Console.WriteLine("WebSocket Auth Url: {0}", Constants.NotificationsBaseRouteAuth);
+                    //   app.UseSopiLifetime();
+                    logger.LogInformation("WebSocket Url: {WebSocketUrl}", Constants.NotificationsBaseRoute);
+                    logger.LogInformation("WebSocket AuthUrl: {WebSocketUrl}", Constants.NotificationsBaseRouteAuth);
 
                     app.UseSignalR(routes =>
                     {

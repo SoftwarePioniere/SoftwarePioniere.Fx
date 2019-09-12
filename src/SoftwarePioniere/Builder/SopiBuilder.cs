@@ -8,16 +8,28 @@ namespace SoftwarePioniere.Builder
 {
     public class SopiBuilder : ISopiBuilder
     {
+        private readonly Action<string> _log;
         public IServiceCollection Services { get; }
         public IDictionary<string, object> Features { get; } = new Dictionary<string, object>();
         //public object MvcBuilder { get; set; }
         public SopiOptions Options { get; set; }
         public IConfiguration Config { get; set; }
         public string Version { get; }
+
+        
+        public void Log(string message)
+        {
+            if (_log == null)
+                Console.WriteLine(message);
+            else
+                _log(message);
+        }
+
         //public object HealthChecksBuilder { get; set; }
 
-        public SopiBuilder(IServiceCollection services)
+        public SopiBuilder(IServiceCollection services, Action<string> log = null)
         {
+            _log = log;
             //      AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
             Services = services ?? throw new ArgumentNullException(nameof(services));
             var assembly = Assembly.GetEntryAssembly();

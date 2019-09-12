@@ -28,39 +28,39 @@ namespace SoftwarePioniere.Hosting
             var config = builder.Config;
 
 
-            Console.WriteLine($"Fliegel 365 EntityStore Config Value: {builder.Options.EntityStore}");
+            builder.Log($"EntityStore Config Value: {builder.Options.EntityStore}");
             switch (builder.Options.EntityStore)
             {
                 case SopiOptions.EntityStoreMongoDb:
 
-                    Console.WriteLine("Adding MongoDb EntityStore");
+                    builder.Log("Adding MongoDb EntityStore");
                     builder.AddMongoDbEntityStore(c => config.Bind("MongoDb", c));
                     builder.Services.PostConfigure<MongoDbOptions>(options =>
                     {
-                        Console.WriteLine("Configuring MongoDb EntityStore Options");
+                        builder.Log("Configuring MongoDb EntityStore Options");
                         options.DatabaseId = CreateDatabaseId(builder);
-                        Console.WriteLine($"New MongoDb DatabaseId {options.DatabaseId}");
+                        builder.Log($"New MongoDb DatabaseId {options.DatabaseId}");
 
                     });
                     break;
 
 
                 case SopiOptions.EntityStoreAzureCosmosDb:
-                    Console.WriteLine("Adding AzureCosmosDb EntityStore");
+                    builder.Log("Adding AzureCosmosDb EntityStore");
                     builder.AddAzureCosmosDbEntityStore(c => config.Bind("AzureCosmosDb", c));
                     builder.Services.PostConfigure<AzureCosmosDbOptions>(options =>
                     {
                         if (string.IsNullOrEmpty(options.CollectionId))
                         {
-                            Console.WriteLine("Configuring AzureCosmosDb EntityStore Options");
+                            builder.Log("Configuring AzureCosmosDb EntityStore Options");
                             options.CollectionId = CreateDatabaseId(builder);
-                            Console.WriteLine($"New AzureCosmosDb CollectionId {options.CollectionId}");
+                            builder.Log($"New AzureCosmosDb CollectionId {options.CollectionId}");
                         }
                     });
                     break;
 
                 default:
-                    Console.WriteLine("Adding InMemory EntityStore");
+                    builder.Log("Adding InMemory EntityStore");
                     builder.AddInMemoryEntityStore();
                     break;
 

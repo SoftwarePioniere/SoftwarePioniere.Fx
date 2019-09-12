@@ -3,6 +3,7 @@ using System.IO;
 using System.Reflection;
 using Microsoft.Extensions.Configuration;
 using Serilog;
+using Serilog.Core;
 using Serilog.Events;
 using SoftwarePioniere.Builder;
 
@@ -10,12 +11,13 @@ namespace SoftwarePioniere.Hosting
 {
     public static class SerilogExtensions
     {
-        public static ILogger CreateSerilogger(this IConfiguration config, Action<LoggerConfiguration> setupAction = null)
+        public static ILogger CreateSerilogger(this IConfiguration config, Action<LoggerConfiguration> setupAction = null, string sourceContext = "Startup")
         {
             Console.WriteLine("CreateSerilogger");
             var loggerConfig = new LoggerConfiguration();
             loggerConfig.ConfigureSerilog(config, setupAction);
-            var logger = loggerConfig.CreateLogger();
+            var logger = loggerConfig.CreateLogger()
+                .ForContext(Constants.SourceContextPropertyName, sourceContext);
             Log.Logger = logger;
             return logger;
         }

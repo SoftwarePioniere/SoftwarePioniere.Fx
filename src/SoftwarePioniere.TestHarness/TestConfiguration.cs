@@ -9,9 +9,7 @@ namespace SoftwarePioniere
     {
         public TestConfiguration(Action<IConfigurationBuilder> config = null)
         {
-            //   Console.WriteLine($"AppContext.BaseDirectory: {AppContext.BaseDirectory}");
             var basePath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..");
-            // Console.WriteLine($"Base Path: {basePath}");
             var fullPath = Path.GetFullPath(basePath);
             Console.WriteLine($"TestConfiguration BasePath: {fullPath}");
 

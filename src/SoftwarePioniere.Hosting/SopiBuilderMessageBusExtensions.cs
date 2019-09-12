@@ -19,26 +19,26 @@ namespace SoftwarePioniere.Hosting
 
             builder.Services.AddCachingOptions();
 
-            Console.WriteLine($"Fliegel 365 MessageBus Config Value: {builder.Options.MessageBus}");
+            builder.Log($"MessageBus Config Value: {builder.Options.MessageBus}");
             switch (builder.Options.MessageBus)
             {
                 case SopiOptions.MessageBusRedis:
-                    Console.WriteLine("Adding Redis Message Bus");
+                    builder.Log("Adding Redis Message Bus");
                     builder.AddRedisMessageBus(c => config.Bind("Redis", c));
                     break;
 
                 case SopiOptions.MessageBusAzureServiceBus:
-                    Console.WriteLine("Adding AzureServiceBus Message Bus");
+                    builder.Log("Adding AzureServiceBus Message Bus");
                     builder.AddAzureMessageBus(c => config.Bind("AzureServiceBus", c));
                     break;
 
                 //case SopiOptions.MessageBusRabbitMq:
-                //    Console.WriteLine("Adding RabbitMQ Message Bus");
+                //    builder.Log("Adding RabbitMQ Message Bus");
                 //    builder.AddRabbitMqMessageBus(c => config.Bind("RabbitMQ", c));
                 //    break;
 
                 default:
-                    Console.WriteLine("Adding InMemory Bus");
+                    builder.Log("Adding InMemory Bus");
                     builder.AddInMemoryMessageBus();
                     break;
             }

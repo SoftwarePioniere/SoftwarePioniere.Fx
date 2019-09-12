@@ -13,20 +13,20 @@ namespace SoftwarePioniere.Hosting
         {
             var config = builder.Config;
 
-            Console.WriteLine($"Fliegel 365 Storage Config Value: {builder.Options.Storage}");
+            builder.Log($"Storage Config Value: {builder.Options.Storage}");
             switch (builder.Options.Storage)
             {
                 case SopiOptions.StorageFolder:
-                    Console.WriteLine("Adding Folder Storage");
+                    builder.Log("Adding Folder Storage");
                     builder.AddFolderStorage(c => config.Bind("FolderStorage", c));
                     break;
 
                 case SopiOptions.StorageAzureStorage:
-                    Console.WriteLine("Adding Azure Storage");
+                    builder.Log("Adding Azure Storage");
                     builder.AddAzureStorage(c => config.Bind("AzureStorage", c));
                     break;
                 default:
-                    Console.WriteLine("Adding InMemory Storage");
+                    builder.Log("Adding InMemory Storage");
                     builder.AddInMemoryStorage();
                     break;
             }

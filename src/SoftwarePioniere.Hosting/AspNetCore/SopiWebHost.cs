@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
+using Serilog.Core;
 using SoftwarePioniere.Builder;
 
 namespace SoftwarePioniere.Hosting.AspNetCore
@@ -18,14 +19,17 @@ namespace SoftwarePioniere.Hosting.AspNetCore
         {
             var config = AppConfiguration.CreateConfiguration(configBuilderAction);
 
-            var logger = config.CreateSeriloggerWithApplicationInsights().ForContext(typeof(SopiWebHost));
+            var logger = config.CreateSeriloggerWithApplicationInsights()
+                //.ForContext(typeof(SopiWebHost))
+                //.ForContext(Constants.SourceContextPropertyName, "Startup")
+                ;
 
             try
             {
                 logger.Debug("Starting Building Host");
 
                 //var builder = WebHost.CreateDefaultBuilder(args)
-                webHostBuilder.UseSopi(configBuilderAction, configureBuilder, configureApp, configureAppDefault);
+                webHostBuilder.UseSopi(configBuilderAction, configureBuilder, configureApp, configureAppDefault, Log.Information);
 
                 if (configureServices != null)
                 {

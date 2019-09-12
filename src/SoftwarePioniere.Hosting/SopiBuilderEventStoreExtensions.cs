@@ -13,11 +13,11 @@ namespace SoftwarePioniere.Hosting
         {
             var config = builder.Config;
 
-            Console.WriteLine($"Fliegel 365 DomainEventStore Config Value: {builder.Options.DomainEventStore}");
+            builder.Log($"DomainEventStore Config Value: {builder.Options.DomainEventStore}");
             switch (builder.Options.DomainEventStore)
             {
                 case SopiOptions.DomainEventStoreEventStore:
-                    Console.WriteLine("Adding AddDomainEventStore");
+                    builder.Log("Adding AddDomainEventStore");
                     builder.AddDomainEventStore(c => config.Bind("EventStore", c));
                     break;
             }

@@ -78,7 +78,7 @@ namespace WebApp
             //var message = JsonConvert.DeserializeObject<TourDefinitionZeitAngelegtEvent>(model.TourDefinitionZeitAngelegtEvent);
             //  await TourenAnlegenAsync(message, state);
 
-            Console.WriteLine(model.TourDefinitionId);
+            Logger.LogInformation(model.TourDefinitionId);
 
             return Task.CompletedTask;
         }

@@ -39,16 +39,16 @@ namespace SoftwarePioniere.Hosting
             builder.Services.AddCachingOptions(c => config.Bind("Caching"));
 
 
-            Console.WriteLine($"Sopi CacheClient Config Value: {builder.Options.CacheClient}");
+            builder.Log($"Sopi CacheClient Config Value: {builder.Options.CacheClient}");
             switch (builder.Options.CacheClient)
             {
                 case SopiOptions.CacheRedis:
-                    Console.WriteLine("Adding Redis CacheClient");
+                    builder.Log("Adding Redis CacheClient");
                     builder.AddRedisCacheClient(c => config.Bind("Redis", c));
                     break;
 
                 default:
-                    Console.WriteLine("Adding InMemory CacheClient");
+                    builder.Log("Adding InMemory CacheClient");
                     builder.AddInMemoryCacheClient();
                     break;
             }

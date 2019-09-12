@@ -15,5 +15,7 @@ namespace SoftwarePioniere.Builder
         IConfiguration Config { get; set; }
 
         string Version { get; }
+
+        void Log(string message);
     }
 }

@@ -17,7 +17,8 @@ namespace SoftwarePioniere.Hosting.AspNetCore
             Action<IConfigurationBuilder> configureConfigurationBuilder,
             Action<ISopiBuilder> configureSopiBuilder,
             Action<IApplicationBuilder> configureApp,
-            bool configureAppDefault = true)
+            bool configureAppDefault = true,
+            Action<string> log = null)
         {
             webHostBuilder.ConfigureAppConfiguration(configureConfigurationBuilder)
                 .UseSerilog()
@@ -33,7 +34,7 @@ namespace SoftwarePioniere.Hosting.AspNetCore
 
                     });
 
-                    var sopiBuilder = services.AddSopi(context.Configuration);
+                    var sopiBuilder = services.AddSopi(context.Configuration, log);
                     
                     sopiBuilder
                         .AddPlatformServices()
@@ -46,7 +47,6 @@ namespace SoftwarePioniere.Hosting.AspNetCore
                         .AddClients()
                         ;
                     
-                  
                     configureSopiBuilder(sopiBuilder);
 
                     services.AddHostedService<SopiAppService>();

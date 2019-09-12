@@ -8,7 +8,7 @@ namespace SoftwarePioniere.Hosting
 {
     public static class SopiServiceCollectionExtensions
     {
-        public static ISopiBuilder AddSopi(this IServiceCollection services, IConfiguration config)
+        public static ISopiBuilder AddSopi(this IServiceCollection services, IConfiguration config, Action<string> log = null)
         {
             if (services == null)
             {
@@ -25,14 +25,14 @@ namespace SoftwarePioniere.Hosting
             //    throw new ArgumentNullException(nameof(setupAction));
             //}
 
-            var sopiBuilder = services.AddSopi();
+            var sopiBuilder = services.AddSopi(log);
             sopiBuilder.AddConfiguration(config);
 
 
             return sopiBuilder;
         }
 
-        private static ISopiBuilder AddSopi(this IServiceCollection services)
+        private static ISopiBuilder AddSopi(this IServiceCollection services, Action<string> log = null)
         {
             if (services == null)
             {
@@ -46,7 +46,7 @@ namespace SoftwarePioniere.Hosting
                     c.RaiseCommandFailed = false;
                 });
 
-            return new SopiBuilder(services);
+            return new SopiBuilder(services, log);
         }
     }
 }
