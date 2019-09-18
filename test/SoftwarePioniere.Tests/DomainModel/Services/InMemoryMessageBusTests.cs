@@ -1,7 +1,12 @@
 ﻿using System.Threading.Tasks;
+using Foundatio.Caching;
+using Foundatio.Lock;
 using Foundatio.Messaging;
 using Microsoft.Extensions.DependencyInjection;
+using SoftwarePioniere.Domain;
 using SoftwarePioniere.DomainModel;
+using SoftwarePioniere.Hosting;
+using SoftwarePioniere.Messaging;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -11,10 +16,19 @@ namespace SoftwarePioniere.Tests.DomainModel.Services
     {
         public InMemoryMessageBusTests(ITestOutputHelper output) : base(output)
         {
-            ServiceCollection.AddSingleton<IMessageBus>(new InMemoryMessageBus(new InMemoryMessageBusOptions()
-            {                
-                LoggerFactory = Log                
-            }));
+            ServiceCollection
+                .AddSingleton<ISagaServices, SagaServices>()
+                .AddSingleton<IMessageBusAdapter, DefaultMessageBusAdapter>()
+                .AddSingleton<ISopiApplicationLifetime, SopiApplicationLifetime>()
+                .AddSingleton<IRepository, Repository>()
+                .AddSingleton<IEventStore, InMemoryEventStore>()
+                .AddSingleton<ICacheClient, InMemoryCacheClient>()
+                .AddSingleton<ILockProvider, CacheLockProvider>()
+                .AddSingleton<IPersistentSubscriptionFactory, NullPersistentSubscriptionFactory>()
+                .AddSingleton<IMessageBus>(new InMemoryMessageBus(new InMemoryMessageBusOptions()
+                {
+                    LoggerFactory = Log
+                }));
         }
 
         [Fact]
