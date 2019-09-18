@@ -20,7 +20,16 @@ namespace SoftwarePioniere.Hosting.AspNetCore
             bool configureAppDefault = true,
             Action<string> log = null)
         {
-            webHostBuilder.ConfigureAppConfiguration(configureConfigurationBuilder)
+            var devProvider = new DevOptionsConfigurationProvider();
+
+
+            webHostBuilder
+                .ConfigureAppConfiguration(builder =>
+                {
+                    builder.Add(new DevOptionsConfigurationSource(devProvider));
+                    configureConfigurationBuilder(builder);
+                })
+
                 .UseSerilog()
                 .UseApplicationInsights()
                 .UseKestrel(k => k.AddServerHeader = false)
@@ -32,10 +41,14 @@ namespace SoftwarePioniere.Hosting.AspNetCore
                     {
                         options.Filters.Add(typeof(SopiLifetimeActionFilter));
 
+                        if (context.HostingEnvironment.IsDevelopment())
+                            options.Filters.Add(typeof(SopiDevOptionsActionFilter));
                     });
 
-                    var sopiBuilder = services.AddSopi(context.Configuration, log);
+                    services.AddSingleton(devProvider);
                     
+                    var sopiBuilder = services.AddSopi(context.Configuration, log);
+
                     sopiBuilder
                         .AddPlatformServices()
                         .AddDevOptions()
@@ -46,7 +59,7 @@ namespace SoftwarePioniere.Hosting.AspNetCore
                         .AddMvcServices()
                         .AddClients()
                         ;
-                    
+
                     configureSopiBuilder(sopiBuilder);
 
                     services.AddHostedService<SopiAppService>();
@@ -56,7 +69,8 @@ namespace SoftwarePioniere.Hosting.AspNetCore
                     if (configureAppDefault)
                     {
                         app
-                            .UseMiddleware<SerilogMiddleware>()
+                            .UseSerilogRequestLogging()
+                            //  .UseMiddleware<SerilogMiddleware>()
                             //.UseMiddleware<SopiLifetimeMiddleware>()
                             .UseSopiHealthChecks()
                             .UseCors()
@@ -71,7 +85,7 @@ namespace SoftwarePioniere.Hosting.AspNetCore
                     if (configureAppDefault)
                     {
                         app.UseMvc();
-                      //  app.ApplicationServices.CheckSystemState();
+                        //  app.ApplicationServices.CheckSystemState();
                     }
 
                 });

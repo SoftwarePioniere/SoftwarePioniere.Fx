@@ -7,6 +7,7 @@ using Foundatio.Messaging;
 using Microsoft.Extensions.Logging;
 using SoftwarePioniere.Domain;
 using SoftwarePioniere.Hosting;
+using SoftwarePioniere.Messaging.Notifications;
 using SoftwarePioniere.Telemetry;
 
 namespace SoftwarePioniere.Messaging
@@ -16,6 +17,7 @@ namespace SoftwarePioniere.Messaging
         private readonly IMessageBus _bus;
         //private readonly ITelemetryAdapter _telemetryAdapter;
         private readonly ISopiApplicationLifetime _applicationLifetime;
+
 
         private readonly ILogger _logger;
 
@@ -30,6 +32,7 @@ namespace SoftwarePioniere.Messaging
             _bus = bus ?? throw new ArgumentNullException(nameof(bus));
             //_telemetryAdapter = telemetryAdapter ?? throw new ArgumentNullException(nameof(telemetryAdapter));
             _applicationLifetime = applicationLifetime;
+
         }
 
         private bool LogError(Exception ex)
@@ -137,10 +140,22 @@ namespace SoftwarePioniere.Messaging
                     //if (!wrappedMessage.IsWrappedType<T>())
                     //    return;
 
+                    var state = message.CreateState();
+
                     //var message = wrappedMessage.GetWrappedMessage<T>();
                     //var state = wrappedMessage.Properties ?? new Dictionary<string, string>();
 
-                    await handler(message);
+                    try
+                    {
+                        await handler(message);
+                        await PublishAsync(CommandSucceededNotification.Create(message, state), cancellationToken: token);
+                    }
+                    catch (Exception e)
+                    {
+                        _logger.LogError(e, "Error on handling Command {MessageType} @{Message}", typeof(T), message);
+                        await PublishAsync(CommandFailedNotification.Create(message, e, state), cancellationToken: token);
+                    }
+
                 },
                 //wrapper =>
                 //{
@@ -217,6 +232,22 @@ namespace SoftwarePioniere.Messaging
             try
             {
 
+                //if (_devOptionsSnapshot.Value.RaiseCommandFailed)
+                //{
+                //    _logger.LogInformation("Raising Command Failed from DevOptions");
+
+                //    var msg = CommandFailedNotification.Create(cmd,
+                //        new Exception("CommandFailed from DevOptions"), new Dictionary<string, string>());
+
+                //    await _bus.PublishAsync(msg);
+
+                //    return new MessageResponse
+                //    {
+                //        UserId = cmd.UserId,
+                //        MessageId = cmd.Id
+                //    };
+                //}
+
                 await _bus.PublishAsync(cmd);
 
                 var x = new MessageResponse
@@ -227,6 +258,8 @@ namespace SoftwarePioniere.Messaging
                 x.Properties.Merge(cmd.CreateState());
 
                 return x;
+
+
             }
             catch (Exception e) when (LogError(e))
             {

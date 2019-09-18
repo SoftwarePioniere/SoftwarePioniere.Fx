@@ -50,7 +50,7 @@ namespace SoftwarePioniere.Hosting.AspNetCore
             }
         }
     }
-
+    
     public class SopiLifetimeActionFilter : IAsyncActionFilter
     {
 

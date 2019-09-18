@@ -7,8 +7,6 @@ using System.Threading.Tasks;
 using Foundatio.Messaging;
 using Microsoft.ApplicationInsights;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using SoftwarePioniere.Builder;
 using SoftwarePioniere.Domain;
 using SoftwarePioniere.Messaging;
 using SoftwarePioniere.Messaging.Notifications;
@@ -20,41 +18,30 @@ namespace SoftwarePioniere.Hosting.ApplicationInsights
     public class AppInsightsTelemetryMessageBusAdapter : IMessageBusAdapter
     {
         private readonly IMessageBus _bus;
-        private readonly IOptions<DevOptions> _devOptions;
         //  private readonly IApplicationLifetime _applicationLifetime;
-        private readonly IOptions<SopiOptions> _fliegel365Options;
         private readonly ILogger _logger;
         private readonly AppInsightsTelemetryAdapter _telemetryAdapter;
 
 
         public AppInsightsTelemetryMessageBusAdapter(ILoggerFactory loggerFactory, IMessageBus bus
             , AppInsightsTelemetryAdapter telemetryAdapter
-            , IOptions<SopiOptions> sopiOptions
-            , IOptions<DevOptions> devOptions
-        //  , IApplicationLifetime applicationLifetime
         )
         {
-
             if (loggerFactory == null)
             {
                 throw new ArgumentNullException(nameof(loggerFactory));
             }
 
             _bus = bus ?? throw new ArgumentNullException(nameof(bus));
-
             _telemetryAdapter = telemetryAdapter ?? throw new ArgumentNullException(nameof(telemetryAdapter));
-
             _logger = loggerFactory.CreateLogger(GetType());
+        }
 
-            _fliegel365Options = sopiOptions ?? throw new ArgumentNullException(nameof(sopiOptions));
-            _devOptions = devOptions ?? throw new ArgumentNullException(nameof(devOptions));
-         }
-      
 
-       public async Task PublishAsync(Type messageType, object message, TimeSpan? delay = null,
-            CancellationToken cancellationToken = new CancellationToken()
-            //,IDictionary<string, string> parentState = null
-            )
+        public async Task PublishAsync(Type messageType, object message, TimeSpan? delay = null,
+             CancellationToken cancellationToken = new CancellationToken()
+             //,IDictionary<string, string> parentState = null
+             )
         {
             var state = new Dictionary<string, string>();
             //state.Merge(parentState);
@@ -183,32 +170,31 @@ namespace SoftwarePioniere.Hosting.ApplicationInsights
                 //{
                 _logger.LogInformation(operationName);
 
-                if (_fliegel365Options.Value.AllowDevMode)
-                {
-                    if (_devOptions.Value.RaiseCommandFailed)
-                    {
-                        _logger.LogInformation("CommadFailed Notification from DevOptions");
 
-                        var msg = CommandFailedNotification.Create(cmd,
-                            new Exception("CommandFailed from DevOptions"),
-                            state);
+                //if (_devOptionsSnapshot.Value.RaiseCommandFailed)
+                //{
+                //    _logger.LogInformation("CommadFailed Notification from DevOptions");
 
-                        await _bus.PublishAsync(msg);
-                        //  await _bus.PublishAsync(msg.CreateMessageWrapper(state));
+                //    var msg = CommandFailedNotification.Create(cmd,
+                //        new Exception("CommandFailed from DevOptions"),
+                //        state);
 
-                        return new MessageResponse
-                        {
-                            UserId = cmd.UserId,
-                            MessageId = cmd.Id
-                        };
-                    }
+                //    await _bus.PublishAsync(msg);
+                //    //  await _bus.PublishAsync(msg.CreateMessageWrapper(state));
 
-                    if (_devOptions.Value.BadRequestForPost)
-                    {
-                        _logger.LogInformation("BadRequest from DevOptions");
-                        throw new ApplicationException("BadRequest from DevOptions");
-                    }
-                }
+                //    return new MessageResponse
+                //    {
+                //        UserId = cmd.UserId,
+                //        MessageId = cmd.Id
+                //    };
+                //}
+
+                //if (_devOptions.Value.PostWithBadRequest)
+                //{
+                //    _logger.LogInformation("BadRequest from DevOptions");
+                //    throw new ApplicationException("BadRequest from DevOptions");
+                //}
+
 
                 var sw = Stopwatch.StartNew();
                 _logger.LogDebug($"{operationName} Starting");

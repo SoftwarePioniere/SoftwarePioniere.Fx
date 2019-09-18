@@ -1,19 +1,14 @@
 ﻿using System;
-using System.Threading;
 using System.Threading.Tasks;
-using Foundatio.Messaging;
 using Microsoft.Extensions.Logging;
 using SoftwarePioniere.Domain;
 using SoftwarePioniere.Messaging;
 
 namespace SoftwarePioniere.DomainModel.FakeDomain
 {
-    public sealed class FakeSagaWithError : SagaBase, IHandleMessage<FakeCommand>
+    public sealed class FakeSagaWithError : SagaBase2, IHandleMessage<FakeCommand>
     {
-        public FakeSagaWithError(ILoggerFactory loggerFactory, IMessageBus bus) : base(loggerFactory, bus)
-        {
-           
-        }
+
 
         public Task HandleAsync(FakeCommand message)
         {
@@ -21,10 +16,15 @@ namespace SoftwarePioniere.DomainModel.FakeDomain
             throw new InvalidOperationException();
         }
 
-     
-        public override async Task StartAsync(CancellationToken cancellationToken)
+
+        protected override async Task RegisterMessagesAsync()
         {
-            await SubscribeCommandAsync<FakeCommand>(HandleAsync, cancellationToken);
+            await Bus.SubscribeCommand<FakeCommand>(HandleAsync);
+        }
+
+
+        public FakeSagaWithError(ILoggerFactory loggerFactory, ISagaServices services) : base(loggerFactory, services)
+        {
         }
     }
 }

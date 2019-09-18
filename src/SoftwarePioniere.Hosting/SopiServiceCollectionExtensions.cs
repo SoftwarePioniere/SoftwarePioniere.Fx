@@ -38,14 +38,7 @@ namespace SoftwarePioniere.Hosting
             {
                 throw new ArgumentNullException(nameof(services));
             }
-
-            services
-                .Configure<DevOptions>(c =>
-                {
-                    c.BadRequestForPost = false;
-                    c.RaiseCommandFailed = false;
-                });
-
+            
             return new SopiBuilder(services, log);
         }
     }
