@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -13,7 +14,7 @@ namespace SoftwarePioniere.Domain
     /// </summary>
     public class InMemoryEventStore : IEventStore
     {
-        private readonly Dictionary<string, IList<EventDescriptor>> _current = new Dictionary<string, IList<EventDescriptor>>();
+        private readonly ConcurrentDictionary<string, IList<EventDescriptor>> _current = new ConcurrentDictionary<string, IList<EventDescriptor>>();
 
         private readonly ILogger _logger;
 
@@ -61,26 +62,16 @@ namespace SoftwarePioniere.Domain
             //das ist die nummer, bei der der stream jetzt stehen sollte, so wird sichergestellt, dass in der zwischnzeit keine events geschrieben wurden
             var expectedVersion = originalVersion;
 
-
-            // try to get event descriptors list for given aggregate id
-            // otherwise -> create empty dictionary
-            if (!_current.TryGetValue(aggregateId, out var eventDescriptors))
+            var eventDescriptors = _current.GetOrAdd(aggregateId, new List<EventDescriptor>());
+            
+            if (expectedVersion != -1 && eventDescriptors.Last().Version != expectedVersion)
             {
-                eventDescriptors = new List<EventDescriptor>();
-                _current.Add(aggregateId, eventDescriptors);
-            }
-            else
-            {
-
-                if (expectedVersion != -1 && eventDescriptors.Last().Version != expectedVersion)
+                throw new ConcurrencyException
                 {
-                    throw new ConcurrencyException
-                    {
-                        ExpectedVersion = aggregateVersion,
-                        CurrentVersion = eventDescriptors[eventDescriptors.Count - 1].Version,
-                        AggregateType = typeof(T)
-                    };
-                }
+                    ExpectedVersion = aggregateVersion,
+                    CurrentVersion = eventDescriptors[eventDescriptors.Count - 1].Version,
+                    AggregateType = typeof(T)
+                };
             }
 
             var i = expectedVersion;

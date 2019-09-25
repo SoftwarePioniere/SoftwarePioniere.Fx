@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Linq;
 using System.Net;
 using System.Threading;
@@ -201,7 +201,7 @@ namespace SoftwarePioniere.EventStore
 
         public bool IsConfigured { get; private set; }
 
-        private readonly IDictionary<string, IPAddress> _hostIpAddresses = new Dictionary<string, IPAddress>();
+        private readonly ConcurrentDictionary<string, IPAddress> _hostIpAddresses = new ConcurrentDictionary<string, IPAddress>();
 
         private IPAddress GetHostIp(string ipEndpoint)
         {
@@ -225,15 +225,13 @@ namespace SoftwarePioniere.EventStore
                 {
 
                     var hostIpAdress = hostIp.Last();
-                    _hostIpAddresses.Add(ipEndpoint, hostIpAdress);
-                    return hostIpAdress;
+                    return _hostIpAddresses.GetOrAdd(ipEndpoint, hostIpAdress);
                 }
 
                 throw new InvalidOperationException("cannot resolve eventstore ip");
             }
 
-            _hostIpAddresses.Add(ipEndpoint, ipa);
-            return ipa;
+            return _hostIpAddresses.GetOrAdd(ipEndpoint, ipa);
 
         }
 

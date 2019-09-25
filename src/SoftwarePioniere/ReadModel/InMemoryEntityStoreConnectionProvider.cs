@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Threading.Tasks;
 
 namespace SoftwarePioniere.ReadModel
@@ -7,32 +7,22 @@ namespace SoftwarePioniere.ReadModel
     // ReSharper disable once ClassNeverInstantiated.Global
     public class InMemoryEntityStoreConnectionProvider : IEntityStoreConnectionProvider
     {
-        public Dictionary<Type, Dictionary<string, object>> Items { get; private set; }
-
-        private readonly object _lock = new object();
+        public ConcurrentDictionary<Type, ConcurrentDictionary<string, object>> Items { get; private set; }
 
         public InMemoryEntityStoreConnectionProvider()
         {
-            Items = new Dictionary<Type, Dictionary<string, object>>();
+            Items = new ConcurrentDictionary<Type, ConcurrentDictionary<string, object>>();
         }
 
         public Task ClearDatabaseAsync()
         {
-            Items = new Dictionary<Type, Dictionary<string, object>>();
+            Items = new ConcurrentDictionary<Type, ConcurrentDictionary<string, object>>();
             return Task.CompletedTask;
         }
 
-        public Dictionary<string, object> GetItems(Type t)
+        public ConcurrentDictionary<string, object> GetItems(Type t)
         {
-            lock (_lock)
-            {
-                if (!Items.ContainsKey(t))
-                {
-                    Items.Add(t, new Dictionary<string, object>());
-                }
-
-                return Items[t];
-            }
+            return Items.GetOrAdd(t, new ConcurrentDictionary<string, object>());
         }
     }
 }

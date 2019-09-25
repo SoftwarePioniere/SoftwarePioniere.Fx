@@ -130,11 +130,8 @@ namespace SoftwarePioniere.ReadModel
             token.ThrowIfCancellationRequested();
 
             var items = _provider.GetItems(typeof(T));
-
-            if (items.ContainsKey(entityId))
-            {
-                items.Remove(entityId);
-            }
+            // ReSharper disable once UnusedVariable
+            items.TryRemove(entityId, out var value);
 
             return Task.CompletedTask;
         }
@@ -154,8 +151,8 @@ namespace SoftwarePioniere.ReadModel
 
             foreach (var id in filteredItems.Select(x => x.EntityId).ToArray())
             {
-                if (items.ContainsKey(id))
-                    items.Remove(id);
+                // ReSharper disable once UnusedVariable
+                items.TryRemove(id, out var value);
             }
 
             return Task.CompletedTask;
@@ -181,12 +178,8 @@ namespace SoftwarePioniere.ReadModel
 
             var items = _provider.GetItems(typeof(T));
 
-            if (items.ContainsKey(item.EntityId))
-            {
-                items.Remove(item.EntityId);
-            }
-
-            items.Add(item.EntityId, item);
+            items.AddOrUpdate(item.EntityId,
+                item, (s, o) => item);
 
             return Task.CompletedTask;
         }
@@ -209,12 +202,8 @@ namespace SoftwarePioniere.ReadModel
             foreach (var item in items)
             {
 
-                if (localItems.ContainsKey(item.EntityId))
-                {
-                    localItems.Remove(item.EntityId);
-                }
-
-                localItems.Add(item.EntityId, item);
+                localItems.AddOrUpdate(item.EntityId,
+                    item, (s, o) => item);
             }
 
             return Task.CompletedTask;
