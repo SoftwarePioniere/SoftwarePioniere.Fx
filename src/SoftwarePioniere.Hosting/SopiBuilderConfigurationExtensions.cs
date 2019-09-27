@@ -7,6 +7,18 @@ namespace SoftwarePioniere.Hosting
 {
     public static class SopiBuilderConfigurationExtensions
     {
+        public static ISopiBuilder AddLifetimeOptions(this ISopiBuilder builder)
+        {
+            return builder.AddLifetimeOptions(c => builder.Config.Bind("Lifetime", c));
+        }
+
+        public static ISopiBuilder AddLifetimeOptions(this ISopiBuilder builder,
+            Action<LifetimeOptions> configureOptions)
+        {
+            builder.Services.Configure(configureOptions);
+            return builder;
+        }
+
         public static ISopiBuilder AddDevOptions(this ISopiBuilder builder)
         {
             return builder.AddDevOptions(c => builder.Config.Bind("DevOptions", c));
@@ -35,7 +47,6 @@ namespace SoftwarePioniere.Hosting
         public static ISopiBuilder AddConfiguration(this ISopiBuilder builder, IConfiguration config)
         {
             builder.Config = config;
-
 
             builder.Services.Configure<SopiOptions>(config.Bind);
 

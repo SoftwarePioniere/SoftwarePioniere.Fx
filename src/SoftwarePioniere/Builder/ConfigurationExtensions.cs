@@ -17,5 +17,12 @@ namespace SoftwarePioniere.Builder
             config.Bind("Logging", options);
             return options;
         }
+
+        public static LifetimeOptions CreateLifetimeOptions(this IConfiguration config)
+        {
+            var options = new LifetimeOptions();
+            config.Bind("Lifetime", options);
+            return options;
+        }
     }
 }

@@ -35,6 +35,22 @@ namespace SoftwarePioniere.Hosting.AspNetCore
                 .UseKestrel(k => k.AddServerHeader = false)
                 .ConfigureServices((context, services) =>
                 {
+                  
+                    var sopiBuilder = services.AddSopi(context.Configuration, log);
+
+                    sopiBuilder
+                        .AddLifetimeOptions()
+                        .AddDevOptions()
+                        .AddReportingOptions()
+                        
+                        .AddPlatformServices()
+                        .AddAppInsightsTelemetry()
+                        .AddAuthentication()
+                        .AddSystemServicesByConfiguration()
+                        .AddMvcServices()
+                        .AddClients()
+                        ;
+
                     services.AddScoped<SopiLifetimeActionFilter>();
 
                     services.Configure<MvcOptions>(options =>
@@ -46,19 +62,6 @@ namespace SoftwarePioniere.Hosting.AspNetCore
                     });
 
                     services.AddSingleton(devProvider);
-                    
-                    var sopiBuilder = services.AddSopi(context.Configuration, log);
-
-                    sopiBuilder
-                        .AddPlatformServices()
-                        .AddDevOptions()
-                        .AddReportingOptions()
-                        .AddAppInsightsTelemetry()
-                        .AddAuthentication()
-                        .AddSystemServicesByConfiguration()
-                        .AddMvcServices()
-                        .AddClients()
-                        ;
 
                     configureSopiBuilder(sopiBuilder);
 
@@ -85,7 +88,7 @@ namespace SoftwarePioniere.Hosting.AspNetCore
                     if (configureAppDefault)
                     {
                         app.UseMvc();
-                        //  app.ApplicationServices.CheckSystemState();
+                        //app.ApplicationServices.CheckSystemState();
                     }
 
                 });

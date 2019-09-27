@@ -28,6 +28,7 @@ namespace SoftwarePioniere.Hosting
                     sopiBuilder
                         .AddPlatformServices()
                         .AddDevOptions()
+                        .AddLifetimeOptions()
                         .AddReportingOptions()
                         .AddDefaultTelemetry()
                         .AddSystemServicesByConfiguration()

@@ -8,6 +8,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using SoftwarePioniere.Builder;
 
 namespace SoftwarePioniere.Hosting.AspNetCore
 {
@@ -50,18 +52,35 @@ namespace SoftwarePioniere.Hosting.AspNetCore
             }
         }
     }
-    
+
     public class SopiLifetimeActionFilter : IAsyncActionFilter
     {
 
         public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
             var lifetime = context.HttpContext.RequestServices.GetRequiredService<ISopiApplicationLifetime>();
+            
+            if (lifetime.IsStarted)
+            {
+                await next();
+                return;
+            }
+            
+            if (lifetime.IsStarting)
+            {
+                var options = context.HttpContext.RequestServices.GetRequiredService<IOptions<LifetimeOptions>>().Value;
+                if (context.HttpContext.Request.Method == "GET" && options.AllowGetWhileStarting)
+                {
+                    await next();
+                    return;
+                }
+            }
 
             if (lifetime.IsStarting || !lifetime.IsStarted || lifetime.IsStopped)
             {
+                
                 var text = "SopiAppService ";
-
+                
                 if (lifetime.IsStarting)
                     text = string.Concat(text, "starting");
                 else if (!lifetime.IsStarted)
