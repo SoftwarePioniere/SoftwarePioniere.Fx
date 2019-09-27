@@ -16,8 +16,8 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="2.2.4" />
     <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="2.2.4" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="2.2.0" />
-    <PackageReference Include="Foundatio.Logging.Xunit" Version="8.1.2058" />
-    <PackageReference Include="FluentAssertions" Version="5.8.0" />
+    <PackageReference Include="Foundatio.Logging.Xunit" Version="8.1.2126" />
+    <PackageReference Include="FluentAssertions" Version="5.9.0" />
  
     
   </ItemGroup>

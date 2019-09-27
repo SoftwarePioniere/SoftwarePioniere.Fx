@@ -14,6 +14,7 @@ namespace SoftwarePioniere.Hosting.AspNetCore
             var services = builder.Services;
 
             services
+                .AddApplicationInsightsTelemetry(builder.Config)
                 .AddSingleton<AppInsightsTelemetryMessageBusAdapter>()
                 .AddSingleton<IMessageBusAdapter>(c => c.GetRequiredService<AppInsightsTelemetryMessageBusAdapter>())       
                 .AddSingleton<AppInsightsTelemetryAdapter>()

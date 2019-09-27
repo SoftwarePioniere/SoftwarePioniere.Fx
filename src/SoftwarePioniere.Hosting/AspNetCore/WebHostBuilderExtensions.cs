@@ -31,7 +31,6 @@ namespace SoftwarePioniere.Hosting.AspNetCore
                 })
 
                 .UseSerilog()
-                .UseApplicationInsights()
                 .UseKestrel(k => k.AddServerHeader = false)
                 .ConfigureServices((context, services) =>
                 {

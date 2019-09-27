@@ -26,7 +26,7 @@ namespace Lib.Hosting
             Environment.SetEnvironmentVariable("SOPISAMPLE_Logging__UseSeq", "true");
             Environment.SetEnvironmentVariable("SOPISAMPLE_Logging__Seq__ServerUrl", "http://localhost:5341");
             Environment.SetEnvironmentVariable("SOPISAMPLE_Logging__WarningSources", "Microsoft");
-            Environment.SetEnvironmentVariable("SOPISAMPLE_ApplicationInsights__InstrumentationKey", "2ab135ee-5f4c-4c4c-83cc-f84a036691e6");
+            Environment.SetEnvironmentVariable("SOPISAMPLE_ApplicationInsights__InstrumentationKey", "0f6120cc-905a-4a92-b53d-5a9ce070621a");
 
             Environment.SetEnvironmentVariable("SOPISAMPLE_Auth", SopiOptions.AuthAzureAd);
             Environment.SetEnvironmentVariable("SOPISAMPLE_MessageBus", SopiOptions.MessageBusRedis);
