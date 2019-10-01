@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 
 namespace SoftwarePioniere.ReadModel
 {
@@ -8,9 +8,8 @@ namespace SoftwarePioniere.ReadModel
     /// </summary>
     public class TypeKeyCache
     {
-        private readonly object _thisLock = new object();
-        private readonly Dictionary<string, string> _cache = new Dictionary<string, string>();
-        
+        private readonly ConcurrentDictionary<string, string> _cache = new ConcurrentDictionary<string, string>();
+
         /// <summary>
         /// Den Key zu einem Typen lesen
         /// </summary>
@@ -18,19 +17,18 @@ namespace SoftwarePioniere.ReadModel
         /// <returns></returns>
         public string GetEntityTypeKey<T>() where T : Entity
         {
-            lock (_thisLock)
+
+            var typeName = typeof(T).FullName;
+
+            if (_cache.TryGetValue(typeName ?? throw new InvalidOperationException(), out var v))
             {
-                var typeName = typeof(T).FullName;
-
-                if (_cache.ContainsKey(typeName ?? throw new InvalidOperationException()))
-                    return _cache[typeName];
-
-                var t = Activator.CreateInstance<T>();
-
-                if (!_cache.ContainsKey(typeName))
-                    _cache.Add(typeName, t.EntityType);
-                return t.EntityType;
+                return v;
             }
+
+            var t = Activator.CreateInstance<T>();
+
+            _cache.TryAdd(typeName, t.EntityType);
+            return t.EntityType;
 
         }
 
