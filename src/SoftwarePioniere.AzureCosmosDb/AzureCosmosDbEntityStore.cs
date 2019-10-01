@@ -51,7 +51,6 @@ namespace SoftwarePioniere.AzureCosmosDb
             var source = _provider.CreateQuery<T>(feedOptions).Where(x => x.EntityType == TypeKeyCache.GetEntityTypeKey<T>()).Where(where);
             var xx = await source.ToArrayAsync(token, Logger).ConfigureAwait(false);
             return xx;
-
         }
 
         public override Task<PagedResults<T>> LoadPagedResultAsync<T>(PagedLoadingParameters<T> parms, CancellationToken token = default(CancellationToken))

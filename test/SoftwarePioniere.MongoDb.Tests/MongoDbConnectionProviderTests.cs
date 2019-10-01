@@ -37,13 +37,13 @@ namespace SoftwarePioniere.MongoDb.Tests
             var provider = CreateProvider();
 
             await provider.Database.Value.CreateCollectionAsync(Guid.NewGuid().ToString());
-            (await provider.CheckDatabaseExists()).Should().BeTrue();
+            (await provider.CheckDatabaseExistsAsync()).Should().BeTrue();
 
             await provider.ClearDatabaseAsync();
-            (await provider.CheckDatabaseExists()).Should().BeFalse();
+            (await provider.CheckDatabaseExistsAsync()).Should().BeFalse();
 
             await provider.Database.Value.CreateCollectionAsync(Guid.NewGuid().ToString());
-            (await provider.CheckDatabaseExists()).Should().BeTrue();
+            (await provider.CheckDatabaseExistsAsync()).Should().BeTrue();
 
         }
     }

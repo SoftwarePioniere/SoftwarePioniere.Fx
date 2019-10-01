@@ -6,6 +6,19 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="AzureCosmosDbConnectionProvider.cs" />
+    <Compile Remove="AzureCosmosDbEntityStore.cs" />
+    <Compile Remove="AzureCosmosDbLinqExtensions.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="AzureCosmosDbConnectionProvider.cs" />
+    <None Include="AzureCosmosDbEntityStore.cs" />
+    <None Include="AzureCosmosDbLinqExtensions.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.2.0" />
     <PackageReference Include="Microsoft.Azure.CosmosDB.BulkExecutor" Version="2.3.0-preview2" />
   </ItemGroup>
 

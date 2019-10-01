@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -45,9 +46,9 @@ namespace SoftwarePioniere.MongoDb
         }
 
 
-        public async Task<bool> CheckDatabaseExists()
+        public async Task<bool> CheckDatabaseExistsAsync()
         {
-            _logger.LogTrace(nameof(CheckDatabaseExists));
+            _logger.LogTrace(nameof(CheckDatabaseExistsAsync));
 
             var client = CreateClient();
 
@@ -112,6 +113,13 @@ namespace SoftwarePioniere.MongoDb
         public IMongoCollection<T> GetCol<T>() where T : Entity
         {
             return Database.Value.GetCollection<T>(KeyCache.GetEntityTypeKey<T>());
+        }
+
+        public async Task InitializeAsync(CancellationToken cancellationToken)
+        {
+
+
+            await CheckDatabaseExistsAsync();
         }
     }
 }

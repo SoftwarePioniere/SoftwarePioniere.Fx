@@ -64,10 +64,13 @@ namespace SoftwarePioniere.ReadModel
 
         public virtual async Task CanInsertAndDeleteItem()
         {
+            await InitializeAsync();
+
             var id = Guid.NewGuid().ToString();
             var obj1 = FakeEntity.Create(id);
 
             var store = CreateInstance();
+            
 
             await store.InsertItemAsync(obj1);
 
@@ -86,6 +89,8 @@ namespace SoftwarePioniere.ReadModel
 
         public virtual async Task CanInsertAndDeleteItemWithWhere()
         {
+            await InitializeAsync();
+
             var id = Guid.NewGuid().ToString();
             var obj1 = FakeEntity.Create(id);
 
@@ -107,6 +112,8 @@ namespace SoftwarePioniere.ReadModel
 
         public virtual async Task CanInsertAndDeleteAllItems()
         {
+            await InitializeAsync();
+
             var id = Guid.NewGuid().ToString();
             var obj1 = FakeEntity.Create(id);
 
@@ -129,6 +136,8 @@ namespace SoftwarePioniere.ReadModel
 
         public virtual async Task CanInsertAndUpdateItem()
         {
+            await InitializeAsync();
+
             var id = Guid.NewGuid().ToString();
             var obj1 = FakeEntity.Create(id);
 
@@ -147,6 +156,8 @@ namespace SoftwarePioniere.ReadModel
 
         public virtual async Task CanInsertItem()
         {
+            await InitializeAsync();
+
             var id = Guid.NewGuid().ToString();
             var obj1 = FakeEntity.Create(id);
 
@@ -161,6 +172,8 @@ namespace SoftwarePioniere.ReadModel
 
         public virtual async Task CanInsertManyItems()
         {
+            await InitializeAsync();
+
             var list = new List<FakeEntity>();
 
             for (var i = 0; i < 1000; i++) list.Add(FakeEntity.Create(Guid.NewGuid().ToString()));
@@ -178,6 +191,8 @@ namespace SoftwarePioniere.ReadModel
 
         public virtual async Task CanBulkInsertManyItems()
         {
+            await InitializeAsync();
+
             var list = new List<FakeEntity>();
 
             for (var i = 0; i < 1000; i++) list.Add(FakeEntity.Create(Guid.NewGuid().ToString()));
@@ -194,7 +209,7 @@ namespace SoftwarePioniere.ReadModel
 
 
         public virtual void DeleteThrowsErrorWithKeyNullOrEmpty()
-        {
+        {   
             var store = CreateInstance();
 
             Func<Task> f1 = async () => { await store.DeleteItemAsync<FakeEntity>(null); };
@@ -234,6 +249,7 @@ namespace SoftwarePioniere.ReadModel
 
         public virtual async Task LoadItemsWithPagingWorks()
         {
+            await InitializeAsync();
             var store = CreateInstance();
 
             var list = FakeEntity.CreateList(31).ToArray();
@@ -340,6 +356,7 @@ namespace SoftwarePioniere.ReadModel
 
         public virtual async Task LoadItemsWithWhereWorks()
         {
+            await InitializeAsync();
             var store = CreateInstance();
 
             var list = FakeEntity.CreateList(31).ToArray();
@@ -403,6 +420,7 @@ namespace SoftwarePioniere.ReadModel
 
         public virtual async Task SaveAndLoadItemPropertiesEquals()
         {
+            await InitializeAsync();
             var id = Guid.NewGuid().ToString();
             var obj1 = FakeEntity.Create(id);
 
@@ -419,6 +437,7 @@ namespace SoftwarePioniere.ReadModel
 
         public virtual async Task SaveAndLoadItemsContainsAll()
         {
+            await InitializeAsync();
             var obj1 = FakeEntity.Create(Guid.NewGuid().ToString());
             var obj2 = FakeEntity.Create(Guid.NewGuid().ToString());
 
@@ -435,6 +454,7 @@ namespace SoftwarePioniere.ReadModel
 
         public virtual async Task SaveAndUpdateItemPropertiesEquals()
         {
+            await InitializeAsync();
             var id = Guid.NewGuid().ToString();
             var obj1 = FakeEntity.Create(id);
 
@@ -454,6 +474,7 @@ namespace SoftwarePioniere.ReadModel
 
         public virtual void SaveThrowsErrorWithItemNull()
         {
+
             var store = CreateInstance();
 
             Func<Task> f1 = async () => { await store.UpdateItemAsync<FakeEntity>(null); };
@@ -481,6 +502,11 @@ namespace SoftwarePioniere.ReadModel
             return GetService<IEntityStore>();
         }
 
+        protected virtual async Task InitializeAsync()
+        {
+            var provider = GetService<IEntityStoreConnectionProvider>();
+            await provider.InitializeAsync(CancellationToken.None);
+        }
 
         // ReSharper disable once MemberCanBePrivate.Global
         protected static void CompareEntitities(FakeEntity obj1, FakeEntity obj2)
@@ -495,6 +521,7 @@ namespace SoftwarePioniere.ReadModel
 
         public virtual async Task InsertExistingWillUpdate()
         {
+            await InitializeAsync();
             var id = Guid.NewGuid().ToString();
 
             var obj1 = FakeEntity.Create(id);
@@ -513,6 +540,7 @@ namespace SoftwarePioniere.ReadModel
 
         public virtual async Task UpdateNonExistingWillInsert()
         {
+            await InitializeAsync();
             var id = Guid.NewGuid().ToString();
             var obj1 = FakeEntity.Create(id);
 

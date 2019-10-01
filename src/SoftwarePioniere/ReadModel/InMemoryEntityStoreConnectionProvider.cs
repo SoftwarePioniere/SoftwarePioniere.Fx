@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace SoftwarePioniere.ReadModel
@@ -23,6 +24,11 @@ namespace SoftwarePioniere.ReadModel
         public ConcurrentDictionary<string, object> GetItems(Type t)
         {
             return Items.GetOrAdd(t, new ConcurrentDictionary<string, object>());
+        }
+
+        public Task InitializeAsync(CancellationToken cancellationToken)
+        {
+            return Task.CompletedTask;
         }
     }
 }

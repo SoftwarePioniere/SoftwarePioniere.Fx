@@ -17,8 +17,9 @@ namespace SoftwarePioniere.AzureCosmosDb.Tests
                 .AddSingleton<ILoggerFactory>(new NullLoggerFactory())
                 .AddAzureCosmosDbEntityStore(options => new TestConfiguration().ConfigurationRoot.Bind("AzureCosmosDb", options));
 
-            var provider = services.BuildServiceProvider().GetService<AzureCosmosDbConnectionProvider>();
-            provider.DeleteDocumentCollectionAsync().ConfigureAwait(false).GetAwaiter().GetResult();
+            var provider = services.BuildServiceProvider().GetRequiredService<AzureComsosDbConnectionProvider3>();
+            provider.ClearDatabaseAsync().ConfigureAwait(false).GetAwaiter().GetResult();
+            //provider.DeleteDocumentCollectionAsync().ConfigureAwait(false).GetAwaiter().GetResult();
         }
     }
 }

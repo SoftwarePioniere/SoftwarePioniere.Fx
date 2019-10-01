@@ -2,6 +2,7 @@
 using Foundatio.Caching;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using SoftwarePioniere.Hosting;
 using SoftwarePioniere.MongoDb;
 using SoftwarePioniere.ReadModel;
 
@@ -22,6 +23,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
             services
                 .AddSingleton<MongoDbConnectionProvider>()
+                .AddSingleton<IConnectionProvider>(provider => provider.GetRequiredService<MongoDbConnectionProvider>())
                 .AddSingleton<IEntityStoreConnectionProvider>(provider => provider.GetRequiredService<MongoDbConnectionProvider>())
                 .AddSingleton<IEntityStore>(provider =>
                     {
