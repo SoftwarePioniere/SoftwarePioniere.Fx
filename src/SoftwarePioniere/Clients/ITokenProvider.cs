@@ -6,5 +6,7 @@ namespace SoftwarePioniere.Clients
     public interface ITokenProvider
     {    
         Task<string> GetAccessToken(string resource);
+
+        Task<string> GetAccessToken(string resource, bool force);
     }
 }

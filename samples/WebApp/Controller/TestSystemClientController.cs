@@ -34,7 +34,7 @@ namespace WebApp.Controller
         [SwaggerOperation(OperationId = "GetTestSystemClientOk")]
         public Task<ActionResult<ModelA>> GetOk([FromServices] ITestSystemClient client)
         {
-            return this.RunWithTelemetryAsync("QUERY GetOk", (state) => client.GetForbidden(), _logger);
+            return this.RunWithTelemetryAsync("QUERY GetOk", (state) => client.GetOk(), _logger);
 
         }
 
@@ -42,7 +42,7 @@ namespace WebApp.Controller
         [SwaggerOperation(OperationId = "GetTestSystemClientNoContent")]
         public Task<ActionResult<ModelA>> GetNoContent([FromServices] ITestSystemClient client)
         {
-            return this.RunWithTelemetryAsync("QUERY GetNoContent", (state) => client.GetForbidden(), _logger);
+            return this.RunWithTelemetryAsync("QUERY GetNoContent", (state) => client.GetNoContent(), _logger);
 
         }
 
@@ -50,7 +50,7 @@ namespace WebApp.Controller
         [SwaggerOperation(OperationId = "GetTestSystemClientBadRequest")]
         public Task<ActionResult<ModelA>> GetBadRequest([FromServices] ITestSystemClient client)
         {
-            return this.RunWithTelemetryAsync("QUERY GetBadRequest", (state) => client.GetForbidden(), _logger);
+            return this.RunWithTelemetryAsync("QUERY GetBadRequest", (state) => client.GetBadRequest(), _logger);
 
         }
 

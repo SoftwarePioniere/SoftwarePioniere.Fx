@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
@@ -24,6 +25,46 @@ namespace SoftwarePioniere.Extensions.AspNetCore.AzureAd
 
         }
 
+        private static string ValidateIssuerWithPlaceholder(string issuer, SecurityToken token, TokenValidationParameters parameters)
+        {
+            //https://thomaslevesque.com/2018/12/24/multitenant-azure-ad-issuer-validation-in-asp-net-core/
+            // Accepts any issuer of the form "https://login.microsoftonline.com/{tenantid}/v2.0",
+            // where tenantid is the tid from the token.
+
+            if (token is JwtSecurityToken jwt)
+            {
+                if (jwt.Payload.TryGetValue("tid", out var value) &&
+                    value is string tokenTenantId)
+                {
+                    var validIssuers = (parameters.ValidIssuers ?? Enumerable.Empty<string>())
+                        .Append(parameters.ValidIssuer)
+                        .Where(i => !string.IsNullOrEmpty(i));
+
+                    if (validIssuers.Any(i => i.Replace("{tenantid}", tokenTenantId) == issuer))
+                        return issuer;
+                }
+            }
+
+            {
+                // Recreate the exception that is thrown by default
+                // when issuer validation fails
+                var validIssuer = parameters.ValidIssuer ?? "null";
+                var validIssuers = parameters.ValidIssuers == null
+                    ? "null"
+                    : !parameters.ValidIssuers.Any()
+                        ? "empty"
+                        : string.Join(", ", parameters.ValidIssuers);
+                string errorMessage = FormattableString.Invariant(
+                    $"IDX10205: Issuer validation failed. Issuer: '{issuer}'. Did not match: validationParameters.ValidIssuer: '{validIssuer}' or validationParameters.ValidIssuers: '{validIssuers}'.");
+
+                throw new SecurityTokenInvalidIssuerException(errorMessage)
+                {
+                    InvalidIssuer = issuer
+                };
+
+            }
+        }
+
         private class ConfigureAzureJwtBearerOptions : IConfigureNamedOptions<JwtBearerOptions>
         {
             private readonly AzureAdOptions _azureAdOptions;
@@ -35,12 +76,13 @@ namespace SoftwarePioniere.Extensions.AspNetCore.AzureAd
 
             public void Configure(string name, JwtBearerOptions options)
             {
-                
+
                 var tokenValParam = new TokenValidationParameters()
                 {
                     ValidateLifetime = true,
                     ValidateIssuer = true,
-                    ValidIssuer = $"https://sts.windows.net/{_azureAdOptions.TenantId}/",
+                    IssuerValidator = ValidateIssuerWithPlaceholder,
+                    //ValidIssuer = $"https://sts.windows.net/{_azureAdOptions.TenantId}/",
                     ValidateAudience = true,
                     ValidAudience = _azureAdOptions.Resource
                 };
@@ -61,8 +103,8 @@ namespace SoftwarePioniere.Extensions.AspNetCore.AzureAd
 
 
                 options.Audience = _azureAdOptions.Resource;
-                options.Authority =  $"https://login.microsoftonline.com/{_azureAdOptions.TenantId}/" ;
-                options.ClaimsIssuer =$"https://sts.windows.net/{_azureAdOptions.TenantId}/";
+                options.Authority = $"https://login.microsoftonline.com/{_azureAdOptions.TenantId}/";
+                options.ClaimsIssuer = $"https://sts.windows.net/{_azureAdOptions.TenantId}/";
                 options.RequireHttpsMetadata = false;
                 options.SaveToken = true;
                 options.TokenValidationParameters = tokenValParam;

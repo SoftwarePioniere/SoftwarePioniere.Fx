@@ -24,9 +24,15 @@ namespace SoftwarePioniere.Clients
             Logger = loggerFactory.CreateLogger(GetType());
         }
 
-        public async Task<string> GetAccessToken(string audience)
+        public async Task<string> GetAccessToken(string audience, bool force)
         {
-            Logger.LogDebug("GetAccessToken {Audience}", audience);
+            Logger.LogDebug("GetAccessToken {Audience} {Force}", audience, force);
+
+            if (force && _jwts.ContainsKey(audience))
+            {
+                _jwts.TryRemove(audience, out var jj);
+                Logger.LogDebug("Forced Remove Token {Token}", jj?.Id);
+            }
 
             _jwts.TryGetValue(audience, out var jwt);
 
@@ -49,13 +55,18 @@ namespace SoftwarePioniere.Clients
             return _tokens[audience];
         }
 
+        public Task<string> GetAccessToken(string audience)
+        {
+            return GetAccessToken(audience, false);
+        }
+
         private async Task AquireNewToken(string audience)
         {
             Logger.LogDebug("Calling AquireNewToken {Audience}", audience);
 
             var token = await LoadToken(audience);
 
-            _tokens.AddOrUpdate(audience, token, (s, s1) => token);
+            _tokens.AddOrUpdate(audience, token, (key, value) => token);
             var jwt = new JwtSecurityToken(token);
             _jwts.AddOrUpdate(audience, jwt, (s, securityToken) => jwt);
         }
