@@ -142,8 +142,8 @@ namespace SoftwarePioniere.Projections
             {
                 setValues?.Invoke(entity);
 
-                //if (Context.)
-                //    await Cache.AddAsync(item.EntityId, item.Entity);
+                if (Context.IsReady)
+                    await Cache.AddAsync(item.EntityId, item.Entity);
 
                 await SaveItemAsync(item, message);
                 return item.Entity;
@@ -174,8 +174,6 @@ namespace SoftwarePioniere.Projections
 
                     setValues?.Invoke(entity);
 
-
-
                     await SaveItemAsync(item, message);
                     return item.Entity;
                 }
@@ -186,6 +184,10 @@ namespace SoftwarePioniere.Projections
         // ReSharper disable once UnusedMethodReturnValue.Local
         private async Task<T> SaveItemAsync(EntityDescriptor<T> item, IMessage domainEvent)//, IDictionary<string, string> state)
         {
+            if (Context.IsReady)
+            {
+                await Cache.AddAsync(item.EntityId, item.Entity);
+            }
 
             if (Context.IsLiveProcessing)
             {
@@ -194,11 +196,6 @@ namespace SoftwarePioniere.Projections
             else
             {
                 await SaveAsync(item, domainEvent, null);//, state: state);
-            }
-
-            if (Context.IsReady)
-            {
-                await Cache.AddAsync(item.EntityId, item.Entity);
             }
 
             return item.Entity;
