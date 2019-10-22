@@ -59,13 +59,13 @@ namespace SoftwarePioniere.Hosting.AspNetCore
         public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
             var lifetime = context.HttpContext.RequestServices.GetRequiredService<ISopiApplicationLifetime>();
-            
+
             if (lifetime.IsStarted)
             {
                 await next();
                 return;
             }
-            
+
             if (lifetime.IsStarting)
             {
                 var options = context.HttpContext.RequestServices.GetRequiredService<IOptions<LifetimeOptions>>().Value;
@@ -78,9 +78,9 @@ namespace SoftwarePioniere.Hosting.AspNetCore
 
             if (lifetime.IsStarting || !lifetime.IsStarted || lifetime.IsStopped)
             {
-                
+
                 var text = "SopiAppService ";
-                
+
                 if (lifetime.IsStarting)
                     text = string.Concat(text, "starting");
                 else if (!lifetime.IsStarted)
@@ -108,7 +108,10 @@ namespace SoftwarePioniere.Hosting.AspNetCore
 
         public static IApplicationBuilder UseSopiLifetimeEndpoint(this IApplicationBuilder app, string baseRoute)
         {
-            app.Map(string.Concat("/", baseRoute, "/lifetime"),
+            var url = string.Concat("/", baseRoute, "/lifetime");
+            Console.WriteLine("UseSopiLifetimeEndpoint on Url: {0}", url);
+
+            app.Map(url,
                 applicationBuilder =>
                 {
                     applicationBuilder.Run(async context =>

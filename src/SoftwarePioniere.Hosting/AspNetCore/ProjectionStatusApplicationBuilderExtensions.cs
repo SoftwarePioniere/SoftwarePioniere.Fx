@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System;
+using System.Text;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
@@ -11,7 +12,11 @@ namespace SoftwarePioniere.Hosting.AspNetCore
     {
         public static IApplicationBuilder UseProjectionStatusEndpoint(this IApplicationBuilder app, string baseRoute)
         {
-            app.Map(string.Concat("/", baseRoute, "/status"),
+            var url = string.Concat("/", baseRoute, "/status");
+            Console.WriteLine("UseProjectionStatusEndpoint on Url: {0}", url);
+
+
+            app.Map(url,
                 applicationBuilder =>
                 {
                     applicationBuilder.Run(async context =>
