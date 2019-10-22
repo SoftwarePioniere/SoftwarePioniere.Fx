@@ -34,7 +34,7 @@ namespace Microsoft.Extensions.DependencyInjection
                     //     .AddDomainServices()
 
                     .AddSingleton<IEventStore, InMemoryEventStore>()
-                    .AddSingleton<IEventStoreProjectionReader, NullEventStoreProjectionReader>()
+                    .AddSingleton<IEventStoreReader, NullEventStoreReader>()
                 //    .AddSingleton<IEventStoreInitializer, EmptyEventStoreInitializer>()
                 ;
         }

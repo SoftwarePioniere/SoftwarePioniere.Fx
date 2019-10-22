@@ -26,7 +26,7 @@ namespace SoftwarePioniere.ReadModel
 
         Task<T[]> LoadItemsAsync<T>(Expression<Func<T, bool>> where, CancellationToken token = default(CancellationToken)) where T : Entity;
 
-        Task<PagedResults<T>> LoadPagedResultAsync<T>(PagedLoadingParameters<T> parms, CancellationToken token = default(CancellationToken)) where T : Entity;
+        //Task<PagedResults<T>> LoadPagedResultAsync<T>(PagedLoadingParameters<T> parms, CancellationToken token = default(CancellationToken)) where T : Entity;
 
         Task UpdateItemAsync<T>(T item, CancellationToken token = default(CancellationToken)) where T : Entity;
     }

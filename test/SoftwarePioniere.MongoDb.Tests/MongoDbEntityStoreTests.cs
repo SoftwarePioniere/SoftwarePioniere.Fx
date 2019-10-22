@@ -35,11 +35,11 @@ namespace SoftwarePioniere.MongoDb.Tests
             base.InsertWithCancelationThrowsError();
         }
 
-        [Fact]
-        public override void LoadItemsWithPagingAndCancelationThrowsError()
-        {
-            base.LoadItemsWithPagingAndCancelationThrowsError();
-        }
+        //[Fact]
+        //public override void LoadItemsWithPagingAndCancelationThrowsError()
+        //{
+        //    base.LoadItemsWithPagingAndCancelationThrowsError();
+        //}
 
         [Fact]
         public override void LoadItemsWithCancelationThrowsError()
@@ -89,11 +89,11 @@ namespace SoftwarePioniere.MongoDb.Tests
             base.LoadItemThrowsErrorWithKeyNullOrEmpty();
         }
 
-        [Fact]
-        public override Task LoadItemsWithPagingWorks()
-        {
-            return base.LoadItemsWithPagingWorks();
-        }
+        //[Fact]
+        //public override Task LoadItemsWithPagingWorks()
+        //{
+        //    return base.LoadItemsWithPagingWorks();
+        //}
 
         [Fact]
         public override Task LoadItemsWithWhereWorks()

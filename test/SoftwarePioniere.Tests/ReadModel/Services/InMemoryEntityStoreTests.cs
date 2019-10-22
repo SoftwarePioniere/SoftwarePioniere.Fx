@@ -69,17 +69,17 @@ namespace SoftwarePioniere.Tests.ReadModel.Services
             base.LoadItemsWithCancelationThrowsError();
         }
 
-        [Fact]
-        public override void LoadItemsWithPagingAndCancelationThrowsError()
-        {
-            base.LoadItemsWithPagingAndCancelationThrowsError();
-        }
+        //[Fact]
+        //public override void LoadItemsWithPagingAndCancelationThrowsError()
+        //{
+        //    base.LoadItemsWithPagingAndCancelationThrowsError();
+        //}
 
-        [Fact]
-        public override Task LoadItemsWithPagingWorks()
-        {
-            return base.LoadItemsWithPagingWorks();
-        }
+        //[Fact]
+        //public override Task LoadItemsWithPagingWorks()
+        //{
+        //    return base.LoadItemsWithPagingWorks();
+        //}
 
         //[Fact]
         //public override Task LoadItemsWithPagingAndOrderingWorks()

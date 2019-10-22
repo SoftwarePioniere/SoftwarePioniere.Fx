@@ -23,6 +23,7 @@ namespace SoftwarePioniere.AzureCosmosDb
             _logger.LogInformation("AzureCosmosDb Connection {Connection}", options);
      
             Client = new CosmosClient(Options.EndpointUrl, Options.AuthKey);
+            //BulkClient = new CosmosClient(Options.EndpointUrl, Options.AuthKey, new CosmosClientOptions() { AllowBulkExecution = true });
             Database = Client.GetDatabase(Options.DatabaseId);
             Container = Database.GetContainer(Options.CollectionId);
         }
@@ -33,6 +34,7 @@ namespace SoftwarePioniere.AzureCosmosDb
 
         public CosmosClient Client { get; }
 
+        //public CosmosClient BulkClient { get; }
     
         public AzureCosmosDbOptions Options { get; }
 

@@ -10,5 +10,7 @@ namespace SoftwarePioniere.Projections
         }
 
         public long? LastCheckPoint { get; set; }
+        public string ProjectorId { get; set; }
+        public string StreamName { get; set; }
     }
 }

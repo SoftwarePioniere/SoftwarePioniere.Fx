@@ -20,7 +20,7 @@ namespace SoftwarePioniere.EventStore.Tests
         {
             var setup = GetService<EventStoreSetup>();
             var store = GetService<IEventStore>();
-            var proj = GetService<IEventStoreProjectionReader>();
+            var proj = GetService<IEventStoreReader>();
 
             var name = $"tests{Guid.NewGuid().ToString().Replace("-", "")}";
             var query = TestFiles.GetFileContent("FakeCounterProjection.js");
@@ -42,7 +42,7 @@ namespace SoftwarePioniere.EventStore.Tests
             await store.SaveEventsAsync<FakeAggregate>(save.First().AggregateId, save, 154);
             await Task.Delay(1500);
 
-            var result = await proj.GetStateAsync<X1>(name, save.First().AggregateId.Replace("-", ""));
+            var result = await proj.GetProjectionStateAsync<X1>(name, save.First().AggregateId.Replace("-", ""));
 
             result.Should().NotBeNull();
             result.Ids.Length.Should().Be(save.Length);
@@ -58,7 +58,7 @@ namespace SoftwarePioniere.EventStore.Tests
         {
             var setup = GetService<EventStoreSetup>();
             var store = GetService<IEventStore>();
-            var proj = GetService<IEventStoreProjectionReader>();
+            var proj = GetService<IEventStoreReader>();
 
             var name = $"tests{Guid.NewGuid().ToString().Replace("-", "")}";
             var query = TestFiles.GetFileContent("FakeCounterProjection.js");
@@ -86,7 +86,7 @@ namespace SoftwarePioniere.EventStore.Tests
                 Ids = new string[0]
             };
 
-            var result = await proj.GetStateAsyncAnonymousType(name, definition, save.First().AggregateId.Replace("-", ""));
+            var result = await proj.GetProjectionStateAsyncAnonymousType(name, definition, save.First().AggregateId.Replace("-", ""));
 
             result.Should().NotBeNull();
             result.Ids.Length.Should().Be(save.Length);
