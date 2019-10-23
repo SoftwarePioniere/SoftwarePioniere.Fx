@@ -43,7 +43,7 @@ namespace SoftwarePioniere.Hosting.AspNetCore
                         .AddReportingOptions()
                         
                         .AddPlatformServices()
-                        .AddAppInsightsTelemetry()
+                      //  .AddAppInsightsTelemetry()
                         .AddAuthentication()
                         .AddSystemServicesByConfiguration()
                         .AddMvcServices()

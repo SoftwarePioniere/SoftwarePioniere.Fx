@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
@@ -34,9 +33,7 @@ namespace SoftwarePioniere.Projections
         }
 
 
-        public virtual async Task SaveAsync(EntityDescriptor<T> ent, IMessage msg, object entityToSerialize
-            , Action<NotificationMessage> configureNotification = null
-            , IDictionary<string, string> state = null)
+        public virtual async Task SaveAsync(EntityDescriptor<T> ent, IMessage msg, object entityToSerialize, Action<NotificationMessage> configureNotification = null)
         {
             Logger.LogDebug("SaveAsync {Id} {IsNew}", ent.EntityId, ent.IsNew);
             ent.Entity.ModifiedOnUtc = msg.TimeStampUtc;
@@ -55,9 +52,7 @@ namespace SoftwarePioniere.Projections
             }
         }
 
-        public virtual async Task DeleteAsync(string itemOnlyId, IMessage message, Func<T, object> objectToSeriaizer = null,
-            Action<NotificationMessage> configureNotification = null
-            , IDictionary<string, string> state = null)
+        public virtual async Task DeleteAsync(string itemOnlyId, IMessage message, Func<T, object> objectToSeriaizer = null, Action<NotificationMessage> configureNotification = null)
         {
             var item = await LoadAsync(itemOnlyId);
 

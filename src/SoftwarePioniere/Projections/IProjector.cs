@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 using SoftwarePioniere.Messaging;
 
@@ -12,6 +11,6 @@ namespace SoftwarePioniere.Projections
 
         string StreamName { get; }
 
-        Task ProcessEventAsync(IDomainEvent domainEvent, IDictionary<string, string> state = null);
+        Task ProcessEventAsync(IDomainEvent domainEvent);
     }
 }

@@ -6,23 +6,44 @@ using Microsoft.Extensions.Logging;
 using SoftwarePioniere.Caching;
 using SoftwarePioniere.Messaging;
 using SoftwarePioniere.ReadModel;
-using SoftwarePioniere.Telemetry;
+
 
 // ReSharper disable once CheckNamespace
 namespace SoftwarePioniere.Projections
 {
     public abstract class ReadModelProjectorBase2<T> : ReadModelProjectorBase<T> where T : Entity
     {
-        protected ITelemetryAdapter TelemetryAdapter { get; private set; }
-
-        protected CancellationToken CancellationToken { get; private set; }
-
-        protected ICacheAdapter Cache { get; private set; }
-
         protected ReadModelProjectorBase2(ILoggerFactory loggerFactory, IProjectorServices services) : base(loggerFactory, services.Bus)
         {
-            TelemetryAdapter = services.TelemetryAdapter;
+            //TelemetryAdapter = services.TelemetryAdapter;
             Cache = services.Cache;
+        }
+
+        protected ICacheAdapter Cache { get; }
+        // ReSharper disable once UnusedAutoPropertyAccessor.Global
+        protected CancellationToken CancellationToken { get; private set; }
+
+        protected async Task HandleIfAsync<TEvent>(Func<TEvent, Task> handler, IDomainEvent domainEvent)
+        {
+            if (domainEvent is TEvent message)
+            {
+                var eventType = typeof(TEvent).FullName;
+                var eventId = domainEvent.Id.ToString();
+
+                var state = new Dictionary<string, object>
+                {
+                    {"EventType", eventType},
+                    {"EventId", eventId},
+                    {"ProjectorType", GetType().FullName},
+                    {"StreamName", StreamName}
+                };
+
+                using (Logger.BeginScope(state))
+                {
+                    Logger.LogInformation($"HANDLE PROJECTOR EVENT {StreamName}/{domainEvent.GetType().Name}");
+                    await handler(message);
+                }
+            }
         }
 
         public override void Initialize(CancellationToken cancellationToken = new CancellationToken())
@@ -35,41 +56,5 @@ namespace SoftwarePioniere.Projections
             Logger.LogError(ex, "Ein Fehler ist aufgetreten {Message}", ex.GetBaseException().Message);
             return true;
         }
-
-        protected Task HandleIfAsync<TEvent>(Func<
-            TEvent
-            , Task> handler
-            , IDomainEvent domainEvent, IDictionary<string, string> parentState)
-        {
-            if (domainEvent is TEvent message)
-            {
-                if (parentState == null)
-                    parentState = new Dictionary<string, string>();
-
-                var eventType = typeof(TEvent).FullName;
-                var eventId = domainEvent.Id.ToString();
-
-                parentState.AddProperty("EventType", eventType)
-                        .AddProperty("EventId", eventId)
-                        .AddProperty("ProjectorType", GetType().FullName)
-                    ;
-
-                if (!string.IsNullOrEmpty(StreamName))
-                    parentState.AddProperty("StreamName", StreamName);
-
-                var operationName = $"HANDLE PROJECTOR EVENT {StreamName}/{domainEvent.GetType().Name}";
-
-                return TelemetryAdapter.RunDependencyAsync(operationName,
-                    "PROJECTOR",
-                    (state) => handler(message),//, state),
-                    parentState,
-                    Logger);
-
-            }
-
-            return Task.CompletedTask;
-        }
-
-
     }
 }

@@ -1,8 +1,6 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using SoftwarePioniere.AspNetCore;
 using Swashbuckle.AspNetCore.Annotations;
 using WebApp.Clients;
 
@@ -11,49 +9,45 @@ namespace WebApp.Controller
     [Route("testsystemclient")]
     [ApiController]
     [ApiExplorerSettings(GroupName = "test")]
-    public class TestSystemClientController : ControllerBase
+    public class TestSystemClientController : MyControllerBase
     {
-        private readonly ILogger<TestSystemClientController> _logger;
-
-        public TestSystemClientController(ILogger<TestSystemClientController> logger)
-        {
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-
-        }
 
         [HttpGet("forbidden")]
         [SwaggerOperation(OperationId = "GetTestSystemClientForbidden")]
-        public Task<ActionResult<ModelA>> GetForbidden(
+        public async Task<ActionResult<ModelA>> GetForbidden(
             [FromServices] ITestSystemClient client)
         {
-            return this.RunWithTelemetryAsync("QUERY GetForbidden", (state) => client.GetForbidden(), _logger);
+            return await client.GetForbidden();
 
         }
 
         [HttpGet("ok")]
         [SwaggerOperation(OperationId = "GetTestSystemClientOk")]
-        public Task<ActionResult<ModelA>> GetOk([FromServices] ITestSystemClient client)
+        public async Task<ActionResult<ModelA>> GetOk([FromServices] ITestSystemClient client)
         {
-            return this.RunWithTelemetryAsync("QUERY GetOk", (state) => client.GetOk(), _logger);
+            return await client.GetOk();
 
         }
 
         [HttpGet("nocontent")]
         [SwaggerOperation(OperationId = "GetTestSystemClientNoContent")]
-        public Task<ActionResult<ModelA>> GetNoContent([FromServices] ITestSystemClient client)
+        public async Task<ActionResult<ModelA>> GetNoContent([FromServices] ITestSystemClient client)
         {
-            return this.RunWithTelemetryAsync("QUERY GetNoContent", (state) => client.GetNoContent(), _logger);
+            return await client.GetNoContent();
 
         }
 
         [HttpGet("badrequest")]
         [SwaggerOperation(OperationId = "GetTestSystemClientBadRequest")]
-        public Task<ActionResult<ModelA>> GetBadRequest([FromServices] ITestSystemClient client)
+        public async Task<ActionResult<ModelA>> GetBadRequest([FromServices] ITestSystemClient client)
         {
-            return this.RunWithTelemetryAsync("QUERY GetBadRequest", (state) => client.GetBadRequest(), _logger);
+            return await client.GetBadRequest();
 
         }
 
 
+        public TestSystemClientController(ILoggerFactory loggerFactory) : base(loggerFactory)
+        {
+        }
     }
 }
