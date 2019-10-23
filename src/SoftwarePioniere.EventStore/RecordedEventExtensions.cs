@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using EventStore.ClientAPI;
 using Newtonsoft.Json;
+using SoftwarePioniere.Domain;
 using SoftwarePioniere.Messaging;
 
 namespace SoftwarePioniere.EventStore
@@ -21,7 +22,20 @@ namespace SoftwarePioniere.EventStore
 
             var typeName = eventHeaders[EventStoreConstants.EventTypeHeader];
 
-            var eventClrType = Type.GetType(typeName, true);
+            Type eventClrType;
+            if (EventTypeMap.Instance.Mappings.ContainsKey(typeName))
+            {
+                var b = EventTypeMap.Instance.Mappings.TryGetValue(typeName, out eventClrType);
+                if (!b)
+                {
+                    throw new InvalidOperationException("Error with EventTypeMap");
+                }
+            }
+            else
+            {
+                eventClrType = Type.GetType(typeName, true);
+            }
+
             var o = JsonConvert.DeserializeObject(data, eventClrType);
 
             return o as IDomainEvent;
