@@ -41,7 +41,7 @@ namespace SoftwarePioniere.EventStore.Domain
 
         public Task<string> RunQueryAsync(string name, string query)
         {
-            _logger.LogInformation("RunQueryAsync {Query}", query);
+            _logger.LogDebug("RunQueryAsync {Query}", query);
 
             var queryMan = _provider.CreateQueryManager();
             return queryMan.ExecuteAsync(name, query,
@@ -51,7 +51,7 @@ namespace SoftwarePioniere.EventStore.Domain
 
         public async Task ReadStreamAndDoAsync(string streamName, Action<MyRecordedEvent> action, int count = 200)
         {
-            _logger.LogInformation("ReadStreamAndDoAsync {StreamName}", streamName);
+            _logger.LogDebug("ReadStreamAndDoAsync {StreamName}", streamName);
 
             long sliceStart = StreamPosition.Start;
             StreamEventsSlice currentSlice;
@@ -92,7 +92,7 @@ namespace SoftwarePioniere.EventStore.Domain
 
         public async Task ReadStreamAndDoAsync(string streamName, Func<MyRecordedEvent, Task> task, int count = 200)
         {
-            _logger.LogInformation("ReadStreamAndDoAsync {StreamName}", streamName);
+            _logger.LogDebug("ReadStreamAndDoAsync {StreamName}", streamName);
 
             long sliceStart = StreamPosition.Start;
             StreamEventsSlice currentSlice;

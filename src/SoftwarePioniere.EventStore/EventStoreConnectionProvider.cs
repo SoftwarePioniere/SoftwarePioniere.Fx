@@ -120,7 +120,7 @@ namespace SoftwarePioniere.EventStore
 
                 if (Options.UseSslCertificate)
                 {
-                    _logger.LogInformation("Connceting To GetEventStore: with SSL IP: {0}:{1} // User: {2}", Options.IpEndPoint, Options.ExtSecureTcpPort, Options.OpsUsername);
+                    _logger.LogInformation("Connecting To GetEventStore: with SSL IP: {0}:{1} // User: {2}", Options.IpEndPoint, Options.ExtSecureTcpPort, Options.OpsUsername);
 
                     var url = $"tcp://{ipa.MapToIPv4()}:{Options.ExtSecureTcpPort}";
                     connectionSettingsBuilder.UseSslConnection(Options.SslTargetHost, Options.SslValidateServer);
@@ -129,7 +129,7 @@ namespace SoftwarePioniere.EventStore
                 }
                 else
                 {
-                    _logger.LogInformation("Connceting To GetEventStore: without SSL IP: {0}:{1} // User: {2}", Options.IpEndPoint, Options.TcpPort, Options.OpsUsername);
+                    _logger.LogInformation("Connecting To GetEventStore: without SSL IP: {0}:{1} // User: {2}", Options.IpEndPoint, Options.TcpPort, Options.OpsUsername);
 
                     var url = $"tcp://{ipa.MapToIPv4()}:{Options.TcpPort}";
                     var uri = new Uri(url);
@@ -143,7 +143,7 @@ namespace SoftwarePioniere.EventStore
                     //   var url = $"tcp://{ipa.MapToIPv4()}:{Options.ExtSecureTcpPort}";
                     connectionSettingsBuilder.UseSslConnection(Options.SslTargetHost, Options.SslValidateServer);
 
-                _logger.LogInformation("Connceting To GetEventStore: for Cluster // User: {0}", Options.OpsUsername);
+                _logger.LogInformation("Connecting To GetEventStore: for Cluster // User: {0}", Options.OpsUsername);
                 con = CreateForCluster(connectionSettingsBuilder);
             }
 
