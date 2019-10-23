@@ -260,9 +260,6 @@ namespace SoftwarePioniere.Caching
                         await CacheClient.SetAsync(cacheKey, ret, TimeSpan.FromMinutes(_cacheMinutes));
                     else
                         await CacheClient.SetAsync(cacheKey, ret, TimeSpan.FromMinutes(minutes));
-
-
-                    await CacheClient.SetAsync(cacheKey, ret, TimeSpan.FromMinutes(minutes));
                 }
             }
 
