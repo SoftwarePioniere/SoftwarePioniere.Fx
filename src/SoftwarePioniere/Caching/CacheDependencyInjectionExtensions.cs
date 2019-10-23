@@ -8,7 +8,7 @@ namespace Microsoft.Extensions.DependencyInjection
 {
     public static class CacheDependencyInjectionExtensions
     {
-        public static IServiceCollection AddCachingOptions(this IServiceCollection services,Action<CacheOptions> configureCaching = null)
+        public static IServiceCollection AddCachingOptions(this IServiceCollection services, Action<CacheOptions> configureCaching = null)
         {
             if (configureCaching != null)
             {
@@ -23,15 +23,16 @@ namespace Microsoft.Extensions.DependencyInjection
 
             return services;
         }
-        
+
         public static IServiceCollection AddInMemoryCacheClient(this IServiceCollection services)
         {
 
             services.AddCachingOptions();
-            
+
             return services.AddSingleton<ICacheClient>(new InMemoryCacheClient(new InMemoryCacheClientOptions
             {
-                LoggerFactory = services.BuildServiceProvider().GetService<ILoggerFactory>()
+                LoggerFactory = services.BuildServiceProvider().GetService<ILoggerFactory>(),
+                MaxItems = int.MaxValue
             }));
         }
     }
