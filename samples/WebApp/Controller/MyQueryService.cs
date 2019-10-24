@@ -27,10 +27,10 @@ namespace WebApp.Controller
 
         public Task<FakeEntity[]> GetListeAsync(ClaimsPrincipal user)
         {
+            _logger.LogInformation("GetListeAsync");
+
             var items = _cache.CacheLoad(() => _entityStore.LoadItemsAsync<FakeEntity>(),
-                CacheKeys.Create<FakeEntity>("liste"),
-                logger: _logger
-            );
+                CacheKeys.Create<FakeEntity>("liste"));
 
             return items;
         }

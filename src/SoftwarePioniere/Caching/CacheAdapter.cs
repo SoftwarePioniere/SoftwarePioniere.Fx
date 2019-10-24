@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Threading;
 using System.Threading.Tasks;
 using Foundatio.Caching;
 using Foundatio.Lock;
@@ -39,10 +40,10 @@ namespace SoftwarePioniere.Caching
             return CacheClient.SetAsync(key, value, TimeSpan.FromMinutes(60));
         }
 
-        public async Task<List<T>> LoadSetItems<T>(string setKey, Expression<Func<T, bool>> where, int minutes = int.MinValue, ILogger logger = null) where T : Entity
+        public async Task<List<T>> LoadSetItems<T>(string setKey, Expression<Func<T, bool>> where, int minutes = int.MinValue, CancellationToken cancellationToken = default) where T : Entity
         {
             //if (logger == null)
-            logger = _logger;
+            var logger = _logger;
 
             //gibt es die ALLE-Ids Liste?
 
@@ -56,12 +57,14 @@ namespace SoftwarePioniere.Caching
                 logger.LogDebug("LoadSetItems: Key not Found in Cache {Key}", setKey);
                 await _lockProvider.TryUsingAsync(setKey, async () =>
                 {
-                    var entities = await LoadListAndAddSetToCache(setKey, where, minutes, logger);
+                    var entities = await LoadListAndAddSetToCache(setKey, where, minutes, cancellationToken);
                     items.AddRange(entities);
                 }, null, null);
 
                 return items;
             }
+
+            cancellationToken.ThrowIfCancellationRequested();
 
             var idsListValue = await CacheClient.GetSetAsync<string>(setKey);
             if (idsListValue.HasValue)
@@ -87,7 +90,7 @@ namespace SoftwarePioniere.Caching
                         //var alleEntities = await _entityStore.LoadItemsAsync<T>();
                         //var entities = alleEntities.Where(x => missingIds.Contains(x.EntityId)).ToList();
 
-                        var entities = await _entityStore.LoadItemsAsync<T>(x => missingIds.Contains(x.EntityId));
+                        var entities = await _entityStore.LoadItemsAsync<T>(x => missingIds.Contains(x.EntityId), cancellationToken);
 
                         foreach (var item in entities)
                             if (minutes == int.MinValue)
@@ -105,21 +108,21 @@ namespace SoftwarePioniere.Caching
             logger.LogDebug("LoadSetItems: Key not Found in Cache {Key}", setKey);
             await _lockProvider.TryUsingAsync(setKey, async () =>
             {
-                var entities = await LoadListAndAddSetToCache(setKey, where, minutes, logger);
+                var entities = await LoadListAndAddSetToCache(setKey, where, minutes, cancellationToken);
                 items.AddRange(entities);
             }, null, null);
 
             return items;
         }
 
-        public async Task<T[]> LoadListAndAddSetToCache<T>(string setKey, Expression<Func<T, bool>> where, int minutes = int.MinValue, ILogger logger = null) where T : Entity
+        public async Task<T[]> LoadListAndAddSetToCache<T>(string setKey, Expression<Func<T, bool>> where, int minutes = int.MinValue, CancellationToken cancellationToken = default) where T : Entity
         {
             //if (logger == null)
-            logger = _logger;
+            var logger = _logger;
 
             logger.LogDebug("LoadListAndAddSetToCache {setKey}", setKey);
 
-            var entities = await _entityStore.LoadItemsAsync(where);
+            var entities = await _entityStore.LoadItemsAsync(where, cancellationToken);
 
             if (entities.Length > 0)
             {
@@ -149,17 +152,15 @@ namespace SoftwarePioniere.Caching
 
         public ICacheClient CacheClient { get; }
 
-        public Task<T> CacheLoad<T>(Func<Task<T>> loader, string cacheKey, int minutes = int.MinValue,
-            ILogger logger = null)
+        public Task<T> CacheLoad<T>(Func<Task<T>> loader, string cacheKey, int minutes = int.MinValue)
         {
-            return CacheLoadItem(loader, cacheKey, minutes, logger);
+            return CacheLoadItem(loader, cacheKey, minutes);
         }
 
-        public async Task<T> CacheLoadItem<T>(Func<Task<T>> loader, string cacheKey, int minutes = int.MinValue,
-            ILogger logger = null)
+        public async Task<T> CacheLoadItem<T>(Func<Task<T>> loader, string cacheKey, int minutes = int.MinValue)
         {
             //if (logger == null) 
-            logger = _logger;
+            var logger = _logger;
 
             logger.LogDebug("CacheLoad for EntityType: {EntityType} with Key {CacheKey}", typeof(T), cacheKey);
 
@@ -196,11 +197,10 @@ namespace SoftwarePioniere.Caching
             return ret;
         }
 
-        public async Task<T[]> CacheLoadItems<T>(Func<Task<T[]>> loader, string cacheKey, int minutes = int.MinValue,
-            ILogger logger = null)
+        public async Task<T[]> CacheLoadItems<T>(Func<Task<T[]>> loader, string cacheKey, int minutes = int.MinValue)
         {
             //if (logger == null)
-            logger = _logger;
+            var logger = _logger;
 
             logger.LogDebug("CacheLoad for EntityType: {EntityType} with Key {CacheKey}", typeof(T), cacheKey);
 
