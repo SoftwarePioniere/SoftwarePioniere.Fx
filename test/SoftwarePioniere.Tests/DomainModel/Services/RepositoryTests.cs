@@ -88,19 +88,19 @@ namespace SoftwarePioniere.Tests.DomainModel.Services
             }
 
             public Task SubscribeMessage<T>(Func<T, Task> handler,
-                CancellationToken cancellationToken = default) where T : class, IMessage
+                CancellationToken cancellationToken = default, Func<T, string> lockId = null) where T : class, IMessage
             {
                 throw new NotImplementedException();
             }
 
             public Task SubscribeCommand<T>(Func<T, Task> handler,
-                CancellationToken cancellationToken = default) where T : class, ICommand
+                CancellationToken cancellationToken = default, Func<T, string> lockId = null) where T : class, ICommand
             {
                 throw new NotImplementedException();
             }
 
             public Task SubscribeAggregateDomainEvent<TAggregate, TDomainEvent>(Func<TDomainEvent, AggregateTypeInfo<TAggregate>, Task> handler,
-                CancellationToken cancellationToken = default) where TAggregate : IAggregateRoot where TDomainEvent : class, IDomainEvent
+                CancellationToken cancellationToken = default, Func<TDomainEvent, AggregateTypeInfo<TAggregate>, string> lockId = null) where TAggregate : IAggregateRoot where TDomainEvent : class, IDomainEvent
             {
                 throw new NotImplementedException();
             }
@@ -183,7 +183,7 @@ namespace SoftwarePioniere.Tests.DomainModel.Services
             {
                 await repo.GetByIdAsync<FakeAggregate>(Guid.NewGuid().ToString(), token);
             };
-    
+
             f1.Should().Throw<Exception>();
 
         }

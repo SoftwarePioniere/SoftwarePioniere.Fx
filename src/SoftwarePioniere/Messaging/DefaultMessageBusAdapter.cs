@@ -6,8 +6,6 @@ using System.Threading.Tasks;
 using Foundatio.Lock;
 using Foundatio.Messaging;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using SoftwarePioniere.Builder;
 using SoftwarePioniere.Domain;
 using SoftwarePioniere.Hosting;
 using SoftwarePioniere.Messaging.Notifications;
@@ -18,12 +16,11 @@ namespace SoftwarePioniere.Messaging
     public class DefaultMessageBusAdapter : IMessageBusAdapter
     {
         private readonly ISopiApplicationLifetime _applicationLifetime;
-        private readonly ILockProvider _lockProvider;
         private readonly IMessageBus _bus;
+        private readonly ILockProvider _lockProvider;
         private readonly ILogger _logger;
-        private readonly MessageBusOptions _options;
 
-        public DefaultMessageBusAdapter(ILoggerFactory loggerFactory, IMessageBus bus, ISopiApplicationLifetime applicationLifetime, IOptions<MessageBusOptions> options, ILockProvider lockProvider)
+        public DefaultMessageBusAdapter(ILoggerFactory loggerFactory, IMessageBus bus, ISopiApplicationLifetime applicationLifetime, ILockProvider lockProvider)
         {
             if (loggerFactory == null) throw new ArgumentNullException(nameof(loggerFactory));
             _logger = loggerFactory.CreateLogger(GetType());
@@ -31,7 +28,6 @@ namespace SoftwarePioniere.Messaging
             _bus = bus ?? throw new ArgumentNullException(nameof(bus));
             _applicationLifetime = applicationLifetime;
             _lockProvider = lockProvider;
-            _options = options.Value;
         }
 
         public Task PublishAsync(Type messageType, object message, TimeSpan? delay = null, CancellationToken cancellationToken = default)
@@ -47,15 +43,29 @@ namespace SoftwarePioniere.Messaging
             return _bus.PublishAsync(messageType, message, delay, cancellationToken);
         }
 
-        public async Task SubscribeMessage<T>(Func<T, Task> handler, CancellationToken cancellationToken = default) where T : class, IMessage
+        public async Task SubscribeMessage<T>(Func<T, Task> handler, CancellationToken cancellationToken = default
+            , Func<T, string> lockId = null
+        ) where T : class, IMessage
         {
             _logger.LogDebug("Subscribing to Message {MessageType}", typeof(T).GetTypeShortName());
             var bus = _bus;
 
-            await bus.SubscribeAsync<T>(async (message, token) => { await handler(message); }, cancellationToken);
+            await bus.SubscribeAsync<T>(async (message, token) =>
+            {
+                if (lockId != null)
+                {
+                    var lockResource = lockId(message);
+                    _logger.LogDebug("Handle Message with Lock {LockId}", lockResource);
+                    await _lockProvider.TryUsingAsync(lockResource, token1 => handler(message), cancellationToken: cancellationToken);
+                }
+                else
+                {
+                    await handler(message);
+                }
+            }, cancellationToken);
         }
 
-        public async Task SubscribeCommand<T>(Func<T, Task> handler, CancellationToken cancellationToken = default) where T : class, ICommand
+        public async Task SubscribeCommand<T>(Func<T, Task> handler, CancellationToken cancellationToken = default, Func<T, string> lockId = null) where T : class, ICommand
         {
             var cts = CancellationTokenSource.CreateLinkedTokenSource(_applicationLifetime.Stopped, cancellationToken);
 
@@ -66,7 +76,17 @@ namespace SoftwarePioniere.Messaging
                     var state = message.CreateState();
                     try
                     {
-                        await handler(message);
+                        if (lockId != null)
+                        {
+                            var lockResource = lockId(message);
+                            _logger.LogDebug("Handle Command with Lock {LockId}", lockResource);
+                            await _lockProvider.TryUsingAsync(lockResource, token1 => handler(message), cancellationToken: cancellationToken);
+                        }
+                        else
+                        {
+                            await handler(message);
+                        }
+
                         await PublishAsync(CommandSucceededNotification.Create(message, state), cancellationToken: token);
                     }
                     catch (Exception e)
@@ -79,7 +99,9 @@ namespace SoftwarePioniere.Messaging
         }
 
         public async Task SubscribeAggregateDomainEvent<TAggregate, TDomainEvent>(Func<TDomainEvent, AggregateTypeInfo<TAggregate>, Task> handler,
-            CancellationToken cancellationToken = default) where TAggregate : IAggregateRoot where TDomainEvent : class, IDomainEvent
+            CancellationToken cancellationToken = default
+            , Func<TDomainEvent, AggregateTypeInfo<TAggregate>, string> lockId = null
+        ) where TAggregate : IAggregateRoot where TDomainEvent : class, IDomainEvent
         {
             _logger.LogDebug("Subscribing to AggregateEvent {AggregateName} {MessageType}",
                 typeof(TAggregate).GetAggregateName(),
@@ -113,17 +135,17 @@ namespace SoftwarePioniere.Messaging
                         return handler(domainEvent, new AggregateTypeInfo<TAggregate>(message.AggregateId));
                     }
 
-                    if (_options.LockDomainEvents)
+                    if (lockId != null)
                     {
-                        var lockId = $"{message.AggregateType}-{message.AggregateId}";
-                        await _lockProvider.TryUsingAsync(lockId, (token1) => Exc(), cancellationToken: cancellationToken);
+                        var lockResource = lockId(domainEvent, new AggregateTypeInfo<TAggregate>(message.AggregateId));
+                        _logger.LogDebug("Handle Domain Event with Lock {LockId}", lockResource);
+                        await _lockProvider.TryUsingAsync(lockResource, token1 => Exc(), cancellationToken: cancellationToken);
                     }
                     else
                     {
                         _logger.LogDebug("Handle Domain Event without Locking");
                         await Exc();
                     }
-
                 }
             }, cancellationToken);
         }
