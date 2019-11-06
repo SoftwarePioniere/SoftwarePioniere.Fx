@@ -30,6 +30,7 @@ namespace SoftwarePioniere.Hosting
                         .AddDevOptions()
                         .AddLifetimeOptions()
                         .AddReportingOptions()
+                        .AddMessageBusOptions()
                         .AddDefaultTelemetry()
                         .AddSystemServicesByConfiguration()
                         .AddClients()

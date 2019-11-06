@@ -3,8 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Foundatio.Lock;
 using Foundatio.Messaging;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using SoftwarePioniere.Builder;
 using SoftwarePioniere.Domain;
 using SoftwarePioniere.Hosting;
 using SoftwarePioniere.Messaging.Notifications;
@@ -15,16 +18,20 @@ namespace SoftwarePioniere.Messaging
     public class DefaultMessageBusAdapter : IMessageBusAdapter
     {
         private readonly ISopiApplicationLifetime _applicationLifetime;
+        private readonly ILockProvider _lockProvider;
         private readonly IMessageBus _bus;
         private readonly ILogger _logger;
+        private readonly MessageBusOptions _options;
 
-        public DefaultMessageBusAdapter(ILoggerFactory loggerFactory, IMessageBus bus, ISopiApplicationLifetime applicationLifetime)
+        public DefaultMessageBusAdapter(ILoggerFactory loggerFactory, IMessageBus bus, ISopiApplicationLifetime applicationLifetime, IOptions<MessageBusOptions> options, ILockProvider lockProvider)
         {
             if (loggerFactory == null) throw new ArgumentNullException(nameof(loggerFactory));
             _logger = loggerFactory.CreateLogger(GetType());
 
             _bus = bus ?? throw new ArgumentNullException(nameof(bus));
             _applicationLifetime = applicationLifetime;
+            _lockProvider = lockProvider;
+            _options = options.Value;
         }
 
         public Task PublishAsync(Type messageType, object message, TimeSpan? delay = null, CancellationToken cancellationToken = default)
@@ -101,7 +108,22 @@ namespace SoftwarePioniere.Messaging
                     //    .AddProperty("AggregateId", aggregateId)
                     //    ;
 
-                    await handler(domainEvent, new AggregateTypeInfo<TAggregate>(message.AggregateId));
+                    Task Exc()
+                    {
+                        return handler(domainEvent, new AggregateTypeInfo<TAggregate>(message.AggregateId));
+                    }
+
+                    if (_options.LockDomainEvents)
+                    {
+                        var lockId = $"{message.AggregateType}-{message.AggregateId}";
+                        await _lockProvider.TryUsingAsync(lockId, (token1) => Exc(), cancellationToken: cancellationToken);
+                    }
+                    else
+                    {
+                        _logger.LogDebug("Handle Domain Event without Locking");
+                        await Exc();
+                    }
+
                 }
             }, cancellationToken);
         }
