@@ -43,5 +43,15 @@ namespace SoftwarePioniere
 
             return false;
         }
+
+        public static ClaimsPrincipal CreateClientCredential()
+        {
+            var user = new ClaimsPrincipal(new ClaimsIdentity(new[]
+            {
+                new Claim("gty", "client-credentials"),
+                new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier","SYSTEM")
+            }));
+            return user;
+        }
     }
 }

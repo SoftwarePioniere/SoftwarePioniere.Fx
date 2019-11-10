@@ -12,6 +12,7 @@ using EventStore.ClientAPI.UserManagement;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using ILogger = Microsoft.Extensions.Logging.ILogger;
+
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable ClassNeverInstantiated.Global
@@ -19,84 +20,18 @@ using ILogger = Microsoft.Extensions.Logging.ILogger;
 namespace SoftwarePioniere.EventStore
 {
     /// <summary>
-    /// Verbindung zum Event Store
+    ///     Verbindung zum Event Store
     /// </summary>
     public sealed class EventStoreConnectionProvider
     {
+        private static readonly SemaphoreSlim SemaphoreSlim = new SemaphoreSlim(1, 1);
+
+        private readonly Lazy<IEventStoreConnection> _connection;
+
+        private readonly ConcurrentDictionary<string, IPAddress> _hostIpAddresses = new ConcurrentDictionary<string, IPAddress>();
         private readonly ILogger _logger;
 
-        public ProjectionsManager CreateProjectionsManager()
-        {
-            var manager = new ProjectionsManager(new EventStoreLogger(_logger), GetHttpIpEndpoint(),
-                TimeSpan.FromSeconds(5));
-            return manager;
-        }
-
-        public UsersManager CreateUsersManager()
-        {
-            var manager = new UsersManager(new EventStoreLogger(_logger), GetHttpIpEndpoint(),
-                TimeSpan.FromSeconds(5));
-            return manager;
-        }
-
-        public PersistentSubscriptionsManager CreatePersistentSubscriptionsManager()
-        {
-            var manager = new PersistentSubscriptionsManager(new EventStoreLogger(_logger), GetHttpIpEndpoint(),
-                TimeSpan.FromSeconds(5));
-            return manager;
-        }
-
-        public IEventStoreConnection CreateNewConnection(Action<ConnectionSettingsBuilder> setup = null)
-        {
-            _logger.LogTrace("Creating Connection");
-
-            IEventStoreConnection con;
-            var connectionSettingsBuilder = ConnectionSettings.Create()
-                .KeepReconnecting()
-                .KeepRetrying();
-
-            setup?.Invoke(connectionSettingsBuilder);
-
-            if (!Options.UseCluster)
-            {
-                var ipa = GetHostIp(Options.IpEndPoint);
-
-                if (Options.UseSslCertificate)
-                {
-                    _logger.LogInformation("Connceting To GetEventStore: with SSL IP: {0}:{1} // User: {2}", Options.IpEndPoint, Options.ExtSecureTcpPort, Options.OpsUsername);
-
-                    var url = $"tcp://{ipa.MapToIPv4()}:{Options.ExtSecureTcpPort}";
-                    connectionSettingsBuilder.UseSslConnection(Options.SslTargetHost, Options.SslValidateServer);
-                    var uri = new Uri(url);
-                    con = EventStoreConnection.Create(connectionSettingsBuilder, uri);
-                }
-                else
-                {
-                    _logger.LogInformation("Connceting To GetEventStore: without SSL IP: {0}:{1} // User: {2}", Options.IpEndPoint, Options.TcpPort, Options.OpsUsername);
-
-                    var url = $"tcp://{ipa.MapToIPv4()}:{Options.TcpPort}";
-                    var uri = new Uri(url);
-                    con = EventStoreConnection.Create(connectionSettingsBuilder, uri);
-                }
-            }
-            else
-            {
-                if (Options.UseSslCertificate)
-                {
-                    //var ipa = GetHostIp(Options.IpEndPoint);
-                    //   var url = $"tcp://{ipa.MapToIPv4()}:{Options.ExtSecureTcpPort}";
-                    connectionSettingsBuilder.UseSslConnection(Options.SslTargetHost, Options.SslValidateServer);
-                }
-
-                _logger.LogInformation("Connceting To GetEventStore: for Cluster // User: {0}", Options.OpsUsername);
-                con = CreateForCluster(connectionSettingsBuilder);
-            }
-
-            RegisterEvents(con);
-            //con.ConnectAsync().ConfigureAwait(false).GetAwaiter().GetResult();
-
-            return con;
-        }
+        private IPEndPoint _httpEndpoint;
 
         public EventStoreConnectionProvider(ILoggerFactory loggerFactory, IOptions<EventStoreOptions> ioptions)
         {
@@ -115,6 +50,35 @@ namespace SoftwarePioniere.EventStore
             _connection = new Lazy<IEventStoreConnection>(() => CreateNewConnection(options.ConnectionSetup));
         }
 
+        /// <summary>
+        ///     Admin Verbindungsdaten
+        /// </summary>
+        public UserCredentials AdminCredentials { get; }
+
+        public EventHandler ConfigurationStateChanged { get; set; }
+
+        public EventHandler ConnectionChanged { get; set; }
+
+        public bool IsConfigured { get; private set; }
+
+
+        public bool IsConnected { get; private set; }
+
+        ///// <summary>
+        ///// Connection als Lazy Objekt
+        ///// </summary>
+        //public Lazy<IEventStoreConnection> Connection { get; }
+
+        /// <summary>
+        ///     Ops Verbindungsdaten
+        /// </summary>
+        public UserCredentials OpsCredentials { get; }
+
+        /// <summary>
+        ///     Einstellungen
+        /// </summary>
+        public EventStoreOptions Options { get; }
+
         private IEventStoreConnection CreateForCluster(ConnectionSettingsBuilder connectionSettingsBuilder)
         {
             var endpoints = Options.ClusterIpEndpoints.Select((x, i) =>
@@ -122,14 +86,10 @@ namespace SoftwarePioniere.EventStore
                 var ipa = GetHostIp(x);
                 var port = Options.TcpPort;
 
-                if (Options.ClusterHttpPorts.Length >= i + 1)
-                {
-                    port = Options.ClusterHttpPorts[i];
-                }
+                if (Options.ClusterHttpPorts.Length >= i + 1) port = Options.ClusterHttpPorts[i];
 
                 _logger.LogTrace($"Creating Cluster IP Endpoint: {ipa}:{port}");
                 return new IPEndPoint(ipa, port);
-
             });
 
             var clusterSettings = ClusterSettings.Create()
@@ -142,120 +102,84 @@ namespace SoftwarePioniere.EventStore
             return con;
         }
 
-        public EventHandler ConnectionChanged { get; set; }
 
-        public EventHandler ConfigurationStateChanged { get; set; }
-
-        private void OnConnectionChanged()
+        public IEventStoreConnection CreateNewConnection(Action<ConnectionSettingsBuilder> setup = null)
         {
-            var handler = ConnectionChanged;
-            handler?.Invoke(this, EventArgs.Empty);
-        }
+            _logger.LogTrace("Creating Connection");
 
-        private void OnConfigurationStateChanged()
-        {
-            var handler = ConfigurationStateChanged;
-            handler?.Invoke(this, EventArgs.Empty);
-        }
+            IEventStoreConnection con;
+            var connectionSettingsBuilder = ConnectionSettings.Create()
+                .KeepReconnecting()
+                .KeepRetrying();
 
-        private void RegisterEvents(IEventStoreConnection con)
-        {
-            con.Disconnected += (s, e) =>
+            setup?.Invoke(connectionSettingsBuilder);
+
+            if (!Options.UseCluster)
             {
-                _logger.LogInformation("EventStore Disconnected: {ConnectionName}", e.Connection.ConnectionName);
-                IsConnected = false;
-                OnConnectionChanged();
+                var ipa = GetHostIp(Options.IpEndPoint);
 
-            };
-
-            con.Reconnecting += (s, e) =>
-            {
-                _logger.LogInformation("EventStore Reconnecting: {ConnectionName}", e.Connection.ConnectionName);
-            };
-
-            con.Connected += (s, e) =>
-            {
-                _logger.LogInformation("EventStore Connected: {ConnectionName}", e.Connection.ConnectionName);
-                IsConnected = true;
-
-
-                //                if (!_isConfigured)
-                //                {
-                //                    _isConfigured = true;
-                //                    _logger.LogInformation("EventStore Connected: {ConnectionName} - Starting Configuration", e.Connection.ConnectionName);
-                //                    _configuration.ConfigureEventStore(this);
-                //                }
-
-                OnConnectionChanged();
-            };
-        }
-
-        public void SetConfigurationState(bool isConfigured)
-        {
-            IsConfigured = isConfigured;
-            OnConfigurationStateChanged();
-        }
-
-
-        public bool IsConnected { get; private set; }
-
-        public bool IsConfigured { get; private set; }
-
-        private readonly ConcurrentDictionary<string, IPAddress> _hostIpAddresses = new ConcurrentDictionary<string, IPAddress>();
-
-        private IPAddress GetHostIp(string ipEndpoint)
-        {
-            _logger.LogTrace("GetHostIp for IpEndPoint {IpEndPoint}", ipEndpoint);
-
-            if (_hostIpAddresses.ContainsKey(ipEndpoint))
-                return _hostIpAddresses[ipEndpoint];
-
-            if (!IPAddress.TryParse(ipEndpoint, out var ipa))
-            {
-                _logger.LogTrace("TryParse IP faulted, Try to lookup DNS");
-
-                var hostIp = Dns.GetHostAddressesAsync(ipEndpoint).ConfigureAwait(false).GetAwaiter().GetResult();
-                _logger.LogTrace($"Loaded {hostIp.Length} Host Addresses");
-                foreach (var ipAddress in hostIp)
+                if (Options.UseSslCertificate)
                 {
-                    _logger.LogTrace($"HostIp {ipAddress}");
-                }
+                    _logger.LogInformation("Connecting To GetEventStore: with SSL IP: {0}:{1} // User: {2}", Options.IpEndPoint, Options.ExtSecureTcpPort, Options.OpsUsername);
 
-                if (hostIp.Length > 0)
+                    var url = $"tcp://{ipa.MapToIPv4()}:{Options.ExtSecureTcpPort}";
+                    connectionSettingsBuilder.UseSslConnection(Options.SslTargetHost, Options.SslValidateServer);
+                    var uri = new Uri(url);
+                    con = EventStoreConnection.Create(connectionSettingsBuilder, uri);
+                }
+                else
                 {
+                    _logger.LogInformation("Connecting To GetEventStore: without SSL IP: {0}:{1} // User: {2}", Options.IpEndPoint, Options.TcpPort, Options.OpsUsername);
 
-                    var hostIpAdress = hostIp.Last();
-                    return _hostIpAddresses.GetOrAdd(ipEndpoint, hostIpAdress);
+                    var url = $"tcp://{ipa.MapToIPv4()}:{Options.TcpPort}";
+                    var uri = new Uri(url);
+                    con = EventStoreConnection.Create(connectionSettingsBuilder, uri);
                 }
+            }
+            else
+            {
+                if (Options.UseSslCertificate)
+                    //var ipa = GetHostIp(Options.IpEndPoint);
+                    //   var url = $"tcp://{ipa.MapToIPv4()}:{Options.ExtSecureTcpPort}";
+                    connectionSettingsBuilder.UseSslConnection(Options.SslTargetHost, Options.SslValidateServer);
 
-                throw new InvalidOperationException("cannot resolve eventstore ip");
+                _logger.LogInformation("Connecting To GetEventStore: for Cluster // User: {0}", Options.OpsUsername);
+                con = CreateForCluster(connectionSettingsBuilder);
             }
 
-            return _hostIpAddresses.GetOrAdd(ipEndpoint, ipa);
+            RegisterEvents(con);
+            //con.ConnectAsync().ConfigureAwait(false).GetAwaiter().GetResult();
 
+            return con;
         }
 
-        private IPEndPoint _httpEndpoint;
-
-        public IPEndPoint GetHttpIpEndpoint()
+        public PersistentSubscriptionsManager CreatePersistentSubscriptionsManager()
         {
-            _logger.LogTrace("GetHttpIpEndpoint for IpEndPoint {IpEndPoint}", Options.IpEndPoint);
-
-            if (_httpEndpoint != null)
-                return _httpEndpoint;
-
-            var ipa = GetHostIp(Options.IpEndPoint);
-
-            _httpEndpoint = new IPEndPoint(ipa, Options.HttpPort);
-            return _httpEndpoint;
+            var manager = new PersistentSubscriptionsManager(new EventStoreLogger(_logger), GetHttpIpEndpoint(),
+                TimeSpan.FromSeconds(Options.OperationTimeoutSeconds));
+            return manager;
         }
 
-        /// <summary>
-        /// Einstellungen
-        /// </summary>
-        public EventStoreOptions Options { get; }
+        public ProjectionsManager CreateProjectionsManager()
+        {
+            var manager = new ProjectionsManager(new EventStoreLogger(_logger), GetHttpIpEndpoint(),
+                TimeSpan.FromSeconds(Options.OperationTimeoutSeconds));
+            return manager;
+        }
 
-        private static readonly SemaphoreSlim SemaphoreSlim = new SemaphoreSlim(1, 1);
+        public QueryManager CreateQueryManager()
+        {
+            var manager = new QueryManager(new EventStoreLogger(_logger), GetHttpIpEndpoint(),
+                TimeSpan.FromSeconds(Options.ProjectionOperationTimeoutSeconds), TimeSpan.FromSeconds(Options.QueryTimeoutSeconds));
+            return manager;
+        }
+
+        public UsersManager CreateUsersManager()
+        {
+            var manager = new UsersManager(new EventStoreLogger(_logger), GetHttpIpEndpoint(),
+                TimeSpan.FromSeconds(Options.OperationTimeoutSeconds));
+            return manager;
+        }
 
         public async Task<IEventStoreConnection> GetActiveConnection()
         {
@@ -282,22 +206,45 @@ namespace SoftwarePioniere.EventStore
             return _connection.Value;
         }
 
-        private readonly Lazy<IEventStoreConnection> _connection;
+        private IPAddress GetHostIp(string ipEndpoint)
+        {
+            _logger.LogTrace("GetHostIp for IpEndPoint {IpEndPoint}", ipEndpoint);
 
-        ///// <summary>
-        ///// Connection als Lazy Objekt
-        ///// </summary>
-        //public Lazy<IEventStoreConnection> Connection { get; }
+            if (_hostIpAddresses.ContainsKey(ipEndpoint))
+                return _hostIpAddresses[ipEndpoint];
 
-        /// <summary>
-        /// Ops Verbindungsdaten
-        /// </summary>
-        public UserCredentials OpsCredentials { get; }
+            if (!IPAddress.TryParse(ipEndpoint, out var ipa))
+            {
+                _logger.LogTrace("TryParse IP faulted, Try to lookup DNS");
 
-        /// <summary>
-        /// Admin Verbindungsdaten
-        /// </summary>
-        public UserCredentials AdminCredentials { get; }
+                var hostIp = Dns.GetHostAddressesAsync(ipEndpoint).ConfigureAwait(false).GetAwaiter().GetResult();
+                _logger.LogTrace($"Loaded {hostIp.Length} Host Addresses");
+                foreach (var ipAddress in hostIp) _logger.LogTrace($"HostIp {ipAddress}");
+
+                if (hostIp.Length > 0)
+                {
+                    var hostIpAdress = hostIp.Last();
+                    return _hostIpAddresses.GetOrAdd(ipEndpoint, hostIpAdress);
+                }
+
+                throw new InvalidOperationException("cannot resolve eventstore ip");
+            }
+
+            return _hostIpAddresses.GetOrAdd(ipEndpoint, ipa);
+        }
+
+        public IPEndPoint GetHttpIpEndpoint()
+        {
+            _logger.LogTrace("GetHttpIpEndpoint for IpEndPoint {IpEndPoint}", Options.IpEndPoint);
+
+            if (_httpEndpoint != null)
+                return _httpEndpoint;
+
+            var ipa = GetHostIp(Options.IpEndPoint);
+
+            _httpEndpoint = new IPEndPoint(ipa, Options.HttpPort);
+            return _httpEndpoint;
+        }
 
 
         public async Task<bool> IsStreamEmptyAsync(string streamName)
@@ -331,10 +278,7 @@ namespace SoftwarePioniere.EventStore
             var slice = await con.ReadStreamEventsForwardAsync(streamName, 0, 1, false, AdminCredentials).ConfigureAwait(false);
             _logger.LogTrace("StreamExists {StreamName} : SliceStatus: {SliceStatus}", streamName, slice.Status);
 
-            if (slice.Status == SliceReadStatus.StreamNotFound)
-            {
-                ret = true;
-            }
+            if (slice.Status == SliceReadStatus.StreamNotFound) ret = true;
 
             //}
             //catch (Exception ex)
@@ -348,9 +292,52 @@ namespace SoftwarePioniere.EventStore
             _logger.LogTrace("IsStreamEmptyAsync {StreamName} {IsEmpty}", streamName, ret);
 
             return ret;
-
-
         }
 
+        private void OnConfigurationStateChanged()
+        {
+            var handler = ConfigurationStateChanged;
+            handler?.Invoke(this, EventArgs.Empty);
+        }
+
+        private void OnConnectionChanged()
+        {
+            var handler = ConnectionChanged;
+            handler?.Invoke(this, EventArgs.Empty);
+        }
+
+        private void RegisterEvents(IEventStoreConnection con)
+        {
+            con.Disconnected += (s, e) =>
+            {
+                _logger.LogInformation("EventStore Disconnected: {ConnectionName}", e.Connection.ConnectionName);
+                IsConnected = false;
+                OnConnectionChanged();
+            };
+
+            con.Reconnecting += (s, e) => { _logger.LogInformation("EventStore Reconnecting: {ConnectionName}", e.Connection.ConnectionName); };
+
+            con.Connected += (s, e) =>
+            {
+                _logger.LogInformation("EventStore Connected: {ConnectionName}", e.Connection.ConnectionName);
+                IsConnected = true;
+
+
+                //                if (!_isConfigured)
+                //                {
+                //                    _isConfigured = true;
+                //                    _logger.LogInformation("EventStore Connected: {ConnectionName} - Starting Configuration", e.Connection.ConnectionName);
+                //                    _configuration.ConfigureEventStore(this);
+                //                }
+
+                OnConnectionChanged();
+            };
+        }
+
+        public void SetConfigurationState(bool isConfigured)
+        {
+            IsConfigured = isConfigured;
+            OnConfigurationStateChanged();
+        }
     }
 }

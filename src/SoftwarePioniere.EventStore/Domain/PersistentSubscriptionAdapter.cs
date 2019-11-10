@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using EventStore.ClientAPI;
@@ -7,19 +6,16 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using SoftwarePioniere.Domain;
-using SoftwarePioniere.Telemetry;
 using ILogger = Microsoft.Extensions.Logging.ILogger;
 
 namespace SoftwarePioniere.EventStore.Domain
 {
-
     public class PersistentSubscriptionAdapter<T> : IPersistentSubscriptionAdapter<T>
     {
         private readonly EventStoreConnectionProvider _connectionProvider;
         private readonly CancellationToken _cancellationToken;
-        private readonly ITelemetryAdapter _telemetryAdapter;
 
-        public PersistentSubscriptionAdapter(EventStoreConnectionProvider connectionProvider, IApplicationLifetime applicationLifetime, ITelemetryAdapter telemetryAdapter)
+        public PersistentSubscriptionAdapter(EventStoreConnectionProvider connectionProvider, IApplicationLifetime applicationLifetime)
         {
             if (applicationLifetime == null)
             {
@@ -28,7 +24,7 @@ namespace SoftwarePioniere.EventStore.Domain
 
             _connectionProvider = connectionProvider ?? throw new ArgumentNullException(nameof(connectionProvider));
             _cancellationToken = applicationLifetime.ApplicationStopping;
-            _telemetryAdapter = telemetryAdapter ?? throw new ArgumentNullException(nameof(telemetryAdapter));
+            //_telemetryAdapter = telemetryAdapter ?? throw new ArgumentNullException(nameof(telemetryAdapter));
         }
 
         private string _stream;
@@ -36,12 +32,12 @@ namespace SoftwarePioniere.EventStore.Domain
         private ILogger _logger;
 
         private int _bufferSize;
-        private Func<T, IDictionary<string, string>, Task> _eventAppeared;
+        private Func<T,Task> _eventAppeared;
         private bool _skipRemoved;
 
         public Task ConnectToPersistentSubscription(string stream,
             string groupName, ILogger logger
-            , Func<T, IDictionary<string, string>, Task> eventAppeared,
+            , Func<T, Task> eventAppeared,
             int bufferSize = 10, bool skipRemoved = true)
         {
             _skipRemoved = skipRemoved;
@@ -140,10 +136,10 @@ namespace SoftwarePioniere.EventStore.Domain
                     var data = @event.Value.Event.Data.FromUtf8();
 
                     var item = JsonConvert.DeserializeObject<T>(data);
+                    
+                    await _eventAppeared(item);
 
-                    var parentState = new Dictionary<string, string>();
-
-                    await _telemetryAdapter.RunDependencyAsync("PERS SUBS", "EVENTSTORE", state => _eventAppeared(item, state), parentState, _logger);
+                    //await _telemetryAdapter.RunDependencyAsync("PERS SUBS", "EVENTSTORE", state => _eventAppeared(item, state), parentState, _logger);
 
                     sub.Acknowledge(subEvent);
                 }

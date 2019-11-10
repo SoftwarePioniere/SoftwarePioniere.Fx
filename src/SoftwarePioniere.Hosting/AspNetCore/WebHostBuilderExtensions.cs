@@ -41,9 +41,9 @@ namespace SoftwarePioniere.Hosting.AspNetCore
                         .AddLifetimeOptions()
                         .AddDevOptions()
                         .AddReportingOptions()
-                        
+                        .AddMessageBusOptions()
                         .AddPlatformServices()
-                        .AddAppInsightsTelemetry()
+                      //  .AddAppInsightsTelemetry()
                         .AddAuthentication()
                         .AddSystemServicesByConfiguration()
                         .AddMvcServices()

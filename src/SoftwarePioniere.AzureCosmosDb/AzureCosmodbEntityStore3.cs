@@ -7,8 +7,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Linq;
-using Microsoft.Azure.CosmosDB.BulkExecutor;
-using Microsoft.Azure.Documents.Client;
 using Microsoft.Extensions.Logging;
 using SoftwarePioniere.ReadModel;
 
@@ -28,50 +26,80 @@ namespace SoftwarePioniere.AzureCosmosDb
         public override async Task<T[]> LoadItemsAsync<T>(CancellationToken token = default)
         {
             Logger.LogTrace("LoadItemsAsync: {EntityType}", typeof(T));
+
             token.ThrowIfCancellationRequested();
 
-
-            var iter = _provider.Container
-                    .GetItemLinqQueryable<T>(true)
-                    .Where(x => x.EntityType == TypeKeyCache.GetEntityTypeKey<T>())
-                    .ToFeedIterator()
-                ;
-
-            var results = new List<T>();
-
-            while (iter.HasMoreResults)
+            try
             {
-                foreach (var entity in await iter.ReadNextAsync(token))
-                {
-                    results.Add(entity);
-                }
-            }
+                var iter = _provider.Container
+                        .GetItemLinqQueryable<T>(true)
+                        .Where(x => x.EntityType == TypeKeyCache.GetEntityTypeKey<T>())
+                        .ToFeedIterator()
+                    ;
 
-            return results.ToArray();
+                var results = new List<T>();
+
+                while (iter.HasMoreResults)
+                {
+                    foreach (var entity in await iter.ReadNextAsync(token))
+                    {
+                        results.Add(entity);
+                    }
+                }
+
+                return results.ToArray();
+            }
+            catch (CosmosException nfex) when (nfex.StatusCode == HttpStatusCode.NotFound)
+            {
+                Logger.LogWarning("LoadItemsAsync: Items not found  {ErrorCode} {StatusCode} {Message}", nfex.StatusCode, nfex.SubStatusCode, nfex.Message);
+                return new T[0];
+            }
+            catch (CosmosException e)
+            {
+                Logger.LogError(e, "LoadItemsAsync: CosmosException {ErrorCode} {StatusCode} {Message}", e.StatusCode, e.SubStatusCode, e.Message);
+                throw;
+            }
 
         }
 
         public override async Task<T[]> LoadItemsAsync<T>(Expression<Func<T, bool>> where, CancellationToken token = default)
         {
 
-            var iter = _provider.Container
-                .GetItemLinqQueryable<T>(true)
-                .Where(x => x.EntityType == TypeKeyCache.GetEntityTypeKey<T>())
-                .Where(where)
-                .ToFeedIterator()
-                ;
+            Logger.LogTrace("LoadItemsAsync: {EntityType} with where", typeof(T));
 
-            var results = new List<T>();
+            token.ThrowIfCancellationRequested();
 
-            while (iter.HasMoreResults)
+            try
             {
-                foreach (var entity in await iter.ReadNextAsync(token))
-                {
-                    results.Add(entity);
-                }
-            }
+                var iter = _provider.Container
+                        .GetItemLinqQueryable<T>(true)
+                        .Where(x => x.EntityType == TypeKeyCache.GetEntityTypeKey<T>())
+                        .Where(where)
+                        .ToFeedIterator()
+                    ;
 
-            return results.ToArray();
+                var results = new List<T>();
+
+                while (iter.HasMoreResults)
+                {
+                    foreach (var entity in await iter.ReadNextAsync(token))
+                    {
+                        results.Add(entity);
+                    }
+                }
+
+                return results.ToArray();
+            }
+            catch (CosmosException nfex) when (nfex.StatusCode == HttpStatusCode.NotFound)
+            {
+                Logger.LogWarning("LoadItemsAsync: Items not found  {ErrorCode} {StatusCode} {Message}", nfex.StatusCode, nfex.SubStatusCode, nfex.Message);
+                return new T[0];
+            }
+            catch (CosmosException e)
+            {
+                Logger.LogError(e, "LoadItemsAsync: CosmosException {ErrorCode} {StatusCode} {Message}", e.StatusCode, e.SubStatusCode, e.Message);
+                throw;
+            }
         }
 
         public override Task<PagedResults<T>> LoadPagedResultAsync<T>(PagedLoadingParameters<T> parms, CancellationToken token = default)
@@ -79,12 +107,32 @@ namespace SoftwarePioniere.AzureCosmosDb
             throw new NotImplementedException();
         }
 
-        protected override Task InternalDeleteItemAsync<T>(string entityId, CancellationToken token = default)
+        protected override async Task InternalDeleteItemAsync<T>(string entityId, CancellationToken token = default)
         {
-            return _provider.Container.DeleteItemAsync<T>(
-                partitionKey: GetPartitionKey<T>(),
-                id: entityId, cancellationToken: token);
+            if (string.IsNullOrEmpty(entityId))
+            {
+                throw new ArgumentNullException(nameof(entityId));
+            }
 
+            Logger.LogTrace("InternalDeleteItemAsync: {EntityType} {EntityId}", typeof(T), entityId);
+
+            token.ThrowIfCancellationRequested();
+
+            try
+            {
+                await _provider.Container.DeleteItemAsync<T>(
+                    partitionKey: GetPartitionKey<T>(),
+                    id: entityId, cancellationToken: token);
+            }
+            catch (CosmosException nfex) when (nfex.StatusCode == HttpStatusCode.NotFound)
+            {
+                Logger.LogWarning("InternalDeleteItemAsync: Entity with Id not found {EntityId}", entityId);
+            }
+            catch (CosmosException e)
+            {
+                Logger.LogError(e, "InternalDeleteItemAsync: CosmosException {ErrorCode} {StatusCode} {Message}", e.StatusCode, e.SubStatusCode, e.Message);
+                throw;
+            }
         }
 
         private PartitionKey GetPartitionKey<T>() where T : Entity
@@ -94,6 +142,8 @@ namespace SoftwarePioniere.AzureCosmosDb
 
         protected override async Task InternalDeleteItemsAsync<T>(Expression<Func<T, bool>> where, CancellationToken token = default)
         {
+            Logger.LogTrace("InternalDeleteItemsAsync: {EntityType} with where", typeof(T));
+
             var iter = _provider.Container
                 .GetItemLinqQueryable<T>(true)
                 .Where(x => x.EntityType == TypeKeyCache.GetEntityTypeKey<T>())
@@ -104,13 +154,29 @@ namespace SoftwarePioniere.AzureCosmosDb
             {
                 foreach (var entity in await iter.ReadNextAsync(token))
                 {
-                    await _provider.Container.DeleteItemAsync<T>(entity.EntityId, GetPartitionKey<T>(), cancellationToken: token);
+                    try
+                    {
+                        await _provider.Container.DeleteItemAsync<T>(
+                            partitionKey: GetPartitionKey<T>(),
+                            id: entity.EntityId, cancellationToken: token);
+                    }
+                    catch (CosmosException nfex) when (nfex.StatusCode == HttpStatusCode.NotFound)
+                    {
+                        Logger.LogWarning("InternalDeleteItemAsync: Entity with Id not found {EntityId}", entity.EntityId);
+                    }
+                    catch (CosmosException e)
+                    {
+                        Logger.LogError(e, "InternalDeleteItemAsync: CosmosException {ErrorCode} {StatusCode} {Message}", e.StatusCode, e.SubStatusCode, e.Message);
+                        throw;
+                    }
                 }
             }
         }
 
         protected override async Task InternalDeleteAllItemsAsync<T>(CancellationToken token = default)
         {
+            Logger.LogTrace("InternalDeleteAllItemsAsync: {EntityType}", typeof(T));
+
             var iter = _provider.Container
                 .GetItemLinqQueryable<T>(true)
                 .Where(x => x.EntityType == TypeKeyCache.GetEntityTypeKey<T>())
@@ -120,7 +186,21 @@ namespace SoftwarePioniere.AzureCosmosDb
             {
                 foreach (var entity in await iter.ReadNextAsync(token))
                 {
-                    await _provider.Container.DeleteItemAsync<T>(entity.EntityId, GetPartitionKey<T>(), cancellationToken: token);
+                    try
+                    {
+                        await _provider.Container.DeleteItemAsync<T>(
+                            partitionKey: GetPartitionKey<T>(),
+                            id: entity.EntityId, cancellationToken: token);
+                    }
+                    catch (CosmosException nfex) when (nfex.StatusCode == HttpStatusCode.NotFound)
+                    {
+                        Logger.LogWarning("InternalDeleteItemAsync: Entity with Id not found {EntityId}", entity.EntityId);
+                    }
+                    catch (CosmosException e)
+                    {
+                        Logger.LogError(e, "InternalDeleteItemAsync: CosmosException {ErrorCode} {StatusCode} {Message}", e.StatusCode, e.SubStatusCode, e.Message);
+                        throw;
+                    }
                 }
             }
         }
@@ -142,65 +222,80 @@ namespace SoftwarePioniere.AzureCosmosDb
             }
             catch (CosmosException nfex) when (nfex.StatusCode == HttpStatusCode.Conflict)
             {
-                Logger.LogWarning("Insert Failed, Try Update {EntityId} // {ExceptionMessage}", item.EntityId, nfex.Message);
+                Logger.LogWarning("InternalInsertItemAsync: Insert Failed, Try Update {EntityId} // {ExceptionMessage}", item.EntityId, nfex.Message);
                 await _provider.Container.UpsertItemAsync(item, GetPartitionKey<T>(), cancellationToken: token);
+            } 
+            catch (CosmosException e)
+            {
+                Logger.LogError(e, "InternalInsertItemAsync: CosmosException {ErrorCode} {StatusCode} {Message}", e.StatusCode, e.SubStatusCode, e.Message);
+                throw;
             }
         }
 
         protected override async Task InternalBulkInsertItemsAsync<T>(T[] items, CancellationToken token = default)
         {
+            Logger.LogTrace("InternalBulkInsertItemsAsync: {EntityType} {EntityCount}", typeof(T), items.Length);
+
+
+            foreach (var item in items)
+            {
+                token.ThrowIfCancellationRequested();
+                await _provider.Container.CreateItemAsync(item, GetPartitionKey<T>(), cancellationToken: token);
+            }
+
+
             //foreach (var item in items)
             //{
             //    await _provider.Container.CreateItemAsync(item, GetPartitionKey<T>(), cancellationToken: token);
             //}
 
-            var endpoint = new Uri(_provider.Options.EndpointUrl);
-            var policy = new ConnectionPolicy
-            {
-                ConnectionMode = Microsoft.Azure.Documents.Client.ConnectionMode.Gateway,
-                ConnectionProtocol = Protocol.Https,
-                MaxConnectionLimit = 100,
-                RetryOptions = { MaxRetryWaitTimeInSeconds = 0, MaxRetryAttemptsOnThrottledRequests = 0 }
-            };
+            //var endpoint = new Uri(_provider.Options.EndpointUrl);
+            //var policy = new ConnectionPolicy
+            //{
+            //    ConnectionMode = Microsoft.Azure.Documents.Client.ConnectionMode.Gateway,
+            //    ConnectionProtocol = Protocol.Https,
+            //    MaxConnectionLimit = 100,
+            //    RetryOptions = { MaxRetryWaitTimeInSeconds = 0, MaxRetryAttemptsOnThrottledRequests = 0 }
+            //};
 
-            // Set retries to 0 to pass complete control to bulk executor.
+            //// Set retries to 0 to pass complete control to bulk executor.
 
-            using (var client = new DocumentClient(endpoint, Options.AuthKey, policy))
-            {
+            //using (var client = new DocumentClient(endpoint, Options.AuthKey, policy))
+            //{
 
-                var collection = client.CreateDocumentCollectionQuery(UriFactory.CreateDatabaseUri(Options.DatabaseId))
-                    .Where(c => c.Id == Options.CollectionId)
-                    .ToArray()
-                    .SingleOrDefault();
+            //    var collection = client.CreateDocumentCollectionQuery(UriFactory.CreateDatabaseUri(Options.DatabaseId))
+            //        .Where(c => c.Id == Options.CollectionId)
+            //        .ToArray()
+            //        .SingleOrDefault();
 
-                IBulkExecutor bulkExecutor = new BulkExecutor(client, collection);
-                await bulkExecutor.InitializeAsync();
+            //    IBulkExecutor bulkExecutor = new BulkExecutor(client, collection);
+            //    await bulkExecutor.InitializeAsync();
 
-                var bulkImportResponse = await bulkExecutor.BulkImportAsync(
-                    documents: items,
-                    enableUpsert: true,
-                    disableAutomaticIdGeneration: true,
-                    maxConcurrencyPerPartitionKeyRange: null,
-                    maxInMemorySortingBatchSize: null,
-                    cancellationToken: token);
+            //    var bulkImportResponse = await bulkExecutor.BulkImportAsync(
+            //        documents: items,
+            //        enableUpsert: true,
+            //        disableAutomaticIdGeneration: true,
+            //        maxConcurrencyPerPartitionKeyRange: null,
+            //        maxInMemorySortingBatchSize: null,
+            //        cancellationToken: token);
 
-                Logger.LogTrace(
-                    "BulkImportAsync: Imported: {NumberOfDocumentsImported} / RequestUnits: {RequestCharge} / TimeTaken {TotalTimeTaken}",
-                    bulkImportResponse.NumberOfDocumentsImported,
-                    bulkImportResponse.TotalRequestUnitsConsumed,
-                    bulkImportResponse.TotalTimeTaken);
+            //    Logger.LogTrace(
+            //        "BulkImportAsync: Imported: {NumberOfDocumentsImported} / RequestUnits: {RequestCharge} / TimeTaken {TotalTimeTaken}",
+            //        bulkImportResponse.NumberOfDocumentsImported,
+            //        bulkImportResponse.TotalRequestUnitsConsumed,
+            //        bulkImportResponse.TotalTimeTaken);
 
-                if (bulkImportResponse.BadInputDocuments != null && bulkImportResponse.BadInputDocuments.Any())
-                {
-                    Logger.LogWarning("BulkImport Bad Documents");
-                    foreach (var o in bulkImportResponse.BadInputDocuments)
-                    {
-                        Logger.LogWarning("BulkImport Bad Doc {@doc}", o);
-                    }
+            //    if (bulkImportResponse.BadInputDocuments != null && bulkImportResponse.BadInputDocuments.Any())
+            //    {
+            //        Logger.LogWarning("BulkImport Bad Documents");
+            //        foreach (var o in bulkImportResponse.BadInputDocuments)
+            //        {
+            //            Logger.LogWarning("BulkImport Bad Doc {@doc}", o);
+            //        }
 
-                    throw new InvalidOperationException("Bulk Import Bad Documents");
-                }
-            }
+            //        throw new InvalidOperationException("Bulk Import Bad Documents");
+            //    }
+            //}
         }
 
         protected override async Task InternalInsertOrUpdateItemAsync<T>(T item, CancellationToken token = default)
@@ -227,15 +322,33 @@ namespace SoftwarePioniere.AzureCosmosDb
 
         private async Task<bool> ExistsDocument(string itemEntityId, CancellationToken token = default)
         {
-            var query = new QueryDefinition(
-                    "select value count(1) from c where c.entity_id = @entityId")
-                .WithParameter("@entityId", itemEntityId);
-            
-            var iter = _provider.Container.GetItemQueryIterator<int>(query);
+            Logger.LogTrace("ExistsDocument: {EntityId}", itemEntityId);
 
-            var x = await iter.ReadNextAsync(token);
-            var c = x.Resource.First();
-            return c == 1;
+            token.ThrowIfCancellationRequested();
+
+            try
+            {
+
+                var query = new QueryDefinition(
+                        "select value count(1) from c where c.entity_id = @entityId")
+                    .WithParameter("@entityId", itemEntityId);
+
+                var iter = _provider.Container.GetItemQueryIterator<int>(query);
+
+                var x = await iter.ReadNextAsync(token);
+                var c = x.Resource.First();
+                return c == 1;
+            }
+            catch (CosmosException nfex) when (nfex.StatusCode == HttpStatusCode.NotFound)
+            {
+                Logger.LogWarning("ExistsDocument: not found  {ErrorCode} {StatusCode} {Message}", nfex.StatusCode, nfex.SubStatusCode, nfex.Message);
+                return false;
+            }
+            catch (CosmosException e)
+            {
+                Logger.LogError(e, "ExistsDocument: CosmosException {ErrorCode} {StatusCode} {Message}", e.StatusCode, e.SubStatusCode, e.Message);
+                throw;
+            }
         }
 
         protected override async Task<T> InternalLoadItemAsync<T>(string entityId, CancellationToken token = default)
@@ -252,19 +365,22 @@ namespace SoftwarePioniere.AzureCosmosDb
 
             try
             {
-
+                
                 var res = await _provider.Container.ReadItemAsync<T>(entityId, GetPartitionKey<T>(), cancellationToken: token);
+
+                if (res.StatusCode == HttpStatusCode.NotFound)
+                    return null;
 
                 return res.Resource;
             }
             catch (CosmosException nfex) when (nfex.StatusCode == HttpStatusCode.NotFound)
             {
-                Logger.LogWarning("Entity with Id not found {EntityId}", entityId);
+                Logger.LogDebug("InternalLoadItemAsync: Entity with Id not found {EntityId}", entityId);
                 return null;
             }
             catch (CosmosException e)
             {
-                Logger.LogError(e, "Error in CosmosDb Load {ErrorCode} {StatusCode} {Message}", e.StatusCode, e.SubStatusCode, e.Message);
+                Logger.LogError(e, "InternalLoadItemAsync CosmosException {ErrorCode} {StatusCode} {Message}", e.StatusCode, e.SubStatusCode, e.Message);
                 throw;
             }
         }
@@ -288,6 +404,11 @@ namespace SoftwarePioniere.AzureCosmosDb
             {
                 Logger.LogWarning("Update Failed, Try Insert {EntityId} // {ExceptionMessage}", item.EntityId, nfex.Message);
                 await _provider.Container.CreateItemAsync(item, GetPartitionKey<T>(), cancellationToken: token);
+            }
+            catch (CosmosException e)
+            {
+                Logger.LogError(e, "InternalUpdateItemAsync CosmosException {ErrorCode} {StatusCode} {Message}", e.StatusCode, e.SubStatusCode, e.Message);
+                throw;
             }
         }
     }

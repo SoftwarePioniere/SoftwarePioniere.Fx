@@ -73,9 +73,13 @@ namespace SoftwarePioniere.Extensions.AspNetCore.Auth0
 
             public void Configure(string name, AuthorizationOptions options)
             {
-                if (!string.IsNullOrEmpty(_auth0Options.AdminGroupId)) options.AddPolicy(PolicyConstants.IsAdminPolicy, policy => policy.RequireClaim("groups", _auth0Options.AdminGroupId));
+                if (!string.IsNullOrEmpty(_auth0Options.AdminGroupId))
+                    options.AddPolicy(PolicyConstants.IsAdminPolicy,
+                        policy => policy.RequireClaim(_auth0Options.GroupClaimType, _auth0Options.AdminGroupId));
 
-                if (!string.IsNullOrEmpty(_auth0Options.UserGroupId)) options.AddPolicy(PolicyConstants.IsUserPolicy, policy => policy.RequireClaim("groups", _auth0Options.UserGroupId));
+                if (!string.IsNullOrEmpty(_auth0Options.UserGroupId))
+                    options.AddPolicy(PolicyConstants.IsUserPolicy,
+                        policy => policy.RequireClaim(_auth0Options.GroupClaimType, _auth0Options.UserGroupId));
             }
         }
     }

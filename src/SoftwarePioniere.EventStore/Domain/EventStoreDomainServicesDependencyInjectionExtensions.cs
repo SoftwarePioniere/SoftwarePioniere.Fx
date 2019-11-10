@@ -11,7 +11,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services
              //   .AddDomainServices()
                 .AddSingleton<IEventStore, DomainEventStore>()           
-                .AddSingleton<IEventStoreProjectionReader, ProjectionReader>()
+                .AddSingleton<IEventStoreReader, EventStoreReader>()
                 ;
             
             return services;

@@ -6,15 +6,12 @@ using Microsoft.Extensions.Logging;
 using SoftwarePioniere.Caching;
 using SoftwarePioniere.Messaging;
 using SoftwarePioniere.ReadModel;
-using SoftwarePioniere.Telemetry;
-
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 
 namespace SoftwarePioniere.Projections
 {
     public abstract class ReadModelProjectorBase4<T> : ReadModelProjectorBase<T> where T : Entity
     {
-        protected ITelemetryAdapter TelemetryAdapter { get; private set; }
 
         protected CancellationToken CancellationToken { get; private set; }
 
@@ -22,7 +19,6 @@ namespace SoftwarePioniere.Projections
 
         protected ReadModelProjectorBase4(ILoggerFactory loggerFactory, IProjectorServices services) : base(loggerFactory, services.Bus)
         {
-            TelemetryAdapter = services.TelemetryAdapter;
             Cache = services.Cache;
         }
 
@@ -37,42 +33,31 @@ namespace SoftwarePioniere.Projections
             CancellationToken = cancellationToken;
         }
 
-        protected Task HandleIfAsync<TEvent>(Func<
-                TEvent
-                , Task> handler
-            , IDomainEvent domainEvent, IDictionary<string, string> parentState)
+        protected async Task HandleIfAsync<TEvent>(Func<TEvent, Task> handler, IDomainEvent domainEvent)
         {
             if (domainEvent is TEvent message)
             {
-                if (parentState == null)
-                    parentState = new Dictionary<string, string>();
-
                 var eventType = typeof(TEvent).FullName;
                 var eventId = domainEvent.Id.ToString();
 
-                parentState.AddProperty("EventType", eventType)
-                    .AddProperty("EventId", eventId)
-                    .AddProperty("ProjectorType", GetType().FullName)
-                    ;
+                var state = new Dictionary<string, object>
+                {
+                    {"EventType", eventType},
+                    {"EventId", eventId},
+                    {"ProjectorType", GetType().FullName},
+                    {"StreamName", StreamName}
+                };
 
-                if (!string.IsNullOrEmpty(StreamName))
-                    parentState.AddProperty("StreamName", StreamName);
-
-                var operationName = $"HANDLE PROJECTOR EVENT {StreamName}/{domainEvent.GetType().Name}";
-
-                return TelemetryAdapter.RunDependencyAsync(operationName,
-                    "PROJECTOR",
-                    (state) => handler(message),//, state),
-                    parentState,
-                    Logger);
-
+                using (Logger.BeginScope(state))
+                {
+                    Logger.LogDebug($"HANDLE PROJECTOR EVENT {StreamName}/{domainEvent.GetType().Name}");
+                    await handler(message);
+                }
             }
-
-            return Task.CompletedTask;
         }
 
 
-        protected virtual async Task<T> DeleteItemIfAsync(IMessage message, Func<T, bool> predicate, IDictionary<string, string> state)
+        protected virtual async Task<T> DeleteItemIfAsync(IMessage message, Func<T, bool> predicate)
         {
 
             var item = await LoadItemAsync(message);
@@ -92,7 +77,7 @@ namespace SoftwarePioniere.Projections
 
                     await DeleteAsync(item.Id,
                         message,
-                        CreateIdentifierItem, state: state);
+                        CreateIdentifierItem);
                 }
             }
 
@@ -126,8 +111,7 @@ namespace SoftwarePioniere.Projections
 
         protected abstract Task<EntityDescriptor<T>> LoadItemAsync(IMessage message);
 
-        protected virtual async Task<T> LoadAndSaveEveryTimeAsync(IMessage message//, IDictionary<string, string> state
-          , Action<T> setValues = null)
+        protected virtual async Task<T> LoadAndSaveEveryTimeAsync(IMessage message, Action<T> setValues = null)
         {
 
             var item = await LoadItemAsync(message);
@@ -150,8 +134,7 @@ namespace SoftwarePioniere.Projections
             }
         }
 
-        protected virtual async Task<T> LoadAndSaveOnlyExistingAsync(IMessage message//, IDictionary<string, string> state
-            , Action<T> setValues = null)
+        protected virtual async Task<T> LoadAndSaveOnlyExistingAsync(IMessage message, Action<T> setValues = null)
         {
 
             var item = await LoadItemAsync(message);
@@ -182,20 +165,15 @@ namespace SoftwarePioniere.Projections
         }
 
         // ReSharper disable once UnusedMethodReturnValue.Local
-        private async Task<T> SaveItemAsync(EntityDescriptor<T> item, IMessage domainEvent)//, IDictionary<string, string> state)
-        {
-            if (Context.IsReady)
-            {
-                await Cache.AddAsync(item.EntityId, item.Entity);
-            }
+        private async Task<T> SaveItemAsync(EntityDescriptor<T> item, IMessage domainEvent){
 
             if (Context.IsLiveProcessing)
             {
-                await SaveAsync(item, domainEvent, CreateIdentifierItem(item.Entity));//, state: state);
+                await SaveAsync(item, domainEvent, CreateIdentifierItem(item.Entity));
             }
             else
             {
-                await SaveAsync(item, domainEvent, null);//, state: state);
+                await SaveAsync(item, domainEvent, null);
             }
 
             return item.Entity;

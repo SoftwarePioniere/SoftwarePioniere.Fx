@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Foundatio.Caching;
@@ -47,7 +46,7 @@ namespace SoftwarePioniere.Projections
             return lockId;
         }
 
-        protected async Task DeleteItemIfAsync(IMessage message, Func<T, bool> predicate, IDictionary<string, string> state)
+        protected async Task DeleteItemIfAsync(IMessage message, Func<T, bool> predicate)
         {
             async Task DoAsync()
             {
@@ -69,7 +68,7 @@ namespace SoftwarePioniere.Projections
                             {
                                 await DeleteAsync(item.Id,
                                     message,
-                                    CreateIdentifierItem, state: state);
+                                    CreateIdentifierItem);
 
 
                             }
@@ -108,8 +107,7 @@ namespace SoftwarePioniere.Projections
 
         protected abstract Task<EntityDescriptor<T>> LoadItemAsync(IMessage message);
 
-        protected async Task LoadAndSaveEveryTimeAsync(IMessage message//, IDictionary<string, string> state
-            , Action<T> setValues = null)
+        protected async Task LoadAndSaveEveryTimeAsync(IMessage message, Action<T> setValues = null)
         {
             var lockId = GetLockId(message);
 
@@ -134,8 +132,7 @@ namespace SoftwarePioniere.Projections
                 }, cancellationToken: CancellationToken.None);
         }
 
-        protected async Task LoadAndSaveOnlyExistingAsync(IMessage message//, IDictionary<string, string> state
-            , Action<T> setValues = null)
+        protected async Task LoadAndSaveOnlyExistingAsync(IMessage message, Action<T> setValues = null)
         {
             var lockId = GetLockId(message);
 
@@ -168,18 +165,18 @@ namespace SoftwarePioniere.Projections
                 }, cancellationToken: CancellationToken.None);
         }
 
-        private async Task SaveItemAsync(EntityDescriptor<T> item, IMessage domainEvent)//, IDictionary<string, string> state)
+        private async Task SaveItemAsync(EntityDescriptor<T> item, IMessage domainEvent)
         {
             async Task DoAsync()
             {
 
                 if (Context.IsLiveProcessing)
                 {
-                    await SaveAsync(item, domainEvent, CreateIdentifierItem(item.Entity));//, state: state);
+                    await SaveAsync(item, domainEvent, CreateIdentifierItem(item.Entity));
                 }
                 else
                 {
-                    await SaveAsync(item, domainEvent, null);//, state: state);
+                    await SaveAsync(item, domainEvent, null);
                 }
 
                 await Cache.RemoveByPrefixAsync(EntityTypeKey);

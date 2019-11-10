@@ -79,6 +79,10 @@ namespace SoftwarePioniere.EventStore
 
         public int[] ClusterHttpPorts { get; set; }
 
+        public double OperationTimeoutSeconds { get; set; } = 5;
+        public double ProjectionOperationTimeoutSeconds { get; set; } = 30;
+        public double QueryTimeoutSeconds { get; set; } = 30;
+
         public override string ToString()
         {
             if (UseCluster)

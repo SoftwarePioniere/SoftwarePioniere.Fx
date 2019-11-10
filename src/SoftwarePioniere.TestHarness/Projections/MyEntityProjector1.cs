@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using SoftwarePioniere.Messaging;
@@ -19,7 +18,7 @@ namespace SoftwarePioniere.Projections
 
         }
 
-        public override async Task ProcessEventAsync(IDomainEvent domainEvent, IDictionary<string, string> state = null)
+        public override async Task ProcessEventAsync(IDomainEvent domainEvent)
         {
             if (domainEvent is FakeEvent fe)
             {

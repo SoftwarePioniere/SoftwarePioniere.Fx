@@ -31,7 +31,7 @@ namespace SoftwarePioniere.Hosting
         {
             var services = builder.Services;
             services
-                .AddDefaultTelemetryAdapter()
+              //  .AddDefaultTelemetryAdapter()
                 .AddDefaultMessageBusAdapter();
 
             return builder;
@@ -65,6 +65,8 @@ namespace SoftwarePioniere.Hosting
                 .AddSingleton<ICacheAdapter, CacheAdapter>()
                 .AddSingleton<ISagaServices, SagaServices>()
                 .AddSingleton<IProjectorServices, ProjectorServices>()
+                .AddDefaultMessageBusAdapter()
+              
                 ;
 
 

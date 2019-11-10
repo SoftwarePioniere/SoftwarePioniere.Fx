@@ -9,7 +9,7 @@ namespace SoftwarePioniere.Hosting
 {
     public static class SopiBuilderStorageExtensions
     {
-            public static ISopiBuilder AddStorage(this ISopiBuilder builder)
+        public static ISopiBuilder AddStorage(this ISopiBuilder builder)
         {
             var config = builder.Config;
 
@@ -53,6 +53,8 @@ namespace SoftwarePioniere.Hosting
             configureOptions.Invoke(opt);
 
             builder.Services.AddSingleton<IFileStorage>(p =>
+
+
 
                 new FolderFileStorage(optionsBuilder => optionsBuilder
                     .LoggerFactory(p.GetRequiredService<ILoggerFactory>())

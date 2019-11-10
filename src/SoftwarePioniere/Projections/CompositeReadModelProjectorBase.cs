@@ -31,12 +31,26 @@ namespace SoftwarePioniere.Projections
 
         public string StreamName { get; protected set; }
 
-        public virtual async Task ProcessEventAsync(IDomainEvent domainEvent, IDictionary<string, string> state = null)
-        {            
-            foreach (var projector in _childProjectors)
+        public virtual async Task ProcessEventAsync(IDomainEvent domainEvent)
+        {
+            var eventType = domainEvent.GetType().FullName;
+            var eventId = domainEvent.Id.ToString();
+
+            var state = new Dictionary<string, object>
             {
-                Logger.LogDebug("HandleAsync in ChildProjector {ChildProjector}", projector.GetType().Name);
-                await projector.ProcessEventAsync(domainEvent, state);
+                {"EventType", eventType},
+                {"EventId", eventId},
+                {"ProjectorType", GetType().FullName},
+                {"StreamName", StreamName}
+            };
+
+            using (Logger.BeginScope(state))
+            {
+                foreach (var projector in _childProjectors)
+                {
+                    Logger.LogDebug("HandleAsync in ChildProjector {ChildProjector}", projector.GetType().Name);
+                    await projector.ProcessEventAsync(domainEvent);
+                }
             }
         }
 
@@ -49,6 +63,12 @@ namespace SoftwarePioniere.Projections
                 await projector.CopyEntitiesAsync(source, dest, cancellationToken);
             }
 
+        }
+
+        protected bool LogError(Exception ex)
+        {
+            Logger.LogError(ex, ex.Message);
+            return true;
         }
 
         public IProjectionContext Context

@@ -28,9 +28,7 @@ namespace SoftwarePioniere.Domain
             _options = options.Value;
         }
 
-        public virtual async Task SaveAsync<T>(T aggregate, int expectedVersion, CancellationToken token = default
-            //, IDictionary<string, string> state = null
-        ) where T : AggregateRoot
+        public virtual async Task SaveAsync<T>(T aggregate, int expectedVersion, CancellationToken token = default) where T : AggregateRoot
         {
             _logger.LogDebug("SaveAsync {Type} {AggregateId} {ExpectedVersion}", typeof(T), expectedVersion, aggregate.Id);
 
@@ -53,8 +51,6 @@ namespace SoftwarePioniere.Domain
                 sw.Stop();
                 _logger.LogDebug("SaveAsync Events Saved {Type} {AggregateId} in {Elapsed:0.0000} ms ", typeof(T), expectedVersion, sw.ElapsedMilliseconds);
 
-                //var aggregateName = typeof(T).GetAggregateName();
-
                 foreach (var @event in events)
                 {
                     token.ThrowIfCancellationRequested();
@@ -67,17 +63,7 @@ namespace SoftwarePioniere.Domain
                     }
 
                     {
-                        //var typeArgument1 = typeof(T);
-                        //var typeArgument2 = @event.GetType();
-
-                        //var genericClass = typeof(AggregateDomainEventMessage<,>);
-                        //var constructedClass = genericClass.MakeGenericType(typeArgument1, typeArgument2);
-
-                        //// public AggregateDomainEventMessage(Guid id, DateTime timeStampUtc, string userId, TDomainEvent domainEventContent, string aggregateId) : base(id, timeStampUtc, userId)                        
-                        //var created = Activator.CreateInstance(constructedClass,
-                        //    Guid.NewGuid(), @event.TimeStampUtc, @event.UserId,
-                        //    @event, aggregate.Id);
-
+                      
                         var created = @event.CreateAggregateDomainEventMessage(aggregate);
 
                         _logger.LogTrace("SaveAsync: Publish AggregateDomainEventMessage {@Message}", created);
@@ -87,48 +73,27 @@ namespace SoftwarePioniere.Domain
             }
         }
 
-        public async Task SaveAsync<T>(T aggregate, CancellationToken token = default
-            //, IDictionary<string, string> state = null
-        ) where T : AggregateRoot
+        public async Task SaveAsync<T>(T aggregate, CancellationToken token = default) where T : AggregateRoot
         {
-            //var parentState = new Dictionary<string, string>();
-
-            //if (state != null)
-            //{
-            //    foreach (var key in state.Keys)
-            //    {
-            //        parentState.Add(key, state[key]);
-            //    }
-            //}
-
+         
             token.ThrowIfCancellationRequested();
             await SaveAsync(aggregate, aggregate.Version, token).ConfigureAwait(false);
         }
 
-        public virtual Task<bool> CheckAggregateExists<T>(string aggregateId, CancellationToken token = default
-            //,IDictionary<string, string> state = null
-        ) where T : AggregateRoot
+        public virtual Task<bool> CheckAggregateExists<T>(string aggregateId, CancellationToken token = default) where T : AggregateRoot
         {
             token.ThrowIfCancellationRequested();
             return _store.CheckAggregateExists<T>(aggregateId);
         }
 
-        //public async Task<bool> CheckAggregateExists<T>(string aggregateId, string streamName, CancellationToken token = default) where T : AggregateRoot
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        public async Task<T> GetByIdAsync<T>(string id, CancellationToken token = default
-            //,IDictionary<string, string> state = null
-        ) where T : AggregateRoot, new()
+       
+        public async Task<T> GetByIdAsync<T>(string id, CancellationToken token = default) where T : AggregateRoot, new()
         {
             var agg = await GetByIdAsync<T>(id, -1, token).ConfigureAwait(false);
             return agg;
         }
 
-        public virtual async Task<T> GetByIdAsync<T>(string id, int expectedAggregateVersion, CancellationToken token = default
-            //, IDictionary<string, string> state = null
-        ) where T : AggregateRoot, new()
+        public virtual async Task<T> GetByIdAsync<T>(string id, int expectedAggregateVersion, CancellationToken token = default) where T : AggregateRoot, new()
         {
             _logger.LogDebug("GetByIdAsync {Type} {AggregateId} and {ExcpectedVersion}", typeof(T), id, expectedAggregateVersion);
             token.ThrowIfCancellationRequested();
@@ -149,9 +114,7 @@ namespace SoftwarePioniere.Domain
             return aggregate;
         }
 
-        public async Task<T> GetByIdAsync<T>(string id, string streamName, CancellationToken token = default
-            //, IDictionary<string, string> state = null
-        ) where T : AggregateRoot, new()
+        public async Task<T> GetByIdAsync<T>(string id, string streamName, CancellationToken token = default) where T : AggregateRoot, new()
         {
             _logger.LogDebug("GetByIdAsync {Type} {AggregateId} {StreamName}", typeof(T), id, streamName);
 
@@ -159,9 +122,7 @@ namespace SoftwarePioniere.Domain
             return agg;
         }
 
-        public virtual async Task<T> GetByIdAsync<T>(string id, int expectedAggregateVersion, string streamName, CancellationToken token = default
-            //, IDictionary<string, string> state = null
-        ) where T : AggregateRoot, new()
+        public virtual async Task<T> GetByIdAsync<T>(string id, int expectedAggregateVersion, string streamName, CancellationToken token = default) where T : AggregateRoot, new()
         {
             _logger.LogDebug("GetByIdAsync {Type} {AggregateId} and {ExcpectedVersion}  {StreamName}", typeof(T), id, expectedAggregateVersion, streamName);
             token.ThrowIfCancellationRequested();

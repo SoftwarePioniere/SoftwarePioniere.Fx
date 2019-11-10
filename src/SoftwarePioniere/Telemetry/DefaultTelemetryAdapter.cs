@@ -1,100 +1,100 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
+﻿//using System;
+//using System.Collections.Generic;
+//using System.Diagnostics;
+//using System.Threading.Tasks;
+//using Microsoft.Extensions.Logging;
 
-namespace SoftwarePioniere.Telemetry
-{
-    public class DefaultTelemetryAdapter : ITelemetryAdapter
-    {
-        private readonly ILogger _logger;
+//namespace SoftwarePioniere.Telemetry
+//{
+//    public class DefaultTelemetryAdapter : ITelemetryAdapter
+//    {
+//        private readonly ILogger _logger;
 
-        public DefaultTelemetryAdapter(ILoggerFactory loggerFactory)
-        {
-            if (loggerFactory == null)
-            {
-                throw new ArgumentNullException(nameof(loggerFactory));
-            }
+//        public DefaultTelemetryAdapter(ILoggerFactory loggerFactory)
+//        {
+//            if (loggerFactory == null)
+//            {
+//                throw new ArgumentNullException(nameof(loggerFactory));
+//            }
 
-            _logger = loggerFactory.CreateLogger(GetType());
-        }
+//            _logger = loggerFactory.CreateLogger(GetType());
+//        }
 
 
-        public async Task<T> RunWithResultAsync<T>(string operationName, Func<IDictionary<string, string>, Task<T>> runx, IDictionary<string, string> parentState, ILogger logger)
-        {
-            if (logger == null)
-                logger = _logger;
+//        public async Task<T> RunWithResultAsync<T>(string operationName, Func<IDictionary<string, string>, Task<T>> runx, IDictionary<string, string> parentState, ILogger logger)
+//        {
+//            if (logger == null)
+//                logger = _logger;
 
-            var state = new Dictionary<string, string>();
-            //state.Merge(parentState);
+//            var state = new Dictionary<string, string>();
+//            //state.Merge(parentState);
 
-            try
-            {
+//            try
+//            {
 
-                using (logger.BeginScope(state.CreateLoggerScope()))
-                {
-                    logger.LogDebug(operationName);
+//                using (logger.BeginScope(state.CreateLoggerScope()))
+//                {
+//                    logger.LogDebug(operationName);
 
-                    var sw = Stopwatch.StartNew();
-                    logger.LogTrace($"{operationName} Starting");
+//                    var sw = Stopwatch.StartNew();
+//                    logger.LogTrace($"{operationName} Starting");
 
-                    var result = await runx(state);
+//                    var result = await runx(state);
 
-                    sw.Stop();
-                    logger.LogDebug(operationName + " Finished in {Elapsed:0.0000} ms", sw.ElapsedMilliseconds);
+//                    sw.Stop();
+//                    logger.LogDebug(operationName + " Finished in {Elapsed:0.0000} ms", sw.ElapsedMilliseconds);
 
-                    return result;
-                }
-            }
-            catch (Exception e) when (LogError(e))
-            {
-                throw;
-            }
+//                    return result;
+//                }
+//            }
+//            catch (Exception e) when (LogError(e))
+//            {
+//                throw;
+//            }
 
-            bool LogError(Exception ex)
-            {
-                logger.LogError(ex, "Ein Fehler ist aufgetreten {Message}", ex.GetBaseException().Message);
-                return true;
-            }
-        }
+//            bool LogError(Exception ex)
+//            {
+//                logger.LogError(ex, "Ein Fehler ist aufgetreten {Message}", ex.GetBaseException().Message);
+//                return true;
+//            }
+//        }
 
-        public async Task RunDependencyAsync(string operationName, string type, Func<IDictionary<string, string>, Task> runx, IDictionary<string, string> parentState, ILogger logger)
-        {
-            if (logger == null)
-                logger = _logger;
+//        public async Task RunDependencyAsync(string operationName, string type, Func<IDictionary<string, string>, Task> runx, IDictionary<string, string> parentState, ILogger logger)
+//        {
+//            if (logger == null)
+//                logger = _logger;
 
-            var state = new Dictionary<string, string>();
-            //state.Merge(parentState);
+//            var state = new Dictionary<string, string>();
+//            //state.Merge(parentState);
 
-            try
-            {
+//            try
+//            {
 
-                using (logger.BeginScope(state.CreateLoggerScope()))
-                {
-                    logger.LogDebug(operationName);
+//                using (logger.BeginScope(state.CreateLoggerScope()))
+//                {
+//                    logger.LogDebug(operationName);
 
-                    var sw = Stopwatch.StartNew();
-                    logger.LogTrace($"{operationName} Starting");
+//                    var sw = Stopwatch.StartNew();
+//                    logger.LogTrace($"{operationName} Starting");
 
-                    await runx(state);
+//                    await runx(state);
 
-                    sw.Stop();
-                    logger.LogDebug(operationName + " Finished in {Elapsed:0.0000} ms", sw.ElapsedMilliseconds);
+//                    sw.Stop();
+//                    logger.LogDebug(operationName + " Finished in {Elapsed:0.0000} ms", sw.ElapsedMilliseconds);
 
-                }
-            }
-            catch (Exception e) when (LogError(e))
-            {
+//                }
+//            }
+//            catch (Exception e) when (LogError(e))
+//            {
 
-                throw;
-            }
+//                throw;
+//            }
 
-            bool LogError(Exception ex)
-            {
-                logger.LogError(ex, "Ein Fehler ist aufgetreten {Message}", ex.GetBaseException().Message);
-                return true;
-            }
-        }
-    }
-}
+//            bool LogError(Exception ex)
+//            {
+//                logger.LogError(ex, "Ein Fehler ist aufgetreten {Message}", ex.GetBaseException().Message);
+//                return true;
+//            }
+//        }
+//    }
+//}

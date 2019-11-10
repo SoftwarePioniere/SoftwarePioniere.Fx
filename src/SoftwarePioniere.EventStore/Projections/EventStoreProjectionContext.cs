@@ -48,6 +48,8 @@ namespace SoftwarePioniere.EventStore.Projections
                 await _projector.ProcessEventAsync(entry.EventData);
                 Status.LastCheckPoint = entry.EventNumber;
                 Status.ModifiedOnUtc = DateTime.UtcNow;
+                Status.ProjectorId = ProjectorId;
+                Status.StreamName = StreamName;
                 await EntityStore.UpdateItemAsync(Status, _cancellationToken);
             }
             catch (Exception e)
@@ -186,6 +188,8 @@ namespace SoftwarePioniere.EventStore.Projections
             Status = new ProjectionStatus();
             Status.SetEntityId(ProjectorId);
             Status.LastCheckPoint = -1;
+            Status.ProjectorId = ProjectorId;
+            Status.StreamName = StreamName;
 
             await _initEntityStore.InsertItemAsync(Status);
 

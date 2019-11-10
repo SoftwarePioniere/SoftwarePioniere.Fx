@@ -44,6 +44,18 @@ namespace SoftwarePioniere.Hosting
         }
 
 
+        public static ISopiBuilder AddMessageBusOptions(this ISopiBuilder builder)
+        {
+            return builder.AddMessageBusOptions(c => builder.Config.Bind("MessageBus", c));
+        }
+
+        public static ISopiBuilder AddMessageBusOptions(this ISopiBuilder builder,
+            Action<MessageBusOptions> configureOptions)
+        {
+            builder.Services.Configure(configureOptions);
+            return builder;
+        }
+
         public static ISopiBuilder AddConfiguration(this ISopiBuilder builder, IConfiguration config)
         {
             builder.Config = config;

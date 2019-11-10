@@ -47,12 +47,12 @@ namespace SoftwarePioniere.AzureCosmosDb.Tests
             base.InsertWithCancelationThrowsError();
         }
 
-        [Fact]
-        public override void LoadItemsWithPagingAndCancelationThrowsError()
-        {
-            //TODO: FIX
-            //base.LoadItemsWithPagingAndCancelationThrowsError();
-        }
+        //[Fact]
+        //public override void LoadItemsWithPagingAndCancelationThrowsError()
+        //{
+        //    //TODO: FIX
+        //    //base.LoadItemsWithPagingAndCancelationThrowsError();
+        //}
 
         [Fact]
         public override void LoadItemsWithCancelationThrowsError()
@@ -102,13 +102,13 @@ namespace SoftwarePioniere.AzureCosmosDb.Tests
             base.LoadItemThrowsErrorWithKeyNullOrEmpty();
         }
 
-        [Fact]
-        public override Task LoadItemsWithPagingWorks()
-        {
-            return Task.CompletedTask;
-            //TODO: FIX
-            //return base.LoadItemsWithPagingWorks();
-        }
+        //[Fact]
+        //public override Task LoadItemsWithPagingWorks()
+        //{
+        //    return Task.CompletedTask;
+        //    //TODO: FIX
+        //    //return base.LoadItemsWithPagingWorks();
+        //}
 
         [Fact]
         public override Task LoadItemsWithWhereWorks()

@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using SoftwarePioniere.DomainModel.FakeDomain;
@@ -29,25 +28,11 @@ namespace WebApp
             return LoadAndSaveEveryTimeAsync(message,
                 entity => { entity.StringValue = $"{message.Text}-222"; });
         }
-
-        /*public async Task HandleAsync(FakeEvent message, IDictionary<string, string> state)
+        
+        public override async Task ProcessEventAsync(IDomainEvent domainEvent)
         {
-            var item = await LoadAsync(message.AggregateId);
-            item.Entity.StringValue = message.Text;
-            await SaveAsync(item, message, item.Entity, state: state);
-        }
-
-        public async Task HandleAsync(FakeEvent2 message, IDictionary<string, string> state)
-        {
-            var item = await LoadAsync(message.AggregateId);
-            item.Entity.StringValue = $"{message.Text}-222";
-            await SaveAsync(item, message, item.Entity, state: state);
-        }*/
-
-        public override async Task ProcessEventAsync(IDomainEvent domainEvent, IDictionary<string, string> state = null)
-        {
-            await HandleIfAsync<FakeEvent>(HandleAsync, domainEvent, state);
-            await HandleIfAsync<FakeEvent2>(HandleAsync, domainEvent, state);
+            await HandleIfAsync<FakeEvent>(HandleAsync, domainEvent);
+            await HandleIfAsync<FakeEvent2>(HandleAsync, domainEvent);
         }
 
         protected override object CreateIdentifierItem(FakeEntity entity)

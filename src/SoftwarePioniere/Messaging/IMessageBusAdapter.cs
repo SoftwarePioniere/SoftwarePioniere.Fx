@@ -8,13 +8,13 @@ namespace SoftwarePioniere.Messaging
 {
     public interface IMessageBusAdapter
     {
-          Task PublishAsync(
-            Type messageType,
-            object message,
-            TimeSpan? delay = null,
-            CancellationToken cancellationToken = default(CancellationToken)
-            //,IDictionary<string, string> state = null
-            );
+        Task PublishAsync(
+          Type messageType,
+          object message,
+          TimeSpan? delay = null,
+          CancellationToken cancellationToken = default(CancellationToken)
+          //,IDictionary<string, string> state = null
+          );
 
         Task PublishAsync<T>(
             T message,
@@ -27,19 +27,24 @@ namespace SoftwarePioniere.Messaging
         Task SubscribeMessage<T>(Func<T,
                 //IDictionary<string, string>, 
                 Task> handler,
-            CancellationToken cancellationToken = default(CancellationToken))
-            where T : class, IMessage;
+            CancellationToken cancellationToken = default(CancellationToken)
+            , Func<T, string> lockId = null
+            ) where T : class, IMessage;
 
         Task SubscribeCommand<T>(Func<T,
                 //IDictionary<string, string>, 
                 Task> handler,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default(CancellationToken)
+            , Func<T, string> lockId = null
+            )
             where T : class, ICommand;
 
         Task SubscribeAggregateDomainEvent<TAggregate, TDomainEvent>(Func<TDomainEvent, AggregateTypeInfo<TAggregate>,
                 //IDictionary<string, string>, 
                 Task> handler,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default(CancellationToken)
+            , Func<TDomainEvent, AggregateTypeInfo<TAggregate>, string> lockId = null
+            )
             where TDomainEvent : class, IDomainEvent
             where TAggregate : IAggregateRoot;
 

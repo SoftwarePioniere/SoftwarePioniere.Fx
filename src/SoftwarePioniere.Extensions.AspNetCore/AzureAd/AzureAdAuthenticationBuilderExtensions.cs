@@ -84,7 +84,8 @@ namespace SoftwarePioniere.Extensions.AspNetCore.AzureAd
                     IssuerValidator = ValidateIssuerWithPlaceholder,
                     //ValidIssuer = $"https://sts.windows.net/{_azureAdOptions.TenantId}/",
                     ValidateAudience = true,
-                    ValidAudience = _azureAdOptions.Resource
+                    ValidAudience = _azureAdOptions.Resource,
+                    NameClaimType = _azureAdOptions.NameClaimType
                 };
 
                 if (!string.IsNullOrEmpty(_azureAdOptions.IssuerSigningKey) && !string.Equals(_azureAdOptions.IssuerSigningKey, "XXX", StringComparison.InvariantCultureIgnoreCase))

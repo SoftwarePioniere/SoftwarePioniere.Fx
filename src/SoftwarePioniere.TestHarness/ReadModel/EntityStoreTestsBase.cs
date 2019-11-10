@@ -247,82 +247,82 @@ namespace SoftwarePioniere.ReadModel
         }
 
 
-        public virtual async Task LoadItemsWithPagingWorks()
-        {
-            await InitializeAsync();
-            var store = CreateInstance();
+        //public virtual async Task LoadItemsWithPagingWorks()
+        //{
+        //    await InitializeAsync();
+        //    var store = CreateInstance();
 
-            var list = FakeEntity.CreateList(31).ToArray();
+        //    var list = FakeEntity.CreateList(31).ToArray();
 
-            foreach (var entity in list)
-                await store.InsertItemAsync(entity);
-
-
-            //page 1
-            var page1 = await store.LoadPagedResultAsync(
-                new PagedLoadingParameters<FakeEntity>
-                {
-                    OrderBy = x => x.IntValue,
-                    Where = x => x.ChunkId == list[0].ChunkId,
-                    Page = 1,
-                    PageSize = 10
-                }
-            );
-
-            page1.TotalCount.Should().Be(31);
-            page1.PageSize.Should().Be(10);
-            page1.ResultCount.Should().Be(10);
-            page1.Results.Count.Should().Be(10);
+        //    foreach (var entity in list)
+        //        await store.InsertItemAsync(entity);
 
 
-            //page 2
-            var page2 = await store.LoadPagedResultAsync(
-                new PagedLoadingParameters<FakeEntity>
-                {
-                    OrderBy = x => x.IntValue,
-                    Where = x => x.ChunkId == list[0].ChunkId,
-                    Page = 2,
-                    PageSize = 10,
-                    ContinuationToken = page1.ContinuationToken
-                }
-            );
+        //    //page 1
+        //    var page1 = await store.LoadPagedResultAsync(
+        //        new PagedLoadingParameters<FakeEntity>
+        //        {
+        //            OrderBy = x => x.IntValue,
+        //            Where = x => x.ChunkId == list[0].ChunkId,
+        //            Page = 1,
+        //            PageSize = 10
+        //        }
+        //    );
+
+        //    page1.TotalCount.Should().Be(31);
+        //    page1.PageSize.Should().Be(10);
+        //    page1.ResultCount.Should().Be(10);
+        //    page1.Results.Count.Should().Be(10);
 
 
-            page2.TotalCount.Should().Be(31);
-            page2.PageSize.Should().Be(10);
-            page2.ResultCount.Should().Be(10);
-            page2.Results.Count.Should().Be(10);
+        //    //page 2
+        //    var page2 = await store.LoadPagedResultAsync(
+        //        new PagedLoadingParameters<FakeEntity>
+        //        {
+        //            OrderBy = x => x.IntValue,
+        //            Where = x => x.ChunkId == list[0].ChunkId,
+        //            Page = 2,
+        //            PageSize = 10,
+        //            ContinuationToken = page1.ContinuationToken
+        //        }
+        //    );
 
-            //page 2
-            var page3 = await store.LoadPagedResultAsync(
-                new PagedLoadingParameters<FakeEntity>
-                {
-                    OrderBy = x => x.IntValue,
-                    Where = x => x.ChunkId == list[0].ChunkId,
-                    Page = 3,
-                    PageSize = 10,
-                    ContinuationToken = page2.ContinuationToken
-                }
-            );
 
-            page3.TotalCount.Should().Be(31);
-            page3.PageSize.Should().Be(10);
-            page3.ResultCount.Should().BeGreaterOrEqualTo(1);
-            page3.Results.Count.Should().BeGreaterOrEqualTo(1);
-        }
+        //    page2.TotalCount.Should().Be(31);
+        //    page2.PageSize.Should().Be(10);
+        //    page2.ResultCount.Should().Be(10);
+        //    page2.Results.Count.Should().Be(10);
 
-        public virtual void LoadItemsWithPagingAndCancelationThrowsError()
-        {
-            var store = CreateInstance();
+        //    //page 2
+        //    var page3 = await store.LoadPagedResultAsync(
+        //        new PagedLoadingParameters<FakeEntity>
+        //        {
+        //            OrderBy = x => x.IntValue,
+        //            Where = x => x.ChunkId == list[0].ChunkId,
+        //            Page = 3,
+        //            PageSize = 10,
+        //            ContinuationToken = page2.ContinuationToken
+        //        }
+        //    );
 
-            var token = new CancellationToken(true);
-            Func<Task> f1 = async () =>
-                {
-                    await store.LoadPagedResultAsync(new PagedLoadingParameters<FakeEntity>(), token);
-                };
+        //    page3.TotalCount.Should().Be(31);
+        //    page3.PageSize.Should().Be(10);
+        //    page3.ResultCount.Should().BeGreaterOrEqualTo(1);
+        //    page3.Results.Count.Should().BeGreaterOrEqualTo(1);
+        //}
 
-            f1.Should().Throw<Exception>();
-        }
+        //public virtual void LoadItemsWithPagingAndCancelationThrowsError()
+        //{
+        //    var store = CreateInstance();
+
+        //    var token = new CancellationToken(true);
+        //    Func<Task> f1 = async () =>
+        //        {
+        //            await store.LoadPagedResultAsync(new PagedLoadingParameters<FakeEntity>(), token);
+        //        };
+
+        //    f1.Should().Throw<Exception>();
+        //}
 
         //public virtual async Task LoadItemsWithPagingAndOrderingWorks()
         //{
