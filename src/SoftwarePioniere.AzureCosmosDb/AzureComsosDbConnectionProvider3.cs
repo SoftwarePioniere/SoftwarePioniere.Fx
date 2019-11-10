@@ -24,13 +24,15 @@ namespace SoftwarePioniere.AzureCosmosDb
             _logger.LogInformation("AzureCosmosDb Options {@Options}", options.Value.CreateSecured());
 
             Client = new CosmosClientBuilder(Options.EndpointUrl, Options.AuthKey)
-                    .WithThrottlingRetryOptions(TimeSpan.FromMinutes(2), 5)
+                    .WithThrottlingRetryOptions(TimeSpan.FromMinutes(Options.MaxRetryWaitTimeOnThrottledRequestsMinutes),
+                        Options.MaxRetryAttemptsOnThrottledRequests)
                     //.AddCustomHandlers(new ThrottlingHandler(_logger))
                     .Build();
 
             BulkClient = new CosmosClientBuilder(Options.EndpointUrl, Options.AuthKey)
-                //.AddCustomHandlers(new ThrottlingHandler(_logger))
-                .WithThrottlingRetryOptions(TimeSpan.FromMinutes(2), 5)
+                  //.AddCustomHandlers(new ThrottlingHandler(_logger))
+                  .WithThrottlingRetryOptions(TimeSpan.FromMinutes(Options.MaxRetryWaitTimeOnThrottledRequestsMinutes),
+                      Options.MaxRetryAttemptsOnThrottledRequests)
                 .WithBulkExecution(true)
                 .Build();
 

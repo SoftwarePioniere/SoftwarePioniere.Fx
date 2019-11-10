@@ -20,6 +20,8 @@ namespace SoftwarePioniere.AzureCosmosDb
         public int ConcurrentDocuments { get; set; } = 1000;
 
         public int ConcurrentWorkers { get; set; } = 6;
+        public int MaxRetryAttemptsOnThrottledRequests { get; set; } = 20;
+        public int MaxRetryWaitTimeOnThrottledRequestsMinutes { get; set; } = 2;
 
 
         public AzureCosmosDbOptions CreateSecured()
