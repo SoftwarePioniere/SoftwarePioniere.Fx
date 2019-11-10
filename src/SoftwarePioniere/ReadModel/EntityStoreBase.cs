@@ -6,12 +6,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using Foundatio.Caching;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Options;
 
 namespace SoftwarePioniere.ReadModel
 {
 
-    public abstract class EntityStoreBase<TOptions> : IEntityStore where TOptions : EntityStoreOptionsBase
+    public abstract class EntityStoreBase<TOptions> : IEntityStore where TOptions : EntityStoreOptionsBase, new()
     {
 
         // ReSharper disable once MemberCanBePrivate.Global
@@ -20,15 +20,12 @@ namespace SoftwarePioniere.ReadModel
         protected readonly ILogger Logger;
         protected readonly TypeKeyCache TypeKeyCache = new TypeKeyCache();
 
-        protected EntityStoreBase(TOptions options)
+        protected EntityStoreBase(IOptions<TOptions> options, ILoggerFactory loggerFactory, ICacheClient cacheClient)
         {
-            Options = options ?? throw new ArgumentNullException(nameof(options));
-            var loggerFactory = options.LoggerFactory ?? NullLoggerFactory.Instance;
+            Options = options.Value;
+            CacheClient = cacheClient;
             Logger = loggerFactory.CreateLogger(GetType());
-            if (!Options.CachingDisabled)
-            {
-                CacheClient = Options.CacheClient ?? throw new ArgumentNullException(nameof(Options.CacheClient));
-            }
+
         }
 
         public virtual async Task DeleteItemAsync<T>(string entityId, CancellationToken token = default(CancellationToken)) where T : Entity

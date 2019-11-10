@@ -1,7 +1,4 @@
 ﻿using System;
-using Foundatio.Caching;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using SoftwarePioniere.ReadModel;
 
 // ReSharper disable once CheckNamespace
@@ -23,17 +20,20 @@ namespace Microsoft.Extensions.DependencyInjection
             services
                 .AddSingleton<InMemoryEntityStoreConnectionProvider>()
                 .AddSingleton<IEntityStoreConnectionProvider>(provider => provider.GetService<InMemoryEntityStoreConnectionProvider>())
-                .AddSingleton<IEntityStore>(provider =>
-                {
-                    var options = provider.GetRequiredService<IOptions<InMemoryEntityStoreOptions>>().Value;
-                    options.CacheClient = provider.GetRequiredService<ICacheClient>();
-                    options.LoggerFactory = provider.GetRequiredService<ILoggerFactory>();
+                .AddSingleton<IEntityStore, InMemoryEntityStore>()
+            //.AddSingleton<IEntityStore>(provider =>
+            //{
+            //    var options = provider.GetRequiredService<IOptions<InMemoryEntityStoreOptions>>().Value;
+            //    options.CacheClient = provider.GetRequiredService<ICacheClient>();
+            //    options.LoggerFactory = provider.GetRequiredService<ILoggerFactory>();
 
-                    return new InMemoryEntityStore(
-                        options,
-                        provider.GetRequiredService<InMemoryEntityStoreConnectionProvider>()
-                    );
-                });
+            //    return new InMemoryEntityStore(
+            //        options,
+            //        provider.GetRequiredService<InMemoryEntityStoreConnectionProvider>()
+            //    );
+            //})
+            ;
+
             return services;
         }
     }

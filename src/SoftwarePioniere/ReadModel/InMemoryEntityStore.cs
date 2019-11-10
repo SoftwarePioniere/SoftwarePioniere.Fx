@@ -3,7 +3,9 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
+using Foundatio.Caching;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace SoftwarePioniere.ReadModel
 {
@@ -12,16 +14,13 @@ namespace SoftwarePioniere.ReadModel
     public class InMemoryEntityStore : EntityStoreBase<InMemoryEntityStoreOptions>
     {
         private readonly InMemoryEntityStoreConnectionProvider _provider;
-        //private readonly IOptions<InMemoryEntityStoreOptions> _options;
 
-
-        public InMemoryEntityStore(InMemoryEntityStoreOptions options,
-            InMemoryEntityStoreConnectionProvider provider
-            //, IOptions<InMemoryEntityStoreOptions> options
-            ) : base(options)
+        public InMemoryEntityStore(IOptions<InMemoryEntityStoreOptions> options,
+            InMemoryEntityStoreConnectionProvider provider,
+            ILoggerFactory loggerFactory, ICacheClient cacheClient
+            ) : base(options, loggerFactory, cacheClient)
         {
             _provider = provider ?? throw new ArgumentNullException(nameof(provider));
-            //_options = options ?? throw new ArgumentNullException(nameof(options));
         }
 
         public override Task<T[]> LoadItemsAsync<T>(CancellationToken token = default(CancellationToken))

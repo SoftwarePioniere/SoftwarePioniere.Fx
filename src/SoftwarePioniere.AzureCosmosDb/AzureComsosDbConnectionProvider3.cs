@@ -3,6 +3,7 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Azure.Cosmos;
+using Microsoft.Azure.Cosmos.Fluent;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using SoftwarePioniere.ReadModel;
@@ -20,10 +21,19 @@ namespace SoftwarePioniere.AzureCosmosDb
             _logger = loggerFactory.CreateLogger(GetType());
 
             Options = options.Value;
-            _logger.LogInformation("AzureCosmosDb Connection {Connection}", options);
-     
-            Client = new CosmosClient(Options.EndpointUrl, Options.AuthKey);
-            //BulkClient = new CosmosClient(Options.EndpointUrl, Options.AuthKey, new CosmosClientOptions() { AllowBulkExecution = true });
+            _logger.LogInformation("AzureCosmosDb Options {@Options}", options.Value.CreateSecured());
+
+            Client = new CosmosClientBuilder(Options.EndpointUrl, Options.AuthKey)
+                    .WithThrottlingRetryOptions(TimeSpan.FromMinutes(2), 5)
+                    //.AddCustomHandlers(new ThrottlingHandler(_logger))
+                    .Build();
+
+            BulkClient = new CosmosClientBuilder(Options.EndpointUrl, Options.AuthKey)
+                //.AddCustomHandlers(new ThrottlingHandler(_logger))
+                .WithThrottlingRetryOptions(TimeSpan.FromMinutes(2), 5)
+                .WithBulkExecution(true)
+                .Build();
+
             Database = Client.GetDatabase(Options.DatabaseId);
             Container = Database.GetContainer(Options.CollectionId);
         }
@@ -34,8 +44,8 @@ namespace SoftwarePioniere.AzureCosmosDb
 
         public CosmosClient Client { get; }
 
-        //public CosmosClient BulkClient { get; }
-    
+        public CosmosClient BulkClient { get; }
+
         public AzureCosmosDbOptions Options { get; }
 
         public async Task InitializeAsync(CancellationToken cancellationToken)
@@ -66,7 +76,7 @@ namespace SoftwarePioniere.AzureCosmosDb
         {
             try
             {
-                
+
                 var contRespose = await Container.ReadContainerAsync();
                 if (contRespose.StatusCode == HttpStatusCode.OK)
                 {

@@ -1,4 +1,5 @@
-﻿using SoftwarePioniere.ReadModel;
+﻿using Newtonsoft.Json;
+using SoftwarePioniere.ReadModel;
 
 namespace SoftwarePioniere.AzureCosmosDb
 {
@@ -16,9 +17,18 @@ namespace SoftwarePioniere.AzureCosmosDb
 
         public int OfferThroughput { get; set; } = 400;
 
-        public override string ToString()
+        public int ConcurrentDocuments { get; set; } = 1000;
+
+        public int ConcurrentWorkers { get; set; } = 6;
+
+
+        public AzureCosmosDbOptions CreateSecured()
         {
-            return $"EndpointUrl: {EndpointUrl} // DatabaseId: {DatabaseId} // CollectionId: {CollectionId} ";
+            var json = JsonConvert.SerializeObject(this);
+            var opt = JsonConvert.DeserializeObject<AzureCosmosDbOptions>(json);
+            opt.AuthKey = "XXX";
+            return opt;
+
         }
 
     }

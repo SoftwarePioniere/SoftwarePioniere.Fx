@@ -33,21 +33,20 @@ namespace SoftwarePioniere.EventStore
 
         private IPEndPoint _httpEndpoint;
 
-        public EventStoreConnectionProvider(ILoggerFactory loggerFactory, IOptions<EventStoreOptions> ioptions)
+        public EventStoreConnectionProvider(ILoggerFactory loggerFactory, IOptions<EventStoreOptions> options)
         {
             if (loggerFactory == null) throw new ArgumentNullException(nameof(loggerFactory));
-            if (ioptions == null)
-                throw new ArgumentNullException(nameof(ioptions));
 
-            var options = ioptions.Value;
+            Options = options.Value;
 
             _logger = loggerFactory.CreateLogger(GetType());
-            Options = options ?? throw new ArgumentNullException(nameof(options));
 
-            OpsCredentials = new UserCredentials(options.OpsUsername, options.OpsPassword);
-            AdminCredentials = new UserCredentials(options.AdminUsername, options.AdminPassword);
+            _logger.LogInformation("EventStore Options {@Options}", options.Value.CreateSecured());
 
-            _connection = new Lazy<IEventStoreConnection>(() => CreateNewConnection(options.ConnectionSetup));
+            OpsCredentials = new UserCredentials(Options.OpsUsername, Options.OpsPassword);
+            AdminCredentials = new UserCredentials(Options.AdminUsername, Options.AdminPassword);
+
+            _connection = new Lazy<IEventStoreConnection>(() => CreateNewConnection(Options.ConnectionSetup));
         }
 
         /// <summary>

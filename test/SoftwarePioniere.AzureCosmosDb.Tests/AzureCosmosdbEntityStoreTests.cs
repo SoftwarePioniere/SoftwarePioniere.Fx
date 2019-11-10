@@ -29,9 +29,12 @@ namespace SoftwarePioniere.AzureCosmosDb.Tests
 
         }
 
+
         [Fact]
         public override Task CanBulkInsertManyItems()
         {
+            BulkInsertCount = 20000;
+
             return base.CanBulkInsertManyItems();
         }
 

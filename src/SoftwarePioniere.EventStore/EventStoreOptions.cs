@@ -1,6 +1,6 @@
 using System;
-using System.Text;
 using EventStore.ClientAPI;
+using Newtonsoft.Json;
 
 namespace SoftwarePioniere.EventStore
 {
@@ -83,22 +83,14 @@ namespace SoftwarePioniere.EventStore
         public double ProjectionOperationTimeoutSeconds { get; set; } = 30;
         public double QueryTimeoutSeconds { get; set; } = 30;
 
-        public override string ToString()
+        public EventStoreOptions CreateSecured()
         {
-            if (UseCluster)
-            {
-                var sb = new StringBuilder();
-                foreach (var s in ClusterIpEndpoints)
-                {
-                    if (sb.Length > 0)
-                        sb.Append(",");
+            var json = JsonConvert.SerializeObject(this);
+            var opt = JsonConvert.DeserializeObject<EventStoreOptions>(json);
+            opt.AdminPassword = "XXX";
+            opt.OpsPassword = "XXX";
+            return opt;
 
-                    sb.Append($"{s}");
-                }
-                return $"Cluster IpEndPoints: {sb} // Username: {OpsUsername} // TcpPort: {TcpPort} // HttpPort: {HttpPort} // UseSsl: {UseSslCertificate} //  SslTcpPort: {ExtSecureTcpPort}";
-
-            }
-            return $"IpEndPoint: {IpEndPoint} // Username: {OpsUsername} // TcpPort: {TcpPort} // HttpPort: {HttpPort} // UseSsl: {UseSslCertificate} //  SslTcpPort: {ExtSecureTcpPort}";
         }
     }
 }

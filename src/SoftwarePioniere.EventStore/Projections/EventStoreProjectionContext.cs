@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using EventStore.ClientAPI;
 using Foundatio.Caching;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using SoftwarePioniere.Projections;
 using SoftwarePioniere.ReadModel;
 using ILogger = Microsoft.Extensions.Logging.ILogger;
@@ -12,7 +13,7 @@ namespace SoftwarePioniere.EventStore.Projections
 {
     public class EventStoreProjectionContext : IProjectionContext
     {
-       private readonly ILoggerFactory _loggerFactory;
+        private readonly ILoggerFactory _loggerFactory;
         private readonly EventStoreConnectionProvider _connectionProvider;
         private readonly IEntityStore _entityStore;
         private readonly IReadModelProjector _projector;
@@ -174,12 +175,11 @@ namespace SoftwarePioniere.EventStore.Projections
         {
             _logger.LogDebug("StartInitializationMode");
 
-            _initEntityStore = new InMemoryEntityStore(new InMemoryEntityStoreOptions
-            {
-                CachingDisabled = true,
-                CacheClient = NullCacheClient.Instance,
-                LoggerFactory = _loggerFactory
-            }, new InMemoryEntityStoreConnectionProvider());
+            _initEntityStore = new InMemoryEntityStore(new OptionsWrapper<InMemoryEntityStoreOptions>(
+                new InMemoryEntityStoreOptions
+                {
+                    CachingDisabled = true
+                }), new InMemoryEntityStoreConnectionProvider(), _loggerFactory, NullCacheClient.Instance);
 
             InitializationMode = true;
             IsLiveProcessing = false;
@@ -202,7 +202,7 @@ namespace SoftwarePioniere.EventStore.Projections
             InitializationMode = true;
             IsReady = true;
             _initEntityStore = null;
-            
+
             return Task.CompletedTask;
         }
     }

@@ -21,7 +21,7 @@ namespace SoftwarePioniere.MongoDb
 
         //private readonly Uri _collectionUri;
 
-        public MongoDbOptions Settings { get; set; }
+        public MongoDbOptions Options { get; set; }
 
         static MongoDbConnectionProvider()
         {
@@ -30,7 +30,7 @@ namespace SoftwarePioniere.MongoDb
             BsonSerializer.RegisterSerializer(typeof(DateTime), serializer);
         }
 
-        public MongoDbConnectionProvider(ILoggerFactory loggerFactory, IOptions<MongoDbOptions> settings)
+        public MongoDbConnectionProvider(ILoggerFactory loggerFactory, IOptions<MongoDbOptions> options)
         {
             if (loggerFactory == null)
                 throw new ArgumentNullException(nameof(loggerFactory));
@@ -38,8 +38,9 @@ namespace SoftwarePioniere.MongoDb
 
             KeyCache = new TypeKeyCache();
 
-            Settings = settings.Value;
-            _logger.LogInformation("MongoDb Connection {Connection}", settings.Value);
+            Options = options.Value;
+       
+            _logger.LogInformation("MongoDb Options {@Options}", options.Value.CreateSecured());
 
             InitClient();
             InitDatabase();
@@ -57,7 +58,7 @@ namespace SoftwarePioniere.MongoDb
             while (await databases.MoveNextAsync())
             {
                 var items = databases.Current.ToArray();
-                var c = (items.Count(x => x["name"] == Settings.DatabaseId) > 0);
+                var c = (items.Count(x => x["name"] == Options.DatabaseId) > 0);
 
                 if (c)
                     return true;
@@ -69,7 +70,7 @@ namespace SoftwarePioniere.MongoDb
 
         private IMongoClient CreateClient()
         {
-            var url = new MongoServerAddress(Settings.Server, Settings.Port);
+            var url = new MongoServerAddress(Options.Server, Options.Port);
             var settings = new MongoClientSettings
             { Server = url };
             var client = new MongoClient(settings);
@@ -83,7 +84,7 @@ namespace SoftwarePioniere.MongoDb
             Database = new Lazy<IMongoDatabase>(() =>
             {
                 var client = CreateClient();
-                return client.GetDatabase(Settings.DatabaseId);
+                return client.GetDatabase(Options.DatabaseId);
             });
         }
 
@@ -105,7 +106,7 @@ namespace SoftwarePioniere.MongoDb
         public async Task ClearDatabaseAsync()
         {
             _logger.LogInformation("Clear Database");
-            await Client.Value.DropDatabaseAsync(Settings.DatabaseId);
+            await Client.Value.DropDatabaseAsync(Options.DatabaseId);
             _logger.LogInformation("Reinit Client");
             InitDatabase();
         }

@@ -20,6 +20,7 @@ namespace SoftwarePioniere.MongoDb.Tests
         [Fact]
         public override Task CanBulkInsertManyItems()
         {
+            BulkInsertCount = 50000;
             return base.CanBulkInsertManyItems();
         }
 

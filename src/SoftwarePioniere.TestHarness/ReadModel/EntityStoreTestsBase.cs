@@ -70,7 +70,7 @@ namespace SoftwarePioniere.ReadModel
             var obj1 = FakeEntity.Create(id);
 
             var store = CreateInstance();
-            
+
 
             await store.InsertItemAsync(obj1);
 
@@ -195,7 +195,7 @@ namespace SoftwarePioniere.ReadModel
 
             var list = new List<FakeEntity>();
 
-            for (var i = 0; i < 1000; i++) list.Add(FakeEntity.Create(Guid.NewGuid().ToString()));
+            for (var i = 0; i < BulkInsertCount; i++) list.Add(FakeEntity.Create(Guid.NewGuid().ToString()));
 
             var store = CreateInstance();
 
@@ -207,9 +207,11 @@ namespace SoftwarePioniere.ReadModel
             foreach (var entity in list) allKeys.Should().Contain(entity.EntityId);
         }
 
+        public int BulkInsertCount { get; set; } = 1000;
+
 
         public virtual void DeleteThrowsErrorWithKeyNullOrEmpty()
-        {   
+        {
             var store = CreateInstance();
 
             Func<Task> f1 = async () => { await store.DeleteItemAsync<FakeEntity>(null); };

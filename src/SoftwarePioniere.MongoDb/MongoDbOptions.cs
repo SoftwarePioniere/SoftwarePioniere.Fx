@@ -1,4 +1,5 @@
-﻿using SoftwarePioniere.ReadModel;
+﻿using Newtonsoft.Json;
+using SoftwarePioniere.ReadModel;
 
 namespace SoftwarePioniere.MongoDb
 {
@@ -20,5 +21,12 @@ namespace SoftwarePioniere.MongoDb
             return $"Server: {Server} // Port: {Port} // DatabaseId: {DatabaseId} // UserName: {UserName} ";
         }
 
+        public MongoDbOptions CreateSecured()
+        {
+            var json = JsonConvert.SerializeObject(this);
+            var opt = JsonConvert.DeserializeObject<MongoDbOptions>(json);
+            opt.Password = "XXX";
+            return opt;
+        }
     }
 }
