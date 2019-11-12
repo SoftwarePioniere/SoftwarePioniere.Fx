@@ -158,6 +158,12 @@ namespace SoftwarePioniere.MongoDb
                 Logger.LogWarning("Insert Failed, Try Update {EntityId} // {ExceptionMessage}",
                     item.EntityId,
                     e.Message);
+
+                if (_provider.Options.ThrowDeveloperError)
+                {
+                    throw;
+                }
+
                 var filter = new ExpressionFilterDefinition<T>(x =>
                     x.EntityType == _provider.KeyCache.GetEntityTypeKey<T>() && x.EntityId == item.EntityId);
                 await collection.ReplaceOneAsync(filter, item, null, token);

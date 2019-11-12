@@ -324,6 +324,13 @@ namespace SoftwarePioniere.AzureCosmosDb
                 Logger.LogWarning("InternalInsertItemAsync: Insert Failed, Try Update {EntityId} // {ExceptionMessage}",
                     item.EntityId,
                     nfex.Message);
+
+                if (_provider.Options.ThrowDeveloperError)
+                {
+                    throw;
+                }
+
+
                 await _provider.Container.UpsertItemAsync(item, GetPartitionKey<T>(), cancellationToken: token);
             }
             catch (CosmosException e)
@@ -419,6 +426,13 @@ namespace SoftwarePioniere.AzureCosmosDb
                 Logger.LogWarning("Update Failed, Try Insert {EntityId} // {ExceptionMessage}",
                     item.EntityId,
                     nfex.Message);
+
+                if (_provider.Options.ThrowDeveloperError)
+                {
+                    throw;
+                }
+
+
                 await _provider.Container.CreateItemAsync(item, GetPartitionKey<T>(), cancellationToken: token);
             }
             catch (CosmosException e)

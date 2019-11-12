@@ -20,5 +20,7 @@
         //public ICacheClient CacheClient { get; set; }
         public int CacheMinutes { get; set; } = 120;
         public bool CachingDisabled { get; set; }
+
+        public bool ThrowDeveloperError { get; set; }
     }
 }
