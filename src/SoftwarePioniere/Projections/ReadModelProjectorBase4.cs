@@ -33,7 +33,7 @@ namespace SoftwarePioniere.Projections
             CancellationToken = cancellationToken;
         }
 
-        protected async Task HandleIfAsync<TEvent>(Func<TEvent, Task> handler, IDomainEvent domainEvent)
+        protected async Task<bool> HandleIfAsync<TEvent>(Func<TEvent, Task> handler, IDomainEvent domainEvent)
         {
             if (domainEvent is TEvent message)
             {
@@ -53,7 +53,11 @@ namespace SoftwarePioniere.Projections
                     Logger.LogDebug($"HANDLE PROJECTOR EVENT {StreamName}/{domainEvent.GetType().Name}");
                     await handler(message);
                 }
+
+                return true;
             }
+
+            return false;
         }
 
 
