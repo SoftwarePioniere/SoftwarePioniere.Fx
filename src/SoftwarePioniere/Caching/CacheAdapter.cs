@@ -15,7 +15,7 @@ namespace SoftwarePioniere.Caching
     public class CacheAdapter : ICacheAdapter
     {
         private const string EmptyKey = "EMPTY-0001111";
-        private static readonly string[] EmptyList = { EmptyKey };
+        private static readonly string[] EmptyList = {EmptyKey};
         private readonly IEntityStore _entityStore;
         private readonly ILockProvider _lockProvider;
         private readonly ILogger _logger;
@@ -41,18 +41,12 @@ namespace SoftwarePioniere.Caching
 
         public async Task<List<T>> LoadSetItems<T>(string setKey, Expression<Func<T, bool>> where, int minutes = int.MinValue, CancellationToken cancellationToken = default) where T : Entity
         {
-            //if (logger == null)
             var logger = _logger;
-
-            //gibt es die ALLE-Ids Liste?
 
             var existsAsync = await CacheClient.ExistsAsync(setKey);
 
             var items = new List<T>();
 
-            var expiresIn = TimeSpan.FromMinutes(minutes == int.MinValue ? _options.CacheMinutes : minutes);
-
-            //wenn nein, lade alle objekte
             if (!existsAsync)
             {
                 logger.LogDebug("LoadSetItems: Key not Found in Cache {Key}", setKey);
@@ -77,20 +71,17 @@ namespace SoftwarePioniere.Caching
 
                 var cacheValues = await CacheClient.GetAllAsync<T>(idList);
 
-                //die im cache sind einfügen
                 items.AddRange(cacheValues.Values.Where(x => x.HasValue).Select(x => x.Value));
 
                 if (cacheValues.Any(x => !x.Value.HasValue))
                 {
+                    var expiresIn = GetExpiresIn(minutes);
+
                     var loadedIds = items.Select(x => x.EntityId).ToArray();
-                    //die anderen nachladen und einfügen
                     var allMissingIds = idList.Where(id => !loadedIds.Contains(id)).ToArray();
 
                     foreach (var missingIds in Split(allMissingIds, _options.CacheLoadSplitSize))
                     {
-                        //var alleEntities = await _entityStore.LoadItemsAsync<T>();
-                        //var entities = alleEntities.Where(x => missingIds.Contains(x.EntityId)).ToList();
-
                         var entities = await _entityStore.LoadItemsAsync<T>(x => missingIds.Contains(x.EntityId), cancellationToken);
 
                         foreach (var item in entities)
@@ -115,12 +106,11 @@ namespace SoftwarePioniere.Caching
 
         public async Task<T[]> LoadListAndAddSetToCache<T>(string setKey, Expression<Func<T, bool>> where, int minutes = int.MinValue, CancellationToken cancellationToken = default) where T : Entity
         {
-            //if (logger == null)
             var logger = _logger;
 
             logger.LogDebug("LoadListAndAddSetToCache {setKey}", setKey);
 
-            var expiresIn = TimeSpan.FromMinutes(minutes == int.MinValue ? _options.CacheMinutes : minutes);
+            var expiresIn = GetExpiresIn(minutes);
 
             var entities = await _entityStore.LoadItemsAsync(where, cancellationToken);
 
@@ -149,7 +139,6 @@ namespace SoftwarePioniere.Caching
 
         public async Task<T> CacheLoadItem<T>(Func<Task<T>> loader, string cacheKey, int minutes = int.MinValue)
         {
-            //if (logger == null) 
             var logger = _logger;
 
             logger.LogDebug("CacheLoad for EntityType: {EntityType} with Key {CacheKey}", typeof(T), cacheKey);
@@ -168,9 +157,6 @@ namespace SoftwarePioniere.Caching
 
             logger.LogDebug("No Cache Result {CacheKey}", cacheKey);
 
-            var expiresIn = TimeSpan.FromMinutes(minutes == int.MinValue ? _options.CacheMinutes : minutes);
-
-
             var ret = await loader();
             if (ret != null)
             {
@@ -180,6 +166,7 @@ namespace SoftwarePioniere.Caching
                 }
                 else
                 {
+                    var expiresIn = GetExpiresIn(minutes);
                     await CacheClient.SetAsync(cacheKey, ret, expiresIn);
                 }
             }
@@ -189,7 +176,6 @@ namespace SoftwarePioniere.Caching
 
         public async Task<T[]> CacheLoadItems<T>(Func<Task<T[]>> loader, string cacheKey, int minutes = int.MinValue)
         {
-            //if (logger == null)
             var logger = _logger;
 
             logger.LogDebug("CacheLoad for EntityType: {EntityType} with Key {CacheKey}", typeof(T), cacheKey);
@@ -209,8 +195,6 @@ namespace SoftwarePioniere.Caching
 
             logger.LogDebug("No Cache Result. Loading and Set to Cache");
 
-            var expiresIn = TimeSpan.FromMinutes(minutes == int.MinValue ? _options.CacheMinutes : minutes);
-
             var ret = await loader();
             if (ret != null && ret.Length > 0)
             {
@@ -220,6 +204,7 @@ namespace SoftwarePioniere.Caching
                 }
                 else
                 {
+                    var expiresIn = GetExpiresIn(minutes);
                     await CacheClient.SetAsync(cacheKey, ret, expiresIn);
                 }
             }
@@ -231,6 +216,12 @@ namespace SoftwarePioniere.Caching
         public Task<int> RemoveByPrefixAsync(string prefix)
         {
             return CacheClient.RemoveByPrefixAsync(prefix);
+        }
+
+        private TimeSpan GetExpiresIn(int minutes)
+        {
+            var expiresIn = TimeSpan.FromSeconds(minutes == int.MinValue ? _options.CacheMinutes : minutes);
+            return expiresIn;
         }
 
         private static bool IsEmptyList(ICollection<string> list)
@@ -252,7 +243,7 @@ namespace SoftwarePioniere.Caching
 
         private static IEnumerable<IEnumerable<T>> Split<T>(T[] array, int size)
         {
-            for (var i = 0; i < (float)array.Length / size; i++) yield return array.Skip(i * size).Take(size);
+            for (var i = 0; i < (float) array.Length / size; i++) yield return array.Skip(i * size).Take(size);
         }
     }
 }
