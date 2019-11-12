@@ -132,12 +132,7 @@ namespace SoftwarePioniere.Caching
 
         public ICacheClient CacheClient { get; }
 
-        public Task<T> CacheLoad<T>(Func<Task<T>> loader, string cacheKey, int minutes = int.MinValue)
-        {
-            return CacheLoadItem(loader, cacheKey, minutes);
-        }
-
-        public async Task<T> CacheLoadItem<T>(Func<Task<T>> loader, string cacheKey, int minutes = int.MinValue)
+        public async Task<T> CacheLoad<T>(Func<Task<T>> loader, string cacheKey, int minutes = int.MinValue)
         {
             var logger = _logger;
 
@@ -174,43 +169,44 @@ namespace SoftwarePioniere.Caching
             return ret;
         }
 
-        public async Task<T[]> CacheLoadItems<T>(Func<Task<T[]>> loader, string cacheKey, int minutes = int.MinValue)
-        {
-            var logger = _logger;
+     
+        //public async Task<T[]> CacheLoadItems<T>(Func<Task<T[]>> loader, string cacheKey, int minutes = int.MinValue)
+        //{
+        //    var logger = _logger;
 
-            logger.LogDebug("CacheLoad for EntityType: {EntityType} with Key {CacheKey}", typeof(T), cacheKey);
+        //    logger.LogDebug("CacheLoad for EntityType: {EntityType} with Key {CacheKey}", typeof(T), cacheKey);
 
-            if (await CacheClient.ExistsAsync(cacheKey))
-            {
-                logger.LogDebug("Cache Key {CacheKey} exists", cacheKey);
+        //    if (await CacheClient.ExistsAsync(cacheKey))
+        //    {
+        //        logger.LogDebug("Cache Key {CacheKey} exists", cacheKey);
 
-                var l = await CacheClient.GetSetAsync<T>(cacheKey);
-                if (l.HasValue)
-                {
-                    logger.LogDebug("Return result from Cache");
+        //        var l = await CacheClient.GetSetAsync<T>(cacheKey);
+        //        if (l.HasValue)
+        //        {
+        //            logger.LogDebug("Return result from Cache");
 
-                    return l.Value.ToArray();
-                }
-            }
+        //            return l.Value.ToArray();
+        //        }
+        //    }
 
-            logger.LogDebug("No Cache Result. Loading and Set to Cache");
+        //    logger.LogDebug("No Cache Result. Loading and Set to Cache");
 
-            var ret = await loader();
-            if (ret != null && ret.Length > 0)
-            {
-                if (await IsPrefixLocked(cacheKey))
-                {
-                    logger.LogDebug("Cache Key is Locked, Skipping add");
-                }
-                else
-                {
-                    var expiresIn = GetExpiresIn(minutes);
-                    await CacheClient.SetAsync(cacheKey, ret, expiresIn);
-                }
-            }
+        //    var ret = await loader();
+        //    if (ret != null && ret.Length > 0)
+        //    {
+        //        if (await IsPrefixLocked(cacheKey))
+        //        {
+        //            logger.LogDebug("Cache Key is Locked, Skipping add");
+        //        }
+        //        else
+        //        {
+        //            var expiresIn = GetExpiresIn(minutes);
+        //            await CacheClient.SetAsync(cacheKey, ret, expiresIn);
+        //        }
+        //    }
 
-            return ret;
-        }
+        //    return ret;
+        //}
 
 
         public Task<int> RemoveByPrefixAsync(string prefix)

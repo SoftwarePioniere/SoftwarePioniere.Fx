@@ -16,11 +16,11 @@ namespace SoftwarePioniere.Caching
         Task<T> CacheLoad<T>(Func<Task<T>> loader, string cacheKey,
             int minutes = 120);
 
-        Task<T> CacheLoadItem<T>(Func<Task<T>> loader, string cacheKey,
-            int minutes = 120);
+        //Task<T> CacheLoadItem<T>(Func<Task<T>> loader, string cacheKey,
+        //    int minutes = 120);
 
-        Task<T[]> CacheLoadItems<T>(Func<Task<T[]>> loader, string cacheKey,
-            int minutes = 120);
+        //Task<T[]> CacheLoadItems<T>(Func<Task<T[]>> loader, string cacheKey,
+        //    int minutes = 120);
 
         //Task<PagedResults<T>> CacheLoadPagedItems<T>(Func<Task<PagedResults<T>>> loader, string cacheKey,
         //    int minutes = 60, ILogger logger = null);
