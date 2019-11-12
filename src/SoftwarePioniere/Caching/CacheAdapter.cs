@@ -16,18 +16,17 @@ namespace SoftwarePioniere.Caching
     {
         private const string EmptyKey = "EMPTY-0001111";
         private static readonly string[] EmptyList = { EmptyKey };
-        private readonly int _cacheMinutes;
-        private readonly int _cacheSplitSize;
         private readonly IEntityStore _entityStore;
         private readonly ILockProvider _lockProvider;
         private readonly ILogger _logger;
+        private readonly CacheOptions _options;
 
         public CacheAdapter(ILoggerFactory loggerFactory, ILockProvider lockProvider, ICacheClient cacheClient, IOptions<CacheOptions> options, IEntityStore entityStore)
         {
             if (options == null) throw new ArgumentNullException(nameof(options));
-            _cacheMinutes = options.Value.CacheMinutes;
-            _cacheSplitSize = options.Value.CacheLoadSplitSize;
 
+
+            _options = options.Value;
 
             _lockProvider = lockProvider ?? throw new ArgumentNullException(nameof(lockProvider));
             _entityStore = entityStore ?? throw new ArgumentNullException(nameof(entityStore));
@@ -51,6 +50,8 @@ namespace SoftwarePioniere.Caching
 
             var items = new List<T>();
 
+            var expiresIn = TimeSpan.FromMinutes(minutes == int.MinValue ? _options.CacheMinutes : minutes);
+
             //wenn nein, lade alle objekte
             if (!existsAsync)
             {
@@ -59,7 +60,7 @@ namespace SoftwarePioniere.Caching
                 {
                     var entities = await LoadListAndAddSetToCache(setKey, where, minutes, cancellationToken);
                     items.AddRange(entities);
-                }, null, null);
+                }, null, TimeSpan.FromSeconds(_options.CacheLockTimeoutSeconds));
 
                 return items;
             }
@@ -85,7 +86,7 @@ namespace SoftwarePioniere.Caching
                     //die anderen nachladen und einfügen
                     var allMissingIds = idList.Where(id => !loadedIds.Contains(id)).ToArray();
 
-                    foreach (var missingIds in Split(allMissingIds, _cacheSplitSize))
+                    foreach (var missingIds in Split(allMissingIds, _options.CacheLoadSplitSize))
                     {
                         //var alleEntities = await _entityStore.LoadItemsAsync<T>();
                         //var entities = alleEntities.Where(x => missingIds.Contains(x.EntityId)).ToList();
@@ -93,10 +94,7 @@ namespace SoftwarePioniere.Caching
                         var entities = await _entityStore.LoadItemsAsync<T>(x => missingIds.Contains(x.EntityId), cancellationToken);
 
                         foreach (var item in entities)
-                            if (minutes == int.MinValue)
-                                await CacheClient.AddAsync(item.EntityId, item, TimeSpan.FromMinutes(_cacheMinutes));
-                            else
-                                await CacheClient.AddAsync(item.EntityId, item, TimeSpan.FromMinutes(minutes));
+                            await CacheClient.AddAsync(item.EntityId, item, expiresIn);
 
                         items.AddRange(entities);
                     }
@@ -122,29 +120,21 @@ namespace SoftwarePioniere.Caching
 
             logger.LogDebug("LoadListAndAddSetToCache {setKey}", setKey);
 
+            var expiresIn = TimeSpan.FromMinutes(minutes == int.MinValue ? _options.CacheMinutes : minutes);
+
             var entities = await _entityStore.LoadItemsAsync(where, cancellationToken);
 
             if (entities.Length > 0)
             {
                 foreach (var item in entities)
-                    if (minutes == int.MinValue)
-                        await CacheClient.AddAsync(item.EntityId, item, TimeSpan.FromMinutes(_cacheMinutes));
-                    else
-                        await CacheClient.AddAsync(item.EntityId, item, TimeSpan.FromMinutes(minutes));
+                    await CacheClient.AddAsync(item.EntityId, item, expiresIn);
 
                 var entityIds = entities.Select(x => x.EntityId).ToArray();
-                if (minutes == int.MinValue)
-                    await CacheClient.SetAddAsync(setKey, entityIds, TimeSpan.FromMinutes(_cacheMinutes));
-                else
-                    await CacheClient.SetAddAsync(setKey, entityIds, TimeSpan.FromMinutes(minutes));
+                await CacheClient.SetAddAsync(setKey, entityIds, expiresIn);
             }
             else
             {
-                //dummy set if empty list
-                if (minutes == int.MinValue)
-                    await CacheClient.SetAddAsync(setKey, EmptyList, TimeSpan.FromMinutes(_cacheMinutes));
-                else
-                    await CacheClient.SetAddAsync(setKey, EmptyList, TimeSpan.FromMinutes(minutes));
+                await CacheClient.SetAddAsync(setKey, EmptyList, expiresIn);
             }
 
             return entities;
@@ -178,6 +168,9 @@ namespace SoftwarePioniere.Caching
 
             logger.LogDebug("No Cache Result {CacheKey}", cacheKey);
 
+            var expiresIn = TimeSpan.FromMinutes(minutes == int.MinValue ? _options.CacheMinutes : minutes);
+
+
             var ret = await loader();
             if (ret != null)
             {
@@ -187,10 +180,7 @@ namespace SoftwarePioniere.Caching
                 }
                 else
                 {
-                    if (minutes == int.MinValue)
-                        await CacheClient.SetAsync(cacheKey, ret, TimeSpan.FromMinutes(_cacheMinutes));
-                    else
-                        await CacheClient.SetAsync(cacheKey, ret, TimeSpan.FromMinutes(minutes));
+                    await CacheClient.SetAsync(cacheKey, ret, expiresIn);
                 }
             }
 
@@ -219,6 +209,8 @@ namespace SoftwarePioniere.Caching
 
             logger.LogDebug("No Cache Result. Loading and Set to Cache");
 
+            var expiresIn = TimeSpan.FromMinutes(minutes == int.MinValue ? _options.CacheMinutes : minutes);
+
             var ret = await loader();
             if (ret != null && ret.Length > 0)
             {
@@ -228,10 +220,7 @@ namespace SoftwarePioniere.Caching
                 }
                 else
                 {
-                    if (minutes == int.MinValue)
-                        await CacheClient.SetAddAsync(cacheKey, ret, TimeSpan.FromMinutes(_cacheMinutes));
-                    else
-                        await CacheClient.SetAddAsync(cacheKey, ret, TimeSpan.FromMinutes(minutes));
+                    await CacheClient.SetAsync(cacheKey, ret, expiresIn);
                 }
             }
 
