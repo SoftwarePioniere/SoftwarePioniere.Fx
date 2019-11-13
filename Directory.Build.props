@@ -36,7 +36,12 @@
       <Authors>SoftwarePioniere</Authors>
       <PackageProjectUrl>https://github.com/SoftwarePioniere/SoftwarePioniere.Fx</PackageProjectUrl>
       <RepositoryUrl>https://github.com/SoftwarePioniere/SoftwarePioniere.Fx</RepositoryUrl>
+      <PublishRepositoryUrl>true</PublishRepositoryUrl>
   </PropertyGroup>
+
+   <ItemGroup>
+     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-beta2-19554-01" PrivateAssets="All"/>
+   </ItemGroup>
 
   <PropertyGroup Condition=" '$(NuGetVersionV2)' == '' ">
       <Version>$(MyVersion)</Version>
