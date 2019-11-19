@@ -15,6 +15,7 @@ namespace SoftwarePioniere.Extensions.AspNetCore.Swagger
         public SwaggerDocOptions[] Docs { get; set; }
         public SwaggerDocOptions[] UiDocs { get; set; }
         public bool UseSwaggerUi { get; set; } = true;
+        public bool ReadOnlyUi { get; set; }
         public string Title { get; set; }
         public string Doc { get; set; }
         public string RouteTemplate { get; set; }

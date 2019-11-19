@@ -45,7 +45,8 @@ namespace WebApp.Host
                         new[]
                         {
                             Constants.ApiKey, "api", "api2", "cmd1", "qry1"
-                        });
+                        },
+                        true);
 
                     services
                         .AddTestClientOptions(c => { c.BaseAddress = "http://localhost:5099"; })

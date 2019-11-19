@@ -60,19 +60,27 @@ namespace SoftwarePioniere.Extensions.AspNetCore.Swagger
                         }
                     }
 
-                    if (options.OAuthAdditionalQueryStringParams != null)
+                    if (options.ReadOnlyUi)
                     {
-                        c.OAuthAdditionalQueryStringParams(options.OAuthAdditionalQueryStringParams);
+                        c.SupportedSubmitMethods();
                     }
-
-                    if (!string.IsNullOrEmpty(options.OAuthClientId))
+                    else
                     {
-                        c.OAuthClientId(options.OAuthClientId);
-                    }
 
-                    if (!string.IsNullOrEmpty(options.OAuthClientSecret))
-                    {
-                        c.OAuthClientSecret(options.OAuthClientSecret);
+                        if (options.OAuthAdditionalQueryStringParams != null)
+                        {
+                            c.OAuthAdditionalQueryStringParams(options.OAuthAdditionalQueryStringParams);
+                        }
+
+                        if (!string.IsNullOrEmpty(options.OAuthClientId))
+                        {
+                            c.OAuthClientId(options.OAuthClientId);
+                        }
+
+                        if (!string.IsNullOrEmpty(options.OAuthClientSecret))
+                        {
+                            c.OAuthClientSecret(options.OAuthClientSecret);
+                        }
                     }
                 });
             }

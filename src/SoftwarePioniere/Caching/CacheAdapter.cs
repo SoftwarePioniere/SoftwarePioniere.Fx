@@ -139,6 +139,8 @@ namespace SoftwarePioniere.Caching
 
             logger.LogDebug("CacheLoad for EntityType: {EntityType} with Key {CacheKey}", typeof(T), cacheKey);
 
+            var expiresIn = GetExpiresIn(minutes);
+
             if (await CacheClient.ExistsAsync(cacheKey))
             {
                 logger.LogDebug("Cache Key exists {CacheKey}", cacheKey);
@@ -146,6 +148,7 @@ namespace SoftwarePioniere.Caching
                 var l = await CacheClient.GetAsync<T>(cacheKey);
                 if (l.HasValue)
                 {
+                    await CacheClient.SetExpirationAsync(cacheKey, expiresIn);
                     logger.LogDebug("Return result from Cache with {CacheKey}", cacheKey);
                     return l.Value;
                 }
@@ -162,7 +165,6 @@ namespace SoftwarePioniere.Caching
                 }
                 else
                 {
-                    var expiresIn = GetExpiresIn(minutes);
                     await CacheClient.SetAsync(cacheKey, ret, expiresIn);
                 }
             }
@@ -177,6 +179,8 @@ namespace SoftwarePioniere.Caching
 
             logger.LogDebug("CacheLoad for EntityType: {EntityType} with Key {CacheKey}", typeof(T), cacheKey);
 
+            var expiresIn = GetExpiresIn(minutes);
+
             if (await CacheClient.ExistsAsync(cacheKey))
             {
                 logger.LogDebug("Cache Key {CacheKey} exists", cacheKey);
@@ -185,6 +189,7 @@ namespace SoftwarePioniere.Caching
                 if (l.HasValue)
                 {
                     logger.LogDebug("Return result from Cache");
+                    await CacheClient.SetExpirationAsync(cacheKey, expiresIn);
                     return l.Value.ToArray();
                 }
             }
@@ -201,7 +206,7 @@ namespace SoftwarePioniere.Caching
                 //else
 
                 {
-                    var expiresIn = GetExpiresIn(minutes);
+                 
                     await CacheClient.SetAsync(cacheKey, ret, expiresIn);
                 }
             }

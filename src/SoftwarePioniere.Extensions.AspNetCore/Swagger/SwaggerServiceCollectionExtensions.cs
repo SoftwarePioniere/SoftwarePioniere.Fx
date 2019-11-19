@@ -12,7 +12,7 @@ namespace SoftwarePioniere.Extensions.AspNetCore.Swagger
 {
     public static class SopiSwaggerServiceCollectionExtensions
     {
-        public static IServiceCollection AddSopiSwaggerForMultipleServices(this IServiceCollection services, string titleName, string baseRoute, string serviceName, string[] apiKeys
+        public static IServiceCollection AddSopiSwaggerForMultipleServices(this IServiceCollection services, string titleName, string baseRoute, string serviceName, string[] apiKeys, bool readOnly
         , Action<SopiSwaggerOptions> configureOptions = null)
         {
             Console.WriteLine("AddSopiSwaggerForMultipleServices");
@@ -20,7 +20,7 @@ namespace SoftwarePioniere.Extensions.AspNetCore.Swagger
             services.AddSingleton<IConfigureOptions<SopiSwaggerOptions>>(p =>
                 new ConfigureSopiSwaggerOptionsForMultipleServices(
                     p.GetRequiredService<IOptions<SopiSwaggerClientOptions>>(),
-                    titleName, baseRoute, serviceName, apiKeys, configureOptions
+                    titleName, baseRoute, serviceName, apiKeys, readOnly, configureOptions
                     ));
 
             services
@@ -36,12 +36,13 @@ namespace SoftwarePioniere.Extensions.AspNetCore.Swagger
             private readonly string _baseRoute;
             private readonly string _serviceName;
             private readonly string[] _apiKeys;
+            private readonly bool _readOnly;
             private readonly Action<SopiSwaggerOptions> _configureOptions;
             private readonly SopiSwaggerClientOptions _swaggerClientOptions;
 
             public ConfigureSopiSwaggerOptionsForMultipleServices(
                 IOptions<SopiSwaggerClientOptions> swaggerClientOptions,
-                string titleName, string baseRoute, string serviceName, string[] apiKeys
+                string titleName, string baseRoute, string serviceName, string[] apiKeys, bool readOnly
                 , Action<SopiSwaggerOptions> configureOptions = null)
             {
                 _swaggerClientOptions = swaggerClientOptions.Value;
@@ -49,6 +50,7 @@ namespace SoftwarePioniere.Extensions.AspNetCore.Swagger
                 _baseRoute = baseRoute;
                 _serviceName = serviceName;
                 _apiKeys = apiKeys;
+                _readOnly = readOnly;
                 _configureOptions = configureOptions;
             }
             public void Configure(SopiSwaggerOptions c)
@@ -59,34 +61,37 @@ namespace SoftwarePioniere.Extensions.AspNetCore.Swagger
                 var docs = _apiKeys.Select(apiKey => new SwaggerDocOptions { Name = apiKey, Title = c.Title, Url = $"/{_baseRoute}/{_serviceName}/swagger/{apiKey}.json" }).ToArray();
                 c.Docs = docs;
                 c.RouteTemplate = $"{_baseRoute}/{_serviceName}" + "/swagger/{documentName}.json";
+                c.ReadOnlyUi = _readOnly;
 
-                var scopes = new Dictionary<string, string>();
-                //{
-                //    {"admin", "admin access"}
-                //};
-
-                c.OAuth2Scheme = new OAuth2Scheme
+                if (!_readOnly)
                 {
-                    Type = "oauth2",
-                    Flow = "implicit",
-                    AuthorizationUrl = _swaggerClientOptions.AuthorizationUrl,
-                    Scopes = scopes
-                };
+                    var scopes = new Dictionary<string, string>();
+                    //{
+                    //    {"admin", "admin access"}
+                    //};
 
-                c.OAuthAdditionalQueryStringParams = new Dictionary<string, string>
+                    c.OAuth2Scheme = new OAuth2Scheme
+                    {
+                        Type = "oauth2",
+                        Flow = "implicit",
+                        AuthorizationUrl = _swaggerClientOptions.AuthorizationUrl,
+                        Scopes = scopes
+                    };
+
+                    c.OAuthAdditionalQueryStringParams = new Dictionary<string, string>
                 {
                     {"resource", _swaggerClientOptions.Resource},
                     {"Audience", _swaggerClientOptions.Resource}
                 };
 
-                c.OAuthClientId = _swaggerClientOptions.ClientId;
-                c.OAuthClientSecret = _swaggerClientOptions.ClientSecret;
-
+                    c.OAuthClientId = _swaggerClientOptions.ClientId;
+                    c.OAuthClientSecret = _swaggerClientOptions.ClientSecret;
+                }
                 _configureOptions?.Invoke(c);
             }
         }
 
-        public static IServiceCollection AddSopiSwaggerForSingleService(this IServiceCollection services, string apiKey, string baseRoute, string serviceName
+        public static IServiceCollection AddSopiSwaggerForSingleService(this IServiceCollection services, string apiKey, string baseRoute, string serviceName, bool readOnly
         , Action<SopiSwaggerOptions> configureOptions = null)
         {
             Console.WriteLine("AddSopiSwaggerForSingleService");
@@ -95,7 +100,7 @@ namespace SoftwarePioniere.Extensions.AspNetCore.Swagger
             services.AddSingleton<IConfigureOptions<SopiSwaggerOptions>>(p =>
                 new ConfigureSopiSwaggerForSingleService(
                     p.GetRequiredService<IOptions<SopiSwaggerClientOptions>>(),
-                    apiKey, baseRoute, serviceName, configureOptions
+                    apiKey, baseRoute, serviceName, readOnly, configureOptions
                 ));
 
             return services;
@@ -106,12 +111,13 @@ namespace SoftwarePioniere.Extensions.AspNetCore.Swagger
             private readonly string _apiKey;
             private readonly string _baseRoute;
             private readonly string _serviceName;
+            private readonly bool _readOnly;
             private readonly Action<SopiSwaggerOptions> _configureOptions;
             private readonly SopiSwaggerClientOptions _swaggerClientOptions;
 
             public ConfigureSopiSwaggerForSingleService(
                 IOptions<SopiSwaggerClientOptions> swaggerClientOptions,
-                string apiKey, string baseRoute, string serviceName
+                string apiKey, string baseRoute, string serviceName, bool readOnly
                 , Action<SopiSwaggerOptions> configureOptions = null)
             {
                 _swaggerClientOptions = swaggerClientOptions.Value;
@@ -119,6 +125,7 @@ namespace SoftwarePioniere.Extensions.AspNetCore.Swagger
                 _apiKey = apiKey;
                 _baseRoute = baseRoute;
                 _serviceName = serviceName;
+                _readOnly = readOnly;
                 _configureOptions = configureOptions;
             }
             public void Configure(SopiSwaggerOptions c)
@@ -131,33 +138,37 @@ namespace SoftwarePioniere.Extensions.AspNetCore.Swagger
                 };
                 c.RouteTemplate = $"{_baseRoute}/{_serviceName}" + "/swagger/{documentName}.json";
                 c.ServiceName = _serviceName;
+                c.ReadOnlyUi = _readOnly;
 
-                var scopes = new Dictionary<string, string>();
-                //{
-                //    {"admin", "admin access"}
-                //};
-
-                c.OAuth2Scheme = new OAuth2Scheme
+                if (!_readOnly)
                 {
-                    Type = "oauth2",
-                    Flow = "implicit",
-                    AuthorizationUrl = _swaggerClientOptions.AuthorizationUrl,
-                    Scopes = scopes
-                };
 
-                c.OAuthAdditionalQueryStringParams = new Dictionary<string, string>
-                {
-                    {"resource", _swaggerClientOptions.Resource},
-                    {"Audience", _swaggerClientOptions.Resource}
-                };
+                    var scopes = new Dictionary<string, string>();
+                    //{
+                    //    {"admin", "admin access"}
+                    //};
 
-                c.OAuthClientId = _swaggerClientOptions.ClientId;
-                c.OAuthClientSecret = _swaggerClientOptions.ClientSecret;
+                    c.OAuth2Scheme = new OAuth2Scheme
+                    {
+                        Type = "oauth2",
+                        Flow = "implicit",
+                        AuthorizationUrl = _swaggerClientOptions.AuthorizationUrl,
+                        Scopes = scopes
+                    };
 
+                    c.OAuthAdditionalQueryStringParams = new Dictionary<string, string>
+                    {
+                        {"resource", _swaggerClientOptions.Resource},
+                        {"Audience", _swaggerClientOptions.Resource}
+                    };
+
+                    c.OAuthClientId = _swaggerClientOptions.ClientId;
+                    c.OAuthClientSecret = _swaggerClientOptions.ClientSecret;
+                }
                 _configureOptions?.Invoke(c);
             }
 
-          
+
         }
 
         public static IServiceCollection AddSopiSwagger(this IServiceCollection services, Action<SopiSwaggerOptions> configureOptions = null)
@@ -217,20 +228,24 @@ namespace SoftwarePioniere.Extensions.AspNetCore.Swagger
                     options.OperationFilter<AppendAuthorizeToSummaryOperationFilter>();
                     options.OperationFilter<SummaryFromOperationFilter>();
 
-                    if (!string.IsNullOrEmpty(sopiSwaggerOptions.AuthorizationUrl))
+                    if (!sopiSwaggerOptions.ReadOnlyUi)
                     {
-                        var sch = new OAuth2Scheme
+
+                        if (!string.IsNullOrEmpty(sopiSwaggerOptions.AuthorizationUrl))
                         {
-                            Type = "oauth2",
-                            Flow = "implicit",
-                            AuthorizationUrl = sopiSwaggerOptions.AuthorizationUrl,
-                            Scopes = sopiSwaggerOptions.Scopes
-                        };
-                        options.AddSecurityDefinition("oauth2", sch);
+                            var sch = new OAuth2Scheme
+                            {
+                                Type = "oauth2",
+                                Flow = "implicit",
+                                AuthorizationUrl = sopiSwaggerOptions.AuthorizationUrl,
+                                Scopes = sopiSwaggerOptions.Scopes
+                            };
+                            options.AddSecurityDefinition("oauth2", sch);
+                        }
+
+                        options.AddSecurityDefinition("oauth2", sopiSwaggerOptions.OAuth2Scheme);
                     }
-
-                    options.AddSecurityDefinition("oauth2", sopiSwaggerOptions.OAuth2Scheme);
-
+                    
                     options.OperationFilter<SecurityRequirementsOperationFilter>();
 
                     options.DocInclusionPredicate((s, description) =>
