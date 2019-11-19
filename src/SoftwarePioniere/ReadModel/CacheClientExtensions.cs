@@ -1,101 +1,101 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
-using Foundatio.Caching;
-using Microsoft.Extensions.Logging;
+﻿//using System;
+//using System.Linq;
+//using System.Threading.Tasks;
+//using Foundatio.Caching;
+//using Microsoft.Extensions.Logging;
 
-namespace SoftwarePioniere.ReadModel
-{
-    public static class CacheClientExtensions
-    {
-        public static async Task<T> CacheLoadItem<T>(this ICacheClient cache, Func<Task<T>> loader, string cacheKey,
-            int minutes = 120, ILogger logger = null)
-        {
-            logger?.LogTrace("CacheLoad for EntityType: {EntityType} with Key {CacheKey}", typeof(T), cacheKey);
+//namespace SoftwarePioniere.ReadModel
+//{
+//    public static class CacheClientExtensions
+//    {
+//        public static async Task<T> CacheLoadItem<T>(this ICacheClient cache, Func<Task<T>> loader, string cacheKey,
+//            int minutes = 120, ILogger logger = null)
+//        {
+//            logger?.LogTrace("CacheLoad for EntityType: {EntityType} with Key {CacheKey}", typeof(T), cacheKey);
 
-            if (await cache.ExistsAsync(cacheKey))
-            {
+//            if (await cache.ExistsAsync(cacheKey))
+//            {
 
-                logger?.LogTrace("Cache Key {CacheKey} exists", cacheKey);
-
-
-                var l = await cache.GetAsync<T>(cacheKey);
-                if (l.HasValue)
-                {
-                    logger?.LogTrace("Return result from Cache");
-
-                    return l.Value;
-                }
-            }
-
-            logger?.LogTrace("No Cache Result. Loading and Set to Cache");
-
-            var ret = await loader();
-            if (ret != null)
-                await cache.SetAsync(cacheKey, ret, TimeSpan.FromMinutes(minutes));
-
-            return ret;
-        }
+//                logger?.LogTrace("Cache Key {CacheKey} exists", cacheKey);
 
 
-        public static async Task<T[]> CacheLoadItems<T>(this ICacheClient cache, Func<Task<T[]>> loader, string cacheKey,
-            int minutes = 120, ILogger logger = null)
-        {
-            logger?.LogTrace("CacheLoad for EntityType: {EntityType} with Key {CacheKey}", typeof(T), cacheKey);
+//                var l = await cache.GetAsync<T>(cacheKey);
+//                if (l.HasValue)
+//                {
+//                    logger?.LogTrace("Return result from Cache");
 
-            if (await cache.ExistsAsync(cacheKey))
-            {
-                logger?.LogTrace("Cache Key {CacheKey} exists", cacheKey);
+//                    return l.Value;
+//                }
+//            }
 
-                var l = await cache.GetSetAsync<T>(cacheKey);
-                if (l.HasValue)
-                {
-                    logger?.LogTrace("Return result from Cache");
-                    return l.Value.ToArray();
-                }
-            }
+//            logger?.LogTrace("No Cache Result. Loading and Set to Cache");
 
-            logger?.LogTrace("No Cache Result. Loading and Set to Cache");
+//            var ret = await loader();
+//            if (ret != null)
+//                await cache.SetAsync(cacheKey, ret, TimeSpan.FromMinutes(minutes));
 
-            var ret = await loader();
-            if (ret != null && ret.Length > 0)
-            {
-
-                await cache.SetAddAsync(cacheKey, ret, TimeSpan.FromMinutes(minutes));
-            }
-
-            return ret;
-        }
+//            return ret;
+//        }
 
 
-        //public static async Task<PagedResults<T>> CacheLoadPagedItems<T>(this ICacheClient cache, Func<Task<PagedResults<T>>> loader, string cacheKey,
-        //    int minutes = 120, ILogger logger = null)
-        //{
-        //    logger?.LogTrace("CacheLoad for EntityType: {EntityType} with Key {CacheKey}", typeof(T), cacheKey);
+//        public static async Task<T[]> CacheLoadItems<T>(this ICacheClient cache, Func<Task<T[]>> loader, string cacheKey,
+//            int minutes = 120, ILogger logger = null)
+//        {
+//            logger?.LogTrace("CacheLoad for EntityType: {EntityType} with Key {CacheKey}", typeof(T), cacheKey);
 
-        //    if (await cache.ExistsAsync(cacheKey))
-        //    {
-        //        logger?.LogTrace("Cache Key {CacheKey} exists", cacheKey);
+//            if (await cache.ExistsAsync(cacheKey))
+//            {
+//                logger?.LogTrace("Cache Key {CacheKey} exists", cacheKey);
+
+//                var l = await cache.GetSetAsync<T>(cacheKey);
+//                if (l.HasValue)
+//                {
+//                    logger?.LogTrace("Return result from Cache");
+//                    return l.Value.ToArray();
+//                }
+//            }
+
+//            logger?.LogTrace("No Cache Result. Loading and Set to Cache");
+
+//            var ret = await loader();
+//            if (ret != null && ret.Length > 0)
+//            {
+
+//                await cache.SetAddAsync(cacheKey, ret, TimeSpan.FromMinutes(minutes));
+//            }
+
+//            return ret;
+//        }
 
 
-        //        var l = await cache.GetAsync<PagedResults<T>>(cacheKey);
-        //        if (l.HasValue)
-        //        {
-        //            logger?.LogTrace("Return result from Cache");
+//        //public static async Task<PagedResults<T>> CacheLoadPagedItems<T>(this ICacheClient cache, Func<Task<PagedResults<T>>> loader, string cacheKey,
+//        //    int minutes = 120, ILogger logger = null)
+//        //{
+//        //    logger?.LogTrace("CacheLoad for EntityType: {EntityType} with Key {CacheKey}", typeof(T), cacheKey);
 
-        //            return l.Value;
-        //        }
-        //    }
-        //    logger?.LogTrace("No Cache Result. Loading and Set to Cache");
+//        //    if (await cache.ExistsAsync(cacheKey))
+//        //    {
+//        //        logger?.LogTrace("Cache Key {CacheKey} exists", cacheKey);
 
-        //    var ret = await loader();
-        //    if (ret != null && ret.ResultCount > 0)
-        //    {
-        //        await cache.SetAsync(cacheKey, ret, DateTime.UtcNow.AddMinutes(minutes));
-        //    }
 
-        //    return ret;
-        //}
+//        //        var l = await cache.GetAsync<PagedResults<T>>(cacheKey);
+//        //        if (l.HasValue)
+//        //        {
+//        //            logger?.LogTrace("Return result from Cache");
 
-    }
-}
+//        //            return l.Value;
+//        //        }
+//        //    }
+//        //    logger?.LogTrace("No Cache Result. Loading and Set to Cache");
+
+//        //    var ret = await loader();
+//        //    if (ret != null && ret.ResultCount > 0)
+//        //    {
+//        //        await cache.SetAsync(cacheKey, ret, DateTime.UtcNow.AddMinutes(minutes));
+//        //    }
+
+//        //    return ret;
+//        //}
+
+//    }
+//}

@@ -225,9 +225,33 @@ namespace SoftwarePioniere.ReadModel
 
         protected abstract Task InternalUpdateItemAsync<T>(T item, CancellationToken token = default(CancellationToken)) where T : Entity;
 
-        private Task<T> CacheLoadItem<T>(Func<Task<T>> loader, string cacheKey)
+        private async Task<T> CacheLoadItem<T>(Func<Task<T>> loader, string cacheKey)
         {
-            return CacheClient.CacheLoadItem(loader, cacheKey, Options.CacheMinutes, Logger);
+            if (await CacheClient.ExistsAsync(cacheKey))
+            {
+                Logger.LogTrace("Cache Key exists {CacheKey}", cacheKey);
+
+                var l = await CacheClient.GetAsync<T>(cacheKey);
+                if (l.HasValue)
+                {
+                    Logger.LogTrace("Return result from Cache with {CacheKey}", cacheKey);
+
+                    return l.Value;
+                }
+            }
+
+            Logger.LogTrace("No Cache Result {CacheKey}", cacheKey);
+
+            var ret = await loader();
+
+            if (ret != null)
+            {
+                Logger.LogTrace("Loaded Result. Set to Cache {CacheKey}", cacheKey);
+                await CacheClient.SetAsync(cacheKey, ret, DateTime.UtcNow.AddMinutes(Options.CacheMinutes));
+
+            }
+
+            return ret;
         }
 
         //private Task<T[]> CacheLoadItems<T>(Func<Task<T[]>> loader, string cacheKey)
