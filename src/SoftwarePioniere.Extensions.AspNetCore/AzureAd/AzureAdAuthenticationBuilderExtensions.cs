@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
@@ -85,8 +84,8 @@ namespace SoftwarePioniere.Extensions.AspNetCore.AzureAd
                     IssuerValidator = ValidateIssuerWithPlaceholder,
                     ValidIssuer = $"https://sts.windows.net/{_azureAdOptions.TenantId}/",
                     ValidateAudience = true,
-                    AudienceValidator = ValidateAudienceFromOptions,
-                    //     ValidAudience = _azureAdOptions.Resource,
+                    //AudienceValidator = ValidateAudienceFromOptions,
+                    ValidAudience = _azureAdOptions.Resource,
                     NameClaimType = _azureAdOptions.NameClaimType
                 };
 
@@ -172,23 +171,23 @@ namespace SoftwarePioniere.Extensions.AspNetCore.AzureAd
 
             }
 
-            private bool ValidateAudienceFromOptions(IEnumerable<string> audiences, SecurityToken securitytoken, TokenValidationParameters validationparameters)
-            {
-                if (audiences == null)
-                    return false;
+            //private bool ValidateAudienceFromOptions(IEnumerable<string> audiences, SecurityToken securitytoken, TokenValidationParameters validationparameters)
+            //{
+            //    if (audiences == null)
+            //        return false;
 
-                foreach (var audience in audiences)
-                {
-                    if (string.Equals(audience, _azureAdOptions.Resource))
-                        return true;
+            //    foreach (var audience in audiences)
+            //    {
+            //        if (string.Equals(audience, _azureAdOptions.Resource))
+            //            return true;
 
-                    if (string.Equals(audience, _azureAdOptions.ApplicationId))
-                        return true;
+            //        if (string.Equals(audience, _azureAdOptions.ApplicationId))
+            //            return true;
 
-                }
+            //    }
 
-                return false;
-            }
+            //    return false;
+            //}
 
             public void Configure(JwtBearerOptions options)
             {
