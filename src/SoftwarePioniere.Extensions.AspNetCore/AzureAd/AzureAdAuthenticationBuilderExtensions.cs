@@ -82,11 +82,16 @@ namespace SoftwarePioniere.Extensions.AspNetCore.AzureAd
                     ValidateLifetime = true,
                     ValidateIssuer = true,
                     IssuerValidator = ValidateIssuerWithPlaceholder,
-                    //ValidIssuer = $"https://sts.windows.net/{_azureAdOptions.TenantId}/",
+                    ValidIssuer = $"https://sts.windows.net/{_azureAdOptions.TenantId}/",
                     ValidateAudience = true,
                     ValidAudience = _azureAdOptions.Resource,
                     NameClaimType = _azureAdOptions.NameClaimType
                 };
+
+                if (_azureAdOptions.IsMultiTenant)
+                {
+                    tokenValParam.ValidIssuer = "https://sts.windows.net/{tenantid}/";
+                }
 
                 if (!string.IsNullOrEmpty(_azureAdOptions.IssuerSigningKey) && !string.Equals(_azureAdOptions.IssuerSigningKey, "XXX", StringComparison.InvariantCultureIgnoreCase))
                 {
