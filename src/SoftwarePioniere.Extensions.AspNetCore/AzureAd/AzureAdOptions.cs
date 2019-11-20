@@ -19,6 +19,7 @@ namespace SoftwarePioniere.Extensions.AspNetCore.AzureAd
         public string ContextTokenAddPaths { get; set; }
         public string NameClaimType { get; set; } = "http://schemas.microsoft.com/identity/claims/objectidentifier";
         public bool IsMultiTenant { get; set; }
+        public string ApplicationId { get; set; }
     }
 }
 
