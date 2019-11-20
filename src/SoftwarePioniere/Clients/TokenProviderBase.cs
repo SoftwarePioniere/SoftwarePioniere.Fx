@@ -24,54 +24,58 @@ namespace SoftwarePioniere.Clients
             Logger = loggerFactory.CreateLogger(GetType());
         }
 
-        public async Task<string> GetAccessToken(string audience, bool force)
+        public async Task<string> GetAccessToken(string audience, bool force, string tenantId = "")
         {
             Logger.LogDebug("GetAccessToken {Audience} {Force}", audience, force);
 
-            if (force && _jwts.ContainsKey(audience))
+            var tokenKey = $"{audience}-{tenantId}";
+
+            if (force && _jwts.ContainsKey(tokenKey))
             {
-                _jwts.TryRemove(audience, out var jj);
+                _jwts.TryRemove(tokenKey, out var jj);
                 Logger.LogDebug("Forced Remove Token {Token}", jj?.Id);
             }
 
-            _jwts.TryGetValue(audience, out var jwt);
+            _jwts.TryGetValue(tokenKey, out var jwt);
 
             if (jwt == null)
             {
                 Logger.LogDebug("No Token, do AquireNewToken");
 
-                await AquireNewToken(audience);
-                return _tokens[audience];
+                await AquireNewToken(audience, tenantId);
+                return _tokens[tokenKey];
             }
 
             if (jwt.ValidTo <= DateTime.UtcNow.AddMinutes(-2))
             {
                 Logger.LogDebug("Token will expire, do AquireNewToken");
 
-                await AquireNewToken(audience);
-                return _tokens[audience];
+                await AquireNewToken(audience, tenantId);
+                return _tokens[tokenKey];
             }
 
-            return _tokens[audience];
+            return _tokens[tokenKey];
         }
 
-        public Task<string> GetAccessToken(string audience)
+        public Task<string> GetAccessToken(string audience, string tenantId = "")
         {
-            return GetAccessToken(audience, false);
+            return GetAccessToken(audience, false, tenantId);
         }
 
-        private async Task AquireNewToken(string audience)
+        private async Task AquireNewToken(string audience, string tenantId)
         {
             Logger.LogDebug("Calling AquireNewToken {Audience}", audience);
 
-            var token = await LoadToken(audience);
+            var tokenKey = $"{audience}-{tenantId}";
 
-            _tokens.AddOrUpdate(audience, token, (key, value) => token);
+            var token = await LoadToken(audience, tenantId);
+
+            _tokens.AddOrUpdate(tokenKey, token, (key, value) => token);
             var jwt = new JwtSecurityToken(token);
-            _jwts.AddOrUpdate(audience, jwt, (s, securityToken) => jwt);
+            _jwts.AddOrUpdate(tokenKey, jwt, (s, securityToken) => jwt);
         }
 
-        protected abstract Task<string> LoadToken(string resource);
+        protected abstract Task<string> LoadToken(string resource, string tenantId);
 
     }
 }

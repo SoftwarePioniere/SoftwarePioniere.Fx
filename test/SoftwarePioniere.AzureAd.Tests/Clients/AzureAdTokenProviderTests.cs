@@ -28,5 +28,15 @@ namespace SoftwarePioniere.AzureAd.Tests.Clients
 
         }
 
+        [Fact]
+        public async Task GetAccessTokenWithTenantIdTest()
+        {
+            var provider = GetService<AzureAdTokenProvider>();
+            var token = await provider.GetAccessToken("https://testapi.softwarepioniere-demo.de", "softwarepioniere-demo.de");
+
+            token.Should().NotBeNullOrEmpty();
+
+        }
+
     }
 }

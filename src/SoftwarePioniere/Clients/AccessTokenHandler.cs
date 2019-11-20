@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
@@ -38,7 +39,19 @@ namespace SoftwarePioniere.Clients
                     _logger.LogDebug("Adding Auth Header");
                 }
 
-                var token = await _tokenProvider.GetAccessToken(_audience);
+                var tenantId = string.Empty;
+                if (request.Headers.Contains("TenantId"))
+                {
+                    if (request.Headers.TryGetValues("TenantId", out var values))
+                    {
+                        if (values != null)
+                        {
+                            tenantId = values.FirstOrDefault();
+                        }
+                    }
+                }
+
+                var token = await _tokenProvider.GetAccessToken(_audience, tenantId);
                 request.Headers.Add("Authorization", $"Bearer {token}");
             }
 
