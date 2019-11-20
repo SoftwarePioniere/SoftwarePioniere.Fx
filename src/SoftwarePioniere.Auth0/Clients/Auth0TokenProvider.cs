@@ -24,7 +24,7 @@ namespace SoftwarePioniere.Auth0.Clients
             _settings = options.Value;
         }
 
-        protected override async Task<string> LoadToken(string audience, string resource)
+        protected override async Task<string> LoadToken(string resource, string tenantId)
         {
             Logger.LogInformation("Loading Auth0 Token for {Resource}", resource);
 
