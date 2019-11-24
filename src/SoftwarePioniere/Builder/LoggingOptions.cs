@@ -19,6 +19,8 @@
 
         public string LogDir { get; set; } = "logs";
 
+        public long FileSizeLimitBytes { get; set; } = 1L * 1024 * 1024;
+
         public string Template { get; set; } = "[{Timestamp:HH:mm:ss}] [{Level:u3}] [{SourceContext}] {Message} {Exception}{NewLine}";
     }
 }

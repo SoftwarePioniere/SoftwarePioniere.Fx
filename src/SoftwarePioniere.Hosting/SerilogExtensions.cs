@@ -63,7 +63,11 @@ namespace SoftwarePioniere.Hosting
                 .Enrich.WithProperty("Assembly", assembly?.FullName)
                 .Enrich.WithProperty("AppId", sopiOptions.AppId)
                 .Enrich.WithProperty("AppVersion", version)
-                                .WriteTo.File(logFile, rollingInterval: RollingInterval.Day, outputTemplate: options.Template)
+                                .WriteTo.File(logFile, 
+                    rollingInterval: RollingInterval.Day,
+                    fileSizeLimitBytes: options.FileSizeLimitBytes,
+                    rollOnFileSizeLimit: true,
+                    outputTemplate: options.Template)
                 ;
 
             if (
