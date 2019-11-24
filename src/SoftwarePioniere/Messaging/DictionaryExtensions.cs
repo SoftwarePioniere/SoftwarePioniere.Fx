@@ -14,9 +14,14 @@ namespace SoftwarePioniere.Messaging
                 return null;
 
             if (dict.ContainsKey(key))
-                dict.Remove(key);
+            {
+                dict[key] = value;
+            }
+            else
+            {
+                dict.Add(key, value);
+            }
 
-            dict.Add(key, value);
             return dict;
         }
 

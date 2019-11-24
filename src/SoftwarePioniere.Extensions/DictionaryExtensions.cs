@@ -68,15 +68,18 @@ namespace SoftwarePioniere
         {
             if (dict == null)
             {
-                dict = new Dictionary<string, T>();
+                dict = new Dictionary<string, T> {{key, value}};
+                return dict;
             }
 
             if (dict.ContainsKey(key))
             {
-                dict.Remove(key);
+                dict[key] = value;
             }
-
-            dict.Add(key, value);
+            else
+            {
+                dict.Add(key, value);
+            }
 
             return dict;
         }
@@ -85,20 +88,23 @@ namespace SoftwarePioniere
         public static IDictionary<string, T> EnsureDictContainsValue<T>(this IDictionary<string, T> dict, string key,
             Action<T> value) where T : class, new()
         {
+            var val = new T();
+            value?.Invoke(val);
+
             if (dict == null)
             {
-                dict = new Dictionary<string, T>();
+                dict = new Dictionary<string, T> {{key, val}};
+                return dict;
             }
 
             if (dict.ContainsKey(key))
             {
-                dict.Remove(key);
+                dict[key] = val;
             }
-
-            var val = new T();
-            value?.Invoke(val);
-
-            dict.Add(key, val);
+            else
+            {
+                dict.Add(key, val);
+            }
 
             return dict;
         }
