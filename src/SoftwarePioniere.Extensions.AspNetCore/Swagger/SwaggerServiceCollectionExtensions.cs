@@ -224,9 +224,10 @@ namespace SoftwarePioniere.Extensions.AspNetCore.Swagger
 
                     options.EnableAnnotations();
                     options.DescribeAllEnumsAsStrings();
+                    options.OperationFilter<SummaryFromOperationFilter>();
                     options.OperationFilter<FormFileOperationFilter>();
                     options.OperationFilter<AppendAuthorizeToSummaryOperationFilter>();
-                    options.OperationFilter<SummaryFromOperationFilter>();
+                    
 
                     if (!sopiSwaggerOptions.ReadOnlyUi)
                     {
