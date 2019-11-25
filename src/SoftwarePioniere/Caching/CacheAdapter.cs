@@ -206,8 +206,7 @@ namespace SoftwarePioniere.Caching
                 //else
 
                 {
-                 
-                    await CacheClient.SetAsync(cacheKey, ret, expiresIn);
+                    await CacheClient.SetAddAsync(cacheKey, ret, expiresIn);
                 }
             }
 
