@@ -3,13 +3,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
-using SoftwarePioniere.Domain;
 using SoftwarePioniere.Domain.Exceptions;
-using SoftwarePioniere.DomainModel.FakeDomain;
+using SoftwarePioniere.FakeDomain;
 using SoftwarePioniere.Messaging;
 using Xunit.Abstractions;
 
-namespace SoftwarePioniere.DomainModel
+namespace SoftwarePioniere.Domain
 {
     public abstract class EventStoreTestsBase : TestBase, IEventStoreTests
     {

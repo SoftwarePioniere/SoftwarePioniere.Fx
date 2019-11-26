@@ -4,7 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Xunit.Abstractions;
 
-namespace SoftwarePioniere.DomainModel
+namespace SoftwarePioniere.Domain
 {
     public abstract class TestBase: TestWithLoggingBase
     {

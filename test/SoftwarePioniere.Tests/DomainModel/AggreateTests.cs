@@ -1,7 +1,6 @@
 ﻿using FluentAssertions;
 using SoftwarePioniere.Domain;
-using SoftwarePioniere.DomainModel.FakeDomain;
-using SoftwarePioniere.Messaging;
+using SoftwarePioniere.FakeDomain;
 using Xunit;
 
 namespace SoftwarePioniere.Tests.DomainModel

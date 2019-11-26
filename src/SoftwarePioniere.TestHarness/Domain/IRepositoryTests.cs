@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
 
-namespace SoftwarePioniere.DomainModel
+namespace SoftwarePioniere.Domain
 {
     public interface IRepositoryTests
     {

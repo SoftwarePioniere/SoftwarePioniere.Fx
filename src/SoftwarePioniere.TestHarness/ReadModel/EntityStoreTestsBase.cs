@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using Foundatio.Caching;
 using Microsoft.Extensions.DependencyInjection;
+using SoftwarePioniere.FakeDomain;
 using Xunit.Abstractions;
 
 namespace SoftwarePioniere.ReadModel

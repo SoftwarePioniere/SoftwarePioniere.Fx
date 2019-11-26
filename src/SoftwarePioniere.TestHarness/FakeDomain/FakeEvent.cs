@@ -1,40 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using Newtonsoft.Json;
+using SoftwarePioniere.Messaging;
 
-namespace SoftwarePioniere.Messaging
+namespace SoftwarePioniere.FakeDomain
 {
-    public class FakeRequest : RequestBase
+    public interface IFakeAggregateIdEvent
     {
-        [JsonProperty("text")]
-        public string Text { get; set; }
-
-        [JsonProperty("object_id")]
-        public string ObjectId { get; set; }
-
-        public FakeCommand CreateFakeCommand(string requestId, string userId)
-        {
-            return new FakeCommand(Guid.NewGuid(), TimeStampUtc, userId, -1, ObjectId, Text);
-        }
+        string AggregateId { get; }
     }
 
-    public class FakeCommand : CommandBase
-    {
-        public FakeCommand(Guid id, DateTime timeStampUtc, string userId, int originalVersion, string objectId,
-            string text) : base(id,
-            timeStampUtc,
-            userId,
-            originalVersion,
-            "fakeobject",
-            objectId)
-        {
-            Text = text;
-        }
-
-        public string Text { get; }
-    }
-
-    public class FakeEvent : DomainEventBase
+    public class FakeEvent : DomainEventBase, IFakeAggregateIdEvent
     {
         public FakeEvent(Guid id, DateTime timeStampUtc, string userId, string aggregateId, string text) : base(id,
             timeStampUtc,

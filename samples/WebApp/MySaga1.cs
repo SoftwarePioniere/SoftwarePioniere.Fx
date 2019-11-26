@@ -2,7 +2,7 @@
 using Foundatio.Lock;
 using Microsoft.Extensions.Logging;
 using SoftwarePioniere.Domain;
-using SoftwarePioniere.DomainModel.FakeDomain;
+using SoftwarePioniere.FakeDomain;
 using SoftwarePioniere.Messaging;
 
 // ReSharper disable UnusedAutoPropertyAccessor.Global

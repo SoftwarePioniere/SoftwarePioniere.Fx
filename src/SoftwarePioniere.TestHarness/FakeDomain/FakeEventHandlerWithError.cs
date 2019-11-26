@@ -5,7 +5,7 @@ using Foundatio.Messaging;
 using Microsoft.Extensions.Logging;
 using SoftwarePioniere.Messaging;
 
-namespace SoftwarePioniere.DomainModel.FakeDomain
+namespace SoftwarePioniere.FakeDomain
 {
     // ReSharper disable once ClassNeverInstantiated.Global
     public class FakeEventHandlerWithError : IMessageHandler, IHandleMessage<FakeEvent>

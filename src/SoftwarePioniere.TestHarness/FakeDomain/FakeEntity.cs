@@ -1,21 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using Newtonsoft.Json;
+using SoftwarePioniere.ReadModel;
 
-namespace SoftwarePioniere.ReadModel
+namespace SoftwarePioniere.FakeDomain
 {
-    public class MyEntity1 : Entity
-    {
-        public const string TypeKey = "My:Entity1";
-
-        public MyEntity1() : base(TypeKey)
-        {
-        }
-
-        [JsonProperty("string_value")]
-        public string StringValue { get; set; }
-    }
-
     public class FakeEntity : Entity
     {
         public const string TypeKey = "My:FakeEntity";
@@ -23,6 +11,7 @@ namespace SoftwarePioniere.ReadModel
         public FakeEntity() : base(TypeKey)
         {
             Children = new List<FakeEntity>();
+            Dict1 = new Dictionary<string, string>();
         }
 
         public int IntValue { get; set; }
@@ -34,6 +23,7 @@ namespace SoftwarePioniere.ReadModel
         public IList<FakeEntity> Children { get; set; }
 
         public string ChunkId { get; set; }
+        public IDictionary<string,string> Dict1 { get; set; }
 
         public static FakeEntity Empty()
         {

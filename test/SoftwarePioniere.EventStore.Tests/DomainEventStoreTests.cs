@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using SoftwarePioniere.DomainModel;
+using SoftwarePioniere.Domain;
 using Xunit;
 using Xunit.Abstractions;
 

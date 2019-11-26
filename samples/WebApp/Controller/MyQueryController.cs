@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using SoftwarePioniere;
-using SoftwarePioniere.ReadModel;
+using SoftwarePioniere.FakeDomain;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace WebApp.Controller

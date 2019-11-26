@@ -37,13 +37,15 @@ namespace SoftwarePioniere.Domain
             Id = id;
         }
 
+        public static int StartVersion = -1;
+
         /// <summary>
         /// Die aktuelle EventVersion, wird mit jedem ApplyEvent hochgezählt
         /// Ohne Event ist der Wert -1
         /// Das erste Event erzeugt die Version 0
         /// Damit ist es Identisch wie im EventStore
         /// </summary>
-        public int Version { get; private set; } = -1;
+        public int Version { get; private set; } = StartVersion;
 
 
         public IEnumerable<IDomainEvent> GetUncommittedChanges()

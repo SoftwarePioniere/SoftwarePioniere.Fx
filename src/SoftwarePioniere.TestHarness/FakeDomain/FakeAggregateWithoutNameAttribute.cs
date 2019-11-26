@@ -1,6 +1,6 @@
 using SoftwarePioniere.Domain;
 
-namespace SoftwarePioniere.DomainModel.FakeDomain
+namespace SoftwarePioniere.FakeDomain
 {
     public class FakeAggregateWithoutNameAttribute : AggregateRoot
     {

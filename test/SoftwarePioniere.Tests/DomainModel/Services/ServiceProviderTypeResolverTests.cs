@@ -2,13 +2,13 @@
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using SoftwarePioniere.Domain;
-using SoftwarePioniere.DomainModel.FakeDomain;
+using SoftwarePioniere.FakeDomain;
 using Xunit;
 using Xunit.Abstractions;
 
 namespace SoftwarePioniere.Tests.DomainModel.Services
 {
-    public class ServiceProviderTypeResolverTests : SoftwarePioniere.DomainModel.TestBase
+    public class ServiceProviderTypeResolverTests : Domain.TestBase
     {
         [Fact]
         public void CanResolveInstanceOfType()

@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using SoftwarePioniere.DomainModel.FakeDomain;
+using SoftwarePioniere.FakeDomain;
 using SoftwarePioniere.Messaging;
 using SoftwarePioniere.Projections;
 using SoftwarePioniere.ReadModel;

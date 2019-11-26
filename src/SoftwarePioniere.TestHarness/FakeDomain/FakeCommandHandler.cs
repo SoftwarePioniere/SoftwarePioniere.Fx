@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using SoftwarePioniere.Messaging;
 
-namespace SoftwarePioniere.DomainModel.FakeDomain
+namespace SoftwarePioniere.FakeDomain
 {
 
     public class FakeCommandHandler : IHandleMessage<FakeCommand>

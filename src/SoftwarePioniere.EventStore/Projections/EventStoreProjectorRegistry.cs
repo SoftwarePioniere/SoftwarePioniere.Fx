@@ -8,6 +8,7 @@ using EventStore.ClientAPI;
 using Foundatio.Caching;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using SoftwarePioniere.EventStore.Domain;
 using SoftwarePioniere.Messaging;
 using SoftwarePioniere.Projections;
@@ -24,17 +25,24 @@ namespace SoftwarePioniere.EventStore.Projections
         private readonly IEntityStore _entityStore;
         private readonly ICacheClient _cache;
         private readonly ILogger _logger;
+        private readonly ProjectionOptions _options;
 
         public EventStoreProjectorRegistry(ILoggerFactory loggerFactory
             , EventStoreConnectionProvider connectionProvider
             , IServiceProvider serviceProvider
             , IEntityStore entityStore
             , ICacheClient cache
+            , IOptions<ProjectionOptions> options
         )
         {
             if (serviceProvider == null)
             {
                 throw new ArgumentNullException(nameof(serviceProvider));
+            }
+
+            if (options == null)
+            {
+                throw new ArgumentNullException(nameof(options));
             }
 
             _loggerFactory = loggerFactory ?? throw new ArgumentNullException(nameof(loggerFactory));
@@ -44,6 +52,7 @@ namespace SoftwarePioniere.EventStore.Projections
             _projectors = serviceProvider.GetServices<IReadModelProjector>();
             _entityStore = entityStore ?? throw new ArgumentNullException(nameof(entityStore));
             _cache = cache ?? throw new ArgumentNullException(nameof(cache));
+            _options = options.Value;
         }
 
 
@@ -111,7 +120,7 @@ namespace SoftwarePioniere.EventStore.Projections
             {
                 _logger.LogTrace("Reading Slice from {0}", sliceStart);
 
-                slice = await src.ReadStreamEventsForwardAsync(stream, sliceStart, 500, true, cred);
+                slice = await src.ReadStreamEventsForwardAsync(stream, sliceStart, _options.InitReadCount, true, cred);
                 _logger.LogTrace("Next Event: {0} , IsEndOfStream: {1}", slice.NextEventNumber, slice.IsEndOfStream);
 
                 sliceStart = slice.NextEventNumber;
@@ -250,11 +259,7 @@ namespace SoftwarePioniere.EventStore.Projections
             await UpdateInitializationStatusAsync(cancellationToken, projectorId, ProjectionInitializationStatus.StatusPending, "Starting");
 
             var context =
-                new EventStoreProjectionContext(_loggerFactory, _connectionProvider, _entityStore, projector)
-                {
-                    StreamName = projector.StreamName,
-                    ProjectorId = projectorId
-                };
+                new EventStoreProjectionContext(_loggerFactory, _connectionProvider, _entityStore, projector, _options.UseQueue, projectorId);
 
             projector.Context = context;
 

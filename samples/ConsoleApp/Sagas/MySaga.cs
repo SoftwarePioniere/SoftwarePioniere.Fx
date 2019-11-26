@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using SoftwarePioniere.Domain;
+using SoftwarePioniere.FakeDomain;
 using SoftwarePioniere.Messaging;
 
 namespace ConsoleApp.Sagas

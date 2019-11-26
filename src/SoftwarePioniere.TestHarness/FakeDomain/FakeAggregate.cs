@@ -1,9 +1,8 @@
 ﻿using System;
 using SoftwarePioniere.Domain;
 using SoftwarePioniere.Domain.Exceptions;
-using SoftwarePioniere.Messaging;
 
-namespace SoftwarePioniere.DomainModel.FakeDomain
+namespace SoftwarePioniere.FakeDomain
 {
     [AggregateName(Constants.BoundedContextName, "Fake")]
     public class FakeAggregate : AggregateRoot

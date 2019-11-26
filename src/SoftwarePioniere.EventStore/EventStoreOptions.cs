@@ -85,6 +85,9 @@ namespace SoftwarePioniere.EventStore
         public double ProjectionOperationTimeoutSeconds { get; set; } = 30;
 
         public double QueryTimeoutSeconds { get; set; } = 30;
+        
+        public int ReadPageSize { get; set; } = 100;
+        public int WritePageSize { get; set; } = 50;
 
         public EventStoreOptions CreateSecured()
         {

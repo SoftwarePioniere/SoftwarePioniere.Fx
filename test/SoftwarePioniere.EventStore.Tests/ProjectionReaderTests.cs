@@ -5,8 +5,7 @@ using FluentAssertions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using SoftwarePioniere.Domain;
-using SoftwarePioniere.DomainModel.FakeDomain;
-using SoftwarePioniere.Messaging;
+using SoftwarePioniere.FakeDomain;
 using Xunit;
 using Xunit.Abstractions;
 

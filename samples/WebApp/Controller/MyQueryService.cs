@@ -3,6 +3,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using SoftwarePioniere.Caching;
+using SoftwarePioniere.FakeDomain;
 using SoftwarePioniere.ReadModel;
 
 namespace WebApp.Controller

@@ -1,6 +1,6 @@
 ﻿using SoftwarePioniere.Domain;
 
-namespace SoftwarePioniere.DomainModel.FakeDomain
+namespace SoftwarePioniere.FakeDomain
 {
     [AggregateName(Constants.BoundedContextName, "Fake2")]
     public class FakeAggregate2 : FakeAggregate

@@ -129,7 +129,7 @@ namespace SoftwarePioniere.Domain
 
             var aggregate = Activator.CreateInstance<T>();
             aggregate.SetId(id);
-            var eventDescriptors = await _store.GetEventsForAggregateAsync<T>(id, streamName).ConfigureAwait(false);
+            var eventDescriptors = await _store.GetEventsForAggregateAsync<T>(id).ConfigureAwait(false);
             aggregate.LoadFromHistory(eventDescriptors);
 
             if (expectedAggregateVersion != -1 && expectedAggregateVersion != aggregate.Version)

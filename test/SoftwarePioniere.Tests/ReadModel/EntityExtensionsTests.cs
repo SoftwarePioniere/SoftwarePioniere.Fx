@@ -1,4 +1,5 @@
 ﻿using FluentAssertions;
+using SoftwarePioniere.FakeDomain;
 using SoftwarePioniere.ReadModel;
 using Xunit;
 

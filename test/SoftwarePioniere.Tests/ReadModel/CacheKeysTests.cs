@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using FluentAssertions;
+using Newtonsoft.Json;
 using SoftwarePioniere.ReadModel;
 using Xunit;
 
@@ -7,6 +8,18 @@ namespace SoftwarePioniere.Tests.ReadModel
 {
     public class CacheKeysTests
     {
+        public class MyEntity1 : Entity
+        {
+            public const string TypeKey = "My:Entity1";
+
+            public MyEntity1() : base(TypeKey)
+            {
+            }
+
+            [JsonProperty("string_value")]
+            public string StringValue { get; set; }
+        }
+
         [Fact]
         public void CacheKeyTest()
         {

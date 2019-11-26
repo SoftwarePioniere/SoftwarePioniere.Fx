@@ -4,7 +4,6 @@ using Foundatio.Lock;
 using Foundatio.Messaging;
 using Microsoft.Extensions.DependencyInjection;
 using SoftwarePioniere.Domain;
-using SoftwarePioniere.DomainModel;
 using SoftwarePioniere.Hosting;
 using SoftwarePioniere.Messaging;
 using Xunit;

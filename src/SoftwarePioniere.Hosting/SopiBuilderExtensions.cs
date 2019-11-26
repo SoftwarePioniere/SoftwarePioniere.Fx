@@ -8,7 +8,6 @@ using Microsoft.Extensions.Options;
 using SoftwarePioniere.Builder;
 using SoftwarePioniere.Caching;
 using SoftwarePioniere.Domain;
-using SoftwarePioniere.Projections;
 
 namespace SoftwarePioniere.Hosting
 {
@@ -64,7 +63,7 @@ namespace SoftwarePioniere.Hosting
             services
                 .AddSingleton<ICacheAdapter, CacheAdapter>()
                 .AddSingleton<ISagaServices, SagaServices>()
-                .AddSingleton<IProjectorServices, ProjectorServices>()
+             //   .AddSingleton<IProjectorServices, ProjectorServices>()
                 .AddDefaultMessageBusAdapter()
               
                 ;
@@ -93,6 +92,8 @@ namespace SoftwarePioniere.Hosting
 
         public static ISopiBuilder AddProjectionServices(this ISopiBuilder builder)
         {
+            builder.Services.AddProjectionServices(c => builder.Config.Bind("Projection", c));
+
             if (builder.Options.DomainEventStore == SopiOptions.DomainEventStoreEventStore)
             {
                 builder.Services.AddEventStoreProjectionServices();

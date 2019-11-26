@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using SoftwarePioniere.FakeDomain;
 using SoftwarePioniere.ReadModel;
 using Xunit;
 using Xunit.Abstractions;

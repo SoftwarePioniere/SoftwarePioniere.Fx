@@ -9,15 +9,14 @@ using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using SoftwarePioniere.Domain;
 using SoftwarePioniere.Domain.Exceptions;
-using SoftwarePioniere.DomainModel;
-using SoftwarePioniere.DomainModel.FakeDomain;
+using SoftwarePioniere.FakeDomain;
 using SoftwarePioniere.Messaging;
 using Xunit;
 using Xunit.Abstractions;
 
 namespace SoftwarePioniere.Tests.DomainModel.Services
 {
-    public class RepositoryTests : SoftwarePioniere.DomainModel.TestBase, IRepositoryTests
+    public class RepositoryTests : Domain.TestBase, IRepositoryTests
     {
         private IRepository CreateInstance()
         {

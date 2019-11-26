@@ -10,7 +10,7 @@ using Xunit.Abstractions;
 
 namespace SoftwarePioniere.Tests
 {
-    public class CacheAdapterTests : SoftwarePioniere.DomainModel.TestBase
+    public class CacheAdapterTests : Domain.TestBase
     {
         public CacheAdapterTests(ITestOutputHelper output) : base(output)
         {
@@ -53,16 +53,21 @@ namespace SoftwarePioniere.Tests
 
             var cacheKey = Guid.NewGuid().ToString();
 
-            var items = await adapter.CacheLoadItems(() =>
+            async Task<string[]> LoadItems()
             {
-                var ret = new[]
+                return await adapter.CacheLoadItems(() =>
                 {
-                    "hallo1",
-                    "hallo2",
-                    "hallo3"
-                };
-                return Task.FromResult(ret);
-            }, cacheKey);
+                    var ret = new[]
+                    {
+                        "hallo1",
+                        "hallo2",
+                        "hallo3"
+                    };
+                    return Task.FromResult(ret);
+                }, cacheKey);
+            }
+
+            var items = await LoadItems();
 
             items.Should().Contain("hallo1");
             items.Should().Contain("hallo2");
@@ -70,6 +75,13 @@ namespace SoftwarePioniere.Tests
 
             var containsCacheKey = await client.ExistsAsync(cacheKey);
             containsCacheKey.Should().BeTrue();
+
+
+            items = await LoadItems();
+
+            items.Should().Contain("hallo1");
+            items.Should().Contain("hallo2");
+            items.Should().Contain("hallo3");
         }
     }
 }

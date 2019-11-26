@@ -5,12 +5,11 @@ using FluentAssertions;
 using Foundatio.Messaging;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using SoftwarePioniere.Domain;
-using SoftwarePioniere.DomainModel.FakeDomain;
+using SoftwarePioniere.FakeDomain;
 using SoftwarePioniere.Messaging;
 using Xunit.Abstractions;
 
-namespace SoftwarePioniere.DomainModel
+namespace SoftwarePioniere.Domain
 {
     public abstract class MessageBusTestsBase : TestBase
     {

@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 using SoftwarePioniere.Domain;
 using SoftwarePioniere.Messaging;
 
-namespace SoftwarePioniere.DomainModel.FakeDomain
+namespace SoftwarePioniere.FakeDomain
 {
     public sealed class FakeSagaWithError : SagaBase2, IHandleMessage<FakeCommand>
     {

@@ -1,9 +1,9 @@
 using System;
 using SoftwarePioniere.Messaging;
 
-namespace SoftwarePioniere.DomainModel.FakeDomain
+namespace SoftwarePioniere.FakeDomain
 {
-    public class FakeEvent3 : DomainEventBase
+    public class FakeEvent3 : DomainEventBase, IFakeAggregateIdEvent
     {
 
         public string AggregateId { get; }

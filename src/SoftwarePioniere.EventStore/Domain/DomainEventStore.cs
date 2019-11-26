@@ -79,15 +79,26 @@ namespace SoftwarePioniere.EventStore.Domain
             return GetEventsForAggregateAsync<T>(aggregateId, int.MaxValue, streamName);
         }
 
-        public async Task SaveEventsAsync<T>(string aggregateId, IEnumerable<IDomainEvent> events, int aggregateVersion)
+        public Task SaveEventsAsync<T>(string aggregateId, IEnumerable<IDomainEvent> events, int aggregateVersion)
             where T : AggregateRoot
         {
             _logger.LogDebug("SaveEvents {type} {AggregateId} {AggregateVersion}", typeof(T), aggregateId, aggregateVersion);
             var t = typeof(T);
+            var streamName = _aggregateIdToStreamName(t, aggregateId);
+
+            return SaveEventsAsync<T>(aggregateId, events, aggregateVersion, streamName);
+        }
+
+
+        public async Task SaveEventsAsync<T>(string aggregateId, IEnumerable<IDomainEvent> events, int aggregateVersion, string streamName)
+    where T : AggregateRoot
+        {
+            _logger.LogDebug("SaveEvents {type} {AggregateId} {AggregateVersion}", typeof(T), aggregateId, aggregateVersion);
+            var t = typeof(T);
+
 
             var con = await _provider.GetActiveConnection();
 
-            var streamName = _aggregateIdToStreamName(t, aggregateId);
             var domainEvents = events as IDomainEvent[] ?? events.ToArray();
 
             //der eventstore fängt bei 0 an, wir im leeren aggregate bei -1 , das erste event erzeugt die version 0, also auch bei 0
@@ -139,7 +150,7 @@ namespace SoftwarePioniere.EventStore.Domain
             {
                 try
                 {
-                  
+
                     var transaction = await con
                         .StartTransactionAsync(streamName, expectedVersion, _provider.OpsCredentials)
                         .ConfigureAwait(false);

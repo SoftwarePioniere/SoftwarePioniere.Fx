@@ -8,7 +8,7 @@ using Newtonsoft.Json;
 using SoftwarePioniere.Messaging;
 using SoftwarePioniere.Messaging.Notifications;
 
-namespace SoftwarePioniere.DomainModel.FakeDomain
+namespace SoftwarePioniere.FakeDomain
 {
     // ReSharper disable once ClassNeverInstantiated.Global
     public class FakeNotificationHandler : IMessageHandler, IHandleMessage<NotificationMessage>

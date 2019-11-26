@@ -1,4 +1,4 @@
-﻿namespace SoftwarePioniere.DomainModel.FakeDomain
+﻿namespace SoftwarePioniere.FakeDomain
 {
     public static class Constants
     {

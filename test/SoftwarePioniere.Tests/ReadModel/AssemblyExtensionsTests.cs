@@ -1,4 +1,5 @@
 using FluentAssertions;
+using SoftwarePioniere.FakeDomain;
 using SoftwarePioniere.ReadModel;
 using Xunit;
 
@@ -9,22 +10,22 @@ namespace SoftwarePioniere.Tests.ReadModel
         [Fact]
         public void EntityTypesConstantsShouldContainMyEntity()
         {
-            var assembly = typeof(MyEntity1).Assembly;
+            var assembly = typeof(FakeEntity).Assembly;
             var entityTypes = assembly.GetEntityTypesConstants();
 
-            entityTypes.Should().Contain(x => x == "My:Entity1".ToUpper());
+            entityTypes.Should().Contain(x => x == "My:FakeEntity".ToUpper());
         }
 
         [Fact]
         public void EntityTypesInfosShouldContainMyEntity()
         {
 
-            var et = typeof(MyEntity1);
+            var et = typeof(FakeEntity);
             var assembly = et.Assembly;
             var entityTypes = assembly.GetEntityTypeInfos();
 
             entityTypes.Should().Contain(x =>
-                x.TypeKey == "My:Entity1".ToUpper()
+                x.TypeKey == "My:FakeEntity".ToUpper()
                 && x.Name == et.Name
                 && x.FullName == et.FullName
             );

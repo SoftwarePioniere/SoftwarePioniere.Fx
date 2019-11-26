@@ -1,5 +1,5 @@
 ﻿using FluentAssertions;
-using SoftwarePioniere.DomainModel.FakeDomain;
+using SoftwarePioniere.FakeDomain;
 using SoftwarePioniere.Messaging;
 using Xunit;
 
