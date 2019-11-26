@@ -28,6 +28,13 @@ namespace SoftwarePioniere
                 throw new ArgumentNullException(nameof(dict));
             }
 
+            if (string.IsNullOrEmpty(key))
+                return;
+
+            if (string.IsNullOrEmpty(value))
+                return;
+
+
             dict.TryGetValue(key, out var arrs);
             arrs = arrs.EnsureArrayContainsValue(value);
 
@@ -48,6 +55,13 @@ namespace SoftwarePioniere
             {
                 throw new ArgumentNullException(nameof(dict));
             }
+
+            
+            if (string.IsNullOrEmpty(key))
+                return;
+
+            if (string.IsNullOrEmpty(value))
+                return;
 
             dict.TryGetValue(key, out var arrs);
             arrs = arrs.EnsureArrayNotContainsValue(value);
@@ -71,6 +85,12 @@ namespace SoftwarePioniere
                 dict = new Dictionary<string, T> {{key, value}};
                 return dict;
             }
+            
+            if (string.IsNullOrEmpty(key))
+                return dict;
+
+            if (value == null)
+                return dict;
 
             if (dict.ContainsKey(key))
             {
@@ -97,6 +117,9 @@ namespace SoftwarePioniere
                 return dict;
             }
 
+            if (string.IsNullOrEmpty(key))
+                return dict;
+
             if (dict.ContainsKey(key))
             {
                 dict[key] = val;
@@ -111,7 +134,7 @@ namespace SoftwarePioniere
 
         public static void EnsureDictNotContainsKey<T>(this IDictionary<string, T> dict, string key)
         {
-            if (dict != null)
+            if (dict != null && !string.IsNullOrEmpty(key))
             {
                 if (dict.ContainsKey(key))
                 {
@@ -122,7 +145,7 @@ namespace SoftwarePioniere
 
         public static void EnsureDictNotContainsKey(this IDictionary<string, string> dict, string key)
         {
-            if (dict != null)
+            if (dict != null && !string.IsNullOrEmpty(key))
             {
                 if (dict.ContainsKey(key))
                 {

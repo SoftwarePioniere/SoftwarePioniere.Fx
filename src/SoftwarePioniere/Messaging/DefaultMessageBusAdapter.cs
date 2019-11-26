@@ -91,7 +91,7 @@ namespace SoftwarePioniere.Messaging
                     }
                     catch (Exception e)
                     {
-                        _logger.LogError(e, "Error on handling Command {MessageType} @{Message}", typeof(T), message);
+                        _logger.LogError(e, "Error on handling Command {MessageType} {@Message}", typeof(T), message);
                         await PublishAsync(CommandFailedNotification.Create(message, e, state), cancellationToken: token);
                     }
                 },
