@@ -55,7 +55,6 @@ namespace SoftwarePioniere
             {
                 throw new ArgumentNullException(nameof(dict));
             }
-
             
             if (string.IsNullOrEmpty(key))
                 return;
@@ -77,8 +76,7 @@ namespace SoftwarePioniere
         }
 
 
-        public static IDictionary<string, T> EnsureDictContainsValue<T>(this IDictionary<string, T> dict, string key,
-            T value)
+        public static IDictionary<string, T> EnsureDictContainsValue<T>(this IDictionary<string, T> dict, string key, T value)
         {
             if (dict == null)
             {
@@ -105,8 +103,7 @@ namespace SoftwarePioniere
         }
 
 
-        public static IDictionary<string, T> EnsureDictContainsValue<T>(this IDictionary<string, T> dict, string key,
-            Action<T> value) where T : class, new()
+        public static IDictionary<string, T> EnsureDictContainsValue<T>(this IDictionary<string, T> dict, string key, Action<T> value) where T : class, new()
         {
             var val = new T();
             value?.Invoke(val);
