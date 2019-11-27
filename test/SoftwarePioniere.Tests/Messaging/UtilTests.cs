@@ -26,7 +26,7 @@ namespace SoftwarePioniere.Tests.Messaging
         [Fact]
         public void CanCreateTypeFromShortName()
         {
-            const string typeShortName = " SoftwarePioniere.Messaging.FakeEvent, SoftwarePioniere.TestHarness";
+            const string typeShortName = " SoftwarePioniere.FakeDomain.FakeEvent, SoftwarePioniere.TestHarness";
 
             var t = SoftwarePioniere.Messaging.Util.CreateType(typeShortName);
 
@@ -37,7 +37,7 @@ namespace SoftwarePioniere.Tests.Messaging
         [Fact]
         public void CanCreateTypeFromShortNameWithWrongAssembly()
         {
-            const string typeShortName = " SoftwarePioniere.Messaging.FakeEvent, SoftwarePioniere.Messaging.TestHarness.notfound";
+            const string typeShortName = " SoftwarePioniere.FakeDomain.FakeEvent, SoftwarePioniere.Messaging.TestHarness.notfound";
 
             var t = SoftwarePioniere.Messaging.Util.CreateType(typeof(FakeEvent).Assembly, typeShortName);
 

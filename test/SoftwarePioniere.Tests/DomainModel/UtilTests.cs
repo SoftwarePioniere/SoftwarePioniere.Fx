@@ -53,7 +53,7 @@ namespace SoftwarePioniere.Tests.DomainModel
 
                 de.AggregateId.Should().Be(agg.Id);
                 de.AggregateType.Should().Be(agg.GetType().GetTypeShortName());
-                de.DomainEventType.Should().Be("SoftwarePioniere.Messaging.FakeEvent, SoftwarePioniere.TestHarness");
+                de.DomainEventType.Should().Be("SoftwarePioniere.FakeDomain.FakeEvent, SoftwarePioniere.TestHarness");
 
                 var pev = de.GetEvent<FakeEvent>();
                 pev.Id.Should().Be(ev.Id);
