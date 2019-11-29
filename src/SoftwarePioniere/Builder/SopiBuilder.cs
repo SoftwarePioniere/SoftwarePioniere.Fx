@@ -10,7 +10,7 @@ namespace SoftwarePioniere.Builder
     {
         private readonly Action<string> _log;
         public IServiceCollection Services { get; }
-        public IDictionary<string, object> Features { get; } = new Dictionary<string, object>();
+        public Dictionary<string, object> Features { get; } = new Dictionary<string, object>();
         //public object MvcBuilder { get; set; }
         public SopiOptions Options { get; set; }
         public IConfiguration Config { get; set; }

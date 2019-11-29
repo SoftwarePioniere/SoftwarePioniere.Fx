@@ -8,7 +8,7 @@ namespace SoftwarePioniere.Builder
     {
         IServiceCollection Services { get; }
 
-        IDictionary<string, object> Features { get; }
+        Dictionary<string, object> Features { get; }
 
         SopiOptions Options { get; set; }
 

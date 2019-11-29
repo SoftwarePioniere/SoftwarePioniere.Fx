@@ -39,7 +39,10 @@ namespace SoftwarePioniere.Messaging.Notifications
         [JsonProperty("error_text")]
         public string ErrorText { get; set; }
 
-        public static NotificationMessage Create(ICommand cmd, Exception ex, IDictionary<string, string> state)
+        [JsonProperty("user_id")]
+        public string UserId { get; set; }
+
+        public static NotificationMessage Create(ICommand cmd, Exception ex, Dictionary<string, string> state)
         {
             return new CommandFailedNotification()
             {
@@ -49,7 +52,8 @@ namespace SoftwarePioniere.Messaging.Notifications
                 TraceIdentifier = state.GetTraceIdentifier(),
                 ObjectId = cmd.ObjectId,
                 ObjectType = cmd.ObjectType,
-                ErrorText = ex.Message
+                ErrorText = ex.Message,
+                UserId = cmd.UserId
             }.CreateNotificationMessage(cmd);
         }
     }

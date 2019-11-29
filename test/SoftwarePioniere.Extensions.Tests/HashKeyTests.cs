@@ -14,11 +14,8 @@ namespace SoftwarePioniere.Extensions.Tests
         public class HashKey
         {
 
-            public IDictionary<string, string[]> Items { get; private set; }
-            public HashKey()
-            {
-                Items = new Dictionary<string, string[]>();
-            }
+            public Dictionary<string, string[]> Items { get; private set; } = new Dictionary<string, string[]>();
+
 
             public void Add(string key, object value)
             {
@@ -32,7 +29,7 @@ namespace SoftwarePioniere.Extensions.Tests
                     Items.Add(key, new[] { value.ToString() });
                 }
                 else
-                { 
+                {
                     Items.Add(key, new[] { "NULL" });
                 }
 
@@ -65,7 +62,7 @@ namespace SoftwarePioniere.Extensions.Tests
 
             public string CreateHash2()
             {
-               
+
                 string input = JsonConvert.SerializeObject(Items, Formatting.None);
 
                 var hash = new StringBuilder();

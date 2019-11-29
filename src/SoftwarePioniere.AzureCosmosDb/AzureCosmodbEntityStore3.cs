@@ -33,11 +33,11 @@ namespace SoftwarePioniere.AzureCosmosDb
         //    _provider = provider ?? throw new ArgumentNullException(nameof(provider));
         //}
 
-        public override async Task<T[]> LoadItemsAsync<T>(CancellationToken token = default)
+        public override async Task<T[]> LoadItemsAsync<T>(CancellationToken cancellationToken = default)
         {
             Logger.LogTrace("LoadItemsAsync: {EntityType}", typeof(T));
 
-            token.ThrowIfCancellationRequested();
+            cancellationToken.ThrowIfCancellationRequested();
 
             try
             {
@@ -50,7 +50,7 @@ namespace SoftwarePioniere.AzureCosmosDb
                 var results = new List<T>();
 
                 while (iter.HasMoreResults)
-                    foreach (var entity in await iter.ReadNextAsync(token))
+                    foreach (var entity in await iter.ReadNextAsync(cancellationToken))
                         results.Add(entity);
 
                 return results.ToArray();
@@ -75,11 +75,11 @@ namespace SoftwarePioniere.AzureCosmosDb
         }
 
         public override async Task<T[]> LoadItemsAsync<T>(Expression<Func<T, bool>> where,
-            CancellationToken token = default)
+            CancellationToken cancellationToken = default)
         {
             Logger.LogTrace("LoadItemsAsync: {EntityType} with where", typeof(T));
 
-            token.ThrowIfCancellationRequested();
+            cancellationToken.ThrowIfCancellationRequested();
 
             try
             {
@@ -93,7 +93,7 @@ namespace SoftwarePioniere.AzureCosmosDb
                 var results = new List<T>();
 
                 while (iter.HasMoreResults)
-                    foreach (var entity in await iter.ReadNextAsync(token))
+                    foreach (var entity in await iter.ReadNextAsync(cancellationToken))
                         results.Add(entity);
 
                 return results.ToArray();
@@ -118,12 +118,12 @@ namespace SoftwarePioniere.AzureCosmosDb
         }
 
         public override Task<PagedResults<T>> LoadPagedResultAsync<T>(PagedLoadingParameters<T> parms,
-            CancellationToken token = default)
+            CancellationToken cancellationToken = default)
         {
             throw new NotImplementedException();
         }
 
-        protected override async Task InternalBulkInsertItemsAsync<T>(T[] items, CancellationToken token = default)
+        protected override async Task InternalBulkInsertItemsAsync<T>(T[] items, CancellationToken cancellationToken = default)
         {
             Logger.LogTrace("InternalBulkInsertItemsAsync: {EntityType} {EntityCount}", typeof(T), items.Length);
 
@@ -168,7 +168,7 @@ namespace SoftwarePioniere.AzureCosmosDb
 
                         foreach (var entity in chunkItems)
 
-                            tasks.Add(container.CreateItemAsync(entity, GetPartitionKey<T>(), cancellationToken: token)
+                            tasks.Add(container.CreateItemAsync(entity, GetPartitionKey<T>(), cancellationToken: cancellationToken)
                                 .ContinueWith(task =>
                                 {
                                     if (task.Exception != null)
@@ -187,7 +187,7 @@ namespace SoftwarePioniere.AzureCosmosDb
                                     //    //        CosmosException cosmosException = innerExceptions.InnerExceptions.FirstOrDefault(innerEx => innerEx is CosmosException) as CosmosException;
                                     //    //        Logger.LogError("Item {EntityId} failed with status code {StatusCode}", entity.EntityId, cosmosException.StatusCode);
                                     //}
-                                }, token)
+                                }, cancellationToken)
 
                             );
 
@@ -201,7 +201,7 @@ namespace SoftwarePioniere.AzureCosmosDb
             await Task.WhenAll(workerTasks);
         }
 
-        protected override async Task InternalDeleteAllItemsAsync<T>(CancellationToken token = default)
+        protected override async Task InternalDeleteAllItemsAsync<T>(CancellationToken cancellationToken = default)
         {
             Logger.LogTrace("InternalDeleteAllItemsAsync: {EntityType}", typeof(T));
 
@@ -211,13 +211,13 @@ namespace SoftwarePioniere.AzureCosmosDb
                 .ToFeedIterator();
 
             while (iter.HasMoreResults)
-                foreach (var entity in await iter.ReadNextAsync(token))
+                foreach (var entity in await iter.ReadNextAsync(cancellationToken))
                     try
                     {
                         await _provider.Container.DeleteItemAsync<T>(
                             partitionKey: GetPartitionKey<T>(),
                             id: entity.EntityId,
-                            cancellationToken: token);
+                            cancellationToken: cancellationToken);
                     }
                     catch (CosmosException nfex) when (nfex.StatusCode == HttpStatusCode.NotFound)
                     {
@@ -235,7 +235,7 @@ namespace SoftwarePioniere.AzureCosmosDb
                     }
         }
 
-        protected override async Task InternalDeleteItemAsync<T>(string entityId, CancellationToken token = default)
+        protected override async Task InternalDeleteItemAsync<T>(string entityId, CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrEmpty(entityId))
             {
@@ -244,14 +244,14 @@ namespace SoftwarePioniere.AzureCosmosDb
 
             Logger.LogTrace("InternalDeleteItemAsync: {EntityType} {EntityId}", typeof(T), entityId);
 
-            token.ThrowIfCancellationRequested();
+            cancellationToken.ThrowIfCancellationRequested();
 
             try
             {
                 await _provider.Container.DeleteItemAsync<T>(
                     partitionKey: GetPartitionKey<T>(),
                     id: entityId,
-                    cancellationToken: token);
+                    cancellationToken: cancellationToken);
             }
             catch (CosmosException nfex) when (nfex.StatusCode == HttpStatusCode.NotFound)
             {
@@ -269,7 +269,7 @@ namespace SoftwarePioniere.AzureCosmosDb
         }
 
         protected override async Task InternalDeleteItemsAsync<T>(Expression<Func<T, bool>> where,
-            CancellationToken token = default)
+            CancellationToken cancellationToken = default)
         {
             Logger.LogTrace("InternalDeleteItemsAsync: {EntityType} with where", typeof(T));
 
@@ -280,13 +280,13 @@ namespace SoftwarePioniere.AzureCosmosDb
                 .ToFeedIterator();
 
             while (iter.HasMoreResults)
-                foreach (var entity in await iter.ReadNextAsync(token))
+                foreach (var entity in await iter.ReadNextAsync(cancellationToken))
                     try
                     {
                         await _provider.Container.DeleteItemAsync<T>(
                             partitionKey: GetPartitionKey<T>(),
                             id: entity.EntityId,
-                            cancellationToken: token);
+                            cancellationToken: cancellationToken);
                     }
                     catch (CosmosException nfex) when (nfex.StatusCode == HttpStatusCode.NotFound)
                     {
@@ -304,7 +304,7 @@ namespace SoftwarePioniere.AzureCosmosDb
                     }
         }
 
-        protected override async Task InternalInsertItemAsync<T>(T item, CancellationToken token = default)
+        protected override async Task InternalInsertItemAsync<T>(T item, CancellationToken cancellationToken = default)
         {
             if (item == null)
             {
@@ -313,11 +313,11 @@ namespace SoftwarePioniere.AzureCosmosDb
 
             Logger.LogTrace("InternalInsertItemAsync: {EntityType} {EntityId}", typeof(T), item.EntityId);
 
-            token.ThrowIfCancellationRequested();
+            cancellationToken.ThrowIfCancellationRequested();
 
             try
             {
-                await _provider.Container.CreateItemAsync(item, GetPartitionKey<T>(), cancellationToken: token);
+                await _provider.Container.CreateItemAsync(item, GetPartitionKey<T>(), cancellationToken: cancellationToken);
             }
             catch (CosmosException nfex) when (nfex.StatusCode == HttpStatusCode.Conflict)
             {
@@ -331,7 +331,7 @@ namespace SoftwarePioniere.AzureCosmosDb
                 }
 
 
-                await _provider.Container.UpsertItemAsync(item, GetPartitionKey<T>(), cancellationToken: token);
+                await _provider.Container.UpsertItemAsync(item, GetPartitionKey<T>(), cancellationToken: cancellationToken);
             }
             catch (CosmosException e)
             {
@@ -344,7 +344,7 @@ namespace SoftwarePioniere.AzureCosmosDb
             }
         }
 
-        protected override async Task InternalInsertOrUpdateItemAsync<T>(T item, CancellationToken token = default)
+        protected override async Task InternalInsertOrUpdateItemAsync<T>(T item, CancellationToken cancellationToken = default)
         {
             if (item == null)
             {
@@ -353,20 +353,20 @@ namespace SoftwarePioniere.AzureCosmosDb
 
             Logger.LogTrace("InternalInsertOrUpdateItemAsync: {EntityType} {EntityId}", typeof(T), item.EntityId);
 
-            token.ThrowIfCancellationRequested();
+            cancellationToken.ThrowIfCancellationRequested();
 
-            var exi = await ExistsDocument(item.EntityId, token);
+            var exi = await ExistsDocument(item.EntityId, cancellationToken);
             if (exi)
             {
-                await UpdateItemAsync(item, token).ConfigureAwait(false);
+                await UpdateItemAsync(item, cancellationToken).ConfigureAwait(false);
             }
             else
             {
-                await InsertItemAsync(item, token).ConfigureAwait(false);
+                await InsertItemAsync(item, cancellationToken).ConfigureAwait(false);
             }
         }
 
-        protected override async Task<T> InternalLoadItemAsync<T>(string entityId, CancellationToken token = default)
+        protected override async Task<T> InternalLoadItemAsync<T>(string entityId, CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrEmpty(entityId))
             {
@@ -375,13 +375,13 @@ namespace SoftwarePioniere.AzureCosmosDb
 
             Logger.LogTrace("InternalLoadItemAsync: {EntityType} {EntityId}", typeof(T), entityId);
 
-            token.ThrowIfCancellationRequested();
+            cancellationToken.ThrowIfCancellationRequested();
 
             try
             {
                 var res = await _provider.Container.ReadItemAsync<T>(entityId,
                     GetPartitionKey<T>(),
-                    cancellationToken: token);
+                    cancellationToken: cancellationToken);
 
                 if (res.StatusCode == HttpStatusCode.NotFound)
                 {
@@ -406,7 +406,7 @@ namespace SoftwarePioniere.AzureCosmosDb
             }
         }
 
-        protected override async Task InternalUpdateItemAsync<T>(T item, CancellationToken token = default)
+        protected override async Task InternalUpdateItemAsync<T>(T item, CancellationToken cancellationToken = default)
         {
             if (item == null)
             {
@@ -415,11 +415,11 @@ namespace SoftwarePioniere.AzureCosmosDb
 
             Logger.LogTrace("InternalUpdateItemAsync: {EntityType} {EntityId}", typeof(T), item.EntityId);
 
-            token.ThrowIfCancellationRequested();
+            cancellationToken.ThrowIfCancellationRequested();
 
             try
             {
-                await _provider.Container.UpsertItemAsync(item, GetPartitionKey<T>(), cancellationToken: token);
+                await _provider.Container.UpsertItemAsync(item, GetPartitionKey<T>(), cancellationToken: cancellationToken);
             }
             catch (CosmosException nfex) when (nfex.StatusCode == HttpStatusCode.NotFound)
             {
@@ -433,7 +433,7 @@ namespace SoftwarePioniere.AzureCosmosDb
                 }
 
 
-                await _provider.Container.CreateItemAsync(item, GetPartitionKey<T>(), cancellationToken: token);
+                await _provider.Container.CreateItemAsync(item, GetPartitionKey<T>(), cancellationToken: cancellationToken);
             }
             catch (CosmosException e)
             {
@@ -446,11 +446,11 @@ namespace SoftwarePioniere.AzureCosmosDb
             }
         }
 
-        private async Task<bool> ExistsDocument(string itemEntityId, CancellationToken token = default)
+        private async Task<bool> ExistsDocument(string itemEntityId, CancellationToken cancellationToken = default)
         {
             Logger.LogTrace("ExistsDocument: {EntityId}", itemEntityId);
 
-            token.ThrowIfCancellationRequested();
+            cancellationToken.ThrowIfCancellationRequested();
 
             try
             {
@@ -460,7 +460,7 @@ namespace SoftwarePioniere.AzureCosmosDb
 
                 var iter = _provider.Container.GetItemQueryIterator<int>(query);
 
-                var x = await iter.ReadNextAsync(token);
+                var x = await iter.ReadNextAsync(cancellationToken);
                 var c = x.Resource.First();
                 return c == 1;
             }

@@ -64,7 +64,7 @@ namespace SoftwarePioniere.Extensions.Tests
         [Fact]
         public void EnsureDictContainsValueTest()
         {
-            IDictionary<string, string[]> dict = new Dictionary<string, string[]>
+            var dict = new Dictionary<string, string[]>
             {
                 {"a", new []{ "aa", "aaa"}},
                 {"b", new []{ "bb", "bbb"}}
@@ -86,7 +86,7 @@ namespace SoftwarePioniere.Extensions.Tests
         [Fact]
         public void EnsureDictContainsValueWithActionTest()
         {
-            IDictionary<string, Class1> dict = new Dictionary<string, Class1>
+            var dict = new Dictionary<string, Class1>
             {
                 {"a", new Class1("aa")},
                 {"b", new Class1("bb")}

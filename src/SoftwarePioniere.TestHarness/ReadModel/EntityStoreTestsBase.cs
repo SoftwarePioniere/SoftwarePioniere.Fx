@@ -59,7 +59,7 @@ namespace SoftwarePioniere.ReadModel
     {
         protected EntityStoreTestsBase(ITestOutputHelper output) : base(output)
         {
-            ServiceCollection.AddSingleton<ICacheClient>(new InMemoryCacheClient());
+            ServiceCollection.AddSingleton<ICacheClient>(new NullCacheClient());
         }
 
 
@@ -169,6 +169,82 @@ namespace SoftwarePioniere.ReadModel
             var obj2 = await store.LoadItemAsync<FakeEntity>(obj1.EntityId);
 
             CompareEntitities(obj1, obj2);
+        }
+
+        public virtual async Task CanHandleDictionaries()
+        {
+            await InitializeAsync();
+
+            var store = CreateInstance();
+
+            string entityId;
+
+            {
+                var id = Guid.NewGuid().ToString();
+                var entity = FakeEntity.Create(id);
+                entityId = entity.EntityId;
+                entityId.Should().NotBeNullOrEmpty();
+
+                var aaa = DateTime.UtcNow.Ticks.ToString();
+                entity.Dict1 = entity.Dict1.EnsureDictContainsValue("aaa", aaa);
+
+                var bbb = DateTime.UtcNow.Ticks.ToString();
+                entity.Dict1 = entity.Dict1.EnsureDictContainsValue("bbb", bbb);
+
+                await store.InsertItemAsync(entity);
+
+                entity.Dict1.Should().ContainKey("aaa");
+                entity.Dict1["aaa"].Should().Be(aaa);
+                
+                entity.Dict1.Should().ContainKey("bbb");
+                entity.Dict1["bbb"].Should().Be(bbb);
+            }
+
+            {
+                var entity = await store.LoadItemAsync<FakeEntity>(entityId);
+                
+                var ccc = DateTime.UtcNow.Ticks.ToString();
+                entity.Dict1 = entity.Dict1.EnsureDictContainsValue("ccc", ccc);
+                await store.UpdateItemAsync(entity);
+
+                entity.Dict1.Should().ContainKey("ccc");
+                entity.Dict1["ccc"].Should().Be(ccc);
+
+                entity = await store.LoadItemAsync<FakeEntity>(entityId);
+
+                entity.Dict1.Should().ContainKey("ccc");
+                entity.Dict1["ccc"].Should().Be(ccc);
+            }
+
+            {
+                var entity = await store.LoadItemAsync<FakeEntity>(entityId);
+             
+                var bbb = DateTime.UtcNow.Ticks.ToString();
+                entity.Dict1 = entity.Dict1.EnsureDictContainsValue("bbb", bbb);
+
+                entity.Dict1.Should().ContainKey("bbb");
+                entity.Dict1["bbb"].Should().Be(bbb);
+
+                var aaa = DateTime.UtcNow.Ticks.ToString();
+                entity.Dict1 = entity.Dict1.EnsureDictContainsValue("aaa", aaa);
+
+                await store.UpdateItemAsync(entity);
+
+                entity.Dict1.Should().ContainKey("aaa");
+                entity.Dict1["aaa"].Should().Be(aaa);
+                
+                entity = await store.LoadItemAsync<FakeEntity>(entityId);
+                entity.Dict1.Should().ContainKey("aaa");
+                
+                entity.Dict1.Should().ContainKey("bbb");
+                entity.Dict1["bbb"].Should().Be(bbb);entity.Dict1["aaa"].Should().Be(aaa);
+
+            }
+
+
+
+
+
         }
 
         public virtual async Task CanInsertManyItems()

@@ -11,7 +11,7 @@ namespace SoftwarePioniere.EventStore
     public static class MessageExtensions
     {
 
-        public static EventData ToEventData(this IMessage evnt, IDictionary<string, string> headers)
+        public static EventData ToEventData(this IMessage evnt, Dictionary<string, string> headers)
         {
             var data = JsonConvert.SerializeObject(evnt).ToUtf8();
 

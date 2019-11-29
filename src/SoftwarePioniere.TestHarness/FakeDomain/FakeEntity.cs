@@ -10,8 +10,7 @@ namespace SoftwarePioniere.FakeDomain
 
         public FakeEntity() : base(TypeKey)
         {
-            Children = new List<FakeEntity>();
-            Dict1 = new Dictionary<string, string>();
+          
         }
 
         public int IntValue { get; set; }
@@ -20,10 +19,10 @@ namespace SoftwarePioniere.FakeDomain
         public DateTime DateTimeValueUtc { get; set; }
         public double DoubleValue { get; set; }
 
-        public IList<FakeEntity> Children { get; set; }
+        public List<FakeEntity> Children { get; set; } = new List<FakeEntity>();
 
         public string ChunkId { get; set; }
-        public IDictionary<string,string> Dict1 { get; set; }
+        public Dictionary<string, string> Dict1 { get; set; } = new Dictionary<string, string>();
 
         public static FakeEntity Empty()
         {

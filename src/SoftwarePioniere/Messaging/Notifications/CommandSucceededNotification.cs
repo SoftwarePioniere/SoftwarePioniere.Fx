@@ -36,8 +36,11 @@ namespace SoftwarePioniere.Messaging.Notifications
         [JsonProperty("object_id")]
         public string ObjectId { get; set; }
 
+        [JsonProperty("user_id")]
+        public string UserId { get; set; }
+
         // ReSharper disable once UnusedMember.Global
-        public static NotificationMessage Create(ICommand cmd, IDictionary<string, string> state)
+        public static NotificationMessage Create(ICommand cmd, Dictionary<string, string> state)
         {
             return new CommandSucceededNotification
             {
@@ -46,7 +49,8 @@ namespace SoftwarePioniere.Messaging.Notifications
                 RequestId = state.GetRequestId(),
                 TraceIdentifier = state.GetTraceIdentifier(),
                 ObjectId = cmd.ObjectId,
-                ObjectType = cmd.ObjectType
+                ObjectType = cmd.ObjectType,
+                UserId = cmd.UserId
             }.CreateNotificationMessage(cmd);
         }
     }

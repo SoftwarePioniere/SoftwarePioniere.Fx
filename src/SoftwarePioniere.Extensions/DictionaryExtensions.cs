@@ -6,7 +6,7 @@ namespace SoftwarePioniere
     public static class DictionaryExtensions
     {
 
-        public static void Merge(this IDictionary<string, string> to, IDictionary<string, string> from)
+        public static void Merge(this Dictionary<string, string> to, Dictionary<string, string> from)
         {
             if (to != null && from != null)
             {
@@ -20,7 +20,7 @@ namespace SoftwarePioniere
                 }
             }
         }
-        public static void EnsureDictArrayContainsValue(this IDictionary<string, string[]> dict, string key,
+        public static void EnsureDictArrayContainsValue(this Dictionary<string, string[]> dict, string key,
             string value)
         {
             if (dict == null)
@@ -48,14 +48,13 @@ namespace SoftwarePioniere
             }
         }
 
-        public static void EnsureDictArrayNotContainsValue(this IDictionary<string, string[]> dict, string key,
-            string value)
+        public static void EnsureDictArrayNotContainsValue(this Dictionary<string, string[]> dict, string key, string value)
         {
             if (dict == null)
             {
                 throw new ArgumentNullException(nameof(dict));
             }
-            
+
             if (string.IsNullOrEmpty(key))
                 return;
 
@@ -76,14 +75,14 @@ namespace SoftwarePioniere
         }
 
 
-        public static IDictionary<string, T> EnsureDictContainsValue<T>(this IDictionary<string, T> dict, string key, T value)
+        public static Dictionary<string, T> EnsureDictContainsValue<T>(this Dictionary<string, T> dict, string key, T value)
         {
             if (dict == null)
             {
-                dict = new Dictionary<string, T> {{key, value}};
+                dict = new Dictionary<string, T> { { key, value } };
                 return dict;
             }
-            
+
             if (string.IsNullOrEmpty(key))
                 return dict;
 
@@ -103,14 +102,14 @@ namespace SoftwarePioniere
         }
 
 
-        public static IDictionary<string, T> EnsureDictContainsValue<T>(this IDictionary<string, T> dict, string key, Action<T> value) where T : class, new()
+        public static Dictionary<string, T> EnsureDictContainsValue<T>(this Dictionary<string, T> dict, string key, Action<T> value) where T : class, new()
         {
             var val = new T();
             value?.Invoke(val);
 
             if (dict == null)
             {
-                dict = new Dictionary<string, T> {{key, val}};
+                dict = new Dictionary<string, T> { { key, val } };
                 return dict;
             }
 
@@ -129,7 +128,7 @@ namespace SoftwarePioniere
             return dict;
         }
 
-        public static void EnsureDictNotContainsKey<T>(this IDictionary<string, T> dict, string key)
+        public static void EnsureDictNotContainsKey<T>(this Dictionary<string, T> dict, string key)
         {
             if (dict != null && !string.IsNullOrEmpty(key))
             {
@@ -140,7 +139,7 @@ namespace SoftwarePioniere
             }
         }
 
-        public static void EnsureDictNotContainsKey(this IDictionary<string, string> dict, string key)
+        public static void EnsureDictNotContainsKey(this Dictionary<string, string> dict, string key)
         {
             if (dict != null && !string.IsNullOrEmpty(key))
             {
@@ -151,7 +150,7 @@ namespace SoftwarePioniere
             }
         }
 
-        public static IDictionary<TKey, TValue> Copy<TKey, TValue>(this IDictionary<TKey, TValue> from)
+        public static Dictionary<TKey, TValue> Copy<TKey, TValue>(this Dictionary<TKey, TValue> from)
         {
             var dic = new Dictionary<TKey, TValue>();
             if (from != null)
