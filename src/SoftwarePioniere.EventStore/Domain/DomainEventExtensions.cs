@@ -11,7 +11,7 @@ namespace SoftwarePioniere.EventStore.Domain
     public static class DomainEventExtensions
     {
 
-        public static EventData ToEventData(this IMessage evnt, IDictionary<string, string> headers)
+        public static EventData ToEventData(this IMessage evnt, Dictionary<string, string> headers)
         {
             var data = JsonConvert.SerializeObject(evnt).ToUtf8();
 

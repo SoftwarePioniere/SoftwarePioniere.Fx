@@ -156,7 +156,11 @@ namespace SoftwarePioniere.MongoDb.Tests
         {
             return base.CanInsertAndDeleteItemWithWhere();
         }
-      
-       
+
+        [Fact]
+        public override Task CanHandleDictionaries()
+        {
+            return base.CanHandleDictionaries();
+        }
     }
 }

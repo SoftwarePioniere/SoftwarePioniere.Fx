@@ -28,7 +28,7 @@ namespace SoftwarePioniere.ReadModel
 
         }
 
-        public virtual async Task DeleteItemAsync<T>(string entityId, CancellationToken token = default(CancellationToken)) where T : Entity
+        public virtual async Task DeleteItemAsync<T>(string entityId, CancellationToken cancellationToken = default) where T : Entity
         {
             if (string.IsNullOrEmpty(entityId))
             {
@@ -44,30 +44,30 @@ namespace SoftwarePioniere.ReadModel
                 //    await ClearCache<T>();
             }
 
-            await InternalDeleteItemAsync<T>(entityId, token);
+            await InternalDeleteItemAsync<T>(entityId, cancellationToken);
         }
 
-        public async Task DeleteItemsAsync<T>(Expression<Func<T, bool>> @where, CancellationToken token = default(CancellationToken)) where T : Entity
+        public async Task DeleteItemsAsync<T>(Expression<Func<T, bool>> @where, CancellationToken cancellationToken = default) where T : Entity
         {
             if (!Options.CachingDisabled)
             {
                 await CacheClient.RemoveByPrefixAsync(CacheKeys.Create<T>());
             }
 
-            await InternalDeleteItemsAsync(@where, token);
+            await InternalDeleteItemsAsync(@where, cancellationToken);
         }
 
-        public async Task DeleteAllItemsAsync<T>(CancellationToken token = default(CancellationToken)) where T : Entity
+        public async Task DeleteAllItemsAsync<T>(CancellationToken cancellationToken = default) where T : Entity
         {
             if (!Options.CachingDisabled)
             {
                 await CacheClient.RemoveByPrefixAsync(CacheKeys.Create<T>());
             }
 
-            await InternalDeleteAllItemsAsync<T>(token);
+            await InternalDeleteAllItemsAsync<T>(cancellationToken);
         }
 
-        public async Task InsertItemAsync<T>(T item, CancellationToken token = default(CancellationToken)) where T : Entity
+        public async Task InsertItemAsync<T>(T item, CancellationToken cancellationToken = default) where T : Entity
         {
             if (item == null)
             {
@@ -81,10 +81,10 @@ namespace SoftwarePioniere.ReadModel
                 await CacheClient.SetAsync(item.EntityId, item, TimeSpan.FromMinutes(Options.CacheMinutes));
                 //await ClearCache<T>();
             }
-            await InternalInsertItemAsync(item, token);
+            await InternalInsertItemAsync(item, cancellationToken);
         }
 
-        public async Task BulkInsertItemsAsync<T>(IEnumerable<T> items, CancellationToken token = default(CancellationToken)) where T : Entity
+        public async Task BulkInsertItemsAsync<T>(IEnumerable<T> items, CancellationToken cancellationToken = default) where T : Entity
         {
             if (items == null)
             {
@@ -104,10 +104,10 @@ namespace SoftwarePioniere.ReadModel
                 //await ClearCache<T>();
             }
 
-            await InternalBulkInsertItemsAsync(enumerable, token);
+            await InternalBulkInsertItemsAsync(enumerable, cancellationToken);
         }
 
-        public async Task InsertOrUpdateItemAsync<T>(T item, CancellationToken token = default(CancellationToken)) where T : Entity
+        public async Task InsertOrUpdateItemAsync<T>(T item, CancellationToken cancellationToken = default) where T : Entity
         {
             if (item == null)
             {
@@ -122,10 +122,10 @@ namespace SoftwarePioniere.ReadModel
             {
                 await CacheClient.SetAsync(item.EntityId, item, TimeSpan.FromMinutes(Options.CacheMinutes));
             }
-            await InternalInsertOrUpdateItemAsync(item, token);
+            await InternalInsertOrUpdateItemAsync(item, cancellationToken);
         }
 
-        public async Task<T> LoadItemAsync<T>(string entityId, CancellationToken token = default(CancellationToken)) where T : Entity
+        public async Task<T> LoadItemAsync<T>(string entityId, CancellationToken cancellationToken = default) where T : Entity
         {
             if (string.IsNullOrEmpty(entityId))
             {
@@ -136,17 +136,17 @@ namespace SoftwarePioniere.ReadModel
 
             if (Options.CachingDisabled)
             {
-                return await InternalLoadItemAsync<T>(entityId, token);
+                return await InternalLoadItemAsync<T>(entityId, cancellationToken);
             }
 
-            return await CacheLoadItem(() => InternalLoadItemAsync<T>(entityId, token), entityId);
+            return await CacheLoadItem(() => InternalLoadItemAsync<T>(entityId, cancellationToken), entityId);
         }
 
-        public abstract Task<T[]> LoadItemsAsync<T>(CancellationToken token = default(CancellationToken)) where T : Entity;
+        public abstract Task<T[]> LoadItemsAsync<T>(CancellationToken cancellationToken = default) where T : Entity;
 
-        public abstract Task<T[]> LoadItemsAsync<T>(Expression<Func<T, bool>> where, CancellationToken token = default(CancellationToken)) where T : Entity;
+        public abstract Task<T[]> LoadItemsAsync<T>(Expression<Func<T, bool>> where, CancellationToken cancellationToken = default) where T : Entity;
 
-        //public async Task<T[]> LoadItemsAsync<T>(Expression<Func<T, bool>> where, string cacheKey, CancellationToken token = default(CancellationToken)) where T : Entity
+        //public async Task<T[]> LoadItemsAsync<T>(Expression<Func<T, bool>> where, string cacheKey, CancellationToken cancellationToken = default(CancellationToken)) where T : Entity
         //{
         //    if (string.IsNullOrEmpty(cacheKey))
         //    {
@@ -163,9 +163,9 @@ namespace SoftwarePioniere.ReadModel
         //    return await CacheLoadItems(() => LoadItemsAsync(where, token), cacheKey);
         //}
 
-        public abstract Task<PagedResults<T>> LoadPagedResultAsync<T>(PagedLoadingParameters<T> parms, CancellationToken token = default(CancellationToken)) where T : Entity;
+        public abstract Task<PagedResults<T>> LoadPagedResultAsync<T>(PagedLoadingParameters<T> parms, CancellationToken cancellationToken = default) where T : Entity;
 
-        //public async Task<PagedResults<T>> LoadPagedResultAsync<T>(PagedLoadingParameters<T> parms, string cacheKey, CancellationToken token = default(CancellationToken))
+        //public async Task<PagedResults<T>> LoadPagedResultAsync<T>(PagedLoadingParameters<T> parms, string cacheKey, CancellationToken cancellationToken = default(CancellationToken))
         //    where T : Entity
         //{
         //    if (parms == null)
@@ -189,7 +189,7 @@ namespace SoftwarePioniere.ReadModel
         //    return await CacheLoadPagedResult(() => LoadPagedResultAsync(parms, token), cacheKey);
         //}
 
-        public async Task UpdateItemAsync<T>(T item, CancellationToken token = default(CancellationToken)) where T : Entity
+        public async Task UpdateItemAsync<T>(T item, CancellationToken cancellationToken = default) where T : Entity
         {
             if (item == null)
             {
@@ -206,24 +206,24 @@ namespace SoftwarePioniere.ReadModel
                 await CacheClient.SetAsync(item.EntityId, item, TimeSpan.FromMinutes(Options.CacheMinutes));
             }
 
-            await InternalUpdateItemAsync(item, token);
+            await InternalUpdateItemAsync(item, cancellationToken);
         }
 
-        protected abstract Task InternalDeleteItemAsync<T>(string entityId, CancellationToken token = default(CancellationToken)) where T : Entity;
+        protected abstract Task InternalDeleteItemAsync<T>(string entityId, CancellationToken cancellationToken = default) where T : Entity;
 
-        protected abstract Task InternalDeleteItemsAsync<T>(Expression<Func<T, bool>> @where, CancellationToken token = default(CancellationToken)) where T : Entity;
+        protected abstract Task InternalDeleteItemsAsync<T>(Expression<Func<T, bool>> @where, CancellationToken cancellationToken = default) where T : Entity;
 
-        protected abstract Task InternalDeleteAllItemsAsync<T>(CancellationToken token = default(CancellationToken)) where T : Entity;
+        protected abstract Task InternalDeleteAllItemsAsync<T>(CancellationToken cancellationToken = default) where T : Entity;
 
-        protected abstract Task InternalInsertItemAsync<T>(T item, CancellationToken token = default(CancellationToken)) where T : Entity;
+        protected abstract Task InternalInsertItemAsync<T>(T item, CancellationToken cancellationToken = default) where T : Entity;
 
-        protected abstract Task InternalBulkInsertItemsAsync<T>(T[] items, CancellationToken token = default(CancellationToken)) where T : Entity;
+        protected abstract Task InternalBulkInsertItemsAsync<T>(T[] items, CancellationToken cancellationToken = default) where T : Entity;
 
-        protected abstract Task InternalInsertOrUpdateItemAsync<T>(T item, CancellationToken token = default(CancellationToken)) where T : Entity;
+        protected abstract Task InternalInsertOrUpdateItemAsync<T>(T item, CancellationToken cancellationToken = default) where T : Entity;
 
-        protected abstract Task<T> InternalLoadItemAsync<T>(string entityId, CancellationToken token = default(CancellationToken)) where T : Entity;
+        protected abstract Task<T> InternalLoadItemAsync<T>(string entityId, CancellationToken cancellationToken = default) where T : Entity;
 
-        protected abstract Task InternalUpdateItemAsync<T>(T item, CancellationToken token = default(CancellationToken)) where T : Entity;
+        protected abstract Task InternalUpdateItemAsync<T>(T item, CancellationToken cancellationToken = default) where T : Entity;
 
         private async Task<T> CacheLoadItem<T>(Func<Task<T>> loader, string cacheKey)
         {

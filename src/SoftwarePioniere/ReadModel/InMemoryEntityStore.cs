@@ -23,7 +23,7 @@ namespace SoftwarePioniere.ReadModel
             _provider = provider ?? throw new ArgumentNullException(nameof(provider));
         }
 
-        public override Task<T[]> LoadItemsAsync<T>(CancellationToken token = default(CancellationToken))
+        public override Task<T[]> LoadItemsAsync<T>(CancellationToken cancellationToken = default)
         {
 
             Logger.LogTrace("LoadItemsAsync: {EntityType}", typeof(T));
@@ -32,7 +32,7 @@ namespace SoftwarePioniere.ReadModel
             return Task.FromResult(items.Values.Cast<T>().ToArray());
         }
 
-        public override Task<T[]> LoadItemsAsync<T>(Expression<Func<T, bool>> where, CancellationToken token = default(CancellationToken))
+        public override Task<T[]> LoadItemsAsync<T>(Expression<Func<T, bool>> where, CancellationToken cancellationToken = default)
         {
 
             Logger.LogTrace("LoadItemsAsync: {EntityType} {Expression}", typeof(T), where);
@@ -49,13 +49,13 @@ namespace SoftwarePioniere.ReadModel
 
 
             Logger.LogTrace("LoadItemsAsync: FilteredItemsCount {EntityType} {FilteredItemsCount} {Expression}", typeof(T), items.Count, where);
-            token.ThrowIfCancellationRequested();
+            cancellationToken.ThrowIfCancellationRequested();
 
 
             return Task.FromResult(witems);
         }
 
-        public override Task<PagedResults<T>> LoadPagedResultAsync<T>(PagedLoadingParameters<T> parms, CancellationToken token = default(CancellationToken))
+        public override Task<PagedResults<T>> LoadPagedResultAsync<T>(PagedLoadingParameters<T> parms, CancellationToken cancellationToken = default)
         {
             if (parms == null)
             {
@@ -111,12 +111,12 @@ namespace SoftwarePioniere.ReadModel
 
             var res = items.GetPagedResults(parms.PageSize, parms.Page);
 
-            token.ThrowIfCancellationRequested();
+            cancellationToken.ThrowIfCancellationRequested();
 
             return Task.FromResult(res);
         }
 
-        protected override Task InternalDeleteItemAsync<T>(string entityId, CancellationToken token = default(CancellationToken))
+        protected override Task InternalDeleteItemAsync<T>(string entityId, CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrEmpty(entityId))
             {
@@ -126,7 +126,7 @@ namespace SoftwarePioniere.ReadModel
 
             Logger.LogTrace("InternalDeleteItemAsync: {EntityType} {EntityId}", typeof(T), entityId);
 
-            token.ThrowIfCancellationRequested();
+            cancellationToken.ThrowIfCancellationRequested();
 
             var items = _provider.GetItems(typeof(T));
             // ReSharper disable once UnusedVariable
@@ -135,7 +135,7 @@ namespace SoftwarePioniere.ReadModel
             return Task.CompletedTask;
         }
 
-        protected override Task InternalDeleteItemsAsync<T>(Expression<Func<T, bool>> @where, CancellationToken token = default(CancellationToken))
+        protected override Task InternalDeleteItemsAsync<T>(Expression<Func<T, bool>> @where, CancellationToken cancellationToken = default)
         {
 
             Logger.LogTrace("InternalDeleteItemsAsync: {EntityType}", typeof(T));
@@ -157,12 +157,12 @@ namespace SoftwarePioniere.ReadModel
             return Task.CompletedTask;
         }
 
-        protected override Task InternalDeleteAllItemsAsync<T>(CancellationToken token = default(CancellationToken))
+        protected override Task InternalDeleteAllItemsAsync<T>(CancellationToken cancellationToken = default)
         {
-            return InternalDeleteItemsAsync<T>(x => true, token);
+            return InternalDeleteItemsAsync<T>(x => true, cancellationToken);
         }
 
-        protected override Task InternalInsertItemAsync<T>(T item, CancellationToken token = default(CancellationToken))
+        protected override Task InternalInsertItemAsync<T>(T item, CancellationToken cancellationToken = default)
         {
             if (item == null)
             {
@@ -173,7 +173,7 @@ namespace SoftwarePioniere.ReadModel
             Logger.LogTrace("InternalInsertItemAsync: {EntityType} {EntityId}", typeof(T), item.EntityId);
 
 
-            token.ThrowIfCancellationRequested();
+            cancellationToken.ThrowIfCancellationRequested();
 
             var items = _provider.GetItems(typeof(T));
 
@@ -183,7 +183,7 @@ namespace SoftwarePioniere.ReadModel
             return Task.CompletedTask;
         }
 
-        protected override Task InternalBulkInsertItemsAsync<T>(T[] items, CancellationToken token = default(CancellationToken))
+        protected override Task InternalBulkInsertItemsAsync<T>(T[] items, CancellationToken cancellationToken = default)
         {
             if (items == null)
             {
@@ -194,7 +194,7 @@ namespace SoftwarePioniere.ReadModel
             Logger.LogTrace("BulkInsertItemsAsync: {EntityType} {EntityCount}", typeof(T), items.Length);
 
 
-            token.ThrowIfCancellationRequested();
+            cancellationToken.ThrowIfCancellationRequested();
 
             var localItems = _provider.GetItems(typeof(T));
 
@@ -208,12 +208,12 @@ namespace SoftwarePioniere.ReadModel
             return Task.CompletedTask;
         }
 
-        protected override Task InternalInsertOrUpdateItemAsync<T>(T item, CancellationToken token = default(CancellationToken))
+        protected override Task InternalInsertOrUpdateItemAsync<T>(T item, CancellationToken cancellationToken = default)
         {
-            return InternalInsertItemAsync(item, token);
+            return InternalInsertItemAsync(item, cancellationToken);
         }
 
-        protected override Task<T> InternalLoadItemAsync<T>(string entityId, CancellationToken token = default(CancellationToken))
+        protected override Task<T> InternalLoadItemAsync<T>(string entityId, CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrEmpty(entityId))
             {
@@ -223,7 +223,7 @@ namespace SoftwarePioniere.ReadModel
 
             Logger.LogTrace("InternalLoadItemAsync: {EntityType} {EntityId}", typeof(T), entityId);
 
-            token.ThrowIfCancellationRequested();
+            cancellationToken.ThrowIfCancellationRequested();
 
             var items = _provider.GetItems(typeof(T));
 
@@ -235,17 +235,17 @@ namespace SoftwarePioniere.ReadModel
             return Task.FromResult(default(T));
         }
 
-        protected override async Task InternalUpdateItemAsync<T>(T item, CancellationToken token = default(CancellationToken))
+        protected override async Task InternalUpdateItemAsync<T>(T item, CancellationToken cancellationToken = default)
         {
             if (item == null)
             {
                 throw new ArgumentNullException(nameof(item));
             }
 
-            token.ThrowIfCancellationRequested();
+            cancellationToken.ThrowIfCancellationRequested();
 
-            await InternalDeleteItemAsync<T>(item.EntityId, token);
-            await InternalInsertItemAsync(item, token);
+            await InternalDeleteItemAsync<T>(item.EntityId, cancellationToken);
+            await InternalInsertItemAsync(item, cancellationToken);
 
         }
 

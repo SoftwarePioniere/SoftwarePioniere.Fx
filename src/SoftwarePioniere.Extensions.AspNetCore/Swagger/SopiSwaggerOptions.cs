@@ -8,7 +8,7 @@ namespace SoftwarePioniere.Extensions.AspNetCore.Swagger
         public string[] XmlFiles { get; set; }
         public OAuth2Scheme OAuth2Scheme { get; set; }
         public string AuthorizationUrl { get; set; }
-        public IDictionary<string, string> Scopes { get; set; }
+        public Dictionary<string, string> Scopes { get; set; }
         public Dictionary<string, string> OAuthAdditionalQueryStringParams { get; set; }
         public string OAuthClientId { get; set; }
         public string OAuthClientSecret { get; set; }

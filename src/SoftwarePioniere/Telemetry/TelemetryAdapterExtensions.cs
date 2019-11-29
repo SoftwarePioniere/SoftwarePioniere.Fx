@@ -6,7 +6,7 @@ namespace SoftwarePioniere.Telemetry
 {
     public static class TelemetryAdapterExtensions
     {
-        public static Dictionary<string, object> CreateLoggerScope(this IDictionary<string, string> state)
+        public static Dictionary<string, object> CreateLoggerScope(this Dictionary<string, string> state)
         {
             var dict = new Dictionary<string, object>();
             foreach (var key in state.Keys)
@@ -27,7 +27,7 @@ namespace SoftwarePioniere.Telemetry
             return ex.Message;
         }
 
-        public static IDictionary<string, string> AppendCommand(this IDictionary<string, string> state, ICommand cmd)
+        public static Dictionary<string, string> AppendCommand(this Dictionary<string, string> state, ICommand cmd)
         {
             var t = cmd.GetType();
 
@@ -41,12 +41,12 @@ namespace SoftwarePioniere.Telemetry
         }
 
 
-        public static IDictionary<string, string> CreateState(this ICommand cmd)
+        public static Dictionary<string, string> CreateState(this ICommand cmd)
         {
             return new Dictionary<string, string>().AppendCommand(cmd);
         }
 
-        public static string GetOperationId(this IDictionary<string, string> dict)
+        public static string GetOperationId(this Dictionary<string, string> dict)
         {
             if (!dict.ContainsKey("OperationId"))
                 return string.Empty;
@@ -54,7 +54,7 @@ namespace SoftwarePioniere.Telemetry
             return dict.GetProperty("OperationId");
         }
 
-        public static string GetParentRequestId(this IDictionary<string, string> dict)
+        public static string GetParentRequestId(this Dictionary<string, string> dict)
         {
             if (!dict.ContainsKey("ParentRequestId"))
                 return string.Empty;
@@ -62,12 +62,12 @@ namespace SoftwarePioniere.Telemetry
             return dict.GetProperty("ParentRequestId");
         }
 
-        public static IDictionary<string, string> SetOperationId(this IDictionary<string, string> dict, string value)
+        public static Dictionary<string, string> SetOperationId(this Dictionary<string, string> dict, string value)
         {
             return dict.AddProperty("OperationId", value);
         }
 
-        public static IDictionary<string, string> SetParentRequestId(this IDictionary<string, string> dict,
+        public static Dictionary<string, string> SetParentRequestId(this Dictionary<string, string> dict,
             string value)
         {
             return dict.AddProperty("ParentRequestId", value);

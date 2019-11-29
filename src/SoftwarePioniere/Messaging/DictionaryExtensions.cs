@@ -8,7 +8,7 @@ namespace SoftwarePioniere.Messaging
 
         public const string TraceIdentifierKey = "TraceIdentifier";
 
-        public static IDictionary<string, string> AddProperty(this IDictionary<string, string> dict, string key, string value)
+        public static Dictionary<string, string> AddProperty(this Dictionary<string, string> dict, string key, string value)
         {
             if (dict == null)
                 return null;
@@ -25,7 +25,7 @@ namespace SoftwarePioniere.Messaging
             return dict;
         }
 
-        public static string GetProperty(this IDictionary<string, string> dict, string key)
+        public static string GetProperty(this Dictionary<string, string> dict, string key)
         {
             if (dict == null)
                 return null;
@@ -38,14 +38,14 @@ namespace SoftwarePioniere.Messaging
             return null;
         }
 
-        public static IDictionary<string, string> SetTraceIdentifier(this IDictionary<string, string> dict, string value)
+        public static Dictionary<string, string> SetTraceIdentifier(this Dictionary<string, string> dict, string value)
             => dict.AddProperty(TraceIdentifierKey, value);
 
-        public static IDictionary<string, string> SetRequestId(this IDictionary<string, string> dict, string value)
+        public static Dictionary<string, string> SetRequestId(this Dictionary<string, string> dict, string value)
             => dict.AddProperty(RequestIdKey, value);
 
-        public static string GetTraceIdentifier(this IDictionary<string, string> dict) => dict.GetProperty(TraceIdentifierKey);
+        public static string GetTraceIdentifier(this Dictionary<string, string> dict) => dict.GetProperty(TraceIdentifierKey);
 
-        public static string GetRequestId(this IDictionary<string, string> dict) => dict.GetProperty(RequestIdKey);
+        public static string GetRequestId(this Dictionary<string, string> dict) => dict.GetProperty(RequestIdKey);
     }
 }
