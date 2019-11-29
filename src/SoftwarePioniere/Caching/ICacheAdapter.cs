@@ -14,13 +14,13 @@ namespace SoftwarePioniere.Caching
         ICacheClient CacheClient { get; }
 
         Task<T> CacheLoad<T>(Func<Task<T>> loader, string cacheKey,
-            int minutes = 120);
+            int minutes = 120, bool setExpirationOnHit = true);
 
 
         //Task<T> CacheLoadItem<T>(Func<Task<T>> loader, string cacheKey,
         //    int minutes = 120);
 
-        Task<T[]> CacheLoadItems<T>(Func<Task<T[]>> loader, string cacheKey, int minutes = 120);
+        Task<T[]> CacheLoadItems<T>(Func<Task<T[]>> loader, string cacheKey, int minutes = 120, bool setExpirationOnHit = true);
 
         //Task<PagedResults<T>> CacheLoadPagedItems<T>(Func<Task<PagedResults<T>>> loader, string cacheKey,
         //    int minutes = 60, ILogger logger = null);

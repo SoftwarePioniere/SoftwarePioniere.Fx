@@ -12,7 +12,7 @@ using SoftwarePioniere.ReadModel;
 
 namespace SoftwarePioniere.Caching
 {
-  
+
     public class CacheAdapter : ICacheAdapter
     {
         private const string EmptyKey = "EMPTY-0001111";
@@ -133,7 +133,7 @@ namespace SoftwarePioniere.Caching
 
         public ICacheClient CacheClient { get; }
 
-        public async Task<T> CacheLoad<T>(Func<Task<T>> loader, string cacheKey, int minutes = int.MinValue)
+        public async Task<T> CacheLoad<T>(Func<Task<T>> loader, string cacheKey, int minutes = int.MinValue, bool setExpirationOnHit = true)
         {
             var logger = _logger;
 
@@ -148,7 +148,10 @@ namespace SoftwarePioniere.Caching
                 var l = await CacheClient.GetAsync<T>(cacheKey);
                 if (l.HasValue)
                 {
-                    await CacheClient.SetExpirationAsync(cacheKey, expiresIn);
+                    if (setExpirationOnHit)
+                    {
+                        await CacheClient.SetExpirationAsync(cacheKey, expiresIn);
+                    }
                     logger.LogDebug("Return result from Cache with {CacheKey}", cacheKey);
                     return l.Value;
                 }
@@ -173,7 +176,7 @@ namespace SoftwarePioniere.Caching
         }
 
 
-        public async Task<T[]> CacheLoadItems<T>(Func<Task<T[]>> loader, string cacheKey, int minutes = int.MinValue)
+        public async Task<T[]> CacheLoadItems<T>(Func<Task<T[]>> loader, string cacheKey, int minutes = int.MinValue, bool setExpirationOnHit = true)
         {
             var logger = _logger;
 
@@ -189,7 +192,10 @@ namespace SoftwarePioniere.Caching
                 if (l.HasValue)
                 {
                     logger.LogDebug("Return result from Cache");
-                    await CacheClient.SetExpirationAsync(cacheKey, expiresIn);
+                    if (setExpirationOnHit)
+                    {
+                        await CacheClient.SetExpirationAsync(cacheKey, expiresIn);
+                    }
                     return l.Value.ToArray();
                 }
             }
