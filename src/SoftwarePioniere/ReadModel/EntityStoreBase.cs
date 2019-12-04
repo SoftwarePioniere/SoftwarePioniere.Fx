@@ -163,7 +163,7 @@ namespace SoftwarePioniere.ReadModel
         //    return await CacheLoadItems(() => LoadItemsAsync(where, token), cacheKey);
         //}
 
-        public abstract Task<PagedResults<T>> LoadPagedResultAsync<T>(PagedLoadingParameters<T> parms, CancellationToken cancellationToken = default) where T : Entity;
+        //public abstract Task<PagedResults<T>> LoadPagedResultAsync<T>(PagedLoadingParameters<T> parms, CancellationToken cancellationToken = default) where T : Entity;
 
         //public async Task<PagedResults<T>> LoadPagedResultAsync<T>(PagedLoadingParameters<T> parms, string cacheKey, CancellationToken cancellationToken = default(CancellationToken))
         //    where T : Entity

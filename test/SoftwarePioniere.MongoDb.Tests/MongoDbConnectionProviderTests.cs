@@ -28,7 +28,7 @@ namespace SoftwarePioniere.MongoDb.Tests
         public async Task CanConnectToClient()
         {
             var provider = CreateProvider();
-            await provider.Client.Value.ListDatabasesAsync();
+            await provider.CreateClient().ListDatabasesAsync();
         }
 
         [Fact]

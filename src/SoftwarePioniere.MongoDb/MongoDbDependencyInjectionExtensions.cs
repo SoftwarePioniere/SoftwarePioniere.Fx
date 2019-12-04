@@ -22,7 +22,8 @@ namespace Microsoft.Extensions.DependencyInjection
                 .AddSingleton<MongoDbConnectionProvider>()
                 .AddSingleton<IConnectionProvider>(provider => provider.GetRequiredService<MongoDbConnectionProvider>())
                 .AddSingleton<IEntityStoreConnectionProvider>(provider => provider.GetRequiredService<MongoDbConnectionProvider>())
-                .AddSingleton<IEntityStore, MongoDbEntityStore>()
+                .AddSingleton<MongoDbEntityStore>()
+                .AddSingleton<IEntityStore>(provider => provider.GetRequiredService<MongoDbEntityStore>())
                 ;
 
             return services;

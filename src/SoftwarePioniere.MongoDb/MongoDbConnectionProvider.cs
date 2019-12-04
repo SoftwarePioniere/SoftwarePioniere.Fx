@@ -42,7 +42,7 @@ namespace SoftwarePioniere.MongoDb
        
             _logger.LogInformation("MongoDb Options {@Options}", options.Value.CreateSecured());
 
-            InitClient();
+            //InitClient();
             InitDatabase();
         }
 
@@ -68,7 +68,7 @@ namespace SoftwarePioniere.MongoDb
             return false;
         }
 
-        private IMongoClient CreateClient()
+        public IMongoClient CreateClient()
         {
             var url = new MongoServerAddress(Options.Server, Options.Port);
             var settings = new MongoClientSettings
@@ -76,8 +76,7 @@ namespace SoftwarePioniere.MongoDb
             var client = new MongoClient(settings);
             return client;
         }
-
-
+        
 
         private void InitDatabase()
         {
@@ -86,27 +85,81 @@ namespace SoftwarePioniere.MongoDb
                 var client = CreateClient();
                 return client.GetDatabase(Options.DatabaseId);
             });
+
+            DatabaseInsert = new Lazy<IMongoDatabase>(() =>
+            {
+                var client = CreateClient();
+                return client.GetDatabase(Options.DatabaseId);
+            });
+
+            DatabaseLoadItems = new Lazy<IMongoDatabase>(() =>
+            {
+                var client = CreateClient();
+                return client.GetDatabase(Options.DatabaseId);
+            });
+
+
+            DatabaseLoadItem = new Lazy<IMongoDatabase>(() =>
+            {
+                var client = CreateClient();
+                return client.GetDatabase(Options.DatabaseId);
+            });
         }
 
-        private void InitClient()
-        {
-            Client = new Lazy<IMongoClient>(() =>
-                {
-                    var client = CreateClient();
-                    return client;
-                }
-            );
-        }
+        //private void InitClient()
+        //{
+        //    Client = new Lazy<IMongoClient>(() =>
+        //        {
+        //            var client = CreateClient();
+        //            return client;
+        //        }
+        //    );
 
-        public Lazy<IMongoClient> Client { get; private set; }
+        //    Client2 = new Lazy<IMongoClient>(() =>
+        //        {
+        //            var client = CreateClient();
+        //            return client;
+        //        }
+        //    );
+
+        //    Client3 = new Lazy<IMongoClient>(() =>
+        //        {
+        //            var client = CreateClient();
+        //            return client;
+        //        }
+        //    );
+
+        //    ClientLoadItem = new Lazy<IMongoClient>(() =>
+        //        {
+        //            var client = CreateClient();
+        //            return client;
+        //        }
+        //    );
+        //}
+
+        //public Lazy<IMongoClient> Client { get; private set; }
 
         public Lazy<IMongoDatabase> Database { get; private set; }
+        
+        //public Lazy<IMongoClient> Client2 { get; private set; }
+
+        public Lazy<IMongoDatabase> DatabaseInsert { get; private set; }
+
+
+        //public Lazy<IMongoClient> Client3 { get; private set; }
+
+        public Lazy<IMongoDatabase> DatabaseLoadItems { get; private set; }
+        
+        //public Lazy<IMongoClient> ClientLoadItem { get; private set; }
+
+        public Lazy<IMongoDatabase> DatabaseLoadItem { get; private set; }
 
 
         public async Task ClearDatabaseAsync()
         {
             _logger.LogInformation("Clear Database");
-            await Client.Value.DropDatabaseAsync(Options.DatabaseId);
+            
+            await CreateClient().DropDatabaseAsync(Options.DatabaseId);
             _logger.LogInformation("Reinit Client");
             InitDatabase();
         }
@@ -114,6 +167,21 @@ namespace SoftwarePioniere.MongoDb
         public IMongoCollection<T> GetCol<T>() where T : Entity
         {
             return Database.Value.GetCollection<T>(KeyCache.GetEntityTypeKey<T>());
+        }
+        
+        public IMongoCollection<T> GetColInsert<T>() where T : Entity
+        {
+            return DatabaseInsert.Value.GetCollection<T>(KeyCache.GetEntityTypeKey<T>());
+        }
+
+        public IMongoCollection<T> GetColLoadItems<T>() where T : Entity
+        {
+            return DatabaseLoadItems.Value.GetCollection<T>(KeyCache.GetEntityTypeKey<T>());
+        }
+
+        public IMongoCollection<T> GetColLoadItem<T>() where T : Entity
+        {
+            return DatabaseLoadItem.Value.GetCollection<T>(KeyCache.GetEntityTypeKey<T>());
         }
 
         public async Task InitializeAsync(CancellationToken cancellationToken)

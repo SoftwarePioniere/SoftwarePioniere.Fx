@@ -54,68 +54,7 @@ namespace SoftwarePioniere.ReadModel
 
             return Task.FromResult(witems);
         }
-
-        public override Task<PagedResults<T>> LoadPagedResultAsync<T>(PagedLoadingParameters<T> parms, CancellationToken cancellationToken = default)
-        {
-            if (parms == null)
-            {
-                throw new ArgumentNullException(nameof(parms));
-            }
-
-
-            Logger.LogTrace("LoadPagedResultAsync: {EntityType} {Paramter}", typeof(T), parms);
-
-            var val = _provider.GetItems(typeof(T));
-
-            if (val == null)
-            {
-                return null;
-            }
-
-            var items = val.Values.Cast<T>().AsQueryable();
-
-            if (parms.Where != null)
-            {
-                items = items.Where(parms.Where);
-            }
-
-            if (parms.OrderByDescending != null)
-            {
-                items = items.OrderByDescending(parms.OrderByDescending);
-
-                //if (parms.OrderThenBy != null)
-                //{
-                //    items = items.OrderByDescending(parms.OrderByDescending).ThenBy(parms.OrderThenBy);
-                //}
-                //else
-                //{
-
-                //}
-
-            }
-
-            if (parms.OrderBy != null)
-            {
-                items = items.OrderBy(parms.OrderBy);
-
-                //if (parms.OrderThenBy != null)
-                //{
-                //    items = items.OrderBy(parms.OrderBy).ThenBy(parms.OrderThenBy);
-                //}
-                //else
-                //{
-
-                //}
-
-            }
-
-            var res = items.GetPagedResults(parms.PageSize, parms.Page);
-
-            cancellationToken.ThrowIfCancellationRequested();
-
-            return Task.FromResult(res);
-        }
-
+        
         protected override Task InternalDeleteItemAsync<T>(string entityId, CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrEmpty(entityId))

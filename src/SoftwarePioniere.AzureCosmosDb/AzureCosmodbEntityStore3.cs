@@ -117,12 +117,7 @@ namespace SoftwarePioniere.AzureCosmosDb
             }
         }
 
-        public override Task<PagedResults<T>> LoadPagedResultAsync<T>(PagedLoadingParameters<T> parms,
-            CancellationToken cancellationToken = default)
-        {
-            throw new NotImplementedException();
-        }
-
+    
         protected override async Task InternalBulkInsertItemsAsync<T>(T[] items, CancellationToken cancellationToken = default)
         {
             Logger.LogTrace("InternalBulkInsertItemsAsync: {EntityType} {EntityCount}", typeof(T), items.Length);
