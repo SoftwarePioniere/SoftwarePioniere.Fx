@@ -144,11 +144,11 @@ namespace SoftwarePioniere.AzureCosmosDb.Tests
             base.SaveThrowsErrorWithItemNull();
         }
 
-        [Fact]
-        public override Task CanInsertManyItems()
-        {
-            return base.CanInsertManyItems();
-        }
+        //[Fact]
+        //public override Task CanInsertManyItems()
+        //{
+        //    return base.CanInsertManyItems();
+        //}
 
 
         [Fact]

@@ -2,8 +2,7 @@
 
 trigger:
   branches:
-    include:
-    - dev
+    include:  
     - master
   paths:
     include:
