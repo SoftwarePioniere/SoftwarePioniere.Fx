@@ -11,6 +11,7 @@ using Polly;
 using SoftwarePioniere.Domain;
 using SoftwarePioniere.Messaging;
 using SoftwarePioniere.Projections;
+using SoftwarePioniere.ReadModel;
 
 namespace SoftwarePioniere.Hosting
 {
@@ -89,6 +90,41 @@ namespace SoftwarePioniere.Hosting
                         sw1.Stop();
                         _logger.LogInformation("ConnectionProvider Initialization Finished in {Elapsed:0.0000} ms", sw1.ElapsedMilliseconds);
                     }
+                }
+            }
+
+            //entitystore initializer
+            {
+
+                var initializers = _provider.GetServices<IEntityStoreInitializer>().ToList();
+                if (initializers.Count > 0)
+                {
+                    _logger.LogInformation("Starting EntityStore Initialization");
+                    var sw1 = Stopwatch.StartNew();
+                    var done = new List<Type>();
+
+                    foreach (var initializer in initializers.OrderBy(x => x.ExecutionOrder))
+                    {
+                        if (!done.Contains(initializer.GetType()))
+                        {
+
+                            _logger.LogInformation("Initialize IEntityStoreInitializer {EntityStoreInitializer}", initializer.GetType().FullName);
+                            try
+                            {
+                                await Policy
+                                    .Handle<Exception>()
+                                    .WaitAndRetryAsync(5, i => TimeSpan.FromSeconds(i * 0.5))
+                                    .ExecuteAsync(() => initializer.InitializeAsync(stoppingToken));
+                            }
+                            catch (Exception e)
+                            {
+                                _logger.LogCritical(e, "{Type} {Inner}", initializer.GetType().FullName, GetInnerExceptionMessage(e));
+                            }
+                            done.Add(initializer.GetType());
+                        }
+                    }
+                    sw1.Stop();
+                    _logger.LogInformation("EntityStore Initialization Finished in {Elapsed:0.0000} ms", sw1.ElapsedMilliseconds);
                 }
             }
 
