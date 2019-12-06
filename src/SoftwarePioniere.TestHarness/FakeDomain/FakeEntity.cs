@@ -10,7 +10,7 @@ namespace SoftwarePioniere.FakeDomain
 
         public FakeEntity() : base(TypeKey)
         {
-          
+
         }
 
         public int IntValue { get; set; }
@@ -50,9 +50,11 @@ namespace SoftwarePioniere.FakeDomain
             return ent;
         }
 
-        public static IEnumerable<FakeEntity> CreateList(int count)
+        public static IEnumerable<FakeEntity> CreateList(int count, string chunkid = "")
         {
-            var chunkid = Guid.NewGuid().ToString();
+            if (string.IsNullOrEmpty(chunkid))
+                chunkid = Guid.NewGuid().ToString();
+
             for (var i = 0; i < count; i++)
             {
                 var ent = Create(Guid.NewGuid().ToString());
