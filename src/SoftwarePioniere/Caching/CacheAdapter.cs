@@ -44,27 +44,54 @@ namespace SoftwarePioniere.Caching
         {
             var logger = _logger;
 
-            var existsAsync = await CacheClient.ExistsAsync(setKey);
+            var isLocked = await _lockProvider.IsLockedAsync(setKey);
 
-            var items = new List<T>();
+            //if is locked wait
+            if (isLocked)
+            {
+                var items = new List<T>();
+                //warten und die fertige liste zurück geben
+                logger.LogDebug("LoadSetItems: Locked - waiting {Key}", setKey);
+
+                await _lockProvider.TryUsingAsync(setKey, async () =>
+                {
+                    var temp = await LoadList1<T>(setKey, minutes, cancellationToken);
+                    items.AddRange(temp);
+
+                }, null, TimeSpan.FromSeconds(_options.CacheLockTimeoutSeconds));
+
+
+                return items;
+            }
+
+            var existsAsync = await CacheClient.ExistsAsync(setKey);
 
             if (!existsAsync)
             {
+                var items = new List<T>();
+
                 logger.LogDebug("LoadSetItems: Key not Found in Cache {Key}", setKey);
                 await _lockProvider.TryUsingAsync(setKey, async () =>
                 {
-                    var entities = await LoadListAndAddSetToCache(setKey, where, minutes, cancellationToken);
-                    items.AddRange(entities);
+                    var temp = await LoadListAndAddSetToCache(setKey, where, minutes, cancellationToken);
+                    items.AddRange(temp);
                 }, null, TimeSpan.FromSeconds(_options.CacheLockTimeoutSeconds));
 
                 return items;
             }
 
-            cancellationToken.ThrowIfCancellationRequested();
+            return await LoadList1<T>(setKey, minutes, cancellationToken);
+
+        }
+
+        private async Task<List<T>> LoadList1<T>(string setKey, int minutes = int.MinValue, CancellationToken cancellationToken = default) where T : Entity
+        {
+            var items = new List<T>();
 
             var idsListValue = await CacheClient.GetSetAsync<string>(setKey);
             if (idsListValue.HasValue)
             {
+
                 var idList = idsListValue.Value;
 
                 if (IsEmptyList(idList))
@@ -76,6 +103,8 @@ namespace SoftwarePioniere.Caching
 
                 if (cacheValues.Any(x => !x.Value.HasValue))
                 {
+                    _logger.LogDebug("Load1: Loading some Missing Cache Values - {Key}", setKey);
+
                     var expiresIn = GetExpiresIn(minutes);
 
                     var loadedIds = items.Select(x => x.EntityId).ToArray();
@@ -92,15 +121,7 @@ namespace SoftwarePioniere.Caching
                     }
                 }
 
-                return items;
             }
-
-            logger.LogDebug("LoadSetItems: Key not Found in Cache {Key}", setKey);
-            await _lockProvider.TryUsingAsync(setKey, async () =>
-            {
-                var entities = await LoadListAndAddSetToCache(setKey, where, minutes, cancellationToken);
-                items.AddRange(entities);
-            }, null, null);
 
             return items;
         }
@@ -129,6 +150,22 @@ namespace SoftwarePioniere.Caching
             }
 
             return entities;
+        }
+
+        public async Task SetItemsEnsureAsync(string setKey, string entityId)
+        {
+            if (await CacheClient.ExistsAsync(setKey))
+            {
+                await CacheClient.SetAddAsync(setKey, new[] { entityId });
+            }
+        }
+
+        public async Task SetItemsEnsureNotAsync(string setKey, string entityId)
+        {
+            if (await CacheClient.ExistsAsync(setKey))
+            {
+                await CacheClient.SetRemoveAsync(setKey, new[] { entityId });
+            }
         }
 
         public ICacheClient CacheClient { get; }
@@ -174,7 +211,6 @@ namespace SoftwarePioniere.Caching
 
             return ret;
         }
-
 
         public async Task<T[]> CacheLoadItems<T>(Func<Task<T[]>> loader, string cacheKey, int minutes = int.MinValue, bool setExpirationOnHit = true)
         {

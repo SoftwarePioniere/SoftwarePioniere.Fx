@@ -16,7 +16,6 @@ namespace SoftwarePioniere.Caching
         Task<T> CacheLoad<T>(Func<Task<T>> loader, string cacheKey,
             int minutes = 120, bool setExpirationOnHit = true);
 
-
         //Task<T> CacheLoadItem<T>(Func<Task<T>> loader, string cacheKey,
         //    int minutes = 120);
 
@@ -33,6 +32,10 @@ namespace SoftwarePioniere.Caching
             where T : Entity;
 
         Task<T[]> LoadListAndAddSetToCache<T>(string setKey, Expression<Func<T, bool>> @where, int minutes = 120, CancellationToken cancellationToken = default) where T : Entity;
+
+        Task SetItemsEnsureAsync(string setKey, string entityId);
+
+        Task SetItemsEnsureNotAsync(string setKey, string entityId);
 
         //Task LockPrefix(string prefix);
 
