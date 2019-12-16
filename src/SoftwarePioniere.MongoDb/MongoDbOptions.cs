@@ -10,7 +10,7 @@ namespace SoftwarePioniere.MongoDb
 
         public string Password { get; set; }
 
-        public string DatabaseId { get; set; } = "sopidev";
+        public string DatabaseId { get; set; } 
 
         public string Server { get; set; } = "localhost";
 

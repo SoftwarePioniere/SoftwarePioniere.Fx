@@ -232,6 +232,8 @@ namespace SoftwarePioniere.MongoDb
                 throw new ArgumentNullException(nameof(item));
             }
 
+            cancellationToken.ThrowIfCancellationRequested();
+
             Logger.LogTrace("InternalUpdateItemAsync: {EntityType} {EntityId}", typeof(T), item.EntityId);
 
             var collection = _provider.GetColInsert<T>();
