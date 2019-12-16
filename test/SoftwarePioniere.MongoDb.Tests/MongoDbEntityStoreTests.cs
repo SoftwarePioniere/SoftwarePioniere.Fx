@@ -1,6 +1,8 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using SoftwarePioniere.FakeDomain;
 using SoftwarePioniere.ReadModel;
 using Xunit;
 using Xunit.Abstractions;
@@ -15,6 +17,17 @@ namespace SoftwarePioniere.MongoDb.Tests
             ServiceCollection
                 .AddOptions()
                 .AddMongoDbEntityStore(options => new TestConfiguration().ConfigurationRoot.Bind("MongoDb", options));
+        }
+
+        [Fact]
+        public async Task Test1()
+        {
+            var mog = GetService<MongoDbEntityStore>();
+            var ent = FakeEntity.Create(Guid.NewGuid().ToString());
+
+            await mog.InsertOrUpdateItemAsync(ent);
+            await mog.InsertOrUpdateItemAsync(ent);
+
         }
          
         [Fact]

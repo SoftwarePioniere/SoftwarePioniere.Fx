@@ -37,10 +37,12 @@ namespace SoftwarePioniere.Hosting
                     builder.AddMongoDbEntityStore(c => config.Bind("MongoDb", c));
                     builder.Services.PostConfigure<MongoDbOptions>(options =>
                     {
-                        builder.Log("Configuring MongoDb EntityStore Options");
-                        options.DatabaseId = CreateDatabaseId(builder);
-                        builder.Log($"New MongoDb DatabaseId {options.DatabaseId}");
-
+                        if (string.IsNullOrEmpty(options.DatabaseId))
+                        {
+                            builder.Log("Configuring MongoDb EntityStore Options");
+                            options.DatabaseId = CreateDatabaseId(builder);
+                            builder.Log($"New MongoDb DatabaseId {options.DatabaseId}");
+                        }
                     });
                     break;
 

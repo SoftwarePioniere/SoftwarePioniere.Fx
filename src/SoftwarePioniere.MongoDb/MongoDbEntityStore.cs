@@ -238,19 +238,27 @@ namespace SoftwarePioniere.MongoDb
             var filter = new ExpressionFilterDefinition<T>(x =>
                 x.EntityType == _provider.KeyCache.GetEntityTypeKey<T>() && x.EntityId == item.EntityId);
 
-            //  var res = 
-            await collection.ReplaceOneAsync(filter, item, new UpdateOptions
+            try
             {
-                BypassDocumentValidation = true,
-                IsUpsert = true
-            }, cancellationToken);
+                var res = await collection.ReplaceOneAsync(filter, item, new UpdateOptions
+                {
+                    BypassDocumentValidation = true,
+                    IsUpsert = true
+                }, cancellationToken);
 
+                Logger.LogDebug("Replace Result: {@Result}", res);
+            }
+            catch (Exception e)
+            {
+                Logger.LogWarning(e, "Update Failed: {EntityId}", item.EntityId);
 
-            //if (res.MatchedCount == 0)
-            //{
-            //    Logger.LogWarning("Update Failed, Try Insert {EntityId}", item.EntityId);
-            //    await collection.InsertOneAsync(item, null, token).ConfigureAwait(false);
-            //}
+                //Logger.LogWarning(e, "Update Failed, Try Insert {EntityId}", item.EntityId);
+                //if (res != null && res.IsAcknowledged && res.IsModifiedCountAvailable && res.MatchedCount == 0)
+                //{
+                //    await collection.InsertOneAsync(item, null, cancellationToken).ConfigureAwait(false);
+                //}
+            }
+
         }
     }
 }
