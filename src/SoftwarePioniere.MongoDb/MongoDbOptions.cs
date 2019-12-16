@@ -1,4 +1,6 @@
-﻿using Newtonsoft.Json;
+﻿using System;
+using MongoDB.Driver.Core.Configuration;
+using Newtonsoft.Json;
 using SoftwarePioniere.ReadModel;
 
 namespace SoftwarePioniere.MongoDb
@@ -10,7 +12,7 @@ namespace SoftwarePioniere.MongoDb
 
         public string Password { get; set; }
 
-        public string DatabaseId { get; set; } 
+        public string DatabaseId { get; set; }
 
         public string Server { get; set; } = "localhost";
 
@@ -28,5 +30,7 @@ namespace SoftwarePioniere.MongoDb
             opt.Password = "XXX";
             return opt;
         }
+        
+        public Action<ClusterBuilder> ClusterConfigurator { get; set; }
     }
 }

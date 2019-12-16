@@ -39,7 +39,7 @@ namespace SoftwarePioniere.MongoDb
             KeyCache = new TypeKeyCache();
 
             Options = options.Value;
-       
+
             _logger.LogInformation("MongoDb Options {@Options}", options.Value.CreateSecured());
 
             //InitClient();
@@ -73,10 +73,14 @@ namespace SoftwarePioniere.MongoDb
             var url = new MongoServerAddress(Options.Server, Options.Port);
             var settings = new MongoClientSettings
             { Server = url };
+
+            if (Options.ClusterConfigurator != null)
+                settings.ClusterConfigurator = Options.ClusterConfigurator;
+
             var client = new MongoClient(settings);
             return client;
         }
-        
+
 
         private void InitDatabase()
         {
@@ -140,7 +144,7 @@ namespace SoftwarePioniere.MongoDb
         //public Lazy<IMongoClient> Client { get; private set; }
 
         public Lazy<IMongoDatabase> Database { get; private set; }
-        
+
         //public Lazy<IMongoClient> Client2 { get; private set; }
 
         public Lazy<IMongoDatabase> DatabaseInsert { get; private set; }
@@ -149,7 +153,7 @@ namespace SoftwarePioniere.MongoDb
         //public Lazy<IMongoClient> Client3 { get; private set; }
 
         public Lazy<IMongoDatabase> DatabaseLoadItems { get; private set; }
-        
+
         //public Lazy<IMongoClient> ClientLoadItem { get; private set; }
 
         public Lazy<IMongoDatabase> DatabaseLoadItem { get; private set; }
@@ -158,7 +162,7 @@ namespace SoftwarePioniere.MongoDb
         public async Task ClearDatabaseAsync()
         {
             _logger.LogInformation("Clear Database");
-            
+
             await CreateClient().DropDatabaseAsync(Options.DatabaseId);
             _logger.LogInformation("Reinit Client");
             InitDatabase();
@@ -168,7 +172,7 @@ namespace SoftwarePioniere.MongoDb
         {
             return Database.Value.GetCollection<T>(KeyCache.GetEntityTypeKey<T>());
         }
-        
+
         public IMongoCollection<T> GetColInsert<T>() where T : Entity
         {
             return DatabaseInsert.Value.GetCollection<T>(KeyCache.GetEntityTypeKey<T>());
