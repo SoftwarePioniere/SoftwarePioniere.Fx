@@ -111,7 +111,10 @@ namespace SoftwarePioniere.Hosting
         public static ISopiBuilder AddMongoDbEntityStore(this ISopiBuilder builder,
             Action<MongoDbOptions> configureOptions)
         {
-            builder.Services.AddMongoDbEntityStore(configureOptions);
+
+            builder.Services
+                .AddMongoDbEntityStoreOptions(configureOptions)
+                .AddMongoDbEntityStore();
 
             builder.Services.PostConfigure<SopiOptions>(c =>
             {

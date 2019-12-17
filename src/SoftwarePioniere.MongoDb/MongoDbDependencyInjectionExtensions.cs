@@ -8,13 +8,18 @@ namespace Microsoft.Extensions.DependencyInjection
 {
     public static class MongoDbDependencyInjectionExtensions
     {
-
-        public static IServiceCollection AddMongoDbEntityStore(this IServiceCollection services, Action<MongoDbOptions> configureOptions)
+        public static IServiceCollection AddMongoDbEntityStoreOptions(this IServiceCollection services, Action<MongoDbOptions> configureOptions)
         {
 
             services
                 .AddOptions()
                 .Configure(configureOptions);
+
+            return services;
+        }
+
+        public static IServiceCollection AddMongoDbEntityStore(this IServiceCollection services)
+        {
 
             //var settings = services.BuildServiceProvider().GetService<IOptions<AzureCosmosDbOptions>>().Value;
 

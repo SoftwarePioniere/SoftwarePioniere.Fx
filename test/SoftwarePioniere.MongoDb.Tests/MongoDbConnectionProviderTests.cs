@@ -21,7 +21,8 @@ namespace SoftwarePioniere.MongoDb.Tests
         {
             ServiceCollection
                 .AddOptions()
-                .AddMongoDbEntityStore(options => new TestConfiguration().ConfigurationRoot.Bind("MongoDb", options));
+                .AddMongoDbEntityStoreOptions(options => new TestConfiguration().ConfigurationRoot.Bind("MongoDb", options))
+                .AddMongoDbEntityStore();
         }
 
         [Fact]
