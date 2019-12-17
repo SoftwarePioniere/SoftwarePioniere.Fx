@@ -20,7 +20,7 @@ namespace SoftwarePioniere.MongoDb
             ICacheClient cacheClient, MongoDbConnectionProvider provider) : base(options, loggerFactory, cacheClient)
         {
             _provider = provider;
-            
+
         }
 
         public override async Task<T[]> LoadItemsAsync<T>(CancellationToken cancellationToken = default)
@@ -276,7 +276,7 @@ namespace SoftwarePioniere.MongoDb
 
             try
             {
-                var res = await collection.ReplaceOneAsync(filter, item, new UpdateOptions
+                var res = await collection.ReplaceOneAsync(filter, item, new ReplaceOptions()
                 {
                     BypassDocumentValidation = true,
                     IsUpsert = true

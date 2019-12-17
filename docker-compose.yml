@@ -3,8 +3,8 @@ version: '3.6'
 services:
 
   mongodb:
-    image: mongo:4.0.10
-    command: --smallfiles --port 27097
+    image: mongo:4.2.2
+    command: --port 27097
     ports:
       - "27097:27097"
     volumes:
