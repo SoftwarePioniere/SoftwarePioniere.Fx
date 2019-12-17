@@ -25,12 +25,17 @@ namespace SoftwarePioniere.MongoDb
 
         public MongoDbOptions CreateSecured()
         {
-            var json = JsonConvert.SerializeObject(this);
-            var opt = JsonConvert.DeserializeObject<MongoDbOptions>(json);
-            opt.Password = "XXX";
-            return opt;
+            return new MongoDbOptions
+            {
+                DatabaseId = DatabaseId,
+                Port = Port,
+                Server = Server,
+                UserName = UserName
+            };
+
         }
-        
+
+        [JsonIgnore]
         public Action<ClusterBuilder> ClusterConfigurator { get; set; }
     }
 }
