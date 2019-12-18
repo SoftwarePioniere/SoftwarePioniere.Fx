@@ -44,6 +44,12 @@ namespace SoftwarePioniere.Caching
         {
             var logger = _logger;
 
+            if (string.IsNullOrEmpty(setKey))
+                return new List<T>();
+
+            if (where == null)
+                return new List<T>();
+
             var isLocked = await _lockProvider.IsLockedAsync(setKey);
 
             //if is locked wait
@@ -89,10 +95,18 @@ namespace SoftwarePioniere.Caching
             var items = new List<T>();
 
             var idsListValue = await CacheClient.GetSetAsync<string>(setKey);
+
+            if (idsListValue == null)
+                return new List<T>();
+
+
             if (idsListValue.HasValue)
             {
 
                 var idList = idsListValue.Value;
+
+                if (idList == null)
+                    return new List<T>();
 
                 if (IsEmptyList(idList))
                     return items;
@@ -107,12 +121,16 @@ namespace SoftwarePioniere.Caching
 
                     var expiresIn = GetExpiresIn(minutes);
 
-                    var loadedIds = items.Select(x => x.EntityId).ToArray();
+                    var loadedIds = items.Select(x => x.EntityId).Where(x=> !string.IsNullOrEmpty(x)).ToArray();
+
                     var allMissingIds = idList.Where(id => !loadedIds.Contains(id)).ToArray();
 
                     foreach (var missingIds in Split(allMissingIds, _options.CacheLoadSplitSize))
                     {
                         var entities = await _entityStore.LoadItemsAsync<T>(x => missingIds.Contains(x.EntityId), cancellationToken);
+
+                        if (entities == null)
+                            return items;
 
                         foreach (var item in entities)
                             await CacheClient.AddAsync(item.EntityId, item, expiresIn);
