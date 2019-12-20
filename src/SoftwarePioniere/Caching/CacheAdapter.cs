@@ -172,18 +172,28 @@ namespace SoftwarePioniere.Caching
 
         public async Task SetItemsEnsureAsync(string setKey, string entityId)
         {
-            if (await CacheClient.ExistsAsync(setKey))
+            var lockId = $"{setKey}.ItemsAdd";
+
+            await _lockProvider.TryUsingAsync(lockId, async () =>
             {
-                await CacheClient.SetAddAsync(setKey, new[] { entityId });
-            }
+                if (await CacheClient.ExistsAsync(setKey))
+                {
+                    await CacheClient.SetAddAsync(setKey, new[] { entityId });
+                }
+            }, TimeSpan.FromSeconds(2), CancellationToken.None);
         }
 
         public async Task SetItemsEnsureNotAsync(string setKey, string entityId)
         {
-            if (await CacheClient.ExistsAsync(setKey))
+            var lockId = $"{setKey}.ItemsAdd";
+
+            await _lockProvider.TryUsingAsync(lockId, async () =>
             {
-                await CacheClient.SetRemoveAsync(setKey, new[] { entityId });
-            }
+                if (await CacheClient.ExistsAsync(setKey))
+                {
+                    await CacheClient.SetRemoveAsync(setKey, new[] { entityId });
+                }
+            }, TimeSpan.FromSeconds(2), CancellationToken.None);
         }
 
         public ICacheClient CacheClient { get; }
