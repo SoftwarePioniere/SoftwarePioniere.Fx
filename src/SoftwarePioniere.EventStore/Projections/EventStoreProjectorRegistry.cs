@@ -9,6 +9,7 @@ using Foundatio.Caching;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Polly;
 using SoftwarePioniere.EventStore.Domain;
 using SoftwarePioniere.Messaging;
 using SoftwarePioniere.Projections;
@@ -239,8 +240,9 @@ namespace SoftwarePioniere.EventStore.Projections
 
             foreach (var projector in _projectors)
             {
-                //await InitProjectorInternal(cancellationToken, projector);
-                var t = InitProjectorInternal(cancellationToken, projector);
+                var t = Policy.Handle<Exception>().RetryAsync(2, (exception, i) =>
+                    _logger.LogError(exception, "Retry {Retry}", i)).ExecuteAsync(() => InitProjectorInternal(cancellationToken, projector));
+              
                 tasks.Add(t);
             }
 
