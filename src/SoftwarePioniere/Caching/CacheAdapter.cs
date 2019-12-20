@@ -121,7 +121,7 @@ namespace SoftwarePioniere.Caching
 
                     var expiresIn = GetExpiresIn(minutes);
 
-                    var loadedIds = items.Select(x => x.EntityId).Where(x=> !string.IsNullOrEmpty(x)).ToArray();
+                    var loadedIds = items.Select(x => x.EntityId).Where(x => !string.IsNullOrEmpty(x)).ToArray();
 
                     var allMissingIds = idList.Where(id => !loadedIds.Contains(id)).ToArray();
 
@@ -215,17 +215,20 @@ namespace SoftwarePioniere.Caching
             logger.LogDebug("No Cache Result {CacheKey}", cacheKey);
 
             var ret = await loader();
+
+
             if (ret != null)
             {
-                if (await IsPrefixLocked(cacheKey))
+                var isLocked = await _lockProvider.IsLockedAsync(cacheKey);
+                if (!isLocked)
                 {
-                    logger.LogDebug("Cache Key is Locked, Skipping add");
-                }
-                else
-                {
-                    await CacheClient.SetAsync(cacheKey, ret, expiresIn);
+                    await _lockProvider.TryUsingAsync(cacheKey, async () =>
+                    {
+                        await CacheClient.SetAsync(cacheKey, ret, expiresIn);
+                    }, null, TimeSpan.FromSeconds(_options.CacheLockTimeoutSeconds));
                 }
             }
+
 
             return ret;
         }
@@ -257,16 +260,17 @@ namespace SoftwarePioniere.Caching
             logger.LogDebug("No Cache Result. Loading and Set to Cache");
 
             var ret = await loader();
+
             if (ret != null && ret.Length > 0)
             {
-                //if (await IsPrefixLocked(cacheKey))
-                //{
-                //    logger.LogDebug("Cache Key is Locked, Skipping add");
-                //}
-                //else
+                var isLocked = await _lockProvider.IsLockedAsync(cacheKey);
 
+                if (!isLocked)
                 {
-                    await CacheClient.SetAddAsync(cacheKey, ret, expiresIn);
+                    await _lockProvider.TryUsingAsync(cacheKey, async () =>
+                    {
+                        await CacheClient.SetAddAsync(cacheKey, ret, expiresIn);
+                    }, null, TimeSpan.FromSeconds(_options.CacheLockTimeoutSeconds));
                 }
             }
 
@@ -290,17 +294,17 @@ namespace SoftwarePioniere.Caching
             return list != null && list.Count == 1 && list.Contains(EmptyKey);
         }
 
-        private async Task<bool> IsPrefixLocked(string cacheKey)
-        {
-            var splits = cacheKey.Split('.');
-            if (splits.Length > 0)
-            {
-                var prefix = splits[0];
-                return await _lockProvider.IsLockedAsync($"CACHE-{prefix}");
-            }
+        //private async Task<bool> IsPrefixLocked(string cacheKey)
+        //{
+        //    var splits = cacheKey.Split('.');
+        //    if (splits.Length > 0)
+        //    {
+        //        var prefix = splits[0];
+        //        return await _lockProvider.IsLockedAsync($"CACHE-{prefix}");
+        //    }
 
-            return false;
-        }
+        //    return false;
+        //}
 
         private static IEnumerable<IEnumerable<T>> Split<T>(T[] array, int size)
         {
