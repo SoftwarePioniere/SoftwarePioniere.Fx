@@ -50,24 +50,27 @@ namespace SoftwarePioniere.Caching
             if (where == null)
                 return new List<T>();
 
-            var isLocked = await _lockProvider.IsLockedAsync(setKey);
-
-            //if is locked wait
-            if (isLocked)
+            if (!_options.DisableLocking)
             {
-                var items = new List<T>();
-                //warten und die fertige liste zurück geben
-                logger.LogDebug("LoadSetItems: Locked - waiting {Key}", setKey);
+                var isLocked = await _lockProvider.IsLockedAsync(setKey);
 
-                await _lockProvider.TryUsingAsync(setKey, async () =>
+                //if is locked wait
+                if (isLocked)
                 {
-                    var temp = await LoadList1<T>(setKey, minutes, cancellationToken);
-                    items.AddRange(temp);
+                    var items = new List<T>();
+                    //warten und die fertige liste zurück geben
+                    logger.LogDebug("LoadSetItems: Locked - waiting {Key}", setKey);
 
-                }, null, TimeSpan.FromSeconds(_options.CacheLockTimeoutSeconds));
+                    await _lockProvider.TryUsingAsync(setKey, async () =>
+                    {
+                        var temp = await LoadList1<T>(setKey, minutes, cancellationToken);
+                        items.AddRange(temp);
+
+                    }, null, TimeSpan.FromSeconds(_options.CacheLockTimeoutSeconds));
 
 
-                return items;
+                    return items;
+                }
             }
 
             var existsAsync = await CacheClient.ExistsAsync(setKey);
@@ -77,12 +80,22 @@ namespace SoftwarePioniere.Caching
                 var items = new List<T>();
 
                 logger.LogDebug("LoadSetItems: Key not Found in Cache {Key}", setKey);
-                await _lockProvider.TryUsingAsync(setKey, async () =>
+
+                if (_options.DisableLocking)
                 {
                     var temp = await LoadListAndAddSetToCache(setKey, where, minutes, cancellationToken);
                     items.AddRange(temp);
-                }, null, TimeSpan.FromSeconds(_options.CacheLockTimeoutSeconds));
+                }
+                else
+                {
 
+                    await _lockProvider.TryUsingAsync(setKey, async () =>
+                    {
+                        var temp = await LoadListAndAddSetToCache(setKey, where, minutes, cancellationToken);
+                        items.AddRange(temp);
+                    }, null, TimeSpan.FromSeconds(_options.CacheLockTimeoutSeconds));
+
+                }
                 return items;
             }
 
@@ -172,28 +185,52 @@ namespace SoftwarePioniere.Caching
 
         public async Task SetItemsEnsureAsync(string setKey, string entityId)
         {
-            var lockId = $"{setKey}.ItemsAdd";
-
-            await _lockProvider.TryUsingAsync(lockId, async () =>
+            if (_options.DisableLocking)
             {
-                if (await CacheClient.ExistsAsync(setKey))
+                //if (await CacheClient.ExistsAsync(setKey))
+                //{
+                await CacheClient.SetAddAsync(setKey, new[] { entityId });
+                //}
+            }
+            else
+            {
+
+                var lockId = $"{setKey}.ItemsAdd";
+
+                await _lockProvider.TryUsingAsync(lockId, async () =>
                 {
-                    await CacheClient.SetAddAsync(setKey, new[] { entityId });
-                }
-            }, TimeSpan.FromSeconds(2), CancellationToken.None);
+                    if (await CacheClient.ExistsAsync(setKey))
+                    {
+                        await CacheClient.SetAddAsync(setKey, new[] { entityId });
+                    }
+                }, TimeSpan.FromSeconds(2), CancellationToken.None);
+
+            }
         }
 
         public async Task SetItemsEnsureNotAsync(string setKey, string entityId)
         {
-            var lockId = $"{setKey}.ItemsAdd";
-
-            await _lockProvider.TryUsingAsync(lockId, async () =>
+            if (_options.DisableLocking)
             {
-                if (await CacheClient.ExistsAsync(setKey))
+                //if (await CacheClient.ExistsAsync(setKey))
+                //{
+                await CacheClient.SetRemoveAsync(setKey, new[] { entityId });
+                //}
+            }
+            else
+            {
+                var lockId = $"{setKey}.ItemsAdd";
+
+                await _lockProvider.TryUsingAsync(lockId, async () =>
                 {
-                    await CacheClient.SetRemoveAsync(setKey, new[] { entityId });
-                }
-            }, TimeSpan.FromSeconds(2), CancellationToken.None);
+                    if (await CacheClient.ExistsAsync(setKey))
+                    {
+                        await CacheClient.SetRemoveAsync(setKey, new[] { entityId });
+                    }
+                }, TimeSpan.FromSeconds(2), CancellationToken.None);
+            }
+
+
         }
 
         public ICacheClient CacheClient { get; }
@@ -229,13 +266,21 @@ namespace SoftwarePioniere.Caching
 
             if (ret != null)
             {
-                var isLocked = await _lockProvider.IsLockedAsync(cacheKey);
-                if (!isLocked)
+                if (_options.DisableLocking)
                 {
-                    await _lockProvider.TryUsingAsync(cacheKey, async () =>
+                    await CacheClient.SetAsync(cacheKey, ret, expiresIn);
+                }
+                else
+                {
+
+                    var isLocked = await _lockProvider.IsLockedAsync(cacheKey);
+                    if (!isLocked)
                     {
-                        await CacheClient.SetAsync(cacheKey, ret, expiresIn);
-                    }, null, TimeSpan.FromSeconds(_options.CacheLockTimeoutSeconds));
+                        await _lockProvider.TryUsingAsync(cacheKey, async () =>
+                        {
+                            await CacheClient.SetAsync(cacheKey, ret, expiresIn);
+                        }, null, TimeSpan.FromSeconds(_options.CacheLockTimeoutSeconds));
+                    }
                 }
             }
 
@@ -273,14 +318,22 @@ namespace SoftwarePioniere.Caching
 
             if (ret != null && ret.Length > 0)
             {
-                var isLocked = await _lockProvider.IsLockedAsync(cacheKey);
-
-                if (!isLocked)
+                if (_options.DisableLocking)
                 {
-                    await _lockProvider.TryUsingAsync(cacheKey, async () =>
+                    await CacheClient.SetAddAsync(cacheKey, ret, expiresIn);
+                }
+                else
+                {
+
+                    var isLocked = await _lockProvider.IsLockedAsync(cacheKey);
+
+                    if (!isLocked)
                     {
-                        await CacheClient.SetAddAsync(cacheKey, ret, expiresIn);
-                    }, null, TimeSpan.FromSeconds(_options.CacheLockTimeoutSeconds));
+                        await _lockProvider.TryUsingAsync(cacheKey, async () =>
+                        {
+                            await CacheClient.SetAddAsync(cacheKey, ret, expiresIn);
+                        }, null, TimeSpan.FromSeconds(_options.CacheLockTimeoutSeconds));
+                    }
                 }
             }
 
