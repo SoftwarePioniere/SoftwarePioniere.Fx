@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
@@ -31,9 +32,14 @@ namespace SoftwarePioniere.MongoDb
             var filter =
                 new ExpressionFilterDefinition<T>(x => x.EntityType == _provider.KeyCache.GetEntityTypeKey<T>());
 
-            var find = await collection.FindAsync(filter, null, cancellationToken);
-            var list = await find.ToListAsync(cancellationToken);
+            var find = await collection.FindAsync(filter, new FindOptions<T>()
+            {
+                BatchSize = _provider.Options.FindBatchSize,
+                Limit = 1
 
+            }, cancellationToken);
+
+            var list = await find.ToListAsync(cancellationToken);
             return list.ToArray();
 
             //var items = await collection.FindAsync(filter, null, cancellationToken);
@@ -50,18 +56,26 @@ namespace SoftwarePioniere.MongoDb
             var collection = _provider.GetColLoadItems<T>();
             var filter = new ExpressionFilterDefinition<T>(predicate);
 
-            var find = await collection.FindAsync(filter, null, cancellationToken);
-            var list = await find.ToListAsync(cancellationToken);
 
-            return list.ToArray();
+            var find = await collection.FindAsync(filter, new FindOptions<T>()
+            {
+                BatchSize = _provider.Options.FindBatchSize,
+                Limit = _provider.Options.FindLimit
+            }, cancellationToken);
 
-            //var items = await collection.FindAsync(filter, null, cancellationToken);
+            if (_provider.Options.ReadBatched)
+            {
+                var items = await collection.FindAsync(filter, null, cancellationToken);
+                var ret = new List<T>();
+                while (await items.MoveNextAsync(cancellationToken)) ret.AddRange(items.Current);
+                return ret.ToArray();
+            }
+            else
+            {
 
-            //var ret = new List<T>();
-
-            //while (await items.MoveNextAsync(cancellationToken)) ret.AddRange(items.Current);
-
-            //return ret.Where(x => x.EntityType == _provider.KeyCache.GetEntityTypeKey<T>()).ToArray();
+                var list = await find.ToListAsync(cancellationToken);
+                return list.ToArray();
+            }
         }
 
         protected override async Task InternalBulkInsertItemsAsync<T>(T[] items,

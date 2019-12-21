@@ -9,6 +9,7 @@ namespace SoftwarePioniere.MongoDb
 {
     public class MongoDbOptions : EntityStoreOptionsBase
     {
+        public bool ReadBatched { get; set; }
 
         public bool UseTelemetry { get; set; }
 
@@ -41,5 +42,8 @@ namespace SoftwarePioniere.MongoDb
 
         [JsonIgnore]
         public Action<ClusterBuilder> ClusterConfigurator { get; set; }
+
+        public int? FindBatchSize { get; set; }
+        public int? FindLimit { get; set; }
     }
 }

@@ -1,7 +1,13 @@
 ﻿using System;
+using System.Diagnostics;
+using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
+using FluentAssertions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using MongoDB.Driver;
 using SoftwarePioniere.FakeDomain;
 using SoftwarePioniere.ReadModel;
 using Xunit;
@@ -30,7 +36,82 @@ namespace SoftwarePioniere.MongoDb.Tests
             await mog.InsertOrUpdateItemAsync(ent);
 
         }
-         
+
+        [Fact]
+        public async Task PerfCheck()
+        {
+            var prod = GetService<MongoDbConnectionProvider>();
+            var store = CreateInstance();
+
+            BulkInsertCount = 10000;
+            var chunkId = Guid.NewGuid().ToString();
+            var list = FakeEntity.CreateList(BulkInsertCount, chunkId);
+            await store.BulkInsertItemsAsync(list);
+
+            _logger.LogInformation("Bulk Insert Finished");
+            
+            var options = prod.Options;
+
+            async Task F1()
+            {
+                {
+                    //options.FindLimit = 250;
+                    options.FindBatchSize = 2000;
+                    options.ReadBatched = true;
+
+                    await RunIt(options, store, chunkId);
+                }
+
+                {
+                    options.ReadBatched = false;
+                    await RunIt(options, store, chunkId);
+                }
+            }
+
+            await F1();
+
+            {
+
+                await CreateIndex(Builders<FakeEntity>.IndexKeys
+                        .Ascending(x => x.ChunkId)
+                    , CancellationToken.None);
+
+                _logger.LogInformation("Indexe erzeugt");
+            }
+
+            await F1();
+        }
+
+        private async Task CreateIndex<T>(
+
+            //Action<IndexKeysDefinitionBuilder<T>> configureBuilder, 
+            IndexKeysDefinition<T> keys,
+            CancellationToken cancellationToken = new CancellationToken()) where T : Entity
+        {
+            //var builder = Builders<T>.IndexKeys;
+            //configureBuilder(builder);
+
+            //var keys = builder.Combine();
+
+            var provider = GetService<MongoDbConnectionProvider>();
+
+            await provider.GetCol<T>().Indexes.CreateOneAsync(
+                new CreateIndexModel<T>(keys
+                ), cancellationToken: cancellationToken);
+        }
+
+        private async Task RunIt(MongoDbOptions options, IEntityStore store, string chunkId)
+        {
+
+            var sw = Stopwatch.StartNew();
+            var all = await store.LoadItemsAsync<FakeEntity>(x => x.ChunkId == chunkId);
+            sw.Stop();
+
+            all.Length.Should().Be(BulkInsertCount);
+
+            _logger.LogInformation("ReadBatched Duration: {TimeElapsed} - FindLimit:{FindLimit} FindBatchSize:{FindBatchSize} ReadBatched:{ReadBatched}", sw.ElapsedMilliseconds, options.FindLimit, options.FindBatchSize, options.ReadBatched);
+        }
+
         [Fact]
         public override Task CanBulkInsertManyItems()
         {
@@ -164,7 +245,7 @@ namespace SoftwarePioniere.MongoDb.Tests
         {
             return base.CanInsertAndDeleteAllItems();
         }
-       
+
         [Fact]
         public override Task CanInsertAndDeleteItemWithWhere()
         {
