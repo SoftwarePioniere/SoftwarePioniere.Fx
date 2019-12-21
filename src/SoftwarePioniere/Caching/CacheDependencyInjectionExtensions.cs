@@ -27,7 +27,7 @@ namespace Microsoft.Extensions.DependencyInjection
         public static IServiceCollection AddInMemoryCacheClient(this IServiceCollection services)
         {
 
-            services.AddCachingOptions();
+            //services.AddCachingOptions();
 
             return services.AddSingleton<ICacheClient>(new InMemoryCacheClient(new InMemoryCacheClientOptions
             {
