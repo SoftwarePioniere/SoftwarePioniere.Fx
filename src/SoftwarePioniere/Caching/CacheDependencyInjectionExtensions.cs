@@ -1,5 +1,6 @@
 ﻿using System;
 using Foundatio.Caching;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using SoftwarePioniere.Caching;
 
@@ -22,6 +23,11 @@ namespace Microsoft.Extensions.DependencyInjection
             }
 
             return services;
+        }
+
+        public static IServiceCollection AddCachingOptions(this IServiceCollection services, IConfiguration config)
+        {
+            return services.AddCachingOptions(c => config.Bind("Caching", c));
         }
 
         public static IServiceCollection AddInMemoryCacheClient(this IServiceCollection services)
