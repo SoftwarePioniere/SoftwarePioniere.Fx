@@ -2,11 +2,15 @@
 using MongoDB.Driver.Core.Configuration;
 using Newtonsoft.Json;
 using SoftwarePioniere.ReadModel;
+// ReSharper disable UnusedAutoPropertyAccessor.Global
+// ReSharper disable MemberCanBePrivate.Global
 
 namespace SoftwarePioniere.MongoDb
 {
     public class MongoDbOptions : EntityStoreOptionsBase
     {
+
+        public bool UseTelemetry { get; set; }
 
         public string UserName { get; set; }
 

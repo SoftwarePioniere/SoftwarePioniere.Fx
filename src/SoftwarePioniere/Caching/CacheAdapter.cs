@@ -185,7 +185,7 @@ namespace SoftwarePioniere.Caching
 
         public async Task SetItemsEnsureAsync(string setKey, string entityId)
         {
-            if (_options.DisableLocking)
+            if (_options.DisableLocking2)
             {
                 //if (await CacheClient.ExistsAsync(setKey))
                 //{
@@ -210,7 +210,7 @@ namespace SoftwarePioniere.Caching
 
         public async Task SetItemsEnsureNotAsync(string setKey, string entityId)
         {
-            if (_options.DisableLocking)
+            if (_options.DisableLocking2)
             {
                 //if (await CacheClient.ExistsAsync(setKey))
                 //{
@@ -266,7 +266,7 @@ namespace SoftwarePioniere.Caching
 
             if (ret != null)
             {
-                if (_options.DisableLocking)
+                if (_options.DisableLocking3)
                 {
                     await CacheClient.SetAsync(cacheKey, ret, expiresIn);
                 }
@@ -318,7 +318,7 @@ namespace SoftwarePioniere.Caching
 
             if (ret != null && ret.Length > 0)
             {
-                if (_options.DisableLocking)
+                if (_options.DisableLocking3)
                 {
                     await CacheClient.SetAddAsync(cacheKey, ret, expiresIn);
                 }

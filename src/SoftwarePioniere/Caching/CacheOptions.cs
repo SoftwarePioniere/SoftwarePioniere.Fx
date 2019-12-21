@@ -8,5 +8,7 @@ namespace SoftwarePioniere.Caching
         public string CacheScope { get; set; }
         public int CacheLockTimeoutSeconds { get; set; } = 10;
         public bool DisableLocking { get; set; }
+        public bool DisableLocking2 { get; set; }
+        public bool DisableLocking3 { get; set; }
     }
 }
