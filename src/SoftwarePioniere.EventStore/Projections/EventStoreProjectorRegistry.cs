@@ -222,7 +222,7 @@ namespace SoftwarePioniere.EventStore.Projections
                 if (projector != null)
                 {
                     var projectorId = projector.GetType().FullName;
-                
+
                     var statusItem = await _entityStore.LoadAsync<ProjectionInitializationStatus>(projectorId, cancellationToken);
 
                     if (statusItem.IsNew)
@@ -237,22 +237,36 @@ namespace SoftwarePioniere.EventStore.Projections
                 }
             }
 
-            var tasks = new List<Task>();
+
+            var tasks = new List<Task<EventStoreProjectionContext>>();
 
             foreach (var projector in _projectors)
             {
                 var t = Policy.Handle<Exception>().RetryAsync(2, (exception, i) =>
                     _logger.LogError(exception, "Retry {Retry}", i)).ExecuteAsync(() => InitProjectorInternal(cancellationToken, projector));
-              
+
                 tasks.Add(t);
             }
 
-            await Task.WhenAll(tasks);
+            var contexte = await Task.WhenAll(tasks);
+
+            foreach (var ctx in contexte)
+            {
+                await StartProjectorInternal(cancellationToken, ctx);
+            }
 
             _logger.LogInformation("EventStore Projection Initializer Finished in {Elapsed:0.0000} ms", sw.ElapsedMilliseconds);
         }
 
-        private async Task InitProjectorInternal(CancellationToken cancellationToken, IReadModelProjector projector)
+
+        private async Task StartProjectorInternal(CancellationToken cancellationToken, EventStoreProjectionContext context)
+        {
+            _logger.LogDebug("Starting Subscription on EventStore for Projector {Projector}", context.ProjectorId);
+            await context.StartSubscription(cancellationToken);
+            await UpdateInitializationStatusAsync(cancellationToken, context.ProjectorId, ProjectionInitializationStatus.StatusReady, "Startet");
+        }
+
+        private async Task<EventStoreProjectionContext> InitProjectorInternal(CancellationToken cancellationToken, IReadModelProjector projector)
         {
             var projectorId = projector.GetType().FullName;
             projector.Initialize(cancellationToken);
@@ -266,7 +280,7 @@ namespace SoftwarePioniere.EventStore.Projections
 
             projector.Context = context;
 
-         //   await _cache.RemoveByPrefixAsync1(CacheKeys.Create<ProjectionStatus>());
+            //   await _cache.RemoveByPrefixAsync1(CacheKeys.Create<ProjectionStatus>());
             var status = await _entityStore.LoadAsync<ProjectionStatus>(projectorId, cancellationToken);
             context.Status = status.Entity;
 
@@ -317,15 +331,13 @@ namespace SoftwarePioniere.EventStore.Projections
             }
 
             cancellationToken.ThrowIfCancellationRequested();
-            _logger.LogDebug("Starting Subscription on EventStore for Projector {Projector}", context.ProjectorId);
-            await context.StartSubscription(cancellationToken);
-            await UpdateInitializationStatusAsync(cancellationToken, projectorId, ProjectionInitializationStatus.StatusReady, "Startet");
+            return context;
         }
 
         private async Task UpdateInitializationStatusAsync(CancellationToken cancellationToken, string projectorId, string status, string statusText)
         {
             cancellationToken.ThrowIfCancellationRequested();
-       //     await _cache.RemoveByPrefixAsync(CacheKeys.Create<ProjectionInitializationStatus>());
+            //     await _cache.RemoveByPrefixAsync(CacheKeys.Create<ProjectionInitializationStatus>());
             var statusItem = await _entityStore.LoadAsync<ProjectionInitializationStatus>(projectorId, cancellationToken);
             statusItem.Entity.Status = status;
             statusItem.Entity.StatusText = statusText;
@@ -345,7 +357,7 @@ namespace SoftwarePioniere.EventStore.Projections
                 Status = ProjectionInitializationStatus.StatusNew
             };
 
-            
+
             if (!enumerable.Any())
             {
                 return temp;
