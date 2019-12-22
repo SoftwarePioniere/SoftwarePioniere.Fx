@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -45,11 +46,12 @@ namespace SoftwarePioniere.Projections
             }
 
             var items = await source.LoadItemsAsync<T>(arg => true, cancellationToken);
-            Logger.LogTrace("Entities Loaded {ItemCount} {EntityType}", items.Length, typeof(T).Name);
+            var enumerable = items as T[] ?? items.ToArray();
+            Logger.LogTrace("Entities Loaded {ItemCount} {EntityType}", enumerable.Length, typeof(T).Name);
 
-            if (items.Length > 0)
+            if (enumerable.Any())
             {
-                await dest.BulkInsertItemsAsync(items, cancellationToken);
+                await dest.BulkInsertItemsAsync(enumerable, cancellationToken);
                 Logger.LogTrace("Items Inserted");
             }
 

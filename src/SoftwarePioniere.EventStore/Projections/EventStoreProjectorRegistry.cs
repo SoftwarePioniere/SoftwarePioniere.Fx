@@ -336,25 +336,26 @@ namespace SoftwarePioniere.EventStore.Projections
             _logger.LogTrace("GetStatusAsync");
 
             var states = await _entityStore.LoadItemsAsync<ProjectionInitializationStatus>();
-
+            var enumerable = states as ProjectionInitializationStatus[] ?? states.ToArray();
             var temp = new ProjectionRegistryStatus()
             {
-                Projectors = states,
+                Projectors = enumerable,
                 Status = ProjectionInitializationStatus.StatusNew
             };
 
-            if (states.Length == 0)
+            
+            if (enumerable.Any())
             {
                 return temp;
             }
 
-            if (states.All(x => x.Status == ProjectionInitializationStatus.StatusReady))
+            if (enumerable.All(x => x.Status == ProjectionInitializationStatus.StatusReady))
             {
                 temp.Status = ProjectionInitializationStatus.StatusReady;
             }
             else
             {
-                if (states.Any(x => x.Status == ProjectionInitializationStatus.StatusPending))
+                if (enumerable.Any(x => x.Status == ProjectionInitializationStatus.StatusPending))
                 {
                     temp.Status = ProjectionInitializationStatus.StatusPending;
                 }

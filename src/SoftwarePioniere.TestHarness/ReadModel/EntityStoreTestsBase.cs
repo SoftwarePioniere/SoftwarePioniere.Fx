@@ -445,12 +445,12 @@ namespace SoftwarePioniere.ReadModel
 
             var chunkId = list[0].ChunkId;
 
-            var items = await store.LoadItemsAsync<FakeEntity>(x => x.ChunkId == chunkId);
+            var items = (await store.LoadItemsAsync<FakeEntity>(x => x.ChunkId == chunkId)).ToArray();
             items.Should().NotBeNull();
             items.Length.Should().Be(list.Length);
 
             var guidVal = list[0].GuidValue;
-            var items1 = await store.LoadItemsAsync<FakeEntity>(x => x.ChunkId == chunkId && x.GuidValue == guidVal);
+            var items1 = (await store.LoadItemsAsync<FakeEntity>(x => x.ChunkId == chunkId && x.GuidValue == guidVal)).ToArray();
             items1.Length.Should().Be(1);
         }
 

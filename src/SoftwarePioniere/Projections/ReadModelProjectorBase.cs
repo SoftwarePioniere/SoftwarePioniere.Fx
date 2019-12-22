@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -89,11 +90,13 @@ namespace SoftwarePioniere.Projections
                 {
 
                     var destItems = await dest.LoadItemsAsync<T>(arg => true, cancellationToken);
-                    if (destItems.Length > 0)
-                    {
-                        Logger.LogTrace("Entities in Destination Loaded {ItemCount} {EntityType} - Must Delete", destItems.Length, typeof(T).Name);
+                    var entities = destItems as T[] ?? destItems.ToArray();
 
-                        foreach (var destItem in destItems)
+                    if (entities.Any())
+                    {
+                        Logger.LogTrace("Entities in Destination Loaded {ItemCount} {EntityType} - Must Delete", entities.Length, typeof(T).Name);
+
+                        foreach (var destItem in entities)
                         {
                             await dest.DeleteItemAsync<T>(destItem.EntityId, cancellationToken);
                         }
@@ -103,11 +106,12 @@ namespace SoftwarePioniere.Projections
             }
 
             var items = await source.LoadItemsAsync<T>(arg => true, cancellationToken);
-            Logger.LogTrace("Entities Loaded {ItemCount} {EntityType}", items.Length, typeof(T).Name);
+            var enumerable = items as T[] ?? items.ToArray();
+            Logger.LogTrace("Entities Loaded {ItemCount} {EntityType}", enumerable.Length, typeof(T).Name);
 
-            if (items.Length > 0)
+            if (enumerable.Any())
             {
-                await dest.BulkInsertItemsAsync(items, cancellationToken);
+                await dest.BulkInsertItemsAsync(enumerable, cancellationToken);
                 Logger.LogTrace("Items Inserted");
             }
             //foreach (var item in items)

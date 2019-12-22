@@ -146,9 +146,11 @@ namespace SoftwarePioniere.Caching
                             return items;
 
                         foreach (var item in entities)
+                        {
                             await CacheClient.AddAsync(item.EntityId, item, expiresIn);
+                            items.Add(item);
+                        }
 
-                        items.AddRange(entities);
                     }
                 }
 
@@ -165,7 +167,9 @@ namespace SoftwarePioniere.Caching
 
             var expiresIn = GetExpiresIn(minutes);
 
-            var entities = await _entityStore.LoadItemsAsync(where, cancellationToken);
+
+            var tmp = await _entityStore.LoadItemsAsync(where, cancellationToken);
+            var entities = tmp.ToArray();
 
             if (entities.Length > 0)
             {

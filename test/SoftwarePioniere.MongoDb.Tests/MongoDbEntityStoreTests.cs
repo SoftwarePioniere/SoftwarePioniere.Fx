@@ -57,14 +57,11 @@ namespace SoftwarePioniere.MongoDb.Tests
                 {
                     //options.FindLimit = 250;
                     options.FindBatchSize = 2000;
-                    options.ReadBatched = true;
-
-                    await RunIt(options, store, chunkId);
+                 await RunIt(options, store, chunkId);
                 }
 
                 {
-                    options.ReadBatched = false;
-                    await RunIt(options, store, chunkId);
+                 await RunIt(options, store, chunkId);
                 }
             }
 
@@ -104,12 +101,12 @@ namespace SoftwarePioniere.MongoDb.Tests
         {
 
             var sw = Stopwatch.StartNew();
-            var all = await store.LoadItemsAsync<FakeEntity>(x => x.ChunkId == chunkId);
+            var all = ( await store.LoadItemsAsync<FakeEntity>(x => x.ChunkId == chunkId)).ToArray();
             sw.Stop();
 
             all.Length.Should().Be(BulkInsertCount);
 
-            _logger.LogInformation("ReadBatched Duration: {TimeElapsed} - FindLimit:{FindLimit} FindBatchSize:{FindBatchSize} ReadBatched:{ReadBatched}", sw.ElapsedMilliseconds, options.FindLimit, options.FindBatchSize, options.ReadBatched);
+            _logger.LogInformation("ReadBatched Duration: {TimeElapsed} - FindLimit:{FindLimit} FindBatchSize:{FindBatchSize}", sw.ElapsedMilliseconds, options.FindLimit, options.FindBatchSize);
         }
 
         [Fact]

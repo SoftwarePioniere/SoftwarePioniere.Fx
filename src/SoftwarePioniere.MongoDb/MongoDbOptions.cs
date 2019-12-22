@@ -9,8 +9,6 @@ namespace SoftwarePioniere.MongoDb
 {
     public class MongoDbOptions : EntityStoreOptionsBase
     {
-        public bool ReadBatched { get; set; }
-
         public bool UseTelemetry { get; set; }
 
         public string UserName { get; set; }

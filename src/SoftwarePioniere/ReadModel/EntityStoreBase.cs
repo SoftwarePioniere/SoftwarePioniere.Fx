@@ -142,9 +142,9 @@ namespace SoftwarePioniere.ReadModel
             return await CacheLoadItem(() => InternalLoadItemAsync<T>(entityId, cancellationToken), entityId);
         }
 
-        public abstract Task<T[]> LoadItemsAsync<T>(CancellationToken cancellationToken = default) where T : Entity;
+        public abstract Task<IEnumerable<T>> LoadItemsAsync<T>(CancellationToken cancellationToken = default) where T : Entity;
 
-        public abstract Task<T[]> LoadItemsAsync<T>(Expression<Func<T, bool>> where, CancellationToken cancellationToken = default) where T : Entity;
+        public abstract Task<IEnumerable<T>> LoadItemsAsync<T>(Expression<Func<T, bool>> where, CancellationToken cancellationToken = default) where T : Entity;
 
         //public async Task<T[]> LoadItemsAsync<T>(Expression<Func<T, bool>> where, string cacheKey, CancellationToken cancellationToken = default(CancellationToken)) where T : Entity
         //{

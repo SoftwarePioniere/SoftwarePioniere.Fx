@@ -22,9 +22,9 @@ namespace SoftwarePioniere.ReadModel
 
         Task<T> LoadItemAsync<T>(string entityId, CancellationToken cancellationToken = default) where T : Entity;
 
-        Task<T[]> LoadItemsAsync<T>(CancellationToken cancellationToken = default) where T : Entity;
+        Task<IEnumerable<T>> LoadItemsAsync<T>(CancellationToken cancellationToken = default) where T : Entity;
 
-        Task<T[]> LoadItemsAsync<T>(Expression<Func<T, bool>> where, CancellationToken cancellationToken = default) where T : Entity;
+        Task<IEnumerable<T>> LoadItemsAsync<T>(Expression<Func<T, bool>> where, CancellationToken cancellationToken = default) where T : Entity;
 
         //Task<PagedResults<T>> LoadPagedResultAsync<T>(PagedLoadingParameters<T> parms, CancellationToken cancellationToken = default(CancellationToken)) where T : Entity;
 

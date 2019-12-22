@@ -33,7 +33,7 @@ namespace SoftwarePioniere.AzureCosmosDb
         //    _provider = provider ?? throw new ArgumentNullException(nameof(provider));
         //}
 
-        public override async Task<T[]> LoadItemsAsync<T>(CancellationToken cancellationToken = default)
+        public override async Task<IEnumerable<T>> LoadItemsAsync<T>(CancellationToken cancellationToken = default)
         {
             Logger.LogTrace("LoadItemsAsync: {EntityType}", typeof(T));
 
@@ -53,7 +53,7 @@ namespace SoftwarePioniere.AzureCosmosDb
                     foreach (var entity in await iter.ReadNextAsync(cancellationToken))
                         results.Add(entity);
 
-                return results.ToArray();
+                return results;
             }
             catch (CosmosException nfex) when (nfex.StatusCode == HttpStatusCode.NotFound)
             {
@@ -74,7 +74,7 @@ namespace SoftwarePioniere.AzureCosmosDb
             }
         }
 
-        public override async Task<T[]> LoadItemsAsync<T>(Expression<Func<T, bool>> where,
+        public override async Task<IEnumerable<T>> LoadItemsAsync<T>(Expression<Func<T, bool>> where,
             CancellationToken cancellationToken = default)
         {
             Logger.LogTrace("LoadItemsAsync: {EntityType} with where", typeof(T));
@@ -96,7 +96,7 @@ namespace SoftwarePioniere.AzureCosmosDb
                     foreach (var entity in await iter.ReadNextAsync(cancellationToken))
                         results.Add(entity);
 
-                return results.ToArray();
+                return results;
             }
             catch (CosmosException nfex) when (nfex.StatusCode == HttpStatusCode.NotFound)
             {

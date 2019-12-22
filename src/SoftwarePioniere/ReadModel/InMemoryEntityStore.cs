@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
@@ -23,16 +24,16 @@ namespace SoftwarePioniere.ReadModel
             _provider = provider ?? throw new ArgumentNullException(nameof(provider));
         }
 
-        public override Task<T[]> LoadItemsAsync<T>(CancellationToken cancellationToken = default)
+        public override Task<IEnumerable<T>> LoadItemsAsync<T>(CancellationToken cancellationToken = default)
         {
 
             Logger.LogTrace("LoadItemsAsync: {EntityType}", typeof(T));
 
             var items = _provider.GetItems(typeof(T));
-            return Task.FromResult(items.Values.Cast<T>().ToArray());
+            return Task.FromResult(items.Values.Cast<T>());
         }
 
-        public override Task<T[]> LoadItemsAsync<T>(Expression<Func<T, bool>> where, CancellationToken cancellationToken = default)
+        public override Task<IEnumerable<T>> LoadItemsAsync<T>(Expression<Func<T, bool>> where, CancellationToken cancellationToken = default)
         {
 
             Logger.LogTrace("LoadItemsAsync: {EntityType} {Expression}", typeof(T), where);
@@ -45,14 +46,14 @@ namespace SoftwarePioniere.ReadModel
                 items.Count, where);
 
 
-            var witems = items.Values.Cast<T>().AsQueryable().Where(where).ToArray();
+            var witems = items.Values.Cast<T>().AsQueryable().Where(where).ToList();
 
 
             Logger.LogTrace("LoadItemsAsync: FilteredItemsCount {EntityType} {FilteredItemsCount} {Expression}", typeof(T), items.Count, where);
             cancellationToken.ThrowIfCancellationRequested();
 
 
-            return Task.FromResult(witems);
+            return Task.FromResult(witems.AsEnumerable());
         }
         
         protected override Task InternalDeleteItemAsync<T>(string entityId, CancellationToken cancellationToken = default)

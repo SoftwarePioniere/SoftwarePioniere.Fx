@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -26,7 +27,7 @@ namespace WebApp.Controller
             _logger = loggerFactory.CreateLogger(GetType());
         }
 
-        public Task<FakeEntity[]> GetListeAsync(ClaimsPrincipal user)
+        public Task<IEnumerable<FakeEntity>> GetListeAsync(ClaimsPrincipal user)
         {
             _logger.LogInformation("GetListeAsync");
 

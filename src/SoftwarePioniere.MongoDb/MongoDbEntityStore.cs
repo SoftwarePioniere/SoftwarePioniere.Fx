@@ -24,7 +24,7 @@ namespace SoftwarePioniere.MongoDb
 
         }
 
-        public override async Task<T[]> LoadItemsAsync<T>(CancellationToken cancellationToken = default)
+        public override async Task<IEnumerable<T>> LoadItemsAsync<T>(CancellationToken cancellationToken = default)
         {
             Logger.LogTrace("LoadItemsAsync: {EntityType}", typeof(T));
             
@@ -41,27 +41,11 @@ namespace SoftwarePioniere.MongoDb
 
             }, cancellationToken);
 
-            if (_provider.Options.ReadBatched)
-            {
-                var items = await collection.FindAsync(filter, null, cancellationToken);
-                var ret = new List<T>();
-                while (await items.MoveNextAsync(cancellationToken)) ret.AddRange(items.Current);
-                return ret.ToArray();
-            }
-            else
-            {
-
-                var list = await find.ToListAsync(cancellationToken);
-                return list.ToArray();
-            }
-
-            //var items = await collection.FindAsync(filter, null, cancellationToken);
-            //var ret = new List<T>();
-            //while (await items.MoveNextAsync(cancellationToken)) ret.AddRange(items.Current);
-            //return ret.ToArray();
+            return await find.ToListAsync(cancellationToken);
+       
         }
 
-        public override async Task<T[]> LoadItemsAsync<T>(Expression<Func<T, bool>> predicate,
+        public override async Task<IEnumerable<T>> LoadItemsAsync<T>(Expression<Func<T, bool>> predicate,
             CancellationToken cancellationToken = default)
         {
             Logger.LogTrace("LoadItemsAsync: {EntityType} {Expression}", typeof(T), predicate);
@@ -76,19 +60,7 @@ namespace SoftwarePioniere.MongoDb
                 Limit = _provider.Options.FindLimit
             }, cancellationToken);
 
-            if (_provider.Options.ReadBatched)
-            {
-                var items = await collection.FindAsync(filter, null, cancellationToken);
-                var ret = new List<T>();
-                while (await items.MoveNextAsync(cancellationToken)) ret.AddRange(items.Current);
-                return ret.ToArray();
-            }
-            else
-            {
-
-                var list = await find.ToListAsync(cancellationToken);
-                return list.ToArray();
-            }
+            return await find.ToListAsync(cancellationToken);
         }
 
         protected override async Task InternalBulkInsertItemsAsync<T>(T[] items,
