@@ -147,7 +147,8 @@ namespace SoftwarePioniere.EventStore.Projections
                 Status.ModifiedOnUtc = DateTime.UtcNow;
                 Status.ProjectorId = ProjectorId;
                 Status.StreamName = StreamName;
-                await EntityStore.UpdateItemAsync(Status, _cancellationToken);
+                if (!InitializationMode)
+                    await EntityStore.UpdateItemAsync(Status, _cancellationToken);
             }
             catch (Exception e)
             {
