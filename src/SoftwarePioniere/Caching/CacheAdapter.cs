@@ -292,7 +292,7 @@ namespace SoftwarePioniere.Caching
             return ret;
         }
 
-        public async Task<T[]> CacheLoadItems<T>(Func<Task<T[]>> loader, string cacheKey, int minutes = int.MinValue, bool setExpirationOnHit = true)
+        public async Task<T[]> CacheLoadItems<T>(Func<Task<IEnumerable<T>>> loader, string cacheKey, int minutes = int.MinValue, bool setExpirationOnHit = true)
         {
             var logger = _logger;
 
@@ -320,11 +320,13 @@ namespace SoftwarePioniere.Caching
 
             var ret = await loader();
 
-            if (ret != null && ret.Length > 0)
+            var enumerable = ret as T[] ?? ret.ToArray();
+
+            if (enumerable.Any())
             {
                 if (_options.DisableLocking3)
                 {
-                    await CacheClient.SetAddAsync(cacheKey, ret, expiresIn);
+                    await CacheClient.SetAddAsync(cacheKey, enumerable, expiresIn);
                 }
                 else
                 {
@@ -335,13 +337,13 @@ namespace SoftwarePioniere.Caching
                     {
                         await _lockProvider.TryUsingAsync(cacheKey, async () =>
                         {
-                            await CacheClient.SetAddAsync(cacheKey, ret, expiresIn);
+                            await CacheClient.SetAddAsync(cacheKey, enumerable, expiresIn);
                         }, null, TimeSpan.FromSeconds(_options.CacheLockTimeoutSeconds));
                     }
                 }
             }
 
-            return ret;
+            return enumerable;
         }
 
 

@@ -19,7 +19,7 @@ namespace SoftwarePioniere.Caching
         //Task<T> CacheLoadItem<T>(Func<Task<T>> loader, string cacheKey,
         //    int minutes = 120);
 
-        Task<T[]> CacheLoadItems<T>(Func<Task<T[]>> loader, string cacheKey, int minutes = 120, bool setExpirationOnHit = true);
+        Task<T[]> CacheLoadItems<T>(Func<Task<IEnumerable<T>>> loader, string cacheKey, int minutes = 120, bool setExpirationOnHit = true);
 
         //Task<PagedResults<T>> CacheLoadPagedItems<T>(Func<Task<PagedResults<T>>> loader, string cacheKey,
         //    int minutes = 60, ILogger logger = null);

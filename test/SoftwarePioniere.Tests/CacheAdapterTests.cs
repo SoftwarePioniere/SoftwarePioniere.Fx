@@ -67,7 +67,7 @@ namespace SoftwarePioniere.Tests
                         "hallo2",
                         "hallo3"
                     };
-                    return Task.FromResult(ret);
+                    return Task.FromResult(ret.AsEnumerable());
                 }, cacheKey);
             }
 
