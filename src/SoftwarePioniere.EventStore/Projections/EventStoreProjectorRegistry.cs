@@ -216,12 +216,13 @@ namespace SoftwarePioniere.EventStore.Projections
                 await InsertEmptyDomainEventIfStreamIsEmpty(s);
             }
 
+            await _cache.RemoveByPrefixAsync(CacheKeys.Create<ProjectionInitializationStatus>());
             foreach (var projector in _projectors)
             {
                 if (projector != null)
                 {
                     var projectorId = projector.GetType().FullName;
-                    await _cache.RemoveByPrefixAsync(CacheKeys.Create<ProjectionInitializationStatus>());
+                
                     var statusItem = await _entityStore.LoadAsync<ProjectionInitializationStatus>(projectorId, cancellationToken);
 
                     if (statusItem.IsNew)
@@ -296,6 +297,7 @@ namespace SoftwarePioniere.EventStore.Projections
                 }
 
                 await UpdateInitializationStatusAsync(cancellationToken, projectorId, ProjectionInitializationStatus.StatusPending, "InitializationStartingCopy");
+                await context.UpdateStreamStatusAsync();
 
                 try
                 {
@@ -323,7 +325,7 @@ namespace SoftwarePioniere.EventStore.Projections
         private async Task UpdateInitializationStatusAsync(CancellationToken cancellationToken, string projectorId, string status, string statusText)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            await _cache.RemoveByPrefixAsync(CacheKeys.Create<ProjectionInitializationStatus>());
+       //     await _cache.RemoveByPrefixAsync(CacheKeys.Create<ProjectionInitializationStatus>());
             var statusItem = await _entityStore.LoadAsync<ProjectionInitializationStatus>(projectorId, cancellationToken);
             statusItem.Entity.Status = status;
             statusItem.Entity.StatusText = statusText;

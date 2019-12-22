@@ -108,8 +108,8 @@ namespace SoftwarePioniere.EventStore.Projections
             Status.LastCheckPoint = -1;
             Status.ProjectorId = ProjectorId;
             Status.StreamName = StreamName;
-
-            await _initEntityStore.InsertItemAsync(Status, _cancellationToken);
+            
+            await EntityStore.InsertItemAsync(Status, _cancellationToken);
         }
 
         public Task StartSubscription(CancellationToken cancellationToken = default)
@@ -121,11 +121,16 @@ namespace SoftwarePioniere.EventStore.Projections
             return StartSubscriptionInternal();
         }
 
+        public Task UpdateStreamStatusAsync()
+        {
+            return EntityStore.UpdateItemAsync(Status, _cancellationToken);
+        }
+
         public Task StopInitializationModeAsync()
         {
             _logger.LogDebug("StopInitializationModeAsync");
-
-            InitializationMode = true;
+            
+            InitializationMode = false;
             IsReady = true;
             _initEntityStore = null;
 
@@ -145,8 +150,7 @@ namespace SoftwarePioniere.EventStore.Projections
                 await _projector.ProcessEventAsync(entry.EventData);
                 Status.LastCheckPoint = entry.EventNumber;
                 Status.ModifiedOnUtc = DateTime.UtcNow;
-                Status.ProjectorId = ProjectorId;
-                Status.StreamName = StreamName;
+             
                 if (!InitializationMode)
                     await EntityStore.UpdateItemAsync(Status, _cancellationToken);
             }
