@@ -346,7 +346,7 @@ namespace SoftwarePioniere.EventStore.Projections
             };
 
             
-            if (enumerable.Any())
+            if (!enumerable.Any())
             {
                 return temp;
             }
