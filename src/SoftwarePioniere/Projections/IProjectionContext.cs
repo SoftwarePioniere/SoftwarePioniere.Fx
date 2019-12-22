@@ -17,5 +17,7 @@ namespace SoftwarePioniere.Projections
         string StreamName { get; }
 
         bool IsReady { get; }
+
+        bool IsInitializing { get; }
     }
 }

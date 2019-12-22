@@ -57,7 +57,7 @@ namespace SoftwarePioniere.EventStore.Projections
             }
         }
 
-        private bool InitializationMode { get; set; }
+        public bool IsInitializing { get; private set; }
 
         // private EventStoreStreamCatchUpSubscription _sub;
 
@@ -71,7 +71,7 @@ namespace SoftwarePioniere.EventStore.Projections
         {
             get
             {
-                if (InitializationMode && _initEntityStore != null)
+                if (IsInitializing && _initEntityStore != null)
                 {
                     return _initEntityStore;
                 }
@@ -99,7 +99,7 @@ namespace SoftwarePioniere.EventStore.Projections
                 _loggerFactory,
                 NullCacheClient.Instance);
 
-            InitializationMode = true;
+            IsInitializing = true;
             IsLiveProcessing = false;
             IsReady = false;
 
@@ -130,7 +130,7 @@ namespace SoftwarePioniere.EventStore.Projections
         {
             _logger.LogDebug("StopInitializationModeAsync");
             
-            InitializationMode = false;
+            IsInitializing = false;
             IsReady = true;
             _initEntityStore = null;
 
@@ -151,7 +151,7 @@ namespace SoftwarePioniere.EventStore.Projections
                 Status.LastCheckPoint = entry.EventNumber;
                 Status.ModifiedOnUtc = DateTime.UtcNow;
              
-                if (!InitializationMode)
+                if (!IsInitializing)
                     await EntityStore.UpdateItemAsync(Status, _cancellationToken);
             }
             catch (Exception e)

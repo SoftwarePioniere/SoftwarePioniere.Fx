@@ -99,6 +99,8 @@ namespace SoftwarePioniere.Caching
                 return items;
             }
 
+            var wasLoadedKey = $"{setKey}.LOADED";
+            await CacheClient.SetAsync(wasLoadedKey, true, GetExpiresIn(minutes));
             return await LoadList1<T>(setKey, minutes, cancellationToken);
 
         }
@@ -189,6 +191,12 @@ namespace SoftwarePioniere.Caching
 
         public async Task SetItemsEnsureAsync(string setKey, string entityId)
         {
+            var wasLoadedKey = $"{setKey}.LOADED";
+            var wasLoaded = await CacheClient.ExistsAsync(wasLoadedKey);
+
+            if (!wasLoaded)
+                return;
+
             if (_options.DisableLocking2)
             {
                 //if (await CacheClient.ExistsAsync(setKey))
@@ -214,6 +222,12 @@ namespace SoftwarePioniere.Caching
 
         public async Task SetItemsEnsureNotAsync(string setKey, string entityId)
         {
+            var wasLoadedKey = $"{setKey}.LOADED";
+            var wasLoaded = await CacheClient.ExistsAsync(wasLoadedKey);
+
+            if (!wasLoaded)
+                return;
+
             if (_options.DisableLocking2)
             {
                 //if (await CacheClient.ExistsAsync(setKey))
