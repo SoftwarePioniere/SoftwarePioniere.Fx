@@ -27,20 +27,33 @@ namespace SoftwarePioniere.MongoDb
         public override async Task<T[]> LoadItemsAsync<T>(CancellationToken cancellationToken = default)
         {
             Logger.LogTrace("LoadItemsAsync: {EntityType}", typeof(T));
-
-            var collection = _provider.GetColLoadItems<T>();
+            
+           
             var filter =
                 new ExpressionFilterDefinition<T>(x => x.EntityType == _provider.KeyCache.GetEntityTypeKey<T>());
+
+            var collection = _provider.GetColLoadItems<T>();
 
             var find = await collection.FindAsync(filter, new FindOptions<T>()
             {
                 BatchSize = _provider.Options.FindBatchSize,
-                Limit = 1
+                Limit = _provider.Options.FindLimit
 
             }, cancellationToken);
 
-            var list = await find.ToListAsync(cancellationToken);
-            return list.ToArray();
+            if (_provider.Options.ReadBatched)
+            {
+                var items = await collection.FindAsync(filter, null, cancellationToken);
+                var ret = new List<T>();
+                while (await items.MoveNextAsync(cancellationToken)) ret.AddRange(items.Current);
+                return ret.ToArray();
+            }
+            else
+            {
+
+                var list = await find.ToListAsync(cancellationToken);
+                return list.ToArray();
+            }
 
             //var items = await collection.FindAsync(filter, null, cancellationToken);
             //var ret = new List<T>();
