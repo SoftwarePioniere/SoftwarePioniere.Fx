@@ -266,7 +266,7 @@ namespace SoftwarePioniere.EventStore.Projections
 
             projector.Context = context;
 
-            await _cache.RemoveByPrefixAsync(CacheKeys.Create<ProjectionStatus>());
+         //   await _cache.RemoveByPrefixAsync1(CacheKeys.Create<ProjectionStatus>());
             var status = await _entityStore.LoadAsync<ProjectionStatus>(projectorId, cancellationToken);
             context.Status = status.Entity;
 
