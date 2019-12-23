@@ -99,8 +99,6 @@ namespace SoftwarePioniere.Caching
                 return items;
             }
 
-            var wasLoadedKey = $"{setKey}.LOADED";
-            await CacheClient.SetAsync(wasLoadedKey, true, GetExpiresIn(minutes));
             return await LoadList1<T>(setKey, minutes, cancellationToken);
 
         }
@@ -191,63 +189,55 @@ namespace SoftwarePioniere.Caching
 
         public async Task SetItemsEnsureAsync(string setKey, string entityId)
         {
-            var wasLoadedKey = $"{setKey}.LOADED";
-            var wasLoaded = await CacheClient.ExistsAsync(wasLoadedKey);
 
-            if (!wasLoaded)
-                return;
-
-            if (_options.DisableLocking2)
-            {
-                //if (await CacheClient.ExistsAsync(setKey))
-                //{
-                await CacheClient.SetAddAsync(setKey, new[] { entityId });
-                //}
-            }
-            else
+            if (await CacheClient.ExistsAsync(setKey))
             {
 
-                var lockId = $"{setKey}.ItemsAdd";
-
-                await _lockProvider.TryUsingAsync(lockId, async () =>
+                if (_options.DisableLocking2)
                 {
-                    if (await CacheClient.ExistsAsync(setKey))
+                    //if (await CacheClient.ExistsAsync(setKey))
+                    //{
+                    await CacheClient.SetAddAsync(setKey, new[] { entityId });
+                    //}
+                }
+                else
+                {
+
+                    var lockId = $"{setKey}.ItemsAdd";
+
+                    await _lockProvider.TryUsingAsync(lockId, async () =>
                     {
                         await CacheClient.SetAddAsync(setKey, new[] { entityId });
-                    }
-                }, TimeSpan.FromSeconds(2), CancellationToken.None);
+                    }, TimeSpan.FromSeconds(2), CancellationToken.None);
 
+                }
             }
         }
 
         public async Task SetItemsEnsureNotAsync(string setKey, string entityId)
         {
-            var wasLoadedKey = $"{setKey}.LOADED";
-            var wasLoaded = await CacheClient.ExistsAsync(wasLoadedKey);
-
-            if (!wasLoaded)
-                return;
-
-            if (_options.DisableLocking2)
+            if (await CacheClient.ExistsAsync(setKey))
             {
-                //if (await CacheClient.ExistsAsync(setKey))
-                //{
-                await CacheClient.SetRemoveAsync(setKey, new[] { entityId });
-                //}
-            }
-            else
-            {
-                var lockId = $"{setKey}.ItemsAdd";
 
-                await _lockProvider.TryUsingAsync(lockId, async () =>
+                if (_options.DisableLocking2)
                 {
-                    if (await CacheClient.ExistsAsync(setKey))
-                    {
-                        await CacheClient.SetRemoveAsync(setKey, new[] { entityId });
-                    }
-                }, TimeSpan.FromSeconds(2), CancellationToken.None);
-            }
+                    //if (await CacheClient.ExistsAsync(setKey))
+                    //{
+                    await CacheClient.SetRemoveAsync(setKey, new[] { entityId });
+                    //}
+                }
+                else
+                {
+                    var lockId = $"{setKey}.ItemsAdd";
 
+                    await _lockProvider.TryUsingAsync(lockId, async () =>
+                    {
+
+                        await CacheClient.SetRemoveAsync(setKey, new[] { entityId });
+
+                    }, TimeSpan.FromSeconds(2), CancellationToken.None);
+                }
+            }
 
         }
 
