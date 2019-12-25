@@ -67,7 +67,6 @@ namespace SoftwarePioniere.Util
             return ds;
         }
 
-        [Obsolete]
         public static string GetXmlSchemaWithUtf8(this DataSet dataSet)
         {
             var sb = new StringBuilder();
@@ -78,7 +77,6 @@ namespace SoftwarePioniere.Util
             return sb.ToString();
         }
 
-        [Obsolete]
         public static string GetXmlDataWithUtf8(this DataSet dataSet)
         {
             var sb = new StringBuilder();

@@ -43,10 +43,12 @@ namespace SoftwarePioniere.EventStore.Domain
         {
             _logger.LogDebug("RunQueryAsync {Query}", query);
 
+            var options = _provider.Options;
+
             var queryMan = _provider.CreateQueryManager();
             return queryMan.ExecuteAsync(name, query,
-                TimeSpan.FromMilliseconds(100),
-                TimeSpan.FromSeconds(30), _provider.OpsCredentials);
+                TimeSpan.FromSeconds(options.InitialPollingDelaySeconds),
+                TimeSpan.FromSeconds(options.MaximumPollingDelaySeconds), _provider.OpsCredentials);
         }
 
         public async Task ReadStreamAndDoAsync(string streamName, Action<MyRecordedEvent> action, int count = 200)
