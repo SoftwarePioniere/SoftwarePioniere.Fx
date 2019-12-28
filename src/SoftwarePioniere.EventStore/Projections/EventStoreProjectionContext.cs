@@ -205,8 +205,7 @@ namespace SoftwarePioniere.EventStore.Projections
                     "Error while Processing Event {EventNumber} from {Stream} {ProjectorId}",
                     entry.Value.EventNumber,
                     StreamName,
-                    ProjectorId);
-                throw;
+                    ProjectorId);             
             }
         }
 
