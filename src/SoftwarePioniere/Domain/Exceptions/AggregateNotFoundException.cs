@@ -2,7 +2,7 @@
 
 namespace SoftwarePioniere.Domain.Exceptions
 {
-    public class AggregateNotFoundException : Exception
+    public class AggregateNotFoundException : SopiException
     {
         public AggregateNotFoundException(string aggregateId, Type aggregateType) : base($"Aggregate {aggregateType.FullName} with Id {aggregateId} was not found")
         {

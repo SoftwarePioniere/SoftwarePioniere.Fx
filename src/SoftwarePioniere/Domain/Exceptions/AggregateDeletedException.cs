@@ -2,7 +2,7 @@
 
 namespace SoftwarePioniere.Domain.Exceptions
 {
-    public class AggregateDeletedException : Exception
+    public class AggregateDeletedException : SopiException
     {
         public AggregateDeletedException(string aggregateId, Type aggregateType) : base($"Aggregate {aggregateType.FullName} with Id {aggregateId} was deleted")
         {

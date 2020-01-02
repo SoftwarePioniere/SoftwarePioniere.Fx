@@ -1,8 +1,6 @@
-﻿using System;
-
-namespace SoftwarePioniere.Domain.Exceptions
+﻿namespace SoftwarePioniere.Domain.Exceptions
 {
-    public class StreamNotFoundException : Exception
+    public class StreamNotFoundException : SopiException
     {
         public string StreamName { get; }
 

@@ -5,7 +5,7 @@ namespace SoftwarePioniere.Domain.Exceptions
     /// <summary>
     /// Wird geworfen, wenn eine inkonsistenz auftritt consistenz 
     /// </summary>
-    public class ConcurrencyException : Exception
+    public class ConcurrencyException : SopiException
     {
         public ConcurrencyException()
         {

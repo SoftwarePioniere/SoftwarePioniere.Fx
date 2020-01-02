@@ -3,7 +3,7 @@
 namespace SoftwarePioniere.Domain.Exceptions
 {
 
-    public class DomainLogicException : Exception
+    public class DomainLogicException : SopiException
     {
         [Obsolete]
         public DomainLogicException(string message) : base(message)

@@ -32,7 +32,15 @@ namespace SoftwarePioniere.Messaging
 
         public Task PublishAsync(Type messageType, object message, TimeSpan? delay = null, CancellationToken cancellationToken = default)
         {
-            return _bus.PublishAsync(messageType, message, delay, cancellationToken);
+            try
+            {
+                return _bus.PublishAsync(messageType, message, delay, cancellationToken);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error on Publish Message {MessageType} {@Message}", messageType, message);
+                return Task.CompletedTask;
+            }
         }
 
         public Task PublishAsync<T>(T message, TimeSpan? delay = null
@@ -52,16 +60,24 @@ namespace SoftwarePioniere.Messaging
 
             await bus.SubscribeAsync<T>(async (message, token) =>
             {
-                if (lockId != null)
+                try
                 {
-                    var lockResource = lockId(message);
-                    _logger.LogDebug("Handle Message with Lock {LockId}", lockResource);
-                    await _lockProvider.TryUsingAsync(lockResource, token1 => handler(message), cancellationToken: cancellationToken);
+                    if (lockId != null)
+                    {
+                        var lockResource = lockId(message);
+                        _logger.LogDebug("Handle Message with Lock {LockId}", lockResource);
+                        await _lockProvider.TryUsingAsync(lockResource, token1 => handler(message), cancellationToken: cancellationToken);
+                    }
+                    else
+                    {
+                        await handler(message);
+                    }
                 }
-                else
+                catch (Exception e)
                 {
-                    await handler(message);
+                    _logger.LogError(e, "Error on handling Message {MessageType} {@Message}", typeof(T), message);
                 }
+
             }, cancellationToken);
         }
 
@@ -107,46 +123,56 @@ namespace SoftwarePioniere.Messaging
                 typeof(TAggregate).GetAggregateName(),
                 typeof(TDomainEvent).GetTypeShortName());
 
-
             await _bus.SubscribeAsync<AggregateDomainEventMessage>(async (message, token) =>
             {
-                if (message.IsAggregate<TAggregate>() && message.IsEventType<TDomainEvent>())
+                try
                 {
-                    var domainEvent = message.GetEvent<TDomainEvent>();
-
-                    //var eventType = message.DomainEventType;
-                    //var aggregateType = message.AggregateType;
-                    //var eventId = domainEvent.Id.ToString();
-                    //var aggregateName = typeof(TAggregate).GetAggregateName();
-                    //var aggregateId = message.AggregateId;
-                    //var eventName = typeof(TDomainEvent).Name;
-
-                    //var state = wrappedMessage.Properties ?? new Dictionary<string, string>();
-                    //state.AddProperty("EventType", eventType)
-                    //    .AddProperty("EventId", eventId)
-                    //    .AddProperty("EventName", eventName)
-                    //    .AddProperty("AggregateType", aggregateType)
-                    //    .AddProperty("AggregateName", aggregateName)
-                    //    .AddProperty("AggregateId", aggregateId)
-                    //    ;
-
-                    Task Exc()
+                    if (message.IsAggregate<TAggregate>() && message.IsEventType<TDomainEvent>())
                     {
-                        return handler(domainEvent, new AggregateTypeInfo<TAggregate>(message.AggregateId));
-                    }
+                        var domainEvent = message.GetEvent<TDomainEvent>();
 
-                    if (lockId != null)
-                    {
-                        var lockResource = lockId(domainEvent, new AggregateTypeInfo<TAggregate>(message.AggregateId));
-                        _logger.LogDebug("Handle Domain Event with Lock {LockId}", lockResource);
-                        await _lockProvider.TryUsingAsync(lockResource, token1 => Exc(), cancellationToken: cancellationToken);
-                    }
-                    else
-                    {
-                        _logger.LogDebug("Handle Domain Event without Locking");
-                        await Exc();
+                        //var eventType = message.DomainEventType;
+                        //var aggregateType = message.AggregateType;
+                        //var eventId = domainEvent.Id.ToString();
+                        //var aggregateName = typeof(TAggregate).GetAggregateName();
+                        //var aggregateId = message.AggregateId;
+                        //var eventName = typeof(TDomainEvent).Name;
+
+                        //var state = wrappedMessage.Properties ?? new Dictionary<string, string>();
+                        //state.AddProperty("EventType", eventType)
+                        //    .AddProperty("EventId", eventId)
+                        //    .AddProperty("EventName", eventName)
+                        //    .AddProperty("AggregateType", aggregateType)
+                        //    .AddProperty("AggregateName", aggregateName)
+                        //    .AddProperty("AggregateId", aggregateId)
+                        //    ;
+
+                        Task Exc()
+                        {
+                            return handler(domainEvent, new AggregateTypeInfo<TAggregate>(message.AggregateId));
+                        }
+
+                        if (lockId != null)
+                        {
+                            var lockResource = lockId(domainEvent, new AggregateTypeInfo<TAggregate>(message.AggregateId));
+                            _logger.LogDebug("Handle Domain Event with Lock {LockId}", lockResource);
+                            await _lockProvider.TryUsingAsync(lockResource, token1 => Exc(), cancellationToken: cancellationToken);
+                        }
+                        else
+                        {
+                            _logger.LogDebug("Handle Domain Event without Locking");
+                            await Exc();
+                        }
                     }
                 }
+                catch (Exception e)
+                {
+                    _logger.LogError(e, "Error on handling AggregateEvent {AggregateName} {MessageType} {@Message}",
+                        typeof(TAggregate).GetAggregateName(),
+                        typeof(TDomainEvent).GetTypeShortName(),
+                        message);
+                }
+
             }, cancellationToken);
         }
 

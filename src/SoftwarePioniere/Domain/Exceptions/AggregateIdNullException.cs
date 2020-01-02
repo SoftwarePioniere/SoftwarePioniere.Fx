@@ -2,7 +2,7 @@
 
 namespace SoftwarePioniere.Domain.Exceptions
 {
-    public class EmptyAggregateIdException : Exception
+    public class EmptyAggregateIdException : SopiException
     {
         public Type AggregateType { get; }
 
