@@ -161,7 +161,6 @@ namespace SoftwarePioniere.EventStore.Projections
                     entry.EventNumber,
                     StreamName,
                     ProjectorId);
-                throw;
             }
         }
 
