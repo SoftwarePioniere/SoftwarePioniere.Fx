@@ -1,11 +1,35 @@
-﻿{  
-  "profiles": {  
-    "console": {
+﻿{
+  "profiles": {
+    "console_all": {
       "commandName": "Project",
-      "launchBrowser": true,      
+      "launchBrowser": true,
       "applicationUrl": "http://localhost:5099",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
+      }
+    },
+    "console_cmd": {
+      "commandName": "Project",
+      "launchBrowser": false,
+      "applicationUrl": "http://localhost:5098",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "DOMAIN_SERVICES": "true",
+        "PROJECTION_SERVICES": "false",
+        "QUERY_SERVICES": "false",
+        "APPID": "cmd" 
+      }
+    },
+    "console_query": {
+      "commandName": "Project",
+      "launchBrowser": false,
+      "applicationUrl": "http://localhost:5097",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "DOMAIN_SERVICES": "false",
+        "PROJECTION_SERVICES": "true",
+        "QUERY_SERVICES": "true",
+        "APPID": "query"
       }
     }
   }

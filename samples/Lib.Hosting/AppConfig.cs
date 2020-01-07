@@ -25,6 +25,7 @@ namespace Lib.Hosting
             Environment.SetEnvironmentVariable("SOPISAMPLE_AppId", appId);
             Environment.SetEnvironmentVariable("SOPISAMPLE_Logging__UseSeq", "true");
             Environment.SetEnvironmentVariable("SOPISAMPLE_Logging__Seq__ServerUrl", "http://localhost:5341");
+            //Environment.SetEnvironmentVariable("SOPISAMPLE_Logging__DebugSources", "SoftwarePioniere");
             Environment.SetEnvironmentVariable("SOPISAMPLE_Logging__WarningSources", "Microsoft");
             Environment.SetEnvironmentVariable("SOPISAMPLE_ApplicationInsights__InstrumentationKey", "0f6120cc-905a-4a92-b53d-5a9ce070621a");
 
@@ -66,6 +67,7 @@ namespace Lib.Hosting
             Environment.SetEnvironmentVariable("SOPISAMPLE_Redis__ConnectionString", "localhost:6399,allowAdmin=true");
             
             Environment.SetEnvironmentVariable("SOPISAMPLE_MongoDb__Port", "27097");
+            Environment.SetEnvironmentVariable("SOPISAMPLE_MongoDb__DatabaseId", "sopifx1");
         }
 
         public static void SetWebSocketEnvironmentVariables(string path)

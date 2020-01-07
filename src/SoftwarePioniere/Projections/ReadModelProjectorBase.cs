@@ -121,7 +121,7 @@ namespace SoftwarePioniere.Projections
             //}
 
 
-            Logger.LogDebug("CopyEntitiesAsync Finished in {Elapsed:0.0000} ms ", sw.ElapsedMilliseconds);
+            Logger.LogDebug("CopyEntitiesAsync Finished in {Elapsed} ms ", sw.ElapsedMilliseconds);
 
         }
 

@@ -49,7 +49,7 @@
 //                }
 //            }
 
-//            _logger.LogInformation("EventStore Initializer Finished in {Elapsed:0.0000} ms", sw.ElapsedMilliseconds);
+//            _logger.LogInformation("EventStore Initializer Finished in {Elapsed} ms", sw.ElapsedMilliseconds);
 //        }
 //    }
 //}

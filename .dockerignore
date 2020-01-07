@@ -8,6 +8,7 @@
 **/.vs/
 **/scripts/
 **/.git/
+**/temp/
 
 # files
 Dockerfile*

@@ -8,7 +8,7 @@ using SoftwarePioniere.ReadModel;
 
 namespace WebApp
 {
-    public class MyProjector1 : ReadModelProjectorBase3<FakeEntity>
+    public class MyProjector1 : ReadModelProjectorBase5<FakeEntity>
         , IHandleMessage<FakeEvent>
         , IHandleMessage<FakeEvent2>
     {
@@ -17,22 +17,35 @@ namespace WebApp
             StreamName = "$ce-SoftwarePionierTests_Fake";
         }
 
-        public Task HandleAsync(FakeEvent message)
+        public async Task HandleAsync(FakeEvent message)
         {
-            return LoadAndSaveEveryTimeAsync(message,
+            await LoadAndSaveEveryTimeAsync(message,
                 entity => { entity.StringValue = message.Text; });
+
+            var cacheKey = CacheKeys.Create<FakeEntity>("set");
+            var entityId = message.AggregateId.CalculateEntityId<FakeEntity>();
+            await Services.Cache.SetItemsEnsureAsync(cacheKey, entityId);
         }
 
-        public Task HandleAsync(FakeEvent2 message)
+        public async Task HandleAsync(FakeEvent2 message)
         {
-            return LoadAndSaveEveryTimeAsync(message,
+            await LoadAndSaveEveryTimeAsync(message,
                 entity => { entity.StringValue = $"{message.Text}-222"; });
+
+            var cacheKey = CacheKeys.Create<FakeEntity>("set");
+            var entityId = message.AggregateId.CalculateEntityId<FakeEntity>();
+            await Services.Cache.SetItemsEnsureAsync(cacheKey, entityId);
         }
-        
+
         public override async Task ProcessEventAsync(IDomainEvent domainEvent)
         {
             await HandleIfAsync<FakeEvent>(HandleAsync, domainEvent);
             await HandleIfAsync<FakeEvent2>(HandleAsync, domainEvent);
+
+            await Services.Cache.CacheClient.RemoveAsync(CacheKeys.Create<FakeEntity>("liste"));
+            await Services.Cache.CacheClient.RemoveAsync(CacheKeys.Create<FakeEntity>("liste2"));
+
+
         }
 
         protected override object CreateIdentifierItem(FakeEntity entity)
@@ -43,20 +56,20 @@ namespace WebApp
             };
         }
 
-        protected override string CreateLockId(IMessage message)
-        {
-            if (message is FakeEvent xmsg)
-            {
-                return xmsg.AggregateId;
-            }
+        //protected override string CreateLockId(IMessage message)
+        //{
+        //    if (message is FakeEvent xmsg)
+        //    {
+        //        return xmsg.AggregateId;
+        //    }
 
-            if (message is FakeEvent2 xmsg2)
-            {
-                return xmsg2.AggregateId;
-            }
+        //    if (message is FakeEvent2 xmsg2)
+        //    {
+        //        return xmsg2.AggregateId;
+        //    }
 
-            return null;
-        }
+        //    return null;
+        //}
 
         protected override async Task<EntityDescriptor<FakeEntity>> LoadItemAsync(IMessage message)
         {
@@ -68,6 +81,9 @@ namespace WebApp
             if (message is FakeEvent xmsg)
             {
                 item = await LoadAsync(xmsg.AggregateId);
+
+                //if (xmsg.AggregateId == "7a66ce62-b2ae-4554-b5a2-6b6bf8697f06")
+                //    throw new InvalidOperationException();
             }
             else if (message is FakeEvent2 xmsg2)
             {

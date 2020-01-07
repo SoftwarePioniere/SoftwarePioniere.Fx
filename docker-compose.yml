@@ -4,32 +4,36 @@ services:
 
   mongodb:
     image: mongo:4.2.2
-    command: --port 27097
     ports:
-      - "27097:27097"
-    volumes:
-      - 'mongodbdata:/data/db'
+      - "27097:27017"
 
   redis:
-    image: redis:4.0
+    image: redis:4.0.14
     ports:
       - "6399:6379"
 
   eventstore:
-    image: softwarepioniere/eventstore:latest
+    image: eventstore/eventstore:release-5.0.5
     ports:
       - "2193:2193"
       - "1193:1193"
       - "1195:1195"
     environment:
+      - EVENTSTORE_INT_IP=0.0.0.0
+      - EVENTSTORE_EXT_IP=0.0.0.0
+      - EVENTSTORE_ADD_INTERFACE_PREFIXES=false
+      - EVENTSTORE_INT_HTTP_PREFIXES=http://*:2192/
+      - EVENTSTORE_EXT_HTTP_PREFIXES=http://*:2193/
+      - EVENTSTORE_INT_TCP_PORT=1192
+      - EVENTSTORE_EXT_TCP_PORT=1193
+      - EVENTSTORE_INT_HTTP_PORT=1192
+      - EVENTSTORE_EXT_HTTP_PORT=2193
+      - EVENTSTORE_EXT_SECURE_TCP_PORT=1195
       - EVENTSTORE_STATS_PERIOD_SEC=120
       - EVENTSTORE_RUN_PROJECTIONS=ALL
       - EVENTSTORE_DB=/data
-      - EVENTSTORE_EXT_TCP_HEARTBEAT_TIMEOUT=10000   
+      - EVENTSTORE_EXT_TCP_HEARTBEAT_TIMEOUT=10000
+      - EVENTSTORE_CERTIFICATE_FILE=/pfx/softwarepioniere_dev.pfx
+      - EVENTSTORE_CERTIFICATE_PASSWORD=Password
     volumes:
-      - 'eventstoredata:/data'
-      
-volumes:
-  mongodbdata:
-  eventstoredata:
-
+      - ./pfx:/pfx

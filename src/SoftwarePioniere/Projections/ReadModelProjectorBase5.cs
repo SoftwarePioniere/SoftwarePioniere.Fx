@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
@@ -12,7 +11,7 @@ using SoftwarePioniere.ReadModel;
 
 namespace SoftwarePioniere.Projections
 {
-  
+
     public abstract class ReadModelProjectorBase5<T> : ProjectorBase, IReadModelProjector<T> where T : Entity
     {
         protected readonly ILogger Logger;
@@ -35,7 +34,7 @@ namespace SoftwarePioniere.Projections
             CancellationToken = cancellationToken;
         }
 
-       
+
         public async Task CopyEntitiesAsync(IEntityStore source, IEntityStore dest, CancellationToken cancellationToken = new CancellationToken())
         {
             Logger.LogDebug("CopyEntitiesAsync Starting");
@@ -55,7 +54,7 @@ namespace SoftwarePioniere.Projections
                 Logger.LogTrace("Items Inserted");
             }
 
-            Logger.LogDebug("CopyEntitiesAsync Finished in {Elapsed:0.0000} ms ", sw.ElapsedMilliseconds);
+            Logger.LogDebug("CopyEntitiesAsync Finished in {Elapsed} ms ", sw.ElapsedMilliseconds);
         }
 
         public Task<EntityDescriptor<T>> LoadAsync(string itemOnlyId)
@@ -66,6 +65,9 @@ namespace SoftwarePioniere.Projections
 
         public async Task SaveAsync(EntityDescriptor<T> ent, IMessage msg, object entityToSerialize, Action<NotificationMessage> configureNotification = null)
         {
+            var sw = Stopwatch.StartNew();
+            Logger.LogDebug("SaveAsync started");
+
             Logger.LogDebug("SaveAsync {Id} {IsNew}", ent.EntityId, ent.IsNew);
             ent.Entity.ModifiedOnUtc = msg.TimeStampUtc;
             await Context.EntityStore.SaveAsync(ent, CancellationToken);
@@ -87,6 +89,9 @@ namespace SoftwarePioniere.Projections
                     await Services.Bus.PublishAsync(noti, cancellationToken: CancellationToken); //, state: state);
                 }
             }
+
+            sw.Stop();
+            Logger.LogDebug("SaveAsync finished in {Elapsed} ms", sw.ElapsedMilliseconds);
         }
 
         protected abstract object CreateIdentifierItem(T entity);
@@ -107,6 +112,9 @@ namespace SoftwarePioniere.Projections
 
         private async Task DeleteAsync(T entity, IMessage message)
         {
+            var sw = Stopwatch.StartNew();
+            Logger.LogDebug("DeleteAsync started");
+
             await Context.EntityStore.DeleteItemAsync<T>(entity.EntityId, CancellationToken);
 
             if (Context.IsLiveProcessing)
@@ -115,6 +123,9 @@ namespace SoftwarePioniere.Projections
                 var noti = CreateNotification(entity, message, ReadModelUpdatedNotification.MethodDelete, objToSer);
                 if (noti != null) await Services.Bus.PublishAsync(noti, cancellationToken: CancellationToken);
             }
+
+            sw.Stop();
+            Logger.LogDebug("DeleteAsync finished in {Elapsed} ms", sw.ElapsedMilliseconds);
         }
 
         protected async Task<T> DeleteItemAsync(IMessage message)
@@ -144,22 +155,22 @@ namespace SoftwarePioniere.Projections
         {
             if (domainEvent is TEvent message)
             {
-                var eventType = typeof(TEvent).FullName;
-                var eventId = domainEvent.Id.ToString();
+                //var eventType = typeof(TEvent).FullName;
+                //var eventId = domainEvent.Id.ToString();
 
-                var state = new Dictionary<string, object>
-                {
-                    {"EventType", eventType},
-                    {"EventId", eventId},
-                    {"ProjectorType", GetType().FullName},
-                    {"StreamName", StreamName}
-                };
+                //var state = new Dictionary<string, object>
+                //{
+                //    {"EventType", eventType},
+                //    {"EventId", eventId},
+                //    {"ProjectorType", GetType().FullName},
+                //    {"StreamName", StreamName}
+                //};
 
-                using (Logger.BeginScope(state))
-                {
-                    Logger.LogDebug($"HANDLE PROJECTOR EVENT {StreamName}/{domainEvent.GetType().Name}");
-                    await handler(message);
-                }
+                //using (Logger.BeginScope(state))
+                //{
+                Logger.LogDebug($"HANDLE PROJECTOR EVENT {StreamName}/{domainEvent.GetType().Name}");
+                await handler(message);
+                //}
 
                 return true;
             }
@@ -207,7 +218,7 @@ namespace SoftwarePioniere.Projections
 
         protected abstract Task<EntityDescriptor<T>> LoadItemAsync(IMessage message);
 
-     
+
     }
 
 }

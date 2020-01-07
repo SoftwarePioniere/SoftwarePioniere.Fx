@@ -219,15 +219,19 @@ namespace SoftwarePioniere.AzureCosmosDb
                         Logger.LogWarning("InternalDeleteItemAsync: Entity with Id not found {EntityId}",
                             entity.EntityId);
                     }
-                    catch (CosmosException e)
+                    catch (CosmosException e) when (LogCosmosError(e))
                     {
-                        Logger.LogError(e,
-                            "InternalDeleteItemAsync: CosmosException {ErrorCode} {StatusCode} {Message}",
-                            e.StatusCode,
-                            e.SubStatusCode,
-                            e.Message);
-                        throw;
                     }
+        }
+
+        protected bool LogCosmosError(CosmosException e)
+        {
+            Logger.LogError(e,
+                "InternalDeleteItemAsync: CosmosException {ErrorCode} {StatusCode} {Message}",
+                e.StatusCode,
+                e.SubStatusCode,
+                e.Message);
+            return true;
         }
 
         protected override async Task InternalDeleteItemAsync<T>(string entityId, CancellationToken cancellationToken = default)
@@ -252,13 +256,8 @@ namespace SoftwarePioniere.AzureCosmosDb
             {
                 Logger.LogWarning("InternalDeleteItemAsync: Entity with Id not found {EntityId}", entityId);
             }
-            catch (CosmosException e)
+            catch (CosmosException e) when (LogCosmosError(e))
             {
-                Logger.LogError(e,
-                    "InternalDeleteItemAsync: CosmosException {ErrorCode} {StatusCode} {Message}",
-                    e.StatusCode,
-                    e.SubStatusCode,
-                    e.Message);
                 throw;
             }
         }
@@ -288,13 +287,8 @@ namespace SoftwarePioniere.AzureCosmosDb
                         Logger.LogWarning("InternalDeleteItemAsync: Entity with Id not found {EntityId}",
                             entity.EntityId);
                     }
-                    catch (CosmosException e)
+                    catch (CosmosException e) when (LogCosmosError(e))
                     {
-                        Logger.LogError(e,
-                            "InternalDeleteItemAsync: CosmosException {ErrorCode} {StatusCode} {Message}",
-                            e.StatusCode,
-                            e.SubStatusCode,
-                            e.Message);
                         throw;
                     }
         }
@@ -328,13 +322,8 @@ namespace SoftwarePioniere.AzureCosmosDb
 
                 await _provider.Container.UpsertItemAsync(item, GetPartitionKey<T>(), cancellationToken: cancellationToken);
             }
-            catch (CosmosException e)
+            catch (CosmosException e) when (LogCosmosError(e))
             {
-                Logger.LogError(e,
-                    "InternalInsertItemAsync: CosmosException {ErrorCode} {StatusCode} {Message}",
-                    e.StatusCode,
-                    e.SubStatusCode,
-                    e.Message);
                 throw;
             }
         }
@@ -390,13 +379,8 @@ namespace SoftwarePioniere.AzureCosmosDb
                 Logger.LogDebug("InternalLoadItemAsync: Entity with Id not found {EntityId}", entityId);
                 return null;
             }
-            catch (CosmosException e)
+            catch (CosmosException e) when (LogCosmosError(e))
             {
-                Logger.LogError(e,
-                    "InternalLoadItemAsync CosmosException {ErrorCode} {StatusCode} {Message}",
-                    e.StatusCode,
-                    e.SubStatusCode,
-                    e.Message);
                 throw;
             }
         }
@@ -430,13 +414,8 @@ namespace SoftwarePioniere.AzureCosmosDb
 
                 await _provider.Container.CreateItemAsync(item, GetPartitionKey<T>(), cancellationToken: cancellationToken);
             }
-            catch (CosmosException e)
+            catch (CosmosException e) when (LogCosmosError(e))
             {
-                Logger.LogError(e,
-                    "InternalUpdateItemAsync CosmosException {ErrorCode} {StatusCode} {Message}",
-                    e.StatusCode,
-                    e.SubStatusCode,
-                    e.Message);
                 throw;
             }
         }
@@ -467,13 +446,8 @@ namespace SoftwarePioniere.AzureCosmosDb
                     nfex.Message);
                 return false;
             }
-            catch (CosmosException e)
+            catch (CosmosException e) when (LogCosmosError(e))
             {
-                Logger.LogError(e,
-                    "ExistsDocument: CosmosException {ErrorCode} {StatusCode} {Message}",
-                    e.StatusCode,
-                    e.SubStatusCode,
-                    e.Message);
                 throw;
             }
         }

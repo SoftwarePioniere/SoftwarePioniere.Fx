@@ -34,7 +34,7 @@ namespace SoftwarePioniere.EventStore.Tests
                 .AddInMemoryEntityStore()
                 .AddInMemoryCacheClient()
                 .AddInMemoryMessageBus()
-               
+
                 .AddSingleton<ICacheAdapter, CacheAdapter>()
                 .AddSingleton<ILockProvider>(pr =>
                     new CacheLockProvider(pr.GetRequiredService<ICacheClient>(),
@@ -205,10 +205,16 @@ namespace SoftwarePioniere.EventStore.Tests
                     }
 
                 }
-                catch (Exception ex)
+                catch (Exception ex) when (LogError(ex))
                 {
                     Logger.LogError(ex, "Error on ProcessEventAsync {@DomainEvent}", domainEvent);
                 }
+            }
+
+            protected bool LogError(Exception ex)
+            {
+                Logger.LogError(ex, ex.GetBaseException().Message);
+                return true;
             }
 
             private Task HandleAsync(FakeEvent3 arg)

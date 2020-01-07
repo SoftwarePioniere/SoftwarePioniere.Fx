@@ -184,7 +184,7 @@ namespace SoftwarePioniere.AzureCosmosDb
                 {
                     return await function();
                 }
-                catch (DocumentClientException de)
+                catch (DocumentClientException de) when (LogError(e))
                 {
                     _logger.LogError(de, "Catching DocumentClientException");
 
@@ -192,7 +192,7 @@ namespace SoftwarePioniere.AzureCosmosDb
                         throw;
                     sleepTime = de.RetryAfter;
                 }
-                catch (AggregateException ae)
+                catch (AggregateException ae) when (LogError(e))
                 {
                     _logger.LogError(ae, "Catching AggregateException");
 
@@ -209,6 +209,12 @@ namespace SoftwarePioniere.AzureCosmosDb
 
                 await Task.Delay(sleepTime);
             }
+        }
+
+        protected bool LogError(Exception ex)
+        {
+            Logger.LogError(ex, ex.GetBaseException().Message);
+            return true;
         }
 
         private async Task CheckScaling(bool force)

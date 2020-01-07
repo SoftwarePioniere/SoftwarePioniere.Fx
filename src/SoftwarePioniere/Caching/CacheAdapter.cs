@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
@@ -40,71 +41,95 @@ namespace SoftwarePioniere.Caching
             return CacheClient.SetAsync(key, value, TimeSpan.FromMinutes(60));
         }
 
+
+        protected bool LogError(Exception ex)
+        {
+            _logger.LogError(ex, ex.GetBaseException().Message);
+            return true;
+        }
+
         public async Task<List<T>> LoadSetItems<T>(string setKey, Expression<Func<T, bool>> where, int minutes = int.MinValue, CancellationToken cancellationToken = default) where T : Entity
         {
-            var logger = _logger;
 
-            if (string.IsNullOrEmpty(setKey))
-                return new List<T>();
-
-            if (where == null)
-                return new List<T>();
-
-            if (!_options.DisableLocking)
+            using (_logger.BeginScope(new Dictionary<string, object>
             {
-                var isLocked = await _lockProvider.IsLockedAsync(setKey);
+                {"SetKey", setKey},
+                {"EntityType", typeof(T).Name}
+            }))
+            {
 
-                //if is locked wait
-                if (isLocked)
+                var sw = Stopwatch.StartNew();
+                _logger.LogDebug("LoadSetItems started");
+                if (string.IsNullOrEmpty(setKey))
+                    return new List<T>();
+
+                if (where == null)
+                    return new List<T>();
+
+                if (!_options.DisableLocking)
+                {
+                    var isLocked = await _lockProvider.IsLockedAsync(setKey);
+
+                    //if is locked wait
+                    if (isLocked)
+                    {
+                        var items = new List<T>();
+                        //warten und die fertige liste zurück geben
+                        _logger.LogDebug("LoadSetItems: Locked - waiting {Key}", setKey);
+
+                        await _lockProvider.TryUsingAsync(setKey, async () =>
+                        {
+                            var temp = await LoadList1<T>(setKey, minutes, cancellationToken);
+                            items.AddRange(temp);
+
+                        }, null, TimeSpan.FromSeconds(_options.CacheLockTimeoutSeconds));
+
+
+                        return items;
+                    }
+                }
+
+                var existsAsync = await CacheClient.ExistsAsync(setKey);
+
+                if (!existsAsync)
                 {
                     var items = new List<T>();
-                    //warten und die fertige liste zurück geben
-                    logger.LogDebug("LoadSetItems: Locked - waiting {Key}", setKey);
 
-                    await _lockProvider.TryUsingAsync(setKey, async () =>
-                    {
-                        var temp = await LoadList1<T>(setKey, minutes, cancellationToken);
-                        items.AddRange(temp);
+                    _logger.LogDebug("LoadSetItems: Key not Found in Cache {Key}", setKey);
 
-                    }, null, TimeSpan.FromSeconds(_options.CacheLockTimeoutSeconds));
-
-
-                    return items;
-                }
-            }
-
-            var existsAsync = await CacheClient.ExistsAsync(setKey);
-
-            if (!existsAsync)
-            {
-                var items = new List<T>();
-
-                logger.LogDebug("LoadSetItems: Key not Found in Cache {Key}", setKey);
-
-                if (_options.DisableLocking)
-                {
-                    var temp = await LoadListAndAddSetToCache(setKey, where, minutes, cancellationToken);
-                    items.AddRange(temp);
-                }
-                else
-                {
-
-                    await _lockProvider.TryUsingAsync(setKey, async () =>
+                    if (_options.DisableLocking)
                     {
                         var temp = await LoadListAndAddSetToCache(setKey, where, minutes, cancellationToken);
                         items.AddRange(temp);
-                    }, null, TimeSpan.FromSeconds(_options.CacheLockTimeoutSeconds));
+                    }
+                    else
+                    {
 
+                        await _lockProvider.TryUsingAsync(setKey, async () =>
+                        {
+                            var temp = await LoadListAndAddSetToCache(setKey, where, minutes, cancellationToken);
+                            items.AddRange(temp);
+                        }, null, TimeSpan.FromSeconds(_options.CacheLockTimeoutSeconds));
+
+                    }
+                    return items;
                 }
-                return items;
+
+
+                var result = await LoadList1<T>(setKey, minutes, cancellationToken);
+
+                sw.Stop();
+                _logger.LogDebug("LoadSetItems finished in {Elapsed} ms", sw.ElapsedMilliseconds);
+
+                return result;
             }
-
-            return await LoadList1<T>(setKey, minutes, cancellationToken);
-
         }
 
         private async Task<List<T>> LoadList1<T>(string setKey, int minutes = int.MinValue, CancellationToken cancellationToken = default) where T : Entity
         {
+            var sw = Stopwatch.StartNew();
+            _logger.LogDebug("LoadList1 started");
+
             var items = new List<T>();
 
             var idsListValue = await CacheClient.GetSetAsync<string>(setKey);
@@ -156,204 +181,293 @@ namespace SoftwarePioniere.Caching
 
             }
 
+
+            sw.Stop();
+            _logger.LogDebug("LoadList1 finished in {Elapsed} ms", sw.ElapsedMilliseconds);
             return items;
         }
 
         public async Task<T[]> LoadListAndAddSetToCache<T>(string setKey, Expression<Func<T, bool>> where, int minutes = int.MinValue, CancellationToken cancellationToken = default) where T : Entity
         {
-            var logger = _logger;
-
-            logger.LogDebug("LoadListAndAddSetToCache {setKey}", setKey);
-
-            var expiresIn = GetExpiresIn(minutes);
-
-
-            var tmp = await _entityStore.LoadItemsAsync(where, cancellationToken);
-            var entities = tmp.ToArray();
-
-            if (entities.Length > 0)
+            using (_logger.BeginScope(new Dictionary<string, object>
             {
-                foreach (var item in entities)
-                    await CacheClient.AddAsync(item.EntityId, item, expiresIn);
-
-                var entityIds = entities.Select(x => x.EntityId).ToArray();
-                await CacheClient.SetAddAsync(setKey, entityIds, expiresIn);
-            }
-            else
+                {"SetKey", setKey},
+                {"EntityType", typeof(T).Name}
+            }))
             {
-                await CacheClient.SetAddAsync(setKey, EmptyList, expiresIn);
-            }
 
-            return entities;
+                var sw = Stopwatch.StartNew();
+                _logger.LogDebug("LoadListAndAddSetToCache started");
+
+                var expiresIn = GetExpiresIn(minutes);
+
+                try
+                {
+                    var tmp = await _entityStore.LoadItemsAsync(where, cancellationToken);
+                    var entities = tmp.ToArray();
+
+                    if (entities.Length > 0)
+                    {
+                        foreach (var item in entities)
+                            await CacheClient.AddAsync(item.EntityId, item, expiresIn);
+
+                        var entityIds = entities.Select(x => x.EntityId).ToArray();
+                        await CacheClient.SetAddAsync(setKey, entityIds, expiresIn);
+                    }
+                    else
+                    {
+                        await CacheClient.SetAddAsync(setKey, EmptyList, expiresIn);
+                    }
+
+                    sw.Stop();
+                    _logger.LogDebug("LoadListAndAddSetToCache finished in {Elapsed} ms", sw.ElapsedMilliseconds);
+
+                    return entities;
+                }
+                catch (Exception e) when (LogError(e))
+                {
+                    throw;
+                }
+            }
         }
 
         public async Task SetItemsEnsureAsync(string setKey, string entityId)
         {
-
-            if (await CacheClient.ExistsAsync(setKey))
+            using (_logger.BeginScope(new Dictionary<string, object>
             {
+                {"SetKey", setKey},
+                {"EntityId", entityId}
+            }))
+            {
+                var sw = Stopwatch.StartNew();
+                _logger.LogDebug("SetItemsEnsureAsync started");
 
-                if (_options.DisableLocking2)
+                if (await CacheClient.ExistsAsync(setKey))
                 {
-                    //if (await CacheClient.ExistsAsync(setKey))
-                    //{
-                    await CacheClient.SetAddAsync(setKey, new[] { entityId });
-                    //}
-                }
-                else
-                {
 
-                    var lockId = $"{setKey}.ItemsAdd";
-
-                    await _lockProvider.TryUsingAsync(lockId, async () =>
+                    if (_options.DisableLocking2)
                     {
+                        //if (await CacheClient.ExistsAsync(setKey))
+                        //{
                         await CacheClient.SetAddAsync(setKey, new[] { entityId });
-                    }, TimeSpan.FromSeconds(2), CancellationToken.None);
+                        //}
+                    }
+                    else
+                    {
 
+                        var lockId = $"{setKey}.ItemsAdd";
+
+                        await _lockProvider.TryUsingAsync(lockId, async () => { await CacheClient.SetAddAsync(setKey, new[] { entityId }); }, TimeSpan.FromSeconds(2), CancellationToken.None);
+
+                    }
                 }
+
+                sw.Stop();
+                _logger.LogDebug("SetItemsEnsureAsync finished in {Elapsed} ms", sw.ElapsedMilliseconds);
             }
         }
 
         public async Task SetItemsEnsureNotAsync(string setKey, string entityId)
         {
-            if (await CacheClient.ExistsAsync(setKey))
+            using (_logger.BeginScope(new Dictionary<string, object>
+            {
+                {"SetKey", setKey},
+                {"EntityId", entityId}
+            }))
             {
 
-                if (_options.DisableLocking2)
-                {
-                    //if (await CacheClient.ExistsAsync(setKey))
-                    //{
-                    await CacheClient.SetRemoveAsync(setKey, new[] { entityId });
-                    //}
-                }
-                else
-                {
-                    var lockId = $"{setKey}.ItemsAdd";
+                var sw = Stopwatch.StartNew();
+                _logger.LogDebug("SetItemsEnsureNotAsync started");
 
-                    await _lockProvider.TryUsingAsync(lockId, async () =>
+                if (await CacheClient.ExistsAsync(setKey))
+                {
+
+                    if (_options.DisableLocking2)
                     {
-
+                        //if (await CacheClient.ExistsAsync(setKey))
+                        //{
                         await CacheClient.SetRemoveAsync(setKey, new[] { entityId });
+                        //}
+                    }
+                    else
+                    {
+                        var lockId = $"{setKey}.ItemsAdd";
 
-                    }, TimeSpan.FromSeconds(2), CancellationToken.None);
+                        await _lockProvider.TryUsingAsync(lockId, async () => { await CacheClient.SetRemoveAsync(setKey, new[] { entityId }); }, TimeSpan.FromSeconds(2), CancellationToken.None);
+                    }
                 }
-            }
 
+                sw.Stop();
+                _logger.LogDebug("SetItemsEnsureNotAsync finished in {Elapsed} ms", sw.ElapsedMilliseconds);
+            }
         }
 
         public ICacheClient CacheClient { get; }
 
         public async Task<T> CacheLoad<T>(Func<Task<T>> loader, string cacheKey, int minutes = int.MinValue, bool setExpirationOnHit = true)
         {
-            var logger = _logger;
-
-            logger.LogDebug("CacheLoad for EntityType: {EntityType} with Key {CacheKey}", typeof(T), cacheKey);
-
-            var expiresIn = GetExpiresIn(minutes);
-
-            if (await CacheClient.ExistsAsync(cacheKey))
+            using (_logger.BeginScope(new Dictionary<string, object>
             {
-                logger.LogDebug("Cache Key exists {CacheKey}", cacheKey);
+                {"CacheKey", cacheKey},
+                {"EntityType", typeof(T).Name}
+            }))
+            {
 
-                var l = await CacheClient.GetAsync<T>(cacheKey);
-                if (l.HasValue)
+                var sw = Stopwatch.StartNew();
+                _logger.LogDebug("CacheLoad started");
+
+
+                var expiresIn = GetExpiresIn(minutes);
+
+                if (await CacheClient.ExistsAsync(cacheKey))
                 {
-                    if (setExpirationOnHit)
+                    _logger.LogDebug("Cache Key exists", cacheKey);
+
+                    var l = await CacheClient.GetAsync<T>(cacheKey);
+                    if (l.HasValue)
                     {
-                        await CacheClient.SetExpirationAsync(cacheKey, expiresIn);
+                        if (setExpirationOnHit)
+                        {
+                            await CacheClient.SetExpirationAsync(cacheKey, expiresIn);
+                        }
+
+                        _logger.LogDebug("Return result from Cache with {CacheKey}", cacheKey);
+
+                        sw.Stop();
+                        _logger.LogDebug("CacheLoad finished in {Elapsed} ms", sw.ElapsedMilliseconds);
+
+                        return l.Value;
                     }
-                    logger.LogDebug("Return result from Cache with {CacheKey}", cacheKey);
-                    return l.Value;
                 }
-            }
 
-            logger.LogDebug("No Cache Result {CacheKey}", cacheKey);
+                _logger.LogDebug("No Cache Result");
 
-            var ret = await loader();
-
-
-            if (ret != null)
-            {
-                if (_options.DisableLocking3)
+                try
                 {
-                    await CacheClient.SetAsync(cacheKey, ret, expiresIn);
-                }
-                else
-                {
+                    var ret = await loader();
 
-                    var isLocked = await _lockProvider.IsLockedAsync(cacheKey);
-                    if (!isLocked)
+                    if (ret != null)
                     {
-                        await _lockProvider.TryUsingAsync(cacheKey, async () =>
+                        if (_options.DisableLocking3)
                         {
                             await CacheClient.SetAsync(cacheKey, ret, expiresIn);
-                        }, null, TimeSpan.FromSeconds(_options.CacheLockTimeoutSeconds));
+                        }
+                        else
+                        {
+
+                            var isLocked = await _lockProvider.IsLockedAsync(cacheKey);
+                            if (!isLocked)
+                            {
+                                await _lockProvider.TryUsingAsync(cacheKey, async () => { await CacheClient.SetAsync(cacheKey, ret, expiresIn); }, null, TimeSpan.FromSeconds(_options.CacheLockTimeoutSeconds));
+                            }
+                        }
                     }
+
+
+                    sw.Stop();
+                    _logger.LogDebug("CacheLoad finished in {Elapsed} ms", sw.ElapsedMilliseconds);
+
+                    return ret;
+
                 }
+                catch (Exception e) when (LogError(e))
+                {
+                    throw;
+                }
+
             }
-
-
-            return ret;
         }
 
         public async Task<T[]> CacheLoadItems<T>(Func<Task<IEnumerable<T>>> loader, string cacheKey, int minutes = int.MinValue, bool setExpirationOnHit = true)
         {
-            var logger = _logger;
-
-            logger.LogDebug("CacheLoad for EntityType: {EntityType} with Key {CacheKey}", typeof(T), cacheKey);
-
-            var expiresIn = GetExpiresIn(minutes);
-
-            if (await CacheClient.ExistsAsync(cacheKey))
+            using (_logger.BeginScope(new Dictionary<string, object>
             {
-                logger.LogDebug("Cache Key {CacheKey} exists", cacheKey);
+                {"CacheKey", cacheKey},
+                {"EntityType", typeof(T).Name}
+            }))
+            {
 
-                var l = await CacheClient.GetSetAsync<T>(cacheKey);
-                if (l.HasValue)
+                var sw = Stopwatch.StartNew();
+                _logger.LogDebug("CacheLoadItems started");
+
+                var expiresIn = GetExpiresIn(minutes);
+
+                if (await CacheClient.ExistsAsync(cacheKey))
                 {
-                    logger.LogDebug("Return result from Cache");
-                    if (setExpirationOnHit)
+                    _logger.LogDebug("Cache Key exists");
+
+                    var l = await CacheClient.GetSetAsync<T>(cacheKey);
+                    if (l.HasValue)
                     {
-                        await CacheClient.SetExpirationAsync(cacheKey, expiresIn);
+                        _logger.LogDebug("Return result from Cache");
+                        if (setExpirationOnHit)
+                        {
+                            await CacheClient.SetExpirationAsync(cacheKey, expiresIn);
+                        }
+
+                        sw.Stop();
+                        _logger.LogDebug("CacheLoadItems finished in {Elapsed} ms", sw.ElapsedMilliseconds);
+
+                        return l.Value.ToArray();
                     }
-                    return l.Value.ToArray();
                 }
-            }
 
-            logger.LogDebug("No Cache Result. Loading and Set to Cache");
+                _logger.LogDebug("No Cache Result. Loading and Set to Cache");
 
-            var ret = await loader();
-
-            var enumerable = ret as T[] ?? ret.ToArray();
-
-            if (enumerable.Any())
-            {
-                if (_options.DisableLocking3)
+                try
                 {
-                    await CacheClient.SetAddAsync(cacheKey, enumerable, expiresIn);
-                }
-                else
-                {
+                    var ret = await loader();
 
-                    var isLocked = await _lockProvider.IsLockedAsync(cacheKey);
+                    var enumerable = ret as T[] ?? ret.ToArray();
 
-                    if (!isLocked)
+                    if (enumerable.Any())
                     {
-                        await _lockProvider.TryUsingAsync(cacheKey, async () =>
+                        if (_options.DisableLocking3)
                         {
                             await CacheClient.SetAddAsync(cacheKey, enumerable, expiresIn);
-                        }, null, TimeSpan.FromSeconds(_options.CacheLockTimeoutSeconds));
-                    }
-                }
-            }
+                        }
+                        else
+                        {
 
-            return enumerable;
+                            var isLocked = await _lockProvider.IsLockedAsync(cacheKey);
+
+                            if (!isLocked)
+                            {
+                                await _lockProvider.TryUsingAsync(cacheKey, async () => { await CacheClient.SetAddAsync(cacheKey, enumerable, expiresIn); }, null, TimeSpan.FromSeconds(_options.CacheLockTimeoutSeconds));
+                            }
+                        }
+                    }
+
+
+                    sw.Stop();
+                    _logger.LogDebug("CacheLoadItems finished in {Elapsed} ms", sw.ElapsedMilliseconds);
+                    return enumerable;
+                }
+                catch (Exception e) when (LogError(e))
+                {
+                    throw;
+                }
+
+            }
         }
 
 
-        public Task<int> RemoveByPrefixAsync(string prefix)
+        public async Task<int> RemoveByPrefixAsync(string prefix)
         {
-            return CacheClient.RemoveByPrefixAsync(prefix);
+            using (_logger.BeginScope(new Dictionary<string, object>
+            {
+                {"Prefix", prefix},
+            }))
+            {
+                var sw = Stopwatch.StartNew();
+                _logger.LogDebug("RemoveByPrefixAsync started");
+
+                var result = await CacheClient.RemoveByPrefixAsync(prefix);
+
+                sw.Stop();
+                _logger.LogDebug("RemoveByPrefixAsync finished in {Elapsed} ms", sw.ElapsedMilliseconds);
+                return result;
+            }
         }
 
         private TimeSpan GetExpiresIn(int minutes)

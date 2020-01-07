@@ -149,7 +149,7 @@ namespace SoftwarePioniere.EventStore.Projections
                             await context.HandleEventAsync(entry);
                         }
                     }
-                    catch (Exception e)
+                    catch (Exception e) when (LogError(e))
                     {
                         _logger.LogError(e, "Error Reading Event: {Stream} {ProjectorId} {OriginalEventNumber}", stream,
                             context.ProjectorId, ev.OriginalEventNumber);
@@ -159,12 +159,17 @@ namespace SoftwarePioniere.EventStore.Projections
 
             } while (!slice.IsEndOfStream);
 
-            _logger.LogDebug("ReadFromStreamAsync {Stream} {ProjectorId} Finished in {Elapsed:0.0000} ms", stream, context.ProjectorId, sw.ElapsedMilliseconds);
+            _logger.LogDebug("ReadFromStreamAsync {Stream} {ProjectorId} Finished in {Elapsed} ms", stream, context.ProjectorId, sw.ElapsedMilliseconds);
 
             return context.Status;
 
         }
 
+        protected bool LogError(Exception ex)
+        {
+            _logger.LogError(ex, ex.GetBaseException().Message);
+            return true;
+        }
 
 
         private async Task InsertEmptyDomainEventIfStreamIsEmpty(string streamName)
@@ -255,7 +260,7 @@ namespace SoftwarePioniere.EventStore.Projections
                 await StartProjectorInternal(cancellationToken, ctx);
             }
 
-            _logger.LogInformation("EventStore Projection Initializer Finished in {Elapsed:0.0000} ms", sw.ElapsedMilliseconds);
+            _logger.LogInformation("EventStore Projection Initializer Finished in {Elapsed} ms", sw.ElapsedMilliseconds);
         }
 
 
@@ -304,7 +309,7 @@ namespace SoftwarePioniere.EventStore.Projections
                         status.Entity.ModifiedOnUtc = tempStatus.ModifiedOnUtc;
                     }
                 }
-                catch (Exception ex)
+                catch (Exception ex) when (LogError(ex))
                 {
                     _logger.LogError(ex, "Error ReadStreamAsync");
                     throw;
@@ -317,7 +322,7 @@ namespace SoftwarePioniere.EventStore.Projections
                 {
                     await projector.CopyEntitiesAsync(context.EntityStore, _entityStore, cancellationToken);
                 }
-                catch (Exception ex)
+                catch (Exception ex) when (LogError(ex))
                 {
                     _logger.LogError(ex, "Error CopyEntitites");
                     throw;

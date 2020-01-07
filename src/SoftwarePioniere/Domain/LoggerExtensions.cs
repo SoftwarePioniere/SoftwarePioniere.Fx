@@ -8,7 +8,7 @@ namespace SoftwarePioniere.Domain
         {
             foreach (var change in agg.GetUncommittedChanges())
             {
-                logger.LogInformation("{AggregateName} {AggregateId} {Event}", agg.GetType().GetAggregateName(), agg.Id, change.ToString());
+                logger.LogDebug("{AggregateName} {AggregateId} {Event}", agg.GetType().GetAggregateName(), agg.Id, change.ToString());
             }
         }
     }

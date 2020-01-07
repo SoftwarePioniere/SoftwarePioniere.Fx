@@ -3,6 +3,11 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp2.2</TargetFramework>
     <AspNetCoreHostingModel>InProcess</AspNetCoreHostingModel>
+    <Configurations>Debug;Release;Debug2</Configurations>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug2|AnyCPU'">
+    <OutputPath>bin/local2/</OutputPath>
   </PropertyGroup>
 
   <ItemGroup>

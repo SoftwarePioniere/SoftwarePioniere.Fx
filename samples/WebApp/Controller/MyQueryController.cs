@@ -16,7 +16,7 @@ namespace WebApp.Controller
     [Authorize]
     public class MyQueryController : MyControllerBase
     {
-       
+
 
         [HttpGet("liste")]
         [SwaggerOperation(OperationId = "GetListe")]
@@ -25,6 +25,7 @@ namespace WebApp.Controller
 
             )
         {
+            Logger.LogInformation("GetListe");
             var items = await queryService.GetListeAsync(HttpContext.User);
             return Ok(items);
 
@@ -34,9 +35,34 @@ namespace WebApp.Controller
         [SwaggerOperation(OperationId = "GetListe2")]
         public async Task<ActionResult<IEnumerable<FakeEntity>>> GetListe2Async(
             [FromServices] MyQueryService queryService
+
+        )
+        {
+            Logger.LogInformation("GetListe2Async");
+            var items = await queryService.GetListe2Async(HttpContext.User);
+            return Ok(items);
+
+        }
+
+        [HttpGet("liste3")]
+        [SwaggerOperation(OperationId = "GetListe3")]
+        public async Task<ActionResult<IEnumerable<FakeEntity>>> GetListe3Async(
+            [FromServices] MyQueryService queryService
+
+        )
+        {
+            Logger.LogInformation("GetListe3Async");
+            var items = await queryService.GetListe3Async(HttpContext.User, HttpContext.RequestAborted);
+            return Ok(items);
+
+        }
+        [HttpGet("liste_throw_auth")]
+        [SwaggerOperation(OperationId = "GetListeThrowAuthAsync")]
+        public async Task<ActionResult<IEnumerable<FakeEntity>>> GetListeThrowAuthAsyncAsync(
+            [FromServices] MyQueryService queryService
             )
         {
-            Logger.LogInformation("Liste2");
+            Logger.LogInformation("GetListeThrowAuthAsyncAsync");
             await ThrowAuthAsync(HttpContext.User);
             var items = await queryService.GetListeAsync(HttpContext.User);
             return Ok(items);

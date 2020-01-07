@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using EventStore.ClientAPI;
@@ -23,7 +25,7 @@ namespace SoftwarePioniere.EventStore.Projections
 
         private CancellationToken _cancellationToken;
         private InMemoryEntityStore _initEntityStore;
-        
+
         public EventStoreProjectionContext(ILoggerFactory loggerFactory
             , EventStoreConnectionProvider connectionProvider
             , IEntityStore entityStore
@@ -108,7 +110,7 @@ namespace SoftwarePioniere.EventStore.Projections
             Status.LastCheckPoint = -1;
             Status.ProjectorId = ProjectorId;
             Status.StreamName = StreamName;
-            
+
             await EntityStore.InsertItemAsync(Status, _cancellationToken);
         }
 
@@ -129,7 +131,7 @@ namespace SoftwarePioniere.EventStore.Projections
         public Task StopInitializationModeAsync()
         {
             _logger.LogDebug("StopInitializationModeAsync");
-            
+
             IsInitializing = false;
             IsReady = true;
             _initEntityStore = null;
@@ -139,29 +141,56 @@ namespace SoftwarePioniere.EventStore.Projections
 
         internal async Task HandleEventAsync(ProjectionEventData entry)
         {
-            _logger.LogTrace("Handled Item {EventNumber} {StreamName} {ProjectorId}",
-                entry.EventNumber,
-                StreamName,
-                ProjectorId);
-            CurrentCheckPoint = entry.EventNumber;
 
-            try
+            var state = new Dictionary<string, object>
             {
-                await _projector.ProcessEventAsync(entry.EventData);
-                Status.LastCheckPoint = entry.EventNumber;
-                Status.ModifiedOnUtc = DateTime.UtcNow;
-             
-                if (!IsInitializing)
-                    await EntityStore.UpdateItemAsync(Status, _cancellationToken);
-            }
-            catch (Exception e)
+                {"EventType", entry.EventData.GetType().FullName},
+                {"EventId", entry.EventData.Id},
+                {"EventNumber", entry.EventNumber},
+                {"ProjectorType", _projector.GetType().FullName},
+                {"StreamName", StreamName}
+            };
+
+            using (_logger.BeginScope(state))
             {
-                _logger.LogError(e,
-                    "Error while Processing Event {EventNumber} from {StreamName} {ProjectorId}",
+                var sw = Stopwatch.StartNew();
+
+                _logger.LogDebug("HandleEventAsync Item {EventNumber} {StreamName} Started",
+                    entry.EventNumber,
+                    StreamName);
+
+                CurrentCheckPoint = entry.EventNumber;
+
+                try
+                {
+                    await _projector.ProcessEventAsync(entry.EventData);
+                    Status.LastCheckPoint = entry.EventNumber;
+                    Status.ModifiedOnUtc = DateTime.UtcNow;
+
+                    if (!IsInitializing)
+                        await EntityStore.UpdateItemAsync(Status, _cancellationToken);
+                }
+                catch (Exception e) when (LogError(e))
+                {
+                    _logger.LogError(e,
+                        "Error while Processing Event {EventNumber} from {StreamName} {ProjectorId}",
+                        entry.EventNumber,
+                        StreamName,
+                        ProjectorId);
+                }
+
+                sw.Stop();
+                _logger.LogDebug("HandleEventAsync Item {EventNumber} {StreamName} finished in {Elapsed} ms",
                     entry.EventNumber,
                     StreamName,
-                    ProjectorId);
+                    sw.ElapsedMilliseconds);
             }
+        }
+
+        protected bool LogError(Exception ex)
+        {
+            _logger.LogError(ex, ex.GetBaseException().Message);
+            return true;
         }
 
         private async Task EventAppeared(EventStoreCatchUpSubscription sub, ResolvedEvent evt)
@@ -198,13 +227,13 @@ namespace SoftwarePioniere.EventStore.Projections
                 await HandleEventAsync(entry.Value);
                 entry.MarkCompleted();
             }
-            catch (Exception e)
+            catch (Exception e) when (LogError(e))
             {
                 _logger.LogError(e,
                     "Error while Processing Event {EventNumber} from {Stream} {ProjectorId}",
                     entry.Value.EventNumber,
                     StreamName,
-                    ProjectorId);             
+                    ProjectorId);
             }
         }
 

@@ -24,7 +24,7 @@ namespace SoftwarePioniere.Projections
 
         protected bool LogError(Exception ex)
         {
-            Logger.LogError(ex, "Ein Fehler ist aufgetreten {Message}", ex.GetBaseException().Message);
+            Logger.LogError(ex, ex.GetBaseException().Message);
             return true;
         }
 

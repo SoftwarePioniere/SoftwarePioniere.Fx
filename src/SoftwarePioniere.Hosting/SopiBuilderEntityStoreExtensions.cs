@@ -15,11 +15,11 @@ namespace SoftwarePioniere.Hosting
 
             if (string.IsNullOrEmpty(builder.Options.AppContext))
             {
-                return $"{builder.Options.AppId}-{builder.Version}".Replace(".", "-").Replace(" ", "");
+                return $"{builder.Options.AppId}-{builder.Version}".Replace(".", "-").Replace(" ", "").Replace("+","");
             }
             else
             {
-                return $"{builder.Options.AppContext}-{builder.Version}".Replace(".", "-").Replace(" ", "");
+                return $"{builder.Options.AppContext}-{builder.Version}".Replace(".", "-").Replace(" ", "").Replace("+","");
             }
         }
 

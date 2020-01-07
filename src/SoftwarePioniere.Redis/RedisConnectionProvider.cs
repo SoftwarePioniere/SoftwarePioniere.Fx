@@ -22,7 +22,12 @@ namespace SoftwarePioniere.Redis
             //late initialize
             //https://medium.com/asos-techblog/maximising-net-core-api-performance-11ad883436c
 
-            Connection = await ConnectionMultiplexer.ConnectAsync(_options.ConnectionString);
+            var connectionstring = _options.ConnectionString;
+
+            if (!string.IsNullOrEmpty(_options.ConnectionString2))
+                connectionstring = string.Concat(_options.ConnectionString, _options.ConnectionString2);
+
+            Connection = await ConnectionMultiplexer.ConnectAsync(connectionstring);
         }
     }
 }

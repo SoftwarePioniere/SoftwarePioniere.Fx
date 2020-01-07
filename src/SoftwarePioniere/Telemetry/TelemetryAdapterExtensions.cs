@@ -8,11 +8,16 @@ namespace SoftwarePioniere.Telemetry
     {
         public static Dictionary<string, object> CreateLoggerScope(this Dictionary<string, string> state)
         {
-            var dict = new Dictionary<string, object>();
-            foreach (var key in state.Keys)
+            var dict = new Dictionary<string,object>();
+
+            if (state != null)
             {
-                dict.Add(key, state[key]);
+                foreach (var keyValuePair in state)
+                {
+                    dict.Add(keyValuePair.Key, keyValuePair.Value);
+                }
             }
+
             return dict;
         }
 

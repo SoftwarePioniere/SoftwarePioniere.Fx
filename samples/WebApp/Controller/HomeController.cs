@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Foundatio.Caching;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -17,10 +19,26 @@ namespace WebApp.Controller
     public class HomeController : ControllerBase
     {
         private readonly ILogger<HomeController> _logger;
-        
+
         public HomeController(ILogger<HomeController> logger)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        }
+
+        [HttpGet("claims")]
+        [SwaggerOperation(OperationId = "GetIdentityClaims")]
+        [Authorize]
+        public ActionResult<KeyValueItem[]> GetIdentityClaims()
+        {
+
+            _logger.LogDebug("GetIdentityClaims");
+            var items = User.Claims.Select(x => new KeyValueItem
+            {
+                Key = x.Type,
+                Value = x.Value
+            }).ToArray();
+
+            return Ok(items);
         }
 
         [HttpGet("x")]
@@ -30,7 +48,7 @@ namespace WebApp.Controller
             _logger.LogDebug("a");
             return "Hallo";
         }
-        
+
         [HttpPost("stop")]
         [SwaggerOperation(("PostStop"))]
         public ActionResult<string> PostStop(

@@ -88,7 +88,7 @@ namespace SoftwarePioniere.Hosting
                             }
                         }
                         sw1.Stop();
-                        _logger.LogInformation("ConnectionProvider Initialization Finished in {Elapsed:0.0000} ms", sw1.ElapsedMilliseconds);
+                        _logger.LogInformation("ConnectionProvider Initialization Finished in {Elapsed} ms", sw1.ElapsedMilliseconds);
                     }
                 }
             }
@@ -126,7 +126,7 @@ namespace SoftwarePioniere.Hosting
                         }
                     }
                     sw1.Stop();
-                    _logger.LogInformation("EventStore Initialization Finished in {Elapsed:0.0000} ms", sw1.ElapsedMilliseconds);
+                    _logger.LogInformation("EventStore Initialization Finished in {Elapsed} ms", sw1.ElapsedMilliseconds);
                 }
             }
 
@@ -153,7 +153,7 @@ namespace SoftwarePioniere.Hosting
                     }
 
                     sw1.Stop();
-                    _logger.LogInformation("Saga Start Finished in {Elapsed:0.0000} ms", sw1.ElapsedMilliseconds);
+                    _logger.LogInformation("Saga Start Finished in {Elapsed} ms", sw1.ElapsedMilliseconds);
                 }
             }
 
@@ -179,7 +179,7 @@ namespace SoftwarePioniere.Hosting
                     }
 
                     sw1.Stop();
-                    _logger.LogInformation("MessageHandler Start Finished in {Elapsed:0.0000} ms", sw1.ElapsedMilliseconds);
+                    _logger.LogInformation("MessageHandler Start Finished in {Elapsed} ms", sw1.ElapsedMilliseconds);
                 }
             }
 
@@ -206,7 +206,7 @@ namespace SoftwarePioniere.Hosting
                     }
 
                     sw1.Stop();
-                    _logger.LogInformation("ProjectorRegistries Start Finished in {Elapsed:0.0000} ms", sw1.ElapsedMilliseconds);
+                    _logger.LogInformation("ProjectorRegistries Start Finished in {Elapsed} ms", sw1.ElapsedMilliseconds);
                 }
             }
 
@@ -242,7 +242,7 @@ namespace SoftwarePioniere.Hosting
                         }
                     }
                     sw1.Stop();
-                    _logger.LogInformation("EntityStore Initialization Finished in {Elapsed:0.0000} ms", sw1.ElapsedMilliseconds);
+                    _logger.LogInformation("EntityStore Initialization Finished in {Elapsed} ms", sw1.ElapsedMilliseconds);
                 }
             }
             
@@ -268,12 +268,12 @@ namespace SoftwarePioniere.Hosting
                     }
 
                     sw1.Stop();
-                    _logger.LogInformation("SopiServices Start Finished in {Elapsed:0.0000} ms", sw1.ElapsedMilliseconds);
+                    _logger.LogInformation("SopiServices Start Finished in {Elapsed} ms", sw1.ElapsedMilliseconds);
                 }
             }
 
             sw.Stop();
-            _logger.LogInformation("SopiAppService Started in {Elapsed:0.0000} ms", sw.ElapsedMilliseconds);
+            _logger.LogInformation("SopiAppService Started in {Elapsed} ms", sw.ElapsedMilliseconds);
 
             _applicationLifetime.IsStarting = false;
             _applicationLifetime.IsStarted = true;

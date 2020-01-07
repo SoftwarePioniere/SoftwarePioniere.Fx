@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Security.Claims;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using SoftwarePioniere.Caching;
@@ -31,10 +32,30 @@ namespace WebApp.Controller
         {
             _logger.LogInformation("GetListeAsync");
 
-            var items = _cache.CacheLoad(() => _entityStore.LoadItemsAsync<FakeEntity>(),
-                CacheKeys.Create<FakeEntity>("liste"));
+            return _cache.CacheLoad(() => _entityStore.LoadItemsAsync<FakeEntity>(),
+                 CacheKeys.Create<FakeEntity>("liste"));
+
+        }
+
+
+        public async Task<IEnumerable<FakeEntity>> GetListe2Async(ClaimsPrincipal user)
+        {
+            _logger.LogInformation("GetListe2Async");
+
+            return await _cache.CacheLoadItems(() => _entityStore.LoadItemsAsync<FakeEntity>(),
+                CacheKeys.Create<FakeEntity>("liste2"));
+        }
+
+        public async Task<IEnumerable<FakeEntity>> GetListe3Async(ClaimsPrincipal user, CancellationToken cancellationToken)
+        {
+            _logger.LogInformation("GetListe3Async");
+            
+            var items = await _cache.LoadSetItems<FakeEntity>(
+                CacheKeys.Create<FakeEntity>("set")
+                , x => true, cancellationToken: cancellationToken);
 
             return items;
+
         }
     }
 }

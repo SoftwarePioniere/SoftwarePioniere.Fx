@@ -27,8 +27,8 @@ namespace SoftwarePioniere.MongoDb
         public override async Task<IEnumerable<T>> LoadItemsAsync<T>(CancellationToken cancellationToken = default)
         {
             Logger.LogTrace("LoadItemsAsync: {EntityType}", typeof(T));
-            
-           
+
+
             var filter =
                 new ExpressionFilterDefinition<T>(x => x.EntityType == _provider.KeyCache.GetEntityTypeKey<T>());
 
@@ -42,7 +42,7 @@ namespace SoftwarePioniere.MongoDb
             }, cancellationToken);
 
             return await find.ToListAsync(cancellationToken);
-       
+
         }
 
         public override async Task<IEnumerable<T>> LoadItemsAsync<T>(Expression<Func<T, bool>> predicate,
@@ -84,7 +84,7 @@ namespace SoftwarePioniere.MongoDb
                     BypassDocumentValidation = true
                 }, cancellationToken);
             }
-            catch (MongoException e)
+            catch (MongoException e) when (LogError(e))
             {
                 Logger.LogWarning(e, "InsertManyAsync Failed {ItemsCount} {@Ids}", items.Length, items.Select(x => x.EntityId).ToArray());
             }
@@ -99,7 +99,7 @@ namespace SoftwarePioniere.MongoDb
             {
                 await _provider.Database.Value.DropCollectionAsync(collectionName, cancellationToken);
             }
-            catch (MongoException e)
+            catch (MongoException e) when (LogError(e))
             {
                 Logger.LogWarning(e, "DropCollectionAsync Failed {CollectionName}", collectionName);
             }
@@ -120,7 +120,7 @@ namespace SoftwarePioniere.MongoDb
                 var filter = new ExpressionFilterDefinition<T>(x => x.EntityId == entityId);
                 await collection.DeleteOneAsync(filter, cancellationToken);
             }
-            catch (MongoException e)
+            catch (MongoException e) when (LogError(e))
             {
                 Logger.LogWarning(e, "DeleteOneAsync Failed {EntityID}", entityId);
             }
@@ -138,10 +138,16 @@ namespace SoftwarePioniere.MongoDb
 
                 await collection.DeleteManyAsync(filter, cancellationToken);
             }
-            catch (MongoException e)
+            catch (MongoException e) when (LogError(e))
             {
                 Logger.LogWarning(e, "DeleteManyAsync Failed {Filter}", filter.ToJson());
             }
+        }
+
+        private bool LogError(Exception ex)
+        {
+            Logger.LogError(ex, ex.GetBaseException().Message);
+            return true;
         }
 
         protected override Task InternalInsertItemAsync<T>(T item, CancellationToken cancellationToken = default)
@@ -275,15 +281,16 @@ namespace SoftwarePioniere.MongoDb
 
             try
             {
-                var res = await collection.ReplaceOneAsync(filter, item, new ReplaceOptions()
+                //var res = 
+                await collection.ReplaceOneAsync(filter, item, new ReplaceOptions()
                 {
                     BypassDocumentValidation = true,
                     IsUpsert = true
                 }, cancellationToken);
 
-                Logger.LogDebug("Replace Result: {@Result}", res);
+                //   Logger.LogDebug("Replace Result: {@Result}", res);
             }
-            catch (MongoException e)
+            catch (MongoException e) when (LogError(e))
             {
                 Logger.LogWarning(e, "ReplaceOneAsync Failed: {EntityId} {@Entity}", item.EntityId, item);
 
