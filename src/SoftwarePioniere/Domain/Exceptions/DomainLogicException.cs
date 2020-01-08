@@ -13,7 +13,7 @@ namespace SoftwarePioniere.Domain.Exceptions
 
         public DomainLogicException(AggregateRoot aggregateRoot, string message) : base(message)
         {
-            AggregateId = aggregateRoot?.Id;
+            AggregateId = aggregateRoot?.AggregateId;
             AggregateType = aggregateRoot?.GetType();
         }
 

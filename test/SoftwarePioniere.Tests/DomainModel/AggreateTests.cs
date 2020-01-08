@@ -46,11 +46,11 @@ namespace SoftwarePioniere.Tests.DomainModel
             var agg = new FakeAggregate();
 
             var @event = FakeEvent.Create();
-            agg.SetId(@event.AggregateId);
+            agg.SetAggregateId(@event.AggregateId);
 
             agg.LoadFromHistory(new[] { new EventDescriptor(@event, 1) });
 
-            agg.Id.Should().Be(@event.AggregateId);
+            agg.AggregateId.Should().Be(@event.AggregateId);
             agg.Text.Should().Be(@event.Text);
         }
 

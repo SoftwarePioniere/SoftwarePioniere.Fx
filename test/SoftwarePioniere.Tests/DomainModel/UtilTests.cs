@@ -51,7 +51,7 @@ namespace SoftwarePioniere.Tests.DomainModel
             {
                 var de = ev.CreateAggregateDomainEventMessage(agg);
 
-                de.AggregateId.Should().Be(agg.Id);
+                de.AggregateId.Should().Be(agg.AggregateId);
                 de.AggregateType.Should().Be(agg.GetType().GetTypeShortName());
                 de.DomainEventType.Should().Be("SoftwarePioniere.FakeDomain.FakeEvent, SoftwarePioniere.TestHarness");
 

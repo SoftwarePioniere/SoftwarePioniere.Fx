@@ -23,41 +23,42 @@ namespace SoftwarePioniere.FakeDomain
 
         public void DoFakeEvent(string text)
         {
-            if (string.IsNullOrEmpty(Id))
+            if (string.IsNullOrEmpty(AggregateId))
                 throw new DomainLogicException(this, "please set id first");
 
-            var @event = new FakeEvent(Guid.NewGuid(), DateTime.UtcNow, "userId", Id, text);
+            var @event = new FakeEvent(Guid.NewGuid(), DateTime.UtcNow, "userId", AggregateId, text);
             ApplyChange(@event);
         }
 
         public void DoFakeEvent2(string text)
         {
-            if (string.IsNullOrEmpty(Id))
+            if (string.IsNullOrEmpty(AggregateId))
                 throw new DomainLogicException(this, "please set id first");
 
-            var @event = new FakeEvent2(Guid.NewGuid(), DateTime.UtcNow, "userId", Id, text);
+            var @event = new FakeEvent2(Guid.NewGuid(), DateTime.UtcNow, "userId", AggregateId, text);
             ApplyChange(@event);
         }
 
         public void DoFakeEvent3()
         {
-            var @event = new FakeEvent3(Guid.NewGuid(), DateTime.UtcNow, "userId", Id);
+            var @event = new FakeEvent3(Guid.NewGuid(), DateTime.UtcNow, "userId", AggregateId);
             ApplyChange(@event);
         }
 
-        public class AggregateId : BaseAggregateId
-        {
-            public AggregateId(string id) : base(id)
-            {
-            }
-        }
+        //public class AggregateId : BaseAggregateId
+        //{
+        //    public AggregateId(string id) : base(id)
+        //    {
+        //    }
+        //}
 
         public static class Factory
         {
             public static FakeAggregate Create(string fakeId)
             {
                 var agg = new FakeAggregate();
-                agg.SetId(new AggregateId(fakeId).Id);
+                //agg.SetId(new AggregateId(fakeId).Id);
+                agg.SetAggregateId(fakeId);
                 return agg;
             }
 

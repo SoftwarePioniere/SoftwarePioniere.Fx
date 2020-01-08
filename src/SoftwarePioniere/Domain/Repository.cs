@@ -34,7 +34,7 @@ namespace SoftwarePioniere.Domain
 
             var state = new Dictionary<string, object>
             {
-                {"AggregateId", aggregate.Id},
+                {"AggregateId", aggregate.AggregateId},
                 {"ExpectedVersion",expectedVersion},
                 {"Type", typeof(T).FullName}
             };
@@ -42,13 +42,13 @@ namespace SoftwarePioniere.Domain
             using (_logger.BeginScope(state))
             {
                 var sw = Stopwatch.StartNew();
-                _logger.LogDebug("SaveAsync {Type} {AggregateId} {ExpectedVersion} started", typeof(T), expectedVersion, aggregate.Id);
+                _logger.LogDebug("SaveAsync {Type} {AggregateId} {ExpectedVersion} started", typeof(T), expectedVersion, aggregate.AggregateId);
 
                 var events = aggregate.GetUncommittedChanges().ToArray();
 
                 if (events.Length == 0)
                 {
-                    _logger.LogTrace("SaveAsync {Type} {AggregateId} {ExpectedVersion} No Events", typeof(T), expectedVersion, aggregate.Id);
+                    _logger.LogTrace("SaveAsync {Type} {AggregateId} {ExpectedVersion} No Events", typeof(T), expectedVersion, aggregate.AggregateId);
                 }
                 else
                 {
@@ -56,7 +56,7 @@ namespace SoftwarePioniere.Domain
 
                     _logger.LogAggregate(aggregate);
 
-                    await _store.SaveEventsAsync<T>(aggregate.Id, events, expectedVersion).ConfigureAwait(false);
+                    await _store.SaveEventsAsync<T>(aggregate.AggregateId, events, expectedVersion).ConfigureAwait(false);
                     aggregate.MarkChangesAsCommitted();
 
 
@@ -144,7 +144,7 @@ namespace SoftwarePioniere.Domain
                 token.ThrowIfCancellationRequested();
 
                 var aggregate = Activator.CreateInstance<T>();
-                aggregate.SetId(aggregateId);
+                aggregate.SetAggregateId(aggregateId);
                 var eventDescriptors = await _store.GetEventsForAggregateAsync<T>(aggregateId).ConfigureAwait(false);
                 aggregate.LoadFromHistory(eventDescriptors);
 
@@ -193,7 +193,7 @@ namespace SoftwarePioniere.Domain
                 token.ThrowIfCancellationRequested();
 
                 var aggregate = Activator.CreateInstance<T>();
-                aggregate.SetId(aggregateId);
+                aggregate.SetAggregateId(aggregateId);
                 var eventDescriptors = await _store.GetEventsForAggregateAsync<T>(aggregateId).ConfigureAwait(false);
                 aggregate.LoadFromHistory(eventDescriptors);
 

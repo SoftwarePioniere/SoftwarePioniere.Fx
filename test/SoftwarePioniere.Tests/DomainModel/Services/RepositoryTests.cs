@@ -165,7 +165,7 @@ namespace SoftwarePioniere.Tests.DomainModel.Services
 
 
             var agg = await repo.GetByIdAsync<FakeAggregate>(@event.AggregateId);
-            agg.Id.Should().Be(@event.AggregateId);
+            agg.AggregateId.Should().Be(@event.AggregateId);
         }
 
         [Fact]

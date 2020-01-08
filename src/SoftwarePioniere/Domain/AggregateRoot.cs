@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using SoftwarePioniere.Domain.Exceptions;
@@ -21,51 +22,14 @@ namespace SoftwarePioniere.Domain
 
     public abstract class AggregateRoot : IAggregateRoot
     {
+        public static int StartVersion = -1;
         private readonly List<IDomainEvent> _changes = new List<IDomainEvent>();
 
+        public string AggregateId { get; private set; }
 
-        public string Id
-        {
-            get; private set;
-        }
-
-        public void SetId(string id)
-        {
-            if (string.IsNullOrEmpty(id))
-                throw new EmptyAggregateIdException(GetType());
-
-            Id = id;
-        }
-
-        public static int StartVersion = -1;
-
-        /// <summary>
-        /// Die aktuelle EventVersion, wird mit jedem ApplyEvent hochgezählt
-        /// Ohne Event ist der Wert -1
-        /// Das erste Event erzeugt die Version 0
-        /// Damit ist es Identisch wie im EventStore
-        /// </summary>
         public int Version { get; private set; } = StartVersion;
 
-
-        public IEnumerable<IDomainEvent> GetUncommittedChanges()
-        {
-            return _changes;
-        }
-
-        public void MarkChangesAsCommitted()
-        {
-            _changes.Clear();
-        }
-
-        public void LoadFromHistory(IEnumerable<EventDescriptor> history)
-        {
-            foreach (var eventDescriptor in history)
-            {
-                ApplyChange(eventDescriptor.EventData, false);
-                Version = eventDescriptor.Version;
-            }
-        }
+        [Obsolete] public string Id => AggregateId;
 
         protected void ApplyChange(IDomainEvent @event)
         {
@@ -84,10 +48,8 @@ namespace SoftwarePioniere.Domain
             {
                 var thisImplementsType = GetType().GetTypeInfo().ImplementedInterfaces.Contains(ixtype);
                 if (thisImplementsType)
-                {
                     //die methode aus dem interface auf dem aktuellen objekt anwenden
                     ixmethod.Invoke(this, new object[] { @event });
-                }
             }
 
             if (isNew)
@@ -97,5 +59,37 @@ namespace SoftwarePioniere.Domain
             }
         }
 
+        public IEnumerable<IDomainEvent> GetUncommittedChanges()
+        {
+            return _changes;
+        }
+
+        public void LoadFromHistory(IEnumerable<EventDescriptor> history)
+        {
+            foreach (var eventDescriptor in history)
+            {
+                ApplyChange(eventDescriptor.EventData, false);
+                Version = eventDescriptor.Version;
+            }
+        }
+
+        public void MarkChangesAsCommitted()
+        {
+            _changes.Clear();
+        }
+
+        [Obsolete]
+        public void SetId(string id)
+        {
+            SetAggregateId(id);
+        }
+
+        public void SetAggregateId(string aggregateId)
+        {
+            if (string.IsNullOrEmpty(aggregateId))
+                throw new EmptyAggregateIdException(GetType());
+
+            AggregateId = aggregateId;
+        }
     }
 }

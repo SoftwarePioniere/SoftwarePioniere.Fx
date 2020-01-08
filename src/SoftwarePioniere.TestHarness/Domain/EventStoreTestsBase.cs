@@ -110,14 +110,14 @@ namespace SoftwarePioniere.Domain
                 {
                     agg.DoFakeEvent($"schleife {i}");
                 }
-                await store.SaveEventsAsync<FakeAggregate>(agg.Id, agg.GetUncommittedChanges(), agg.Version);
+                await store.SaveEventsAsync<FakeAggregate>(agg.AggregateId, agg.GetUncommittedChanges(), agg.Version);
                 agg.MarkChangesAsCommitted();
 
                 agg.DoFakeEvent2("fake 2");
-                await store.SaveEventsAsync<FakeAggregate>(agg.Id, agg.GetUncommittedChanges(), agg.Version);
+                await store.SaveEventsAsync<FakeAggregate>(agg.AggregateId, agg.GetUncommittedChanges(), agg.Version);
                 agg.MarkChangesAsCommitted();
 
-                var events = await store.GetEventsForAggregateAsync<FakeAggregate>(agg.Id);
+                var events = await store.GetEventsForAggregateAsync<FakeAggregate>(agg.AggregateId);
                 var lastEvent = events.Last();
 
                 agg.Version.Should().Be(lastEvent.Version);
@@ -127,7 +127,7 @@ namespace SoftwarePioniere.Domain
 
                 Func<Task> f = async () =>
                 {
-                    await store.SaveEventsAsync<FakeAggregate>(agg.Id,
+                    await store.SaveEventsAsync<FakeAggregate>(agg.AggregateId,
                         agg.GetUncommittedChanges(),
                         agg.Version + 99);
                 };
