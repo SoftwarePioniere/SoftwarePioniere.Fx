@@ -1,7 +1,5 @@
-﻿using System;
-using Lib.Hosting;
+﻿using Lib.Hosting;
 using Microsoft.AspNetCore;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using SoftwarePioniere.AspNetCore;

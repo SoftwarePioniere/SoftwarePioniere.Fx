@@ -2,7 +2,7 @@
 
 trigger:
   branches:
-    include:  
+    include:
     - master
   paths:
     include:
@@ -12,7 +12,7 @@ trigger:
     - README.md
 
 pool:
-    vmimage: 'ubuntu-16.04'    
+    vmimage: 'ubuntu-16.04'
 
 steps:
 
@@ -27,25 +27,29 @@ steps:
   env:
     NUGET_API_KEY: $(NuGetApiKey)
     MYGET_API_KEY: $(MyGetApiKey)
+    SOPI_TESTS_EVENTSTORE__TCPPORT: 1193
+    SOPI_TESTS_EVENTSTORE__HTTPPORT: 2193
+    SOPI_TESTS_EVENTSTORE__EXTSECURETCPPORT: 1195
+    SOPI_TESTS_MONGODB__PORT: 27097
     SOPI_TESTS_AZURECOSMOSDB__AUTHKEY: $(SopiTestCosmosDbPrimaryKey)
     SOPI_TESTS_AZURECOSMOSDB__ENDPOINTURL: $(SopiTestCosmosDbEndpint)
     SOPI_TESTS_AZUREADCLIENT__CLIENTID: $(SopiTestAzureAdClientId)
     SOPI_TESTS_AZUREADCLIENT__CLIENTSECRET: $(SopiTestAzureAdClientSecret)
     SOPI_TESTS_AUTH0CLIENT__CLIENTID: $(SopiTestAuth0ClientId)
-    SOPI_TESTS_AUTH0CLIENT__CLIENTSECRET: $(SopiTestAuth0ClientSecret)    
+    SOPI_TESTS_AUTH0CLIENT__CLIENTSECRET: $(SopiTestAuth0ClientSecret)
 
 - task: PublishTestResults@2
-  inputs: 
+  inputs:
     testResultsFormat: VSTest
     testResultsFiles: '**/*.trx'
 
 - task: CopyFiles@2
   inputs:
     sourceFolder: 'artifacts'
-    contents: '**/**' 
-    targetFolder: $(Build.ArtifactStagingDirectory) 
+    contents: '**/**'
+    targetFolder: $(Build.ArtifactStagingDirectory)
 
 - task: PublishPipelineArtifact@0
   inputs:
-    artifactName: 'drop' 
+    artifactName: 'drop'
     targetPath: $(Build.ArtifactStagingDirectory)

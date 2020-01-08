@@ -1,21 +1,15 @@
-﻿using System;
-using Lib.Hosting;
+﻿using Lib.Hosting;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using SoftwarePioniere;
 using SoftwarePioniere.AspNetCore;
 using SoftwarePioniere.AspNetCore.Builder;
 using SoftwarePioniere.Builder;
-using SoftwarePioniere.Domain;
 using SoftwarePioniere.Extensions.AspNetCore.Swagger;
-using SoftwarePioniere.Hosting;
 using SoftwarePioniere.Hosting.AspNetCore;
-using SoftwarePioniere.Projections;
 using WebApp.Clients;
 using WebApp.Controller;
-using WebApp.Host;
 
 namespace WebApp.FrontHost
 {

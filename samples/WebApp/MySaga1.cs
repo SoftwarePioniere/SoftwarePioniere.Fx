@@ -59,25 +59,24 @@ namespace WebApp
 
         public async Task HandleAsync(FakeCommand message)
         {
-            //await LockProvider.TryUsingAsync(message.ObjectId,
-            //    async token =>
-            //    {
-            var ex = await Repository.CheckAggregateExists<FakeAggregate>(message.ObjectId);
+            await LockProvider.TryUsingAsync(message.ObjectId, async token =>
+                {
+                    var ex = await Repository.CheckAggregateExists<FakeAggregate>(message.ObjectId);
 
-            if (!ex)
-            {
-                var agg = FakeAggregate.Factory.Create(message.ObjectId);
-                agg.DoFakeEvent(message.Text);
-                await Repository.SaveAsync(agg, CancellationToken);
-            }
-            else
-            {
-                var agg = await Repository.GetByIdAsync<FakeAggregate>(message.ObjectId);
-                agg.DoFakeEvent(message.Text);
-                await Repository.SaveAsync(agg, CancellationToken);
-            }
-            //},
-            //cancellationToken: CancellationToken);
+                    if (!ex)
+                    {
+                        var agg = FakeAggregate.Factory.Create(message.ObjectId);
+                        agg.DoFakeEvent(message.Text);
+                        await Repository.SaveAsync(agg, CancellationToken);
+                    }
+                    else
+                    {
+                        var agg = await Repository.GetByIdAsync<FakeAggregate>(message.ObjectId);
+                        agg.DoFakeEvent(message.Text);
+                        await Repository.SaveAsync(agg, CancellationToken);
+                    }
+                },
+            cancellationToken: CancellationToken);
         }
 
 
@@ -103,14 +102,14 @@ namespace WebApp
 
         public async Task HandleAsync(FakeEvent message, AggregateTypeInfo<FakeAggregate> info)
         {
-            //await LockProvider.TryUsingAsync(message.AggregateId,
-            //    async token =>
-            //    {
-            var agg = await Repository.GetByIdAsync<FakeAggregate>(message.AggregateId);
-            agg.DoFakeEvent2("zweite runde 2");
-            await Repository.SaveAsync(agg, CancellationToken);
-            //},
-            //cancellationToken: CancellationToken);
+            await LockProvider.TryUsingAsync(message.AggregateId,
+                async token =>
+                {
+                    var agg = await Repository.GetByIdAsync<FakeAggregate>(message.AggregateId);
+                    agg.DoFakeEvent2("zweite runde 2");
+                    await Repository.SaveAsync(agg, CancellationToken);
+                },
+            cancellationToken: CancellationToken);
         }
     }
 }

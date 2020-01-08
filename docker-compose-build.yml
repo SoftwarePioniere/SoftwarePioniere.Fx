@@ -8,12 +8,12 @@ services:
     ports:
       - "27097:27017"
     volumes:
-      - 'mongodbdata123:/data/db'
+      - 'mongodbdata:/data/db'
 
-  redis:
-    image: redis:4.0
-    ports:
-      - "6399:6379"
+  # redis:
+  #   image: redis:4.0
+  #   ports:
+  #     - "6399:6379"
 
   eventstore:
     image: softwarepioniere/eventstore:latest
@@ -27,9 +27,9 @@ services:
       - EVENTSTORE_DB=/data
       - EVENTSTORE_EXT_TCP_HEARTBEAT_TIMEOUT=10000   
     volumes:
-      - 'eventstoredata123:/data'
+      - 'eventstoredata:/data'
       
 volumes:
-  mongodbdata123:
-  eventstoredata123:
+  mongodbdata:
+  eventstoredata:
 

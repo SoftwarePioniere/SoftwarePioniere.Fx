@@ -309,7 +309,7 @@ private void StartTestEnv(){
     Information("Starting Test Environment");
 
     DockerComposeUp( new DockerComposeUpSettings{
-                Files = new [] { "docker-compose.yml" },
+                Files = new [] { "docker-compose-build.yml" },
                 DetachedMode = true,
                 ForceRecreate = true
         });
@@ -319,7 +319,7 @@ private void StopTestEnv(){
     Information("Stopping Test Environment");
 
     DockerComposeDown( new DockerComposeDownSettings{
-            Files = new [] { "docker-compose.yml" },
+            Files = new [] { "docker-compose-build.yml" },
             RemoveOrphans = true
     });
 }
