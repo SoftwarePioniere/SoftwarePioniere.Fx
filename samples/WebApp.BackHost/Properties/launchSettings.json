@@ -1,0 +1,14 @@
+﻿{
+  "profiles": {
+
+    "console_cmd": {
+      "commandName": "Project",
+      "launchBrowser": false,
+      "applicationUrl": "http://localhost:5098",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "APPID": "cmd"
+      }
+    }
+  }
+}

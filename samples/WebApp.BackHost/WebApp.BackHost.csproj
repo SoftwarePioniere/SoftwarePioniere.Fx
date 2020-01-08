@@ -3,7 +3,11 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp2.2</TargetFramework>
     <AspNetCoreHostingModel>InProcess</AspNetCoreHostingModel>
-    <Configurations>Debug;Release</Configurations>
+    <Configurations>Debug;Release;Debug2</Configurations>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug2|AnyCPU'">
+    <OutputPath>bin/local2/</OutputPath>
   </PropertyGroup>
 
   <ItemGroup>
@@ -19,6 +23,7 @@
 
   <ItemGroup>
     <Folder Include="logs\" />
+    <Folder Include="wwwroot\" />
   </ItemGroup>
 
 </Project>

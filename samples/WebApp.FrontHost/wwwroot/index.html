@@ -1,0 +1,113 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title>Fliegel 365 API</title>
+</head>
+
+<body>
+    <!-- ReSharper disable once Html.PathError -->
+    <a href="swagger">Swagger UI</a>
+    <br />
+    <!--<a href="api/values">values api</a>
+    <br />-->
+    <input id="token" placeholder="..token" />
+    <br />
+    <button id="connect" onclick="connect()">Connect To SignalR</button>
+    <br />
+    <button id="connectAuth" onclick="connectAuth()">Connect To SignalR with Token and Auth</button>
+    <br />
+    <button id="disconnect" onclick="disconnect()">Disconnect from SignalR</button>
+    <br />
+    <a href="https://softwarepioniere-demo.eu.auth0.com/v2/logout">Auth0 Logout: softwarepioniere-demo.eu.auth0.com</a>
+    <br />
+
+    <ul id="messages"></ul>
+
+    <script src="signalr.js"></script>
+
+    <script language="javascript" type="text/javascript">
+
+        var connection = null;
+
+        function getJwtToken() {
+            var token = document.getElementById("token").value;
+            //  console.log("token: ", token);
+            return token;
+        }
+
+        function connectAuth() {
+
+            if (connection) {
+                console.log("disconnecting first");
+                disconnect();
+            }
+
+            // ReSharper disable once UseOfImplicitGlobalInFunctionScope
+            connection = new signalR.HubConnectionBuilder()
+                .withUrl("/f365/api/test/notifications/auth",
+                    {
+                        accessTokenFactory: () => getJwtToken()
+                    }
+                )
+                .build();
+
+            initConnection();
+        }
+
+        function connect() {
+
+            if (connection) {
+                console.log("disconnecting first");
+                disconnect();
+            }
+
+            // ReSharper disable once UseOfImplicitGlobalInFunctionScope
+            connection = new signalR.HubConnectionBuilder()
+                .withUrl("/f365/api/test/notifications",
+                    {
+                        //         accessTokenFactory: () => getJwtToken()
+                    }
+                )
+                .build();
+
+            initConnection();
+
+
+        };
+
+        function initConnection() {
+
+            //connection.on .onConnected = () => {
+            //    //optional
+            //    console.log("You are now connected! Connection ID: " + connection.connectionId);
+            //}
+
+            //connection.connectionMethods.onDisconnected = () => {
+            //    //optional
+            //    console.log("Disconnected!");
+            //}
+
+            connection.on("message",
+                data => {
+                    console.log(data);
+                });
+
+            connection.on("notitfy",
+                data => {
+                    console.log(data);
+                });
+
+            connection.start();
+
+        }
+
+        function disconnect() {
+            connection.stop();
+        };
+    </script>
+
+</body>
+
+</html>

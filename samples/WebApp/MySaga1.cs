@@ -46,32 +46,42 @@ namespace WebApp
             //    TourDefinitionZeitAngelegtHandler);
         }
 
+        private string LockId(FakeEvent arg1, AggregateTypeInfo<FakeAggregate> arg2)
+        {
+            return arg2.AggregateId;
+        }
+
+        private string LockId(FakeCommand arg)
+        {
+            return arg.ObjectId;
+        }
+
 
         public async Task HandleAsync(FakeCommand message)
         {
-            await LockProvider.TryUsingAsync(message.ObjectId,
-                async token =>
-                {
-                    var ex = await Repository.CheckAggregateExists<FakeAggregate>(message.ObjectId, token);
+            //await LockProvider.TryUsingAsync(message.ObjectId,
+            //    async token =>
+            //    {
+            var ex = await Repository.CheckAggregateExists<FakeAggregate>(message.ObjectId);
 
-                    if (!ex)
-                    {
-                        var agg = FakeAggregate.Factory.Create(message.ObjectId);
-                        agg.DoFakeEvent(message.Text);
-                        await Repository.SaveAsync(agg, CancellationToken);
-                    }
-                    else
-                    {
-                        var agg = await Repository.GetByIdAsync<FakeAggregate>(message.ObjectId, token);
-                        agg.DoFakeEvent(message.Text);
-                        await Repository.SaveAsync(agg, CancellationToken);
-                    }
-                },
-                cancellationToken: CancellationToken);
+            if (!ex)
+            {
+                var agg = FakeAggregate.Factory.Create(message.ObjectId);
+                agg.DoFakeEvent(message.Text);
+                await Repository.SaveAsync(agg, CancellationToken);
+            }
+            else
+            {
+                var agg = await Repository.GetByIdAsync<FakeAggregate>(message.ObjectId);
+                agg.DoFakeEvent(message.Text);
+                await Repository.SaveAsync(agg, CancellationToken);
+            }
+            //},
+            //cancellationToken: CancellationToken);
         }
 
-     
-        private Task TourDefinitionZeitAngelegtHandler(TourDefintionZeitAngelegt model      
+
+        private Task TourDefinitionZeitAngelegtHandler(TourDefintionZeitAngelegt model
            )
         {
             //var message = JsonConvert.DeserializeObject<TourDefinitionZeitAngelegtEvent>(model.TourDefinitionZeitAngelegtEvent);
@@ -93,14 +103,14 @@ namespace WebApp
 
         public async Task HandleAsync(FakeEvent message, AggregateTypeInfo<FakeAggregate> info)
         {
-            await LockProvider.TryUsingAsync(message.AggregateId,
-                async token =>
-                {
-                    var agg = await Repository.GetByIdAsync<FakeAggregate>(message.AggregateId, token);
-                    agg.DoFakeEvent2("zweite runde 2");
-                    await Repository.SaveAsync(agg, CancellationToken);
-                },
-                cancellationToken: CancellationToken);
+            //await LockProvider.TryUsingAsync(message.AggregateId,
+            //    async token =>
+            //    {
+            var agg = await Repository.GetByIdAsync<FakeAggregate>(message.AggregateId);
+            agg.DoFakeEvent2("zweite runde 2");
+            await Repository.SaveAsync(agg, CancellationToken);
+            //},
+            //cancellationToken: CancellationToken);
         }
     }
 }
