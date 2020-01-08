@@ -58,15 +58,15 @@ namespace Lib.Hosting
             Environment.SetEnvironmentVariable("SOPISAMPLE_AzureAdClient__ClientSecret", "8FOt08g97cm+BTpTI5/6aHLFw2J4hdqCHK5Unn+naU0=");
 
             
-            Environment.SetEnvironmentVariable("SOPISAMPLE_EventStore__TcpPort", "1193");
-            Environment.SetEnvironmentVariable("SOPISAMPLE_EventStore__HttpPort", "2193");
+            //Environment.SetEnvironmentVariable("SOPISAMPLE_EventStore__TcpPort", "1193");
+            //Environment.SetEnvironmentVariable("SOPISAMPLE_EventStore__HttpPort", "2193");
             Environment.SetEnvironmentVariable("SOPISAMPLE_EventStore__ExtSecureTcpPort", "1195");
             
             Environment.SetEnvironmentVariable("SOPISAMPLE_FolderStorage__Folder", "./storage");
             
-            Environment.SetEnvironmentVariable("SOPISAMPLE_Redis__ConnectionString", "localhost:6399,allowAdmin=true");
+            //Environment.SetEnvironmentVariable("SOPISAMPLE_Redis__ConnectionString", "localhost:6399,allowAdmin=true");
             
-            Environment.SetEnvironmentVariable("SOPISAMPLE_MongoDb__Port", "27097");
+            //Environment.SetEnvironmentVariable("SOPISAMPLE_MongoDb__Port", "27097");
             Environment.SetEnvironmentVariable("SOPISAMPLE_MongoDb__DatabaseId", "sopifx1");
         }
 

@@ -5,30 +5,39 @@ services:
   mongodb:
     image: mongo:4.2.2
     ports:
-      - "27097:27017"
+      - "27017:27017"
 
   redis:
     image: redis:4.0.14
     ports:
-      - "6399:6379"
+      - "6379:6379"
 
   eventstore:
     image: eventstore/eventstore:release-5.0.5
     ports:
-      - "2193:2193"
-      - "1193:1193"
+      # - "2193:2193"
+      # - "1193:1193"
+      - "2113:2113"
+      - "1113:1113"
       - "1195:1195"
     environment:
-      - EVENTSTORE_INT_IP=0.0.0.0
-      - EVENTSTORE_EXT_IP=0.0.0.0
-      - EVENTSTORE_ADD_INTERFACE_PREFIXES=false
-      - EVENTSTORE_INT_HTTP_PREFIXES=http://*:2192/
-      - EVENTSTORE_EXT_HTTP_PREFIXES=http://*:2193/
-      - EVENTSTORE_INT_TCP_PORT=1192
-      - EVENTSTORE_EXT_TCP_PORT=1193
-      - EVENTSTORE_INT_HTTP_PORT=1192
-      - EVENTSTORE_EXT_HTTP_PORT=2193
+      # - EVENTSTORE_INT_IP=0.0.0.0
+      # - EVENTSTORE_EXT_IP=0.0.0.0
+      # - EVENTSTORE_ADD_INTERFACE_PREFIXES=false
+     # - EVENTSTORE_INT_HTTP_PREFIXES=http://*:2192/
+     # - EVENTSTORE_EXT_HTTP_PREFIXES=http://*:2193/
+
+    #  - EVENTSTORE_INT_TCP_PORT=1192
+    #   - EVENTSTORE_EXT_TCP_PORT=1193
+    #   - EVENTSTORE_INT_HTTP_PORT=1192
+    #   - EVENTSTORE_EXT_HTTP_PORT=2193
       - EVENTSTORE_EXT_SECURE_TCP_PORT=1195
+      
+      # - EVENTSTORE_EXT_HTTP_PORT_ADVERTISE_AS=2193
+      # - EVENTSTORE_EXT_TCP_PORT_ADVERTISE_AS=1193
+      # - EVENTSTORE_EXT_SECURE_TCP_PORT_ADVERTISE_AS=1195
+      # - EVENTSTORE_EXT_IP_ADVERTISE_AS=127.0.0.1
+
       - EVENTSTORE_STATS_PERIOD_SEC=120
       - EVENTSTORE_RUN_PROJECTIONS=ALL
       - EVENTSTORE_DB=/data
