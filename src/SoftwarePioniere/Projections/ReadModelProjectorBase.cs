@@ -96,10 +96,8 @@ namespace SoftwarePioniere.Projections
                     {
                         Logger.LogTrace("Entities in Destination Loaded {ItemCount} {EntityType} - Must Delete", entities.Length, typeof(T).Name);
 
-                        foreach (var destItem in entities)
-                        {
-                            await dest.DeleteItemAsync<T>(destItem.EntityId, cancellationToken);
-                        }
+                        var tasks = entities.Select(destItem => dest.DeleteItemAsync<T>(destItem.EntityId, cancellationToken));
+                        await Task.WhenAll(tasks);
                     }
 
                 }
@@ -114,13 +112,7 @@ namespace SoftwarePioniere.Projections
                 await dest.BulkInsertItemsAsync(enumerable, cancellationToken);
                 Logger.LogTrace("Items Inserted");
             }
-            //foreach (var item in items)
-            //{
-            //    cancellationToken.ThrowIfCancellationRequested();
-            //    await dest.InsertItemAsync(item, cancellationToken);
-            //}
-
-
+          
             Logger.LogDebug("CopyEntitiesAsync Finished in {Elapsed} ms ", sw.ElapsedMilliseconds);
 
         }

@@ -15,7 +15,7 @@ using SoftwarePioniere.ReadModel;
 
 namespace SoftwarePioniere.Hosting
 {
-    
+
     // ReSharper disable once ClassNeverInstantiated.Global
     public class SopiAppService : BackgroundService
     {
@@ -60,57 +60,13 @@ namespace SoftwarePioniere.Hosting
             {
                 {
 
-                    var initializers = _provider.GetServices<IConnectionProvider>().ToList();
-                    if (initializers.Count > 0)
+                    var connectionProviders = _provider.GetServices<IConnectionProvider>().ToList();
+
+                    if (connectionProviders.Count > 0)
                     {
-                        _logger.LogInformation("Starting ConnectionProvider Initialization");
-                        var sw1 = Stopwatch.StartNew();
-                        var done = new List<Type>();
-
-                        foreach (var initializer in initializers)
+                        async Task InitProvider(IConnectionProvider initializer)
                         {
-                            if (!done.Contains(initializer.GetType()))
-                            {
-
-                                _logger.LogInformation("Initialize IConnectionProvider {ConnectionProvider}", initializer.GetType().FullName);
-                                try
-                                {
-                                    await Policy
-                                        .Handle<Exception>()
-                                        .WaitAndRetryAsync(5, i => TimeSpan.FromSeconds(i * 0.5))
-                                        .ExecuteAsync(() => initializer.InitializeAsync(stoppingToken));
-                                }
-                                catch (Exception e)
-                                {
-                                    _logger.LogCritical(e, "{Type} {Inner}", initializer.GetType().FullName, GetInnerExceptionMessage(e));
-                                }
-                                done.Add(initializer.GetType());
-                            }
-                        }
-                        sw1.Stop();
-                        _logger.LogInformation("ConnectionProvider Initialization Finished in {Elapsed} ms", sw1.ElapsedMilliseconds);
-                    }
-                }
-            }
-
-           
-
-            //eventstore initializer
-            {
-
-                var initializers = _provider.GetServices<IEventStoreInitializer>().ToList();
-                if (initializers.Count > 0)
-                {
-                    _logger.LogInformation("Starting EventStore Initialization");
-                    var sw1 = Stopwatch.StartNew();
-                    var done = new List<Type>();
-
-                    foreach (var initializer in initializers.OrderBy(x => x.ExecutionOrder))
-                    {
-                        if (!done.Contains(initializer.GetType()))
-                        {
-
-                            _logger.LogInformation("Initialize IEventStoreInitializer {EventStoreInitializer}", initializer.GetType().FullName);
+                            _logger.LogInformation("Initialize IConnectionProvider {ConnectionProvider}", initializer.GetType().FullName);
                             try
                             {
                                 await Policy
@@ -122,9 +78,69 @@ namespace SoftwarePioniere.Hosting
                             {
                                 _logger.LogCritical(e, "{Type} {Inner}", initializer.GetType().FullName, GetInnerExceptionMessage(e));
                             }
-                            done.Add(initializer.GetType());
+                        }
+
+                        _logger.LogInformation("Starting ConnectionProvider Initialization");
+                        var sw1 = Stopwatch.StartNew();
+
+                        await Task.WhenAll(connectionProviders.Select(InitProvider));
+
+                        //var done = new List<Type>();
+
+                        //foreach (var initializer in connectionProviders)
+                        //{
+                        //    if (!done.Contains(initializer.GetType()))
+                        //    {
+                        //        await InitProvider(initializer);
+                        //        done.Add(initializer.GetType());
+                        //    }
+                        //}
+
+                        sw1.Stop();
+                        _logger.LogInformation("ConnectionProvider Initialization Finished in {Elapsed} ms", sw1.ElapsedMilliseconds);
+                    }
+                }
+            }
+
+
+
+            //eventstore initializer
+            {
+
+                var eventStoreInitializers = _provider.GetServices<IEventStoreInitializer>().ToList();
+                if (eventStoreInitializers.Count > 0)
+                {
+                    async Task InitAsync(IEventStoreInitializer initializer)
+                    {
+                        _logger.LogInformation("Initialize IEventStoreInitializer {EventStoreInitializer}", initializer.GetType().FullName);
+                        try
+                        {
+                            await Policy
+                                .Handle<Exception>()
+                                .WaitAndRetryAsync(5, i => TimeSpan.FromSeconds(i * 0.5))
+                                .ExecuteAsync(() => initializer.InitializeAsync(stoppingToken));
+                        }
+                        catch (Exception e)
+                        {
+                            _logger.LogCritical(e, "{Type} {Inner}", initializer.GetType().FullName, GetInnerExceptionMessage(e));
                         }
                     }
+
+                    _logger.LogInformation("Starting EventStore Initialization");
+                    var sw1 = Stopwatch.StartNew();
+
+                    await Task.WhenAll(eventStoreInitializers.Select(InitAsync));
+
+                    //var done = new List<Type>();
+
+                    //foreach (var initializer in eventStoreInitializers.OrderBy(x => x.ExecutionOrder))
+                    //{
+                    //    if (!done.Contains(initializer.GetType()))
+                    //    {
+                    //        await InitAsync(initializer);
+                    //        done.Add(initializer.GetType());
+                    //    }
+                    //}
                     sw1.Stop();
                     _logger.LogInformation("EventStore Initialization Finished in {Elapsed} ms", sw1.ElapsedMilliseconds);
                 }
@@ -137,9 +153,7 @@ namespace SoftwarePioniere.Hosting
                 var sagas = _provider.GetServices<ISaga>().ToList();
                 if (sagas.Count > 0)
                 {
-                    _logger.LogInformation("Starting Sagas");
-                    var sw1 = Stopwatch.StartNew();
-                    foreach (var saga in sagas)
+                    async Task InitSaga(ISaga saga)
                     {
                         _logger.LogInformation("Start Saga {Saga}", saga.GetType().Name);
                         try
@@ -152,6 +166,11 @@ namespace SoftwarePioniere.Hosting
                         }
                     }
 
+                    _logger.LogInformation("Starting Sagas");
+                    var sw1 = Stopwatch.StartNew();
+
+                    await Task.WhenAll(sagas.Select(InitSaga));
+
                     sw1.Stop();
                     _logger.LogInformation("Saga Start Finished in {Elapsed} ms", sw1.ElapsedMilliseconds);
                 }
@@ -163,9 +182,7 @@ namespace SoftwarePioniere.Hosting
                 var handlers = _provider.GetServices<IMessageHandler>().ToList();
                 if (handlers.Count > 0)
                 {
-                    _logger.LogInformation("Starting MessageHandler");
-                    var sw1 = Stopwatch.StartNew();
-                    foreach (var handler in handlers)
+                    async Task InitHandler(IMessageHandler handler)
                     {
                         _logger.LogInformation("Start MessageHandler {MessageHandler}", handler.GetType().Name);
                         try
@@ -178,6 +195,9 @@ namespace SoftwarePioniere.Hosting
                         }
                     }
 
+                    _logger.LogInformation("Starting MessageHandler");
+                    var sw1 = Stopwatch.StartNew();
+                    await Task.WhenAll(handlers.Select(InitHandler));
                     sw1.Stop();
                     _logger.LogInformation("MessageHandler Start Finished in {Elapsed} ms", sw1.ElapsedMilliseconds);
                 }
@@ -190,9 +210,7 @@ namespace SoftwarePioniere.Hosting
                 var registries = _provider.GetServices<IProjectorRegistry>().ToList();
                 if (registries.Count > 0)
                 {
-                    _logger.LogInformation("Starting ProjectorRegistries");
-                    var sw1 = Stopwatch.StartNew();
-                    foreach (var registry in registries)
+                    async Task StartRegistry(IProjectorRegistry registry)
                     {
                         _logger.LogInformation("Start ProjectorRegistry {ProjectorRegistry}", registry.GetType().Name);
                         try
@@ -205,44 +223,11 @@ namespace SoftwarePioniere.Hosting
                         }
                     }
 
+                    _logger.LogInformation("Starting ProjectorRegistries");
+                    var sw1 = Stopwatch.StartNew();
+                    await Task.WhenAll(registries.Select(StartRegistry));
                     sw1.Stop();
                     _logger.LogInformation("ProjectorRegistries Start Finished in {Elapsed} ms", sw1.ElapsedMilliseconds);
-                }
-            }
-
-
-            //entitystore initializer
-            {
-
-                var initializers = _provider.GetServices<IEntityStoreInitializer>().ToList();
-                if (initializers.Count > 0)
-                {
-                    _logger.LogInformation("Starting EntityStore Initialization");
-                    var sw1 = Stopwatch.StartNew();
-                    var done = new List<Type>();
-
-                    foreach (var initializer in initializers.OrderBy(x => x.ExecutionOrder))
-                    {
-                        if (!done.Contains(initializer.GetType()))
-                        {
-
-                            _logger.LogInformation("Initialize IEntityStoreInitializer {EntityStoreInitializer}", initializer.GetType().FullName);
-                            try
-                            {
-                                await Policy
-                                    .Handle<Exception>()
-                                    .WaitAndRetryAsync(5, i => TimeSpan.FromSeconds(i * 0.5))
-                                    .ExecuteAsync(() => initializer.InitializeAsync(stoppingToken));
-                            }
-                            catch (Exception e)
-                            {
-                                _logger.LogCritical(e, "{Type} {Inner}", initializer.GetType().FullName, GetInnerExceptionMessage(e));
-                            }
-                            done.Add(initializer.GetType());
-                        }
-                    }
-                    sw1.Stop();
-                    _logger.LogInformation("EntityStore Initialization Finished in {Elapsed} ms", sw1.ElapsedMilliseconds);
                 }
             }
             
@@ -252,9 +237,7 @@ namespace SoftwarePioniere.Hosting
                 var services = _provider.GetServices<ISopiService>().ToList();
                 if (services.Count > 0)
                 {
-                    _logger.LogInformation("Starting SopiServices");
-                    var sw1 = Stopwatch.StartNew();
-                    foreach (var service in services)
+                    async Task StartService(ISopiService service)
                     {
                         _logger.LogInformation("Start SopiService {SopiService}", service.GetType().Name);
                         try
@@ -266,6 +249,11 @@ namespace SoftwarePioniere.Hosting
                             _logger.LogCritical(e, "{Type}", service.GetType().FullName);
                         }
                     }
+
+                    _logger.LogInformation("Starting SopiServices");
+                    var sw1 = Stopwatch.StartNew();
+
+                    await Task.WhenAll(services.Select(StartService));
 
                     sw1.Stop();
                     _logger.LogInformation("SopiServices Start Finished in {Elapsed} ms", sw1.ElapsedMilliseconds);

@@ -1,11 +1,16 @@
-﻿using System.Threading;
+﻿using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
+using SoftwarePioniere.Messaging;
 
 namespace SoftwarePioniere.Domain
 {
 
     public interface IRepository
     {
+
+        Task<IEnumerable<AggregateDomainEventMessage>> SaveAsyncWithOutPush<T>(T aggregate, CancellationToken token = default) where T : AggregateRoot;
+        Task<IEnumerable<AggregateDomainEventMessage>> SaveAsyncWithOutPush<T>(T aggregate, int expectedVersion, CancellationToken token = default) where T : AggregateRoot;
 
         Task SaveAsync<T>(T aggregate, CancellationToken token = default) where T : AggregateRoot;
         Task SaveAsync<T>(T aggregate, int expectedVersion, CancellationToken token = default) where T : AggregateRoot;

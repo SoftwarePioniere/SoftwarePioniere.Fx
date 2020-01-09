@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Foundatio.Caching;
@@ -170,12 +171,14 @@ namespace SoftwarePioniere.Caching
                         if (entities == null)
                             return items;
 
+                        var tasks = new List<Task>();
                         foreach (var item in entities)
                         {
-                            await CacheClient.AddAsync(item.EntityId, item, expiresIn);
+                            tasks.Add(CacheClient.AddAsync(item.EntityId, item, expiresIn));
                             items.Add(item);
                         }
 
+                        await Task.WhenAll(tasks);
                     }
                 }
 
@@ -208,8 +211,13 @@ namespace SoftwarePioniere.Caching
 
                     if (entities.Length > 0)
                     {
+                        var tasks = new List<Task>();
                         foreach (var item in entities)
-                            await CacheClient.AddAsync(item.EntityId, item, expiresIn);
+                        {
+                            tasks.Add(CacheClient.AddAsync(item.EntityId, item, expiresIn));
+                        }
+
+                        await Task.WhenAll(tasks);
 
                         var entityIds = entities.Select(x => x.EntityId).ToArray();
                         await CacheClient.SetAddAsync(setKey, entityIds, expiresIn);

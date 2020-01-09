@@ -267,13 +267,8 @@ namespace SoftwarePioniere.Messaging
             var sw = Stopwatch.StartNew();
             _logger.LogDebug("PublishCommandsAsync started");
 
-            var results = new List<MessageResponse>();
-
-            foreach (var cmd in cmds)
-            {
-                var rsps = await PublishCommandAsync(cmd, cancellationToken);
-                results.Add(rsps);
-            }
+            var tasks = cmds.Select(cmd => PublishCommandAsync(cmd, cancellationToken)).ToList();
+            var results = await Task.WhenAll(tasks);
 
             if (results.Any(x => x.IsError)) return results.FirstOrDefault(x => x.IsError);
 

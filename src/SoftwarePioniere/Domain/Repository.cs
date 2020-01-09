@@ -59,6 +59,7 @@ namespace SoftwarePioniere.Domain
                     await _store.SaveEventsAsync<T>(aggregate.AggregateId, events, expectedVersion).ConfigureAwait(false);
                     aggregate.MarkChangesAsCommitted();
 
+                    var tasks = new List<Task>();
 
                     foreach (var @event in events)
                     {
@@ -67,8 +68,7 @@ namespace SoftwarePioniere.Domain
                         if (_options.SendInternalEvents)
                         {
                             _logger.LogTrace("SaveAsync: PublishMessageAsync {@Message}", @event);
-                            await _publisher.PublishAsync(@event.GetType(), @event, TimeSpan.Zero, token)
-                                .ConfigureAwait(false);
+                            tasks.Add(_publisher.PublishAsync(@event.GetType(), @event, TimeSpan.Zero, token));
                         }
 
                         {
@@ -76,14 +76,86 @@ namespace SoftwarePioniere.Domain
                             var created = @event.CreateAggregateDomainEventMessage(aggregate);
 
                             _logger.LogTrace("SaveAsync: Publish AggregateDomainEventMessage {@Message}", created);
-                            await _publisher.PublishAsync(created.GetType(), created, TimeSpan.Zero, token).ConfigureAwait(false);
+                            tasks.Add(_publisher.PublishAsync(created.GetType(), created, TimeSpan.Zero, token));
+                        }
+                    }
+
+                    await Task.WhenAll(tasks);
+                }
+                sw.Stop();
+                _logger.LogDebug("SaveAsync {Type} {AggregateId} finished in {Elapsed} ms ", typeof(T), expectedVersion, sw.ElapsedMilliseconds);
+
+            }
+        }
+
+        public async Task<IEnumerable<AggregateDomainEventMessage>> SaveAsyncWithOutPush<T>(T aggregate, CancellationToken token = default) where T : AggregateRoot
+        {
+            token.ThrowIfCancellationRequested();
+            return await SaveAsyncWithOutPush(aggregate, aggregate.Version, token).ConfigureAwait(false);
+        }
+
+        public async Task<IEnumerable<AggregateDomainEventMessage>> SaveAsyncWithOutPush<T>(T aggregate, int expectedVersion, CancellationToken token = default) where T : AggregateRoot
+        {
+
+            var state = new Dictionary<string, object>
+            {
+                {"AggregateId", aggregate.AggregateId},
+                {"ExpectedVersion",expectedVersion},
+                {"Type", typeof(T).FullName}
+            };
+
+            using (_logger.BeginScope(state))
+            {
+                var result = new List<AggregateDomainEventMessage>();
+
+                var sw = Stopwatch.StartNew();
+                _logger.LogDebug("SaveAsync {Type} {AggregateId} {ExpectedVersion} started", typeof(T), expectedVersion, aggregate.AggregateId);
+
+                var events = aggregate.GetUncommittedChanges().ToArray();
+
+                if (events.Length == 0)
+                {
+                    _logger.LogTrace("SaveAsync {Type} {AggregateId} {ExpectedVersion} No Events", typeof(T), expectedVersion, aggregate.AggregateId);
+                }
+                else
+                {
+                    token.ThrowIfCancellationRequested();
+
+                    _logger.LogAggregate(aggregate);
+
+                    await _store.SaveEventsAsync<T>(aggregate.AggregateId, events, expectedVersion).ConfigureAwait(false);
+                    aggregate.MarkChangesAsCommitted();
+
+
+
+                    foreach (var @event in events)
+                    {
+                        token.ThrowIfCancellationRequested();
+
+                        //if (_options.SendInternalEvents)
+                        //{
+                        //    _logger.LogTrace("SaveAsync: PublishMessageAsync {@Message}", @event);
+                        //    await _publisher.PublishAsync(@event.GetType(), @event, TimeSpan.Zero, token)
+                        //        .ConfigureAwait(false);
+                        //}
+
+                        {
+
+                            var created = @event.CreateAggregateDomainEventMessage(aggregate);
+                            result.Add(created);
+
+                            //_logger.LogTrace("SaveAsync: Publish AggregateDomainEventMessage {@Message}", created);
+                            //await _publisher.PublishAsync(created.GetType(), created, TimeSpan.Zero, token).ConfigureAwait(false);
                         }
                     }
                 }
                 sw.Stop();
                 _logger.LogDebug("SaveAsync {Type} {AggregateId} finished in {Elapsed} ms ", typeof(T), expectedVersion, sw.ElapsedMilliseconds);
 
+                return result;
             }
+
+
         }
 
         public async Task SaveAsync<T>(T aggregate, CancellationToken token = default) where T : AggregateRoot
@@ -208,7 +280,7 @@ namespace SoftwarePioniere.Domain
                 sw.Stop();
 
                 _logger.LogDebug("GetByIdAsync finished in {Elapsed} ms ", sw.ElapsedMilliseconds);
-                
+
                 return aggregate;
 
             }

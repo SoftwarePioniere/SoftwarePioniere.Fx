@@ -23,9 +23,11 @@ namespace WebApp
 
         internal IEnumerable<FakeCommand> CreateFakeCommands(string userId)
         {
+            var prefix = Guid.NewGuid().ToString().GetHashCode().ToString();
             for (int j = 0; j < MultiCount; j++)
             {
-                var id = Guid.NewGuid().ToString();
+             //   var id = Guid.NewGuid().ToString();
+             var id = $"{prefix}-{j}";
                 for (int i = 0; i < MultiCount2; i++)
                 {
                     yield return new FakeCommand(Guid.NewGuid(), TimeStampUtc, userId, -1,

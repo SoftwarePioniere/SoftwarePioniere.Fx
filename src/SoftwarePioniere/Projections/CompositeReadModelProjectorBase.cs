@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -51,16 +52,13 @@ namespace SoftwarePioniere.Projections
                 var sw = Stopwatch.StartNew();
                 Logger.LogDebug("ProcessEventAsync started");
 
-                foreach (var projector in _childProjectors)
+                try
                 {
-                    Logger.LogDebug("HandleAsync in ChildProjector {ChildProjector}", projector.GetType().Name);
-                    try
-                    {
-                        await projector.ProcessEventAsync(domainEvent);
-                    }
-                    catch (Exception e) when (LogError(e))
-                    {
-                    }
+                    var tasks = _childProjectors.Select(x => x.ProcessEventAsync(domainEvent));
+                    await Task.WhenAll(tasks);
+                }
+                catch (Exception e) when (LogError(e))
+                {
                 }
 
                 sw.Stop();
@@ -75,12 +73,9 @@ namespace SoftwarePioniere.Projections
             var sw = Stopwatch.StartNew();
             Logger.LogDebug("CopyEntitiesAsync started");
 
-            foreach (var projector in _childProjectors)
-            {
-                Logger.LogDebug("CopyEntitiesAsync in ChildProjector {ChildProjector}", projector.GetType().Name);
-                await projector.CopyEntitiesAsync(source, dest, cancellationToken);
-            }
-
+            var tasks = _childProjectors.Select(x => x.CopyEntitiesAsync(source, dest, cancellationToken));
+            await Task.WhenAll(tasks);
+            
             sw.Stop();
             Logger.LogDebug("CopyEntitiesAsync finished in {Elapsed} ms", sw.ElapsedMilliseconds);
         }

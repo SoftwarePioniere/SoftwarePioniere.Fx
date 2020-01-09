@@ -1,4 +1,5 @@
-﻿using Lib.Hosting;
+﻿using System;
+using Lib.Hosting;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
@@ -25,6 +26,8 @@ namespace WebApp.FrontHost
             //    id = "app";
 
             AppConfig.SetEnvironmentVariables("fronthost");
+
+           // Environment.SetEnvironmentVariable("SOPISAMPLE_Logging__DebugSources", "XXXXX");
 
             AppConfig.SetWebSocketEnvironmentVariables(Constants.NotificationsBaseRouteAuth);
 

@@ -97,11 +97,8 @@ namespace SoftwarePioniere.ReadModel
 
             if (!Options.CachingDisabled)
             {
-                foreach (var item in enumerable)
-                {
-                    await CacheClient.SetAsync(item.EntityId, item, TimeSpan.FromMinutes(Options.CacheMinutes));
-                }
-                //await ClearCache<T>();
+                var tasks = enumerable.Select(item => CacheClient.SetAsync(item.EntityId, item, TimeSpan.FromMinutes(Options.CacheMinutes)));
+                await Task.WhenAll(tasks);
             }
 
             await InternalBulkInsertItemsAsync(enumerable, cancellationToken);

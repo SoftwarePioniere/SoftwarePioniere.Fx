@@ -56,54 +56,7 @@ namespace SoftwarePioniere.EventStore.Projections
             _options = options.Value;
         }
 
-
-        //private async Task<bool> ReadStreamAsync(string stream, IQueue<ProjectionEventData> queue, CancellationToken cancellationToken = default(CancellationToken))
-        //{
-        //    _logger.LogDebug("ReadFromStreamAsync {Stream}", stream);
-
-        //    var cred = _connectionProvider.OpsCredentials;
-        //    var src = _connectionProvider.Connection.Value;
-
-        //    StreamEventsSlice slice;
-
-        //    long sliceStart = StreamPosition.Start;
-
-
-        //    do
-        //    {
-        //        _logger.LogTrace("Reading Slice from {0}", sliceStart);
-
-        //        slice = await src.ReadStreamEventsForwardAsync(stream, sliceStart, 500, true, cred);
-        //        _logger.LogTrace("Next Event: {0} , IsEndOfStream: {1}", slice.NextEventNumber, slice.IsEndOfStream);
-
-        //        sliceStart = slice.NextEventNumber;
-
-        //        foreach (var ev in slice.Events)
-        //        {
-        //            if (cancellationToken.IsCancellationRequested)
-        //            {
-        //                _logger.LogWarning("Initialization Cancelled");
-        //                return false;
-        //            }
-
-        //            var de = ev.Event.ToDomainEvent();
-        //            var desc = new ProjectionEventData
-        //            {
-        //                EventData = de,
-        //                EventNumber = ev.OriginalEventNumber
-        //            };
-
-        //            _logger.LogTrace("Enqueue Event @{0}", desc);
-        //            await queue.EnqueueAsync(desc);
-
-        //        }
-
-        //    } while (!slice.IsEndOfStream);
-
-        //    return true;
-        //}
-
-
+  
         private async Task<ProjectionStatus> ReadStreamAsync(string stream, EventStoreProjectionContext context,
             CancellationToken cancellationToken = default(CancellationToken))
         {
@@ -214,13 +167,16 @@ namespace SoftwarePioniere.EventStore.Projections
                     throw new InvalidOperationException($"Empty Stream in Projector: {projector.GetType().FullName}");
                 }
             }
+
             var streamsToCheck = _projectors.Select(x => x.StreamName).Distinct().ToArray();
-            foreach (var s in streamsToCheck)
+
+            await Task.WhenAll(streamsToCheck.Select(s =>
             {
                 _logger.LogDebug("Preparing Stream {StreamName}", s);
-                await InsertEmptyDomainEventIfStreamIsEmpty(s);
-            }
+                return InsertEmptyDomainEventIfStreamIsEmpty(s);
+            }));
 
+          
             await _cache.RemoveByPrefixAsync(CacheKeys.Create<ProjectionInitializationStatus>());
             foreach (var projector in _projectors)
             {
@@ -243,22 +199,13 @@ namespace SoftwarePioniere.EventStore.Projections
             }
 
 
-            var tasks = new List<Task<EventStoreProjectionContext>>();
+            var contexte = await Task.WhenAll(_projectors.Select(projector =>
+               {
+                   return Policy.Handle<Exception>().RetryAsync(2, (exception, i) =>
+                       _logger.LogError(exception, "Retry {Retry}", i)).ExecuteAsync(() => InitProjectorInternal(cancellationToken, projector));
+               }));
 
-            foreach (var projector in _projectors)
-            {
-                var t = Policy.Handle<Exception>().RetryAsync(2, (exception, i) =>
-                    _logger.LogError(exception, "Retry {Retry}", i)).ExecuteAsync(() => InitProjectorInternal(cancellationToken, projector));
-
-                tasks.Add(t);
-            }
-
-            var contexte = await Task.WhenAll(tasks);
-
-            foreach (var ctx in contexte)
-            {
-                await StartProjectorInternal(cancellationToken, ctx);
-            }
+            await Task.WhenAll(contexte.Select(ctx => StartProjectorInternal(cancellationToken, ctx)));
 
             _logger.LogInformation("EventStore Projection Initializer Finished in {Elapsed} ms", sw.ElapsedMilliseconds);
         }

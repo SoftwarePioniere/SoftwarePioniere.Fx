@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Foundatio.Lock;
 using Microsoft.Extensions.Logging;
 using SoftwarePioniere.Domain;
@@ -59,57 +60,63 @@ namespace WebApp
 
         public async Task HandleAsync(FakeCommand message)
         {
+            Logger.LogInformation("Handle FakeCommand {ObjectId}", message.ObjectId);
+            
+            var tasksToRun = new List<Task>();
+
             await LockProvider.TryUsingAsync(message.ObjectId, async token =>
                 {
                     var ex = await Repository.CheckAggregateExists<FakeAggregate>(message.ObjectId);
 
+                    FakeAggregate agg;
+
                     if (!ex)
                     {
-                        var agg = FakeAggregate.Factory.Create(message.ObjectId);
-                        agg.DoFakeEvent(message.Text);
-                        await Repository.SaveAsync(agg, CancellationToken);
+                        agg = FakeAggregate.Factory.Create(message.ObjectId);
                     }
                     else
                     {
-                        var agg = await Repository.GetByIdAsync<FakeAggregate>(message.ObjectId);
-                        agg.DoFakeEvent(message.Text);
-                        await Repository.SaveAsync(agg, CancellationToken);
+                        agg = await Repository.GetByIdAsync<FakeAggregate>(message.ObjectId);
                     }
+
+                    agg.DoFakeEvent(message.Text);
+                    var evnts = await Repository.SaveAsyncWithOutPush(agg, CancellationToken);
+
+                    foreach (var evnt in evnts)
+                    {
+                        tasksToRun.Add(Bus.PublishAsync(evnt));
+                    }
+                    //await Repository.SaveAsync(agg, CancellationToken);
                 },
             cancellationToken: CancellationToken);
+
+            await Task.WhenAll(tasksToRun);
         }
 
-
-        private Task TourDefinitionZeitAngelegtHandler(TourDefintionZeitAngelegt model
-           )
-        {
-            //var message = JsonConvert.DeserializeObject<TourDefinitionZeitAngelegtEvent>(model.TourDefinitionZeitAngelegtEvent);
-            //  await TourenAnlegenAsync(message, state);
-
-            Logger.LogInformation(model.TourDefinitionId);
-
-            return Task.CompletedTask;
-        }
-
-
-        public class TourDefintionZeitAngelegt
-        {
-            public string TourDefinitionId { get; set; }
-            public string TourDefinitionZeitId { get; set; }
-            public string TourDefinitionZeitAngelegtEvent { get; set; }
-
-        }
 
         public async Task HandleAsync(FakeEvent message, AggregateTypeInfo<FakeAggregate> info)
         {
+            Logger.LogInformation("Handle FakeEvent {AggregateId}", message.AggregateId);
+
+
+            var tasksToRun = new List<Task>();
+
             await LockProvider.TryUsingAsync(message.AggregateId,
                 async token =>
                 {
                     var agg = await Repository.GetByIdAsync<FakeAggregate>(message.AggregateId);
                     agg.DoFakeEvent2("zweite runde 2");
-                    await Repository.SaveAsync(agg, CancellationToken);
+                    //await Repository.SaveAsync(agg, CancellationToken);
+                    var evnts = await Repository.SaveAsyncWithOutPush(agg, CancellationToken);
+
+                    foreach (var evnt in evnts)
+                    {
+                        tasksToRun.Add(Bus.PublishAsync(evnt));
+                    }
                 },
             cancellationToken: CancellationToken);
+
+            await Task.WhenAll(tasksToRun);
         }
     }
 }

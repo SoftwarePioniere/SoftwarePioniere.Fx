@@ -175,15 +175,6 @@ namespace SoftwarePioniere.EventStore.Domain
                 }
             }
 
-            //var i = expectedVersion;
-
-            //// iterate through current aggregate events increasing aggregateVersion with each processed event
-            //foreach (var @event in domainEvents)
-            //{
-            //    i++;
-            //    eventDescriptors.Add(new EventDescriptor(@event, i));
-
-            //}
         }
 
         private async Task<IList<EventDescriptor>> GetEventsForAggregateAsync<T>(string aggregateId,
