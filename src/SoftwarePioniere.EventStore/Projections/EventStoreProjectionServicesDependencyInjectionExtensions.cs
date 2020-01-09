@@ -11,7 +11,7 @@ namespace Microsoft.Extensions.DependencyInjection
         public static IServiceCollection AddEventStoreProjectionServices(this IServiceCollection services)
         {
             return services
-                    .AddSingleton<IEventStoreInitializer, EventStoreSecurityInitializer>()
+                    //.AddSingleton<IEventStoreInitializer, EventStoreSecurityInitializer>()
                     .AddSingleton<IEventStoreInitializer, EventStoreProjectionByCategoryInitializer>()
                      //.AddTransient<IHostedService, ProjectionBackgroundService>()
                     .AddTransient<IProjectorRegistry, EventStoreProjectorRegistry>();
