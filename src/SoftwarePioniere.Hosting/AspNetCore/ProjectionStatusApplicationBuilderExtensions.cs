@@ -22,9 +22,9 @@ namespace SoftwarePioniere.Hosting.AspNetCore
                     applicationBuilder.Run(async context =>
                     {
                         var registry = app.ApplicationServices.GetRequiredService<IProjectorRegistry>();
-                        var status = await registry.GetStatusAsync();
+                        var status = await registry.GetStatusAsync().ConfigureAwait(false);
                         context.Response.ContentType = "application/json";
-                        await context.Response.WriteAsync(JsonConvert.SerializeObject(status), Encoding.UTF8);
+                        await context.Response.WriteAsync(JsonConvert.SerializeObject(status), Encoding.UTF8).ConfigureAwait(false);
 
                     });
                 });

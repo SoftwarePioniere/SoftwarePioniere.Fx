@@ -47,7 +47,7 @@ namespace SoftwarePioniere.AzureAd.Clients
             var context = _contexte.GetOrAdd(tenantId, new AuthenticationContext(authority));
 
             var authenticationResult = await context.AcquireTokenAsync(resource,
-                new ClientCredential(_settings.ClientId, _settings.ClientSecret));
+                new ClientCredential(_settings.ClientId, _settings.ClientSecret)).ConfigureAwait(false);
 
             return authenticationResult.AccessToken;
         }

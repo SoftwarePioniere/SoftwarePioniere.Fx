@@ -183,14 +183,14 @@ namespace SoftwarePioniere.EventStore
         public async Task<IEventStoreConnection> GetActiveConnection()
         {
             //https://blog.cdemi.io/async-waiting-inside-c-sharp-locks/
-            await SemaphoreSlim.WaitAsync();
+            await SemaphoreSlim.WaitAsync().ConfigureAwait(false);
 
             try
             {
                 if (!_connection.IsValueCreated)
                 {
                     var con = _connection.Value;
-                    await con.ConnectAsync();
+                    await con.ConnectAsync().ConfigureAwait(false);
                     return con;
                 }
             }
@@ -272,7 +272,7 @@ namespace SoftwarePioniere.EventStore
 
             //try
             //{
-            var con = await GetActiveConnection();
+            var con = await GetActiveConnection().ConfigureAwait(false);
 
             var slice = await con.ReadStreamEventsForwardAsync(streamName, 0, 1, false, AdminCredentials).ConfigureAwait(false);
             _logger.LogTrace("StreamExists {StreamName} : SliceStatus: {SliceStatus}", streamName, slice.Status);

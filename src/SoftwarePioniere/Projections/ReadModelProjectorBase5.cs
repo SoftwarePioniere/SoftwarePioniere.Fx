@@ -41,16 +41,16 @@ namespace SoftwarePioniere.Projections
             var sw = Stopwatch.StartNew();
             {
                 Logger.LogTrace("Delete all Items");
-                await dest.DeleteAllItemsAsync<T>(cancellationToken);
+                await dest.DeleteAllItemsAsync<T>(cancellationToken).ConfigureAwait(false);
             }
 
-            var items = await source.LoadItemsAsync<T>(arg => true, cancellationToken);
+            var items = await source.LoadItemsAsync<T>(arg => true, cancellationToken).ConfigureAwait(false);
             var enumerable = items as T[] ?? items.ToArray();
             Logger.LogTrace("Entities Loaded {ItemCount} {EntityType}", enumerable.Length, typeof(T).Name);
 
             if (enumerable.Any())
             {
-                await dest.BulkInsertItemsAsync(enumerable, cancellationToken);
+                await dest.BulkInsertItemsAsync(enumerable, cancellationToken).ConfigureAwait(false);
                 Logger.LogTrace("Items Inserted");
             }
 
@@ -70,7 +70,7 @@ namespace SoftwarePioniere.Projections
 
             Logger.LogDebug("SaveAsync {Id} {IsNew}", ent.EntityId, ent.IsNew);
             ent.Entity.ModifiedOnUtc = msg.TimeStampUtc;
-            await Context.EntityStore.SaveAsync(ent, CancellationToken);
+            await Context.EntityStore.SaveAsync(ent, CancellationToken).ConfigureAwait(false);
 
             if (Context.IsLiveProcessing)
             {
@@ -86,7 +86,7 @@ namespace SoftwarePioniere.Projections
                 if (noti != null)
                 {
                     configureNotification?.Invoke(noti);
-                    await Services.Bus.PublishAsync(noti, cancellationToken: CancellationToken); //, state: state);
+                    await Services.Bus.PublishAsync(noti, cancellationToken: CancellationToken).ConfigureAwait(false); //, state: state);
                 }
             }
 
@@ -115,13 +115,13 @@ namespace SoftwarePioniere.Projections
             var sw = Stopwatch.StartNew();
             Logger.LogDebug("DeleteAsync started");
 
-            await Context.EntityStore.DeleteItemAsync<T>(entity.EntityId, CancellationToken);
+            await Context.EntityStore.DeleteItemAsync<T>(entity.EntityId, CancellationToken).ConfigureAwait(false);
 
             if (Context.IsLiveProcessing)
             {
                 var objToSer = CreateIdentifierItem(entity);
                 var noti = CreateNotification(entity, message, ReadModelUpdatedNotification.MethodDelete, objToSer);
-                if (noti != null) await Services.Bus.PublishAsync(noti, cancellationToken: CancellationToken);
+                if (noti != null) await Services.Bus.PublishAsync(noti, cancellationToken: CancellationToken).ConfigureAwait(false);
             }
 
             sw.Stop();
@@ -130,23 +130,23 @@ namespace SoftwarePioniere.Projections
 
         protected async Task<T> DeleteItemAsync(IMessage message)
         {
-            var item = await LoadItemAsync(message);
+            var item = await LoadItemAsync(message).ConfigureAwait(false);
 
             if (item.Entity == null) return null;
 
-            if (!item.IsNew) await DeleteAsync(item.Entity, message);
+            if (!item.IsNew) await DeleteAsync(item.Entity, message).ConfigureAwait(false);
             return item.Entity;
         }
 
         protected async Task<T> DeleteItemIfAsync(IMessage message, Func<T, bool> predicate)
         {
-            var item = await LoadItemAsync(message);
+            var item = await LoadItemAsync(message).ConfigureAwait(false);
 
             if (item.Entity == null) return null;
 
             if (!item.IsNew)
                 if (predicate(item.Entity))
-                    await DeleteAsync(item.Entity, message);
+                    await DeleteAsync(item.Entity, message).ConfigureAwait(false);
 
             return item.Entity;
         }
@@ -169,7 +169,7 @@ namespace SoftwarePioniere.Projections
                 //using (Logger.BeginScope(state))
                 //{
                 Logger.LogDebug($"HANDLE PROJECTOR EVENT {StreamName}/{domainEvent.GetType().Name}");
-                await handler(message);
+                await handler(message).ConfigureAwait(false);
                 //}
 
                 return true;
@@ -180,7 +180,7 @@ namespace SoftwarePioniere.Projections
 
         protected async Task<T> LoadAndSaveEveryTimeAsync(IMessage message, Action<T> setValues = null)
         {
-            var item = await LoadItemAsync(message);
+            var item = await LoadItemAsync(message).ConfigureAwait(false);
             var entity = item.Entity;
 
             if (entity == null)
@@ -190,13 +190,13 @@ namespace SoftwarePioniere.Projections
             }
 
             setValues?.Invoke(entity);
-            await SaveAsync(item, message, CreateIdentifierItem(entity));
+            await SaveAsync(item, message, CreateIdentifierItem(entity)).ConfigureAwait(false);
             return item.Entity;
         }
 
         protected async Task<T> LoadAndSaveOnlyExistingAsync(IMessage message, Action<T> setValues = null)
         {
-            var item = await LoadItemAsync(message);
+            var item = await LoadItemAsync(message).ConfigureAwait(false);
             var entity = item.Entity;
 
             if (item.IsNew)
@@ -212,7 +212,7 @@ namespace SoftwarePioniere.Projections
             }
 
             setValues?.Invoke(entity);
-            await SaveAsync(item, message, CreateIdentifierItem(entity));
+            await SaveAsync(item, message, CreateIdentifierItem(entity)).ConfigureAwait(false);
             return item.Entity;
         }
 

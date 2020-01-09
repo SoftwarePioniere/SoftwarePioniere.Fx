@@ -23,10 +23,10 @@ namespace SoftwarePioniere.EventStore.Domain
         {
             _logger.LogTrace("InitializeAsync");
 
-            if (!await _setup.CheckProjectionIsRunningAsync("$by_category"))
+            if (!await _setup.CheckProjectionIsRunningAsync("$by_category").ConfigureAwait(false))
             {
                 _logger.LogInformation("Enabling $by_category Projection");
-                await _setup.EnableProjectionAsync("$by_category");
+                await _setup.EnableProjectionAsync("$by_category").ConfigureAwait(false);
             }
         }
 

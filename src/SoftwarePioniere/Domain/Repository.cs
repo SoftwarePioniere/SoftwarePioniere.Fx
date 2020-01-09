@@ -80,7 +80,7 @@ namespace SoftwarePioniere.Domain
                         }
                     }
 
-                    await Task.WhenAll(tasks);
+                    await Task.WhenAll(tasks).ConfigureAwait(false);
                 }
                 sw.Stop();
                 _logger.LogDebug("SaveAsync {Type} {AggregateId} finished in {Elapsed} ms ", typeof(T), expectedVersion, sw.ElapsedMilliseconds);
@@ -180,7 +180,7 @@ namespace SoftwarePioniere.Domain
                 _logger.LogDebug("CheckAggregateExists started");
 
                 token.ThrowIfCancellationRequested();
-                var result = await _store.CheckAggregateExists<T>(aggregateId);
+                var result = await _store.CheckAggregateExists<T>(aggregateId).ConfigureAwait(false);
 
                 sw.Stop();
 

@@ -65,7 +65,7 @@ namespace SoftwarePioniere.ReadModel
 
         public virtual async Task CanInsertAndDeleteItem()
         {
-            await InitializeAsync();
+            await InitializeAsync().ConfigureAwait(false);
 
             var id = Guid.NewGuid().ToString();
             var obj1 = FakeEntity.Create(id);
@@ -73,107 +73,107 @@ namespace SoftwarePioniere.ReadModel
             var store = CreateInstance();
 
 
-            await store.InsertItemAsync(obj1);
+            await store.InsertItemAsync(obj1).ConfigureAwait(false);
 
             obj1.StringValue = "changed string";
-            await store.UpdateItemAsync(obj1);
+            await store.UpdateItemAsync(obj1).ConfigureAwait(false);
 
-            var obj2 = await store.LoadItemAsync<FakeEntity>(obj1.EntityId);
+            var obj2 = await store.LoadItemAsync<FakeEntity>(obj1.EntityId).ConfigureAwait(false);
             CompareEntitities(obj1, obj2);
 
-            await store.DeleteItemAsync<FakeEntity>(obj1.EntityId);
+            await store.DeleteItemAsync<FakeEntity>(obj1.EntityId).ConfigureAwait(false);
 
-            var obj3 = await store.LoadItemAsync<FakeEntity>(obj1.EntityId);
+            var obj3 = await store.LoadItemAsync<FakeEntity>(obj1.EntityId).ConfigureAwait(false);
             obj3.Should().BeNull();
         }
 
 
         public virtual async Task CanInsertAndDeleteItemWithWhere()
         {
-            await InitializeAsync();
+            await InitializeAsync().ConfigureAwait(false);
 
             var id = Guid.NewGuid().ToString();
             var obj1 = FakeEntity.Create(id);
 
             var store = CreateInstance();
 
-            await store.InsertItemAsync(obj1);
+            await store.InsertItemAsync(obj1).ConfigureAwait(false);
 
             obj1.StringValue = "changed string";
-            await store.UpdateItemAsync(obj1);
+            await store.UpdateItemAsync(obj1).ConfigureAwait(false);
 
-            var obj2 = await store.LoadItemAsync<FakeEntity>(obj1.EntityId);
+            var obj2 = await store.LoadItemAsync<FakeEntity>(obj1.EntityId).ConfigureAwait(false);
             CompareEntitities(obj1, obj2);
 
-            await store.DeleteItemsAsync<FakeEntity>(entity => entity.EntityId == obj1.EntityId);
+            await store.DeleteItemsAsync<FakeEntity>(entity => entity.EntityId == obj1.EntityId).ConfigureAwait(false);
 
-            var obj3 = await store.LoadItemAsync<FakeEntity>(obj1.EntityId);
+            var obj3 = await store.LoadItemAsync<FakeEntity>(obj1.EntityId).ConfigureAwait(false);
             obj3.Should().BeNull();
         }
 
         public virtual async Task CanInsertAndDeleteAllItems()
         {
-            await InitializeAsync();
+            await InitializeAsync().ConfigureAwait(false);
 
             var id = Guid.NewGuid().ToString();
             var obj1 = FakeEntity.Create(id);
 
             var store = CreateInstance();
 
-            await store.InsertItemAsync(obj1);
+            await store.InsertItemAsync(obj1).ConfigureAwait(false);
 
             obj1.StringValue = "changed string";
-            await store.UpdateItemAsync(obj1);
+            await store.UpdateItemAsync(obj1).ConfigureAwait(false);
 
-            var obj2 = await store.LoadItemAsync<FakeEntity>(obj1.EntityId);
+            var obj2 = await store.LoadItemAsync<FakeEntity>(obj1.EntityId).ConfigureAwait(false);
             CompareEntitities(obj1, obj2);
 
-            await store.DeleteAllItemsAsync<FakeEntity>();
+            await store.DeleteAllItemsAsync<FakeEntity>().ConfigureAwait(false);
 
-            var obj3 = await store.LoadItemAsync<FakeEntity>(obj1.EntityId);
+            var obj3 = await store.LoadItemAsync<FakeEntity>(obj1.EntityId).ConfigureAwait(false);
             obj3.Should().BeNull();
         }
 
 
         public virtual async Task CanInsertAndUpdateItem()
         {
-            await InitializeAsync();
+            await InitializeAsync().ConfigureAwait(false);
 
             var id = Guid.NewGuid().ToString();
             var obj1 = FakeEntity.Create(id);
 
             var store = CreateInstance();
 
-            await store.InsertItemAsync(obj1);
+            await store.InsertItemAsync(obj1).ConfigureAwait(false);
 
             obj1.StringValue = "changed string";
-            await store.UpdateItemAsync(obj1);
+            await store.UpdateItemAsync(obj1).ConfigureAwait(false);
 
 
-            var obj2 = await store.LoadItemAsync<FakeEntity>(obj1.EntityId);
+            var obj2 = await store.LoadItemAsync<FakeEntity>(obj1.EntityId).ConfigureAwait(false);
             CompareEntitities(obj1, obj2);
         }
 
 
         public virtual async Task CanInsertItem()
         {
-            await InitializeAsync();
+            await InitializeAsync().ConfigureAwait(false);
 
             var id = Guid.NewGuid().ToString();
             var obj1 = FakeEntity.Create(id);
 
             var store = CreateInstance();
 
-            await store.InsertItemAsync(obj1);
+            await store.InsertItemAsync(obj1).ConfigureAwait(false);
 
-            var obj2 = await store.LoadItemAsync<FakeEntity>(obj1.EntityId);
+            var obj2 = await store.LoadItemAsync<FakeEntity>(obj1.EntityId).ConfigureAwait(false);
 
             CompareEntitities(obj1, obj2);
         }
 
         public virtual async Task CanHandleDictionaries()
         {
-            await InitializeAsync();
+            await InitializeAsync().ConfigureAwait(false);
 
             var store = CreateInstance();
 
@@ -191,7 +191,7 @@ namespace SoftwarePioniere.ReadModel
                 var bbb = DateTime.UtcNow.Ticks.ToString();
                 entity.Dict1 = entity.Dict1.EnsureDictContainsValue("bbb", bbb);
 
-                await store.InsertItemAsync(entity);
+                await store.InsertItemAsync(entity).ConfigureAwait(false);
 
                 entity.Dict1.Should().ContainKey("aaa");
                 entity.Dict1["aaa"].Should().Be(aaa);
@@ -201,23 +201,23 @@ namespace SoftwarePioniere.ReadModel
             }
 
             {
-                var entity = await store.LoadItemAsync<FakeEntity>(entityId);
+                var entity = await store.LoadItemAsync<FakeEntity>(entityId).ConfigureAwait(false);
                 
                 var ccc = DateTime.UtcNow.Ticks.ToString();
                 entity.Dict1 = entity.Dict1.EnsureDictContainsValue("ccc", ccc);
-                await store.UpdateItemAsync(entity);
+                await store.UpdateItemAsync(entity).ConfigureAwait(false);
 
                 entity.Dict1.Should().ContainKey("ccc");
                 entity.Dict1["ccc"].Should().Be(ccc);
 
-                entity = await store.LoadItemAsync<FakeEntity>(entityId);
+                entity = await store.LoadItemAsync<FakeEntity>(entityId).ConfigureAwait(false);
 
                 entity.Dict1.Should().ContainKey("ccc");
                 entity.Dict1["ccc"].Should().Be(ccc);
             }
 
             {
-                var entity = await store.LoadItemAsync<FakeEntity>(entityId);
+                var entity = await store.LoadItemAsync<FakeEntity>(entityId).ConfigureAwait(false);
              
                 var bbb = DateTime.UtcNow.Ticks.ToString();
                 entity.Dict1 = entity.Dict1.EnsureDictContainsValue("bbb", bbb);
@@ -228,12 +228,12 @@ namespace SoftwarePioniere.ReadModel
                 var aaa = DateTime.UtcNow.Ticks.ToString();
                 entity.Dict1 = entity.Dict1.EnsureDictContainsValue("aaa", aaa);
 
-                await store.UpdateItemAsync(entity);
+                await store.UpdateItemAsync(entity).ConfigureAwait(false);
 
                 entity.Dict1.Should().ContainKey("aaa");
                 entity.Dict1["aaa"].Should().Be(aaa);
                 
-                entity = await store.LoadItemAsync<FakeEntity>(entityId);
+                entity = await store.LoadItemAsync<FakeEntity>(entityId).ConfigureAwait(false);
                 entity.Dict1.Should().ContainKey("aaa");
                 
                 entity.Dict1.Should().ContainKey("bbb");
@@ -249,7 +249,7 @@ namespace SoftwarePioniere.ReadModel
 
         public virtual async Task CanInsertManyItems()
         {
-            await InitializeAsync();
+            await InitializeAsync().ConfigureAwait(false);
 
             var list = new List<FakeEntity>();
 
@@ -258,9 +258,9 @@ namespace SoftwarePioniere.ReadModel
 
             var store = CreateInstance();
 
-            foreach (var entity in list) await store.InsertItemAsync(entity);
+            foreach (var entity in list) await store.InsertItemAsync(entity).ConfigureAwait(false);
 
-            var all = await store.LoadItemsAsync<FakeEntity>();
+            var all = await store.LoadItemsAsync<FakeEntity>().ConfigureAwait(false);
             var allKeys = all.Select(x => x.EntityId).ToArray();
 
             foreach (var entity in list) allKeys.Should().Contain(entity.EntityId);
@@ -268,7 +268,7 @@ namespace SoftwarePioniere.ReadModel
 
         public virtual async Task CanBulkInsertManyItems()
         {
-            await InitializeAsync();
+            await InitializeAsync().ConfigureAwait(false);
 
             var list = new List<FakeEntity>();
 
@@ -276,9 +276,9 @@ namespace SoftwarePioniere.ReadModel
 
             var store = CreateInstance();
 
-            await store.BulkInsertItemsAsync(list);
+            await store.BulkInsertItemsAsync(list).ConfigureAwait(false);
 
-            var all = await store.LoadItemsAsync<FakeEntity>();
+            var all = await store.LoadItemsAsync<FakeEntity>().ConfigureAwait(false);
             var allKeys = all.Select(x => x.EntityId).ToArray();
 
             foreach (var entity in list) allKeys.Should().Contain(entity.EntityId);
@@ -291,10 +291,10 @@ namespace SoftwarePioniere.ReadModel
         {
             var store = CreateInstance();
 
-            Func<Task> f1 = async () => { await store.DeleteItemAsync<FakeEntity>(null); };
+            Func<Task> f1 = async () => { await store.DeleteItemAsync<FakeEntity>(null).ConfigureAwait(false); };
             f1.Should().Throw<ArgumentNullException>();
 
-            Func<Task> f2 = async () => { await store.DeleteItemAsync<FakeEntity>(string.Empty); };
+            Func<Task> f2 = async () => { await store.DeleteItemAsync<FakeEntity>(string.Empty).ConfigureAwait(false); };
             f2.Should().Throw<ArgumentNullException>();
         }
 
@@ -306,7 +306,7 @@ namespace SoftwarePioniere.ReadModel
 
             Func<Task> f1 = async () =>
             {
-                await store.DeleteItemAsync<FakeEntity>(Guid.NewGuid().ToString(), token);
+                await store.DeleteItemAsync<FakeEntity>(Guid.NewGuid().ToString(), token).ConfigureAwait(false);
             };
 
             f1.Should().Throw<Exception>();
@@ -319,7 +319,7 @@ namespace SoftwarePioniere.ReadModel
             var token = new CancellationToken(true);
             Func<Task> f1 = async () =>
             {
-                await store.InsertItemAsync(new FakeEntity(), token);
+                await store.InsertItemAsync(new FakeEntity(), token).ConfigureAwait(false);
             };
 
             f1.Should().Throw<Exception>();
@@ -435,22 +435,22 @@ namespace SoftwarePioniere.ReadModel
 
         public virtual async Task LoadItemsWithWhereWorks()
         {
-            await InitializeAsync();
+            await InitializeAsync().ConfigureAwait(false);
             var store = CreateInstance();
 
             var list = FakeEntity.CreateList(31).ToArray();
 
             foreach (var entity in list)
-                await store.InsertItemAsync(entity);
+                await store.InsertItemAsync(entity).ConfigureAwait(false);
 
             var chunkId = list[0].ChunkId;
 
-            var items = (await store.LoadItemsAsync<FakeEntity>(x => x.ChunkId == chunkId)).ToArray();
+            var items = (await store.LoadItemsAsync<FakeEntity>(x => x.ChunkId == chunkId).ConfigureAwait(false)).ToArray();
             items.Should().NotBeNull();
             items.Length.Should().Be(list.Length);
 
             var guidVal = list[0].GuidValue;
-            var items1 = (await store.LoadItemsAsync<FakeEntity>(x => x.ChunkId == chunkId && x.GuidValue == guidVal)).ToArray();
+            var items1 = (await store.LoadItemsAsync<FakeEntity>(x => x.ChunkId == chunkId && x.GuidValue == guidVal).ConfigureAwait(false)).ToArray();
             items1.Length.Should().Be(1);
         }
 
@@ -459,7 +459,7 @@ namespace SoftwarePioniere.ReadModel
             var store = CreateInstance();
 
             var token = new CancellationToken(true);
-            Func<Task> f1 = async () => { await store.LoadItemsAsync<FakeEntity>(entity => true, token); };
+            Func<Task> f1 = async () => { await store.LoadItemsAsync<FakeEntity>(entity => true, token).ConfigureAwait(false); };
             f1.Should().Throw<Exception>();
         }
 
@@ -470,7 +470,7 @@ namespace SoftwarePioniere.ReadModel
 
             Func<Task> f1 = async () =>
             {
-                var e = await store.LoadItemAsync<FakeEntity>(null);
+                var e = await store.LoadItemAsync<FakeEntity>(null).ConfigureAwait(false);
                 e.Should().NotBeNull();
             };
 
@@ -478,7 +478,7 @@ namespace SoftwarePioniere.ReadModel
 
             Func<Task> f2 = async () =>
             {
-                var e = await store.LoadItemAsync<FakeEntity>(string.Empty);
+                var e = await store.LoadItemAsync<FakeEntity>(string.Empty).ConfigureAwait(false);
                 e.Should().NotBeNull();
             };
             f2.Should().Throw<ArgumentNullException>();
@@ -491,7 +491,7 @@ namespace SoftwarePioniere.ReadModel
             var token = new CancellationToken(true);
             Func<Task> f1 = async () =>
             {
-                await store.LoadItemAsync<FakeEntity>(Guid.NewGuid().ToString(), token);
+                await store.LoadItemAsync<FakeEntity>(Guid.NewGuid().ToString(), token).ConfigureAwait(false);
             };
 
             f1.Should().Throw<Exception>();
@@ -499,16 +499,16 @@ namespace SoftwarePioniere.ReadModel
 
         public virtual async Task SaveAndLoadItemPropertiesEquals()
         {
-            await InitializeAsync();
+            await InitializeAsync().ConfigureAwait(false);
             var id = Guid.NewGuid().ToString();
             var obj1 = FakeEntity.Create(id);
 
             var store = CreateInstance();
 
-            await store.InsertItemAsync(obj1);
+            await store.InsertItemAsync(obj1).ConfigureAwait(false);
 
             var entityId = id.CalculateEntityId<FakeEntity>();
-            var obj2 = await store.LoadItemAsync<FakeEntity>(entityId);
+            var obj2 = await store.LoadItemAsync<FakeEntity>(entityId).ConfigureAwait(false);
 
             CompareEntitities(obj1, obj2);
         }
@@ -516,15 +516,15 @@ namespace SoftwarePioniere.ReadModel
 
         public virtual async Task SaveAndLoadItemsContainsAll()
         {
-            await InitializeAsync();
+            await InitializeAsync().ConfigureAwait(false);
             var obj1 = FakeEntity.Create(Guid.NewGuid().ToString());
             var obj2 = FakeEntity.Create(Guid.NewGuid().ToString());
 
             var store = CreateInstance();
-            await store.InsertItemAsync(obj1);
-            await store.InsertItemAsync(obj2);
+            await store.InsertItemAsync(obj1).ConfigureAwait(false);
+            await store.InsertItemAsync(obj2).ConfigureAwait(false);
 
-            var all = await store.LoadItemsAsync<FakeEntity>();
+            var all = await store.LoadItemsAsync<FakeEntity>().ConfigureAwait(false);
             var allKeys = all.Select(x => x.EntityId).ToArray();
             allKeys.Should().Contain(obj1.EntityId);
             allKeys.Should().Contain(obj2.EntityId);
@@ -533,19 +533,19 @@ namespace SoftwarePioniere.ReadModel
 
         public virtual async Task SaveAndUpdateItemPropertiesEquals()
         {
-            await InitializeAsync();
+            await InitializeAsync().ConfigureAwait(false);
             var id = Guid.NewGuid().ToString();
             var obj1 = FakeEntity.Create(id);
 
             var store = CreateInstance();
 
-            await store.InsertItemAsync(obj1);
+            await store.InsertItemAsync(obj1).ConfigureAwait(false);
 
             obj1.GuidValue = Guid.NewGuid();
-            await store.UpdateItemAsync(obj1);
+            await store.UpdateItemAsync(obj1).ConfigureAwait(false);
 
             var entityId = id.CalculateEntityId<FakeEntity>();
-            var obj2 = await store.LoadItemAsync<FakeEntity>(entityId);
+            var obj2 = await store.LoadItemAsync<FakeEntity>(entityId).ConfigureAwait(false);
 
             CompareEntitities(obj1, obj2);
         }
@@ -556,13 +556,13 @@ namespace SoftwarePioniere.ReadModel
 
             var store = CreateInstance();
 
-            Func<Task> f1 = async () => { await store.UpdateItemAsync<FakeEntity>(null); };
+            Func<Task> f1 = async () => { await store.UpdateItemAsync<FakeEntity>(null).ConfigureAwait(false); };
             f1.Should().Throw<ArgumentNullException>();
 
-            Func<Task> f2 = async () => { await store.InsertItemAsync<FakeEntity>(null); };
+            Func<Task> f2 = async () => { await store.InsertItemAsync<FakeEntity>(null).ConfigureAwait(false); };
             f2.Should().Throw<ArgumentNullException>();
 
-            Func<Task> f3 = async () => { await store.InsertOrUpdateItemAsync<FakeEntity>(null); };
+            Func<Task> f3 = async () => { await store.InsertOrUpdateItemAsync<FakeEntity>(null).ConfigureAwait(false); };
             f3.Should().Throw<ArgumentNullException>();
         }
 
@@ -572,7 +572,7 @@ namespace SoftwarePioniere.ReadModel
 
             var token = new CancellationToken(true);
 
-            Func<Task> f1 = async () => { await store.UpdateItemAsync(new FakeEntity(), token); };
+            Func<Task> f1 = async () => { await store.UpdateItemAsync(new FakeEntity(), token).ConfigureAwait(false); };
             f1.Should().Throw<Exception>();
         }
 
@@ -584,7 +584,7 @@ namespace SoftwarePioniere.ReadModel
         protected virtual async Task InitializeAsync()
         {
             var provider = GetService<IEntityStoreConnectionProvider>();
-            await provider.InitializeAsync(CancellationToken.None);
+            await provider.InitializeAsync(CancellationToken.None).ConfigureAwait(false);
         }
 
         // ReSharper disable once MemberCanBePrivate.Global
@@ -600,33 +600,33 @@ namespace SoftwarePioniere.ReadModel
 
         public virtual async Task InsertExistingWillUpdate()
         {
-            await InitializeAsync();
+            await InitializeAsync().ConfigureAwait(false);
             var id = Guid.NewGuid().ToString();
 
             var obj1 = FakeEntity.Create(id);
 
             var store = CreateInstance();
-            await store.InsertItemAsync(obj1);
+            await store.InsertItemAsync(obj1).ConfigureAwait(false);
 
             var obj2 = FakeEntity.Create(id);
             obj2.StringValue = Guid.NewGuid().ToString();
-            await store.InsertItemAsync(obj2);
+            await store.InsertItemAsync(obj2).ConfigureAwait(false);
 
-            obj1 = await store.LoadItemAsync<FakeEntity>(obj1.EntityId);
+            obj1 = await store.LoadItemAsync<FakeEntity>(obj1.EntityId).ConfigureAwait(false);
 
             CompareEntitities(obj1, obj2);
         }
 
         public virtual async Task UpdateNonExistingWillInsert()
         {
-            await InitializeAsync();
+            await InitializeAsync().ConfigureAwait(false);
             var id = Guid.NewGuid().ToString();
             var obj1 = FakeEntity.Create(id);
 
             var store = CreateInstance();
-            await store.UpdateItemAsync(obj1);
+            await store.UpdateItemAsync(obj1).ConfigureAwait(false);
 
-            var obj2 = await store.LoadItemAsync<FakeEntity>(obj1.EntityId);
+            var obj2 = await store.LoadItemAsync<FakeEntity>(obj1.EntityId).ConfigureAwait(false);
 
             CompareEntitities(obj1, obj2);
         }

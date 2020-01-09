@@ -20,7 +20,7 @@ namespace SoftwarePioniere.Extensions.AspNetCore
         /// <returns></returns>
         public static async Task<bool> IsUserAdmin(this IAuthorizationService authorizationService, ClaimsPrincipal user)
         {
-            var isAdmin = await authorizationService.AuthorizeAsync(user, "admin");
+            var isAdmin = await authorizationService.AuthorizeAsync(user, "admin").ConfigureAwait(false);
             return isAdmin.Succeeded;
         }
     }

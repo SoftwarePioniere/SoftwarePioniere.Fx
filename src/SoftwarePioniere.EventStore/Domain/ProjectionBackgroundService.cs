@@ -29,7 +29,7 @@ namespace SoftwarePioniere.EventStore.Domain
             _logger.LogDebug("ExecuteAsync");
           
             _logger.LogDebug("Initialize IProjectorRegistry");
-            await _projectorRegistry.StartAsync(stoppingToken);
+            await _projectorRegistry.StartAsync(stoppingToken).ConfigureAwait(false);
 
         }
     }

@@ -45,7 +45,7 @@ namespace SoftwarePioniere.Clients
         protected virtual async Task<T> GetAsAsync<T>(ClaimsPrincipal user, string uri)
         {
 
-            var response = await GetAsync(user, uri);
+            var response = await GetAsync(user, uri).ConfigureAwait(false);
 
             if (response.StatusCode == HttpStatusCode.Forbidden)
             {
@@ -63,7 +63,7 @@ namespace SoftwarePioniere.Clients
             }
 
             response.EnsureSuccessStatusCode();
-            var content = await response.Content.ReadAsStringAsync();
+            var content = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
             return JsonConvert.DeserializeObject<T>(content);
         }
 
@@ -84,7 +84,7 @@ namespace SoftwarePioniere.Clients
             }
 
 
-            var response = await Client.SendAsync(request);
+            var response = await Client.SendAsync(request).ConfigureAwait(false);
             //response.EnsureSuccessStatusCode();
 
             return response;

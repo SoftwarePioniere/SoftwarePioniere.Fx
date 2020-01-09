@@ -8,6 +8,7 @@ using SoftwarePioniere.Domain;
 using SoftwarePioniere.FakeDomain;
 using Xunit;
 using Xunit.Abstractions;
+// ReSharper disable ConsiderUsingConfigureAwait
 
 namespace SoftwarePioniere.EventStore.Tests
 {
@@ -47,8 +48,11 @@ namespace SoftwarePioniere.EventStore.Tests
             result.Ids.Length.Should().Be(save.Length);
         }
 
+        // ReSharper disable once MemberCanBePrivate.Global
+        // ReSharper disable once ClassNeverInstantiated.Global
         public class X1
         {
+            // ReSharper disable once UnusedAutoPropertyAccessor.Global
             public string[] Ids { get; set; }
         }
 

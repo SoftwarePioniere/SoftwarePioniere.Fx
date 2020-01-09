@@ -52,19 +52,19 @@ namespace SoftwarePioniere.AzureCosmosDb
 
         public async Task InitializeAsync(CancellationToken cancellationToken)
         {
-            var databaseResponse = await Client.CreateDatabaseIfNotExistsAsync(Options.DatabaseId, Options.OfferThroughput, cancellationToken: cancellationToken);
+            var databaseResponse = await Client.CreateDatabaseIfNotExistsAsync(Options.DatabaseId, Options.OfferThroughput, cancellationToken: cancellationToken).ConfigureAwait(false);
             var database = databaseResponse.Database;
 
-            var readResponse = await database.ReadAsync(cancellationToken: cancellationToken);
-            await readResponse.Database.CreateContainerIfNotExistsAsync(Options.CollectionId, "/entity_type", cancellationToken: cancellationToken, throughput: Options.OfferThroughput);
+            var readResponse = await database.ReadAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
+            await readResponse.Database.CreateContainerIfNotExistsAsync(Options.CollectionId, "/entity_type", cancellationToken: cancellationToken, throughput: Options.OfferThroughput).ConfigureAwait(false);
 
             if (Options.ScaleOfferThroughput)
             {
-                var throughputResponse = await database.ReadThroughputAsync(cancellationToken);
+                var throughputResponse = await database.ReadThroughputAsync(cancellationToken).ConfigureAwait(false);
                 if (throughputResponse.HasValue)
 
                     if (throughputResponse.Value != Options.OfferThroughput)
-                        await database.ReplaceThroughputAsync(Options.OfferThroughput, cancellationToken: cancellationToken);
+                        await database.ReplaceThroughputAsync(Options.OfferThroughput, cancellationToken: cancellationToken).ConfigureAwait(false);
             }
         }
 
@@ -79,17 +79,17 @@ namespace SoftwarePioniere.AzureCosmosDb
             try
             {
 
-                var contRespose = await Container.ReadContainerAsync();
+                var contRespose = await Container.ReadContainerAsync().ConfigureAwait(false);
                 if (contRespose.StatusCode == HttpStatusCode.OK)
                 {
-                    await Container.DeleteContainerAsync();
+                    await Container.DeleteContainerAsync().ConfigureAwait(false);
                 }
 
-                var dbResponse = await Database.ReadAsync();
+                var dbResponse = await Database.ReadAsync().ConfigureAwait(false);
 
                 if (dbResponse.StatusCode == HttpStatusCode.OK)
                 {
-                    await Database.DeleteAsync();
+                    await Database.DeleteAsync().ConfigureAwait(false);
                 }
             }
             catch (Exception e)

@@ -51,11 +51,11 @@ namespace SoftwarePioniere.Clients
                     }
                 }
 
-                var token = await _tokenProvider.GetAccessToken(_audience, tenantId);
+                var token = await _tokenProvider.GetAccessToken(_audience, tenantId).ConfigureAwait(false);
                 request.Headers.Add("Authorization", $"Bearer {token}");
             }
 
-            return await base.SendAsync(request, cancellationToken);
+            return await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
 
         }
     }

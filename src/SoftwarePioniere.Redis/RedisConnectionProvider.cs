@@ -27,7 +27,7 @@ namespace SoftwarePioniere.Redis
             if (!string.IsNullOrEmpty(_options.ConnectionString2))
                 connectionstring = string.Concat(_options.ConnectionString, _options.ConnectionString2);
 
-            Connection = await ConnectionMultiplexer.ConnectAsync(connectionstring);
+            Connection = await ConnectionMultiplexer.ConnectAsync(connectionstring).ConfigureAwait(false);
         }
     }
 }

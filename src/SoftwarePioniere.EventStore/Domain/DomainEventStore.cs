@@ -51,7 +51,7 @@ namespace SoftwarePioniere.EventStore.Domain
             //var sliceStart = 1; //Ignores $StreamCreated
             long sliceStart = 0; //Ignores $StreamCreated
 
-            var con = await _provider.GetActiveConnection();
+            var con = await _provider.GetActiveConnection().ConfigureAwait(false);
 
             var currentSlice = await con
                 .ReadStreamEventsForwardAsync(streamName, sliceStart, 1, false, _provider.OpsCredentials)
@@ -97,7 +97,7 @@ namespace SoftwarePioniere.EventStore.Domain
             var t = typeof(T);
 
 
-            var con = await _provider.GetActiveConnection();
+            var con = await _provider.GetActiveConnection().ConfigureAwait(false);
 
             var domainEvents = events as IDomainEvent[] ?? events.ToArray();
 
@@ -190,7 +190,7 @@ namespace SoftwarePioniere.EventStore.Domain
             long sliceStart = 0; //Ignores $StreamCreated
             StreamEventsSlice currentSlice;
 
-            var con = await _provider.GetActiveConnection();
+            var con = await _provider.GetActiveConnection().ConfigureAwait(false);
 
             var i = -1;
 

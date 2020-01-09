@@ -37,7 +37,7 @@ namespace SoftwarePioniere.Hosting.AspNetCore
                 }
             }
 
-            await next();
+            await next().ConfigureAwait(false);
         }
     }
 }

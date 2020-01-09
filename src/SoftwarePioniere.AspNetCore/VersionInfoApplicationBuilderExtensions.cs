@@ -21,7 +21,7 @@ namespace SoftwarePioniere.AspNetCore
                             var assembly = Assembly.GetEntryAssembly();
                             var ret = (assembly ?? throw new InvalidOperationException()).GetCustomAttribute<AssemblyInformationalVersionAttribute>().InformationalVersion;
                             context.Response.ContentType = "text/plain";
-                            await context.Response.WriteAsync(ret);
+                            await context.Response.WriteAsync(ret).ConfigureAwait(false);
 
                         });
                     });
@@ -40,7 +40,7 @@ namespace SoftwarePioniere.AspNetCore
                             var assembly = Assembly.GetEntryAssembly();
                             var ret = (assembly ?? throw new InvalidOperationException()).GetCustomAttribute<AssemblyTitleAttribute>()?.Title ?? assembly.GetName().Name;
                             context.Response.ContentType = "text/plain";
-                            await context.Response.WriteAsync(ret);
+                            await context.Response.WriteAsync(ret).ConfigureAwait(false);
 
                         });
                     });

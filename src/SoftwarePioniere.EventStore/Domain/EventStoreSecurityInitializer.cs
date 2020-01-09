@@ -22,10 +22,10 @@ namespace SoftwarePioniere.EventStore.Domain
         {
             _logger.LogTrace("InitializeAsync");
 
-            if (!await _setup.CheckOpsUserIsInAdminGroupAsync())
+            if (!await _setup.CheckOpsUserIsInAdminGroupAsync().ConfigureAwait(false))
             {
                 _logger.LogDebug("Adding Opsuser to Admin Group");
-                await _setup.AddOpsUserToAdminsAsync();
+                await _setup.AddOpsUserToAdminsAsync().ConfigureAwait(false);
             }
         }
 

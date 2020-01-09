@@ -53,9 +53,9 @@ namespace SoftwarePioniere.MongoDb
 
             var client = CreateClient();
 
-            var databases = await client.ListDatabasesAsync();
+            var databases = await client.ListDatabasesAsync().ConfigureAwait(false);
 
-            while (await databases.MoveNextAsync())
+            while (await databases.MoveNextAsync().ConfigureAwait(false))
             {
                 var items = databases.Current.ToArray();
                 var c = (items.Count(x => x["name"] == Options.DatabaseId) > 0);
@@ -163,7 +163,7 @@ namespace SoftwarePioniere.MongoDb
         {
             _logger.LogInformation("Clear Database");
 
-            await CreateClient().DropDatabaseAsync(Options.DatabaseId);
+            await CreateClient().DropDatabaseAsync(Options.DatabaseId).ConfigureAwait(false);
             _logger.LogInformation("Reinit Client");
             InitDatabase();
         }
@@ -192,7 +192,7 @@ namespace SoftwarePioniere.MongoDb
         {
 
 
-            await CheckDatabaseExistsAsync();
+            await CheckDatabaseExistsAsync().ConfigureAwait(false);
         }
     }
 }

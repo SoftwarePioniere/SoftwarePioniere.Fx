@@ -29,9 +29,9 @@ namespace SoftwarePioniere.Hosting
                         .LimitAttemptsForOperationTo(2)
                         .WithConnectionTimeoutOf(TimeSpan.FromSeconds(0.5))
                 );
-                await con.ConnectAsync();
+                await con.ConnectAsync().ConfigureAwait(false);
 
-                await con.ReadAllEventsForwardAsync(Position.Start, 1, false, _provider.AdminCredentials);
+                await con.ReadAllEventsForwardAsync(Position.Start, 1, false, _provider.AdminCredentials).ConfigureAwait(false);
 
                 con.Close();
 

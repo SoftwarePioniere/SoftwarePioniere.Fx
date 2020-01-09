@@ -42,7 +42,7 @@ namespace SoftwarePioniere.Clients
             {
                 Logger.LogDebug("No Token, do AquireNewToken");
 
-                await AquireNewToken(audience, tenantId);
+                await AquireNewToken(audience, tenantId).ConfigureAwait(false);
                 return _tokens[tokenKey];
             }
 
@@ -50,7 +50,7 @@ namespace SoftwarePioniere.Clients
             {
                 Logger.LogDebug("Token will expire, do AquireNewToken");
 
-                await AquireNewToken(audience, tenantId);
+                await AquireNewToken(audience, tenantId).ConfigureAwait(false);
                 return _tokens[tokenKey];
             }
 
@@ -68,7 +68,7 @@ namespace SoftwarePioniere.Clients
 
             var tokenKey = $"{audience}-{tenantId}";
 
-            var token = await LoadToken(audience, tenantId);
+            var token = await LoadToken(audience, tenantId).ConfigureAwait(false);
 
             _tokens.AddOrUpdate(tokenKey, token, (key, value) => token);
             var jwt = new JwtSecurityToken(token);

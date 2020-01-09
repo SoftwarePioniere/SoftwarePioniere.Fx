@@ -40,7 +40,7 @@ namespace SoftwarePioniere.AzureCosmosDb
 
                 var iter = _provider.Container.GetItemQueryIterator<int>(query);
 
-                var x = await iter.ReadNextAsync(cancellationToken);
+                var x = await iter.ReadNextAsync(cancellationToken).ConfigureAwait(false);
                 var c = x.Resource.First();
                 return c == 1;
             }
@@ -137,14 +137,14 @@ namespace SoftwarePioniere.AzureCosmosDb
                             );
                         }
 
-                        await Task.WhenAll(tasks);
+                        await Task.WhenAll(tasks).ConfigureAwait(false);
                     }
 
                     workerTasks.Add(InsertItems());
                 }
             }
 
-            await Task.WhenAll(workerTasks);
+            await Task.WhenAll(workerTasks).ConfigureAwait(false);
         }
 
         protected override async Task InternalDeleteAllItemsAsync<T>(CancellationToken cancellationToken = default)
@@ -158,14 +158,14 @@ namespace SoftwarePioniere.AzureCosmosDb
 
             while (iter.HasMoreResults)
             {
-                foreach (var entity in await iter.ReadNextAsync(cancellationToken))
+                foreach (var entity in await iter.ReadNextAsync(cancellationToken).ConfigureAwait(false))
                 {
                     try
                     {
                         await _provider.Container.DeleteItemAsync<T>(
                             partitionKey: GetPartitionKey<T>(),
                             id: entity.EntityId,
-                            cancellationToken: cancellationToken);
+                            cancellationToken: cancellationToken).ConfigureAwait(false);
                     }
                     catch (CosmosException nfex) when (nfex.StatusCode == HttpStatusCode.NotFound)
                     {
@@ -195,7 +195,7 @@ namespace SoftwarePioniere.AzureCosmosDb
                 await _provider.Container.DeleteItemAsync<T>(
                     partitionKey: GetPartitionKey<T>(),
                     id: entityId,
-                    cancellationToken: cancellationToken);
+                    cancellationToken: cancellationToken).ConfigureAwait(false);
             }
             catch (CosmosException nfex) when (nfex.StatusCode == HttpStatusCode.NotFound)
             {
@@ -217,7 +217,7 @@ namespace SoftwarePioniere.AzureCosmosDb
                     await _provider.Container.DeleteItemAsync<T>(
                         partitionKey: GetPartitionKey<T>(),
                         id: entity.EntityId,
-                        cancellationToken: cancellationToken);
+                        cancellationToken: cancellationToken).ConfigureAwait(false);
                 }
                 catch (CosmosException nfex) when (nfex.StatusCode == HttpStatusCode.NotFound)
                 {
@@ -242,13 +242,13 @@ namespace SoftwarePioniere.AzureCosmosDb
 
             while (iter.HasMoreResults)
             {
-                foreach (var entity in await iter.ReadNextAsync(cancellationToken))
+                foreach (var entity in await iter.ReadNextAsync(cancellationToken).ConfigureAwait(false))
                 {
                     tasks.Add(DeleteTask(entity));
                 }
             }
 
-            await Task.WhenAll(tasks);
+            await Task.WhenAll(tasks).ConfigureAwait(false);
         }
 
         protected override async Task InternalInsertItemAsync<T>(T item, CancellationToken cancellationToken = default)
@@ -264,7 +264,7 @@ namespace SoftwarePioniere.AzureCosmosDb
 
             try
             {
-                await _provider.Container.CreateItemAsync(item, GetPartitionKey<T>(), cancellationToken: cancellationToken);
+                await _provider.Container.CreateItemAsync(item, GetPartitionKey<T>(), cancellationToken: cancellationToken).ConfigureAwait(false);
             }
             catch (CosmosException nfex) when (nfex.StatusCode == HttpStatusCode.Conflict)
             {
@@ -278,7 +278,7 @@ namespace SoftwarePioniere.AzureCosmosDb
                 }
 
 
-                await _provider.Container.UpsertItemAsync(item, GetPartitionKey<T>(), cancellationToken: cancellationToken);
+                await _provider.Container.UpsertItemAsync(item, GetPartitionKey<T>(), cancellationToken: cancellationToken).ConfigureAwait(false);
             }
             catch (CosmosException e) when (LogCosmosError(e))
             {
@@ -297,7 +297,7 @@ namespace SoftwarePioniere.AzureCosmosDb
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            var exi = await ExistsDocument(item.EntityId, cancellationToken);
+            var exi = await ExistsDocument(item.EntityId, cancellationToken).ConfigureAwait(false);
             if (exi)
             {
                 await UpdateItemAsync(item, cancellationToken).ConfigureAwait(false);
@@ -323,7 +323,7 @@ namespace SoftwarePioniere.AzureCosmosDb
             {
                 var res = await _provider.Container.ReadItemAsync<T>(entityId,
                     GetPartitionKey<T>(),
-                    cancellationToken: cancellationToken);
+                    cancellationToken: cancellationToken).ConfigureAwait(false);
 
                 if (res.StatusCode == HttpStatusCode.NotFound)
                 {
@@ -356,7 +356,7 @@ namespace SoftwarePioniere.AzureCosmosDb
 
             try
             {
-                await _provider.Container.UpsertItemAsync(item, GetPartitionKey<T>(), cancellationToken: cancellationToken);
+                await _provider.Container.UpsertItemAsync(item, GetPartitionKey<T>(), cancellationToken: cancellationToken).ConfigureAwait(false);
             }
             catch (CosmosException nfex) when (nfex.StatusCode == HttpStatusCode.NotFound)
             {
@@ -370,7 +370,7 @@ namespace SoftwarePioniere.AzureCosmosDb
                 }
 
 
-                await _provider.Container.CreateItemAsync(item, GetPartitionKey<T>(), cancellationToken: cancellationToken);
+                await _provider.Container.CreateItemAsync(item, GetPartitionKey<T>(), cancellationToken: cancellationToken).ConfigureAwait(false);
             }
             catch (CosmosException e) when (LogCosmosError(e))
             {
@@ -403,7 +403,7 @@ namespace SoftwarePioniere.AzureCosmosDb
 
                 while (iter.HasMoreResults)
                 {
-                    foreach (var entity in await iter.ReadNextAsync(cancellationToken))
+                    foreach (var entity in await iter.ReadNextAsync(cancellationToken).ConfigureAwait(false))
                     {
                         results.Add(entity);
                     }
@@ -450,7 +450,7 @@ namespace SoftwarePioniere.AzureCosmosDb
 
                 while (iter.HasMoreResults)
                 {
-                    foreach (var entity in await iter.ReadNextAsync(cancellationToken))
+                    foreach (var entity in await iter.ReadNextAsync(cancellationToken).ConfigureAwait(false))
                     {
                         results.Add(entity);
                     }

@@ -43,12 +43,12 @@ namespace SoftwarePioniere.Hosting.AspNetCore
 
                 context.Response.StatusCode = (int)HttpStatusCode.ServiceUnavailable;
                 context.Response.ContentType = "text/plain";
-                await context.Response.WriteAsync(text, Encoding.UTF8);
+                await context.Response.WriteAsync(text, Encoding.UTF8).ConfigureAwait(false);
 
             }
             else
             {
-                await _next.Invoke(context);
+                await _next.Invoke(context).ConfigureAwait(false);
             }
         }
     }
@@ -62,7 +62,7 @@ namespace SoftwarePioniere.Hosting.AspNetCore
 
             if (lifetime.IsStarted)
             {
-                await next();
+                await next().ConfigureAwait(false);
                 return;
             }
 
@@ -71,7 +71,7 @@ namespace SoftwarePioniere.Hosting.AspNetCore
                 var options = context.HttpContext.RequestServices.GetRequiredService<IOptions<LifetimeOptions>>().Value;
                 if (context.HttpContext.Request.Method == "GET" && options.AllowGetWhileStarting)
                 {
-                    await next();
+                    await next().ConfigureAwait(false);
                     return;
                 }
             }
@@ -94,7 +94,7 @@ namespace SoftwarePioniere.Hosting.AspNetCore
             }
 
 
-            await next();
+            await next().ConfigureAwait(false);
         }
     }
 
@@ -119,11 +119,11 @@ namespace SoftwarePioniere.Hosting.AspNetCore
                         var lifetime = app.ApplicationServices.GetRequiredService<ISopiApplicationLifetime>();
                         context.Response.ContentType = "text/plain";
                         if (lifetime.IsStarted)
-                            await context.Response.WriteAsync("started", Encoding.UTF8);
+                            await context.Response.WriteAsync("started", Encoding.UTF8).ConfigureAwait(false);
                         if (lifetime.IsStarting)
-                            await context.Response.WriteAsync("starting", Encoding.UTF8);
+                            await context.Response.WriteAsync("starting", Encoding.UTF8).ConfigureAwait(false);
                         if (lifetime.IsStopped)
-                            await context.Response.WriteAsync("stopped", Encoding.UTF8);
+                            await context.Response.WriteAsync("stopped", Encoding.UTF8).ConfigureAwait(false);
 
 
                     });

@@ -40,31 +40,31 @@ namespace SoftwarePioniere.ReadModel
 
             if (!Options.CachingDisabled)
             {
-                await CacheClient.RemoveAsync(entityId);
+                await CacheClient.RemoveAsync(entityId).ConfigureAwait(false);
                 //    await ClearCache<T>();
             }
 
-            await InternalDeleteItemAsync<T>(entityId, cancellationToken);
+            await InternalDeleteItemAsync<T>(entityId, cancellationToken).ConfigureAwait(false);
         }
 
         public async Task DeleteItemsAsync<T>(Expression<Func<T, bool>> @where, CancellationToken cancellationToken = default) where T : Entity
         {
             if (!Options.CachingDisabled)
             {
-                await CacheClient.RemoveByPrefixAsync(CacheKeys.Create<T>());
+                await CacheClient.RemoveByPrefixAsync(CacheKeys.Create<T>()).ConfigureAwait(false);
             }
 
-            await InternalDeleteItemsAsync(@where, cancellationToken);
+            await InternalDeleteItemsAsync(@where, cancellationToken).ConfigureAwait(false);
         }
 
         public async Task DeleteAllItemsAsync<T>(CancellationToken cancellationToken = default) where T : Entity
         {
             if (!Options.CachingDisabled)
             {
-                await CacheClient.RemoveByPrefixAsync(CacheKeys.Create<T>());
+                await CacheClient.RemoveByPrefixAsync(CacheKeys.Create<T>()).ConfigureAwait(false);
             }
 
-            await InternalDeleteAllItemsAsync<T>(cancellationToken);
+            await InternalDeleteAllItemsAsync<T>(cancellationToken).ConfigureAwait(false);
         }
 
         public async Task InsertItemAsync<T>(T item, CancellationToken cancellationToken = default) where T : Entity
@@ -78,10 +78,10 @@ namespace SoftwarePioniere.ReadModel
 
             if (!Options.CachingDisabled)
             {
-                await CacheClient.SetAsync(item.EntityId, item, TimeSpan.FromMinutes(Options.CacheMinutes));
+                await CacheClient.SetAsync(item.EntityId, item, TimeSpan.FromMinutes(Options.CacheMinutes)).ConfigureAwait(false);
                 //await ClearCache<T>();
             }
-            await InternalInsertItemAsync(item, cancellationToken);
+            await InternalInsertItemAsync(item, cancellationToken).ConfigureAwait(false);
         }
 
         public async Task BulkInsertItemsAsync<T>(IEnumerable<T> items, CancellationToken cancellationToken = default) where T : Entity
@@ -98,10 +98,10 @@ namespace SoftwarePioniere.ReadModel
             if (!Options.CachingDisabled)
             {
                 var tasks = enumerable.Select(item => CacheClient.SetAsync(item.EntityId, item, TimeSpan.FromMinutes(Options.CacheMinutes)));
-                await Task.WhenAll(tasks);
+                await Task.WhenAll(tasks).ConfigureAwait(false);
             }
 
-            await InternalBulkInsertItemsAsync(enumerable, cancellationToken);
+            await InternalBulkInsertItemsAsync(enumerable, cancellationToken).ConfigureAwait(false);
         }
 
         public async Task InsertOrUpdateItemAsync<T>(T item, CancellationToken cancellationToken = default) where T : Entity
@@ -117,9 +117,9 @@ namespace SoftwarePioniere.ReadModel
 
             if (!Options.CachingDisabled)
             {
-                await CacheClient.SetAsync(item.EntityId, item, TimeSpan.FromMinutes(Options.CacheMinutes));
+                await CacheClient.SetAsync(item.EntityId, item, TimeSpan.FromMinutes(Options.CacheMinutes)).ConfigureAwait(false);
             }
-            await InternalInsertOrUpdateItemAsync(item, cancellationToken);
+            await InternalInsertOrUpdateItemAsync(item, cancellationToken).ConfigureAwait(false);
         }
 
         public async Task<T> LoadItemAsync<T>(string entityId, CancellationToken cancellationToken = default) where T : Entity
@@ -133,10 +133,10 @@ namespace SoftwarePioniere.ReadModel
 
             if (Options.CachingDisabled)
             {
-                return await InternalLoadItemAsync<T>(entityId, cancellationToken);
+                return await InternalLoadItemAsync<T>(entityId, cancellationToken).ConfigureAwait(false);
             }
 
-            return await CacheLoadItem(() => InternalLoadItemAsync<T>(entityId, cancellationToken), entityId);
+            return await CacheLoadItem(() => InternalLoadItemAsync<T>(entityId, cancellationToken), entityId).ConfigureAwait(false);
         }
 
         public abstract Task<IEnumerable<T>> LoadItemsAsync<T>(CancellationToken cancellationToken = default) where T : Entity;
@@ -200,10 +200,10 @@ namespace SoftwarePioniere.ReadModel
 
             if (!Options.CachingDisabled)
             {
-                await CacheClient.SetAsync(item.EntityId, item, TimeSpan.FromMinutes(Options.CacheMinutes));
+                await CacheClient.SetAsync(item.EntityId, item, TimeSpan.FromMinutes(Options.CacheMinutes)).ConfigureAwait(false);
             }
 
-            await InternalUpdateItemAsync(item, cancellationToken);
+            await InternalUpdateItemAsync(item, cancellationToken).ConfigureAwait(false);
         }
 
         protected abstract Task InternalDeleteItemAsync<T>(string entityId, CancellationToken cancellationToken = default) where T : Entity;
@@ -224,11 +224,11 @@ namespace SoftwarePioniere.ReadModel
 
         private async Task<T> CacheLoadItem<T>(Func<Task<T>> loader, string cacheKey)
         {
-            if (await CacheClient.ExistsAsync(cacheKey))
+            if (await CacheClient.ExistsAsync(cacheKey).ConfigureAwait(false))
             {
                 Logger.LogTrace("Cache Key exists {CacheKey}", cacheKey);
 
-                var l = await CacheClient.GetAsync<T>(cacheKey);
+                var l = await CacheClient.GetAsync<T>(cacheKey).ConfigureAwait(false);
                 if (l.HasValue)
                 {
                     Logger.LogTrace("Return result from Cache with {CacheKey}", cacheKey);
@@ -239,12 +239,12 @@ namespace SoftwarePioniere.ReadModel
 
             Logger.LogTrace("No Cache Result {CacheKey}", cacheKey);
 
-            var ret = await loader();
+            var ret = await loader().ConfigureAwait(false);
 
             if (ret != null)
             {
                 Logger.LogTrace("Loaded Result. Set to Cache {CacheKey}", cacheKey);
-                await CacheClient.SetAsync(cacheKey, ret, DateTime.UtcNow.AddMinutes(Options.CacheMinutes));
+                await CacheClient.SetAsync(cacheKey, ret, DateTime.UtcNow.AddMinutes(Options.CacheMinutes)).ConfigureAwait(false);
 
             }
 

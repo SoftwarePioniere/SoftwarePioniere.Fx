@@ -19,7 +19,7 @@ namespace SoftwarePioniere.FakeDomain
 
         protected override async Task RegisterMessagesAsync()
         {
-            await Bus.SubscribeCommand<FakeCommand>(HandleAsync);
+            await Bus.SubscribeCommand<FakeCommand>(HandleAsync).ConfigureAwait(false);
         }
 
 

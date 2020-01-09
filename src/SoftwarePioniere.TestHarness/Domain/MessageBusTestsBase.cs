@@ -19,14 +19,14 @@ namespace SoftwarePioniere.Domain
             foreach (var saga in sagas)
             {
                 _logger.LogInformation("Saga Initialize {SagaType}", saga.GetType());
-                await saga.StartAsync(CancellationToken.None);
+                await saga.StartAsync(CancellationToken.None).ConfigureAwait(false);
             }
 
             var handlers = ServiceProvider.GetServices<IMessageHandler>();
             foreach (var handler in handlers)
             {
                 _logger.LogInformation("Handler Initialize {HandlerType}", handler.GetType());
-                await handler.StartAsync(CancellationToken.None);
+                await handler.StartAsync(CancellationToken.None).ConfigureAwait(false);
             }
 
             return GetService<IMessageBus>();
@@ -41,10 +41,10 @@ namespace SoftwarePioniere.Domain
                 .AddSingleton<IMessageHandler, FakeEventHandler>()
                 ;
 
-            var bus = await CreateInstance();
+            var bus = await CreateInstance().ConfigureAwait(false);
             var @event = FakeEvent.Create();
-            await bus.PublishAsync(@event);
-            await Task.Delay(100);
+            await bus.PublishAsync(@event).ConfigureAwait(false);
+            await Task.Delay(100).ConfigureAwait(false);
             FakeEventHandler.HandledBy.Should().Contain(x => x == @event.Id);
         }
 
@@ -57,10 +57,10 @@ namespace SoftwarePioniere.Domain
                 ;
 
 
-            var bus = await CreateInstance();
+            var bus = await CreateInstance().ConfigureAwait(false);
             var @event = FakeEvent.Create();
-            await bus.PublishAsync(@event);
-            await Task.Delay(1000);
+            await bus.PublishAsync(@event).ConfigureAwait(false);
+            await Task.Delay(1000).ConfigureAwait(false);
             FakeEventHandler.HandledBy.Should().Contain(x => x == @event.Id);
         }
 
@@ -72,10 +72,10 @@ namespace SoftwarePioniere.Domain
                 .AddSingleton<ISaga, FakeSaga>()
                 ;
 
-            var bus = await CreateInstance();
+            var bus = await CreateInstance().ConfigureAwait(false);
             var cmd = new FakeCommand(Guid.NewGuid(), DateTime.UtcNow, "xxx", -1, Guid.NewGuid().ToString(), "Text1");
-            await bus.PublishAsync(cmd);
-            await Task.Delay(1000);
+            await bus.PublishAsync(cmd).ConfigureAwait(false);
+            await Task.Delay(1000).ConfigureAwait(false);
             FakeNotificationHandler.HandledByCommandSucceededNotification.Should().Contain(x => x == cmd.Id);
         }
 
@@ -87,10 +87,10 @@ namespace SoftwarePioniere.Domain
                 .AddSingleton<ISaga, FakeSagaWithError>()
                 ;
 
-            var bus = await CreateInstance();
+            var bus = await CreateInstance().ConfigureAwait(false);
             var cmd = new FakeCommand(Guid.NewGuid(), DateTime.UtcNow, "xxx", -1, Guid.NewGuid().ToString(), "Text1");
-            await bus.PublishAsync(cmd);
-            await Task.Delay(1000);
+            await bus.PublishAsync(cmd).ConfigureAwait(false);
+            await Task.Delay(1000).ConfigureAwait(false);
             FakeNotificationHandler.HandledByCommandFailedNotification.Should().Contain(x => x == cmd.Id);
         }
 

@@ -55,7 +55,7 @@ namespace SoftwarePioniere.Projections
                 try
                 {
                     var tasks = _childProjectors.Select(x => x.ProcessEventAsync(domainEvent));
-                    await Task.WhenAll(tasks);
+                    await Task.WhenAll(tasks).ConfigureAwait(false);
                 }
                 catch (Exception e) when (LogError(e))
                 {
@@ -74,7 +74,7 @@ namespace SoftwarePioniere.Projections
             Logger.LogDebug("CopyEntitiesAsync started");
 
             var tasks = _childProjectors.Select(x => x.CopyEntitiesAsync(source, dest, cancellationToken));
-            await Task.WhenAll(tasks);
+            await Task.WhenAll(tasks).ConfigureAwait(false);
             
             sw.Stop();
             Logger.LogDebug("CopyEntitiesAsync finished in {Elapsed} ms", sw.ElapsedMilliseconds);

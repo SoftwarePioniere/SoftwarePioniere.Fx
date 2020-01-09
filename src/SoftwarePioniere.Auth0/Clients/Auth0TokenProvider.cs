@@ -34,7 +34,7 @@ namespace SoftwarePioniere.Auth0.Clients
                 Audience = resource, // _settings.Audience,
                 ClientId = _settings.ClientId,
                 ClientSecret = _settings.ClientSecret
-            });
+            }).ConfigureAwait(false);
             return tokenResponse.AccessToken;
         }
     }

@@ -30,7 +30,7 @@ namespace SoftwarePioniere.FakeDomain
 
         public async Task StartAsync(CancellationToken cancellationToken)
         {
-            await _subscriber.SubscribeAsync<FakeEvent>(HandleAsync, cancellationToken);
+            await _subscriber.SubscribeAsync<FakeEvent>(HandleAsync, cancellationToken).ConfigureAwait(false);
         }
     }
 }

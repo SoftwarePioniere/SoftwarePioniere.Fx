@@ -27,7 +27,7 @@ namespace SoftwarePioniere.EventStore.Domain
         {
             _logger.LogDebug("GetStateAsync {Type} {ProjectionName} {PartitionId}", typeof(T).Name, name, partitionId);
 
-            var json = await LoadJsonAsync(name, partitionId);
+            var json = await LoadJsonAsync(name, partitionId).ConfigureAwait(false);
             return JsonConvert.DeserializeObject<T>(json);
         }
 
@@ -35,7 +35,7 @@ namespace SoftwarePioniere.EventStore.Domain
         {
             _logger.LogDebug("GetStateAsyncAnonymousType {Type} {ProjectionName} {PartitionId}", typeof(T).Name, name, partitionId);
 
-            var json = await LoadJsonAsync(name, partitionId);
+            var json = await LoadJsonAsync(name, partitionId).ConfigureAwait(false);
             return JsonConvert.DeserializeAnonymousType(json, anonymousTypeObject);
         }
 
@@ -58,7 +58,7 @@ namespace SoftwarePioniere.EventStore.Domain
             long sliceStart = StreamPosition.Start;
             StreamEventsSlice currentSlice;
 
-            var con = await _provider.GetActiveConnection();
+            var con = await _provider.GetActiveConnection().ConfigureAwait(false);
             do
             {
                 currentSlice =
@@ -66,7 +66,7 @@ namespace SoftwarePioniere.EventStore.Domain
                         sliceStart,
                         count,
                         true,
-                        _provider.OpsCredentials);
+                        _provider.OpsCredentials).ConfigureAwait(false);
 
                 if (currentSlice.Status == SliceReadStatus.Success)
                 {
@@ -99,7 +99,7 @@ namespace SoftwarePioniere.EventStore.Domain
             long sliceStart = StreamPosition.Start;
             StreamEventsSlice currentSlice;
 
-            var con = await _provider.GetActiveConnection();
+            var con = await _provider.GetActiveConnection().ConfigureAwait(false);
             do
             {
                 currentSlice =
@@ -107,7 +107,7 @@ namespace SoftwarePioniere.EventStore.Domain
                         sliceStart,
                         count,
                         true,
-                        _provider.OpsCredentials);
+                        _provider.OpsCredentials).ConfigureAwait(false);
 
                 sliceStart = currentSlice.NextEventNumber;
 
@@ -122,7 +122,7 @@ namespace SoftwarePioniere.EventStore.Domain
                         var metaJson = Encoding.UTF8.GetString(ev.Metadata);
                         var metaJo = JObject.Parse(metaJson);
 
-                        await task(new MyRecordedEvent(ev.EventNumber, ev.EventType, ev.Created, dataJo, metaJo));
+                        await task(new MyRecordedEvent(ev.EventNumber, ev.EventType, ev.Created, dataJo, metaJo)).ConfigureAwait(false);
                     }
                 }
             } while (!currentSlice.IsEndOfStream);
@@ -136,11 +136,11 @@ namespace SoftwarePioniere.EventStore.Domain
 
             if (string.IsNullOrEmpty(partitionId))
             {
-                json = await manager.GetStateAsync(name, _provider.OpsCredentials);
+                json = await manager.GetStateAsync(name, _provider.OpsCredentials).ConfigureAwait(false);
             }
             else
             {
-                json = await manager.GetPartitionStateAsync(name, partitionId, _provider.OpsCredentials);
+                json = await manager.GetPartitionStateAsync(name, partitionId, _provider.OpsCredentials).ConfigureAwait(false);
             }
 
             _logger.LogTrace("State {StateJson}", json);

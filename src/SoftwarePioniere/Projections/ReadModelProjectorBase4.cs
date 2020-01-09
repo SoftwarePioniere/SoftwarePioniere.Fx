@@ -51,7 +51,7 @@ namespace SoftwarePioniere.Projections
                 using (Logger.BeginScope(state))
                 {
                     Logger.LogDebug($"HANDLE PROJECTOR EVENT {StreamName}/{domainEvent.GetType().Name}");
-                    await handler(message);
+                    await handler(message).ConfigureAwait(false);
                 }
 
                 return true;
@@ -64,7 +64,7 @@ namespace SoftwarePioniere.Projections
         protected virtual async Task<T> DeleteItemIfAsync(IMessage message, Func<T, bool> predicate)
         {
 
-            var item = await LoadItemAsync(message);
+            var item = await LoadItemAsync(message).ConfigureAwait(false);
 
             if (item.Entity == null)
             {
@@ -77,11 +77,11 @@ namespace SoftwarePioniere.Projections
                 {
 
                     if (Context.IsReady)
-                        await Cache.CacheClient.RemoveAsync(item.EntityId);
+                        await Cache.CacheClient.RemoveAsync(item.EntityId).ConfigureAwait(false);
 
                     await DeleteAsync(item.Id,
                         message,
-                        CreateIdentifierItem);
+                        CreateIdentifierItem).ConfigureAwait(false);
                 }
             }
 
@@ -90,7 +90,7 @@ namespace SoftwarePioniere.Projections
 
         protected virtual async Task<T> DeleteItemAsync(IMessage message)
         {
-            var item = await LoadItemAsync(message);
+            var item = await LoadItemAsync(message).ConfigureAwait(false);
 
             if (item.Entity == null)
             {
@@ -100,11 +100,11 @@ namespace SoftwarePioniere.Projections
             if (!item.IsNew)
             {
                 if (Context.IsReady)
-                    await Cache.CacheClient.RemoveAsync(item.EntityId);
+                    await Cache.CacheClient.RemoveAsync(item.EntityId).ConfigureAwait(false);
 
                 await base.DeleteAsync(item.Id,
                     message,
-                    CreateIdentifierItem);
+                    CreateIdentifierItem).ConfigureAwait(false);
             }
             return item.Entity;
         }
@@ -118,7 +118,7 @@ namespace SoftwarePioniere.Projections
         protected virtual async Task<T> LoadAndSaveEveryTimeAsync(IMessage message, Action<T> setValues = null)
         {
 
-            var item = await LoadItemAsync(message);
+            var item = await LoadItemAsync(message).ConfigureAwait(false);
             var entity = item.Entity;
 
             if (entity == null)
@@ -131,9 +131,9 @@ namespace SoftwarePioniere.Projections
                 setValues?.Invoke(entity);
 
                 if (Context.IsReady)
-                    await Cache.AddAsync(item.EntityId, item.Entity);
+                    await Cache.AddAsync(item.EntityId, item.Entity).ConfigureAwait(false);
 
-                await SaveItemAsync(item, message);
+                await SaveItemAsync(item, message).ConfigureAwait(false);
                 return item.Entity;
             }
         }
@@ -141,7 +141,7 @@ namespace SoftwarePioniere.Projections
         protected virtual async Task<T> LoadAndSaveOnlyExistingAsync(IMessage message, Action<T> setValues = null)
         {
 
-            var item = await LoadItemAsync(message);
+            var item = await LoadItemAsync(message).ConfigureAwait(false);
             var entity = item.Entity;
 
             if (item.IsNew)
@@ -161,7 +161,7 @@ namespace SoftwarePioniere.Projections
 
                     setValues?.Invoke(entity);
 
-                    await SaveItemAsync(item, message);
+                    await SaveItemAsync(item, message).ConfigureAwait(false);
                     return item.Entity;
                 }
             }
@@ -173,11 +173,11 @@ namespace SoftwarePioniere.Projections
 
             if (Context.IsLiveProcessing)
             {
-                await SaveAsync(item, domainEvent, CreateIdentifierItem(item.Entity));
+                await SaveAsync(item, domainEvent, CreateIdentifierItem(item.Entity)).ConfigureAwait(false);
             }
             else
             {
-                await SaveAsync(item, domainEvent, null);
+                await SaveAsync(item, domainEvent, null).ConfigureAwait(false);
             }
 
             return item.Entity;

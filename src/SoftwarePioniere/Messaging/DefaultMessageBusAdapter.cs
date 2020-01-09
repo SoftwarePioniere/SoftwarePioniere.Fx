@@ -80,11 +80,11 @@ namespace SoftwarePioniere.Messaging
                         {
                             var lockResource = lockId(message);
                             _logger.LogDebug("Handle Message with Lock {LockId}", lockResource);
-                            await _lockProvider.TryUsingAsync(lockResource, token1 => handler(message), cancellationToken: cancellationToken);
+                            await _lockProvider.TryUsingAsync(lockResource, token1 => handler(message), cancellationToken: cancellationToken).ConfigureAwait(false);
                         }
                         else
                         {
-                            await handler(message);
+                            await handler(message).ConfigureAwait(false);
                         }
                     }
                     catch (Exception e) when (LogError(e))
@@ -96,7 +96,7 @@ namespace SoftwarePioniere.Messaging
                     _logger.LogDebug("HandleMessage finished in {Elapsed} ms", sw.ElapsedMilliseconds);
 
                 }
-            }, cancellationToken);
+            }, cancellationToken).ConfigureAwait(false);
         }
 
         public async Task SubscribeCommand<T>(Func<T, Task> handler, CancellationToken cancellationToken = default, Func<T, string> lockId = null) where T : class, ICommand
@@ -119,19 +119,19 @@ namespace SoftwarePioniere.Messaging
                             {
                                 var lockResource = lockId(message);
                                 _logger.LogDebug("Handle Command with Lock {LockId}", lockResource);
-                                await _lockProvider.TryUsingAsync(lockResource, token1 => handler(message), cancellationToken: cancellationToken);
+                                await _lockProvider.TryUsingAsync(lockResource, token1 => handler(message), cancellationToken: cancellationToken).ConfigureAwait(false);
                             }
                             else
                             {
-                                await handler(message);
+                                await handler(message).ConfigureAwait(false);
                             }
 
-                            await PublishAsync(CommandSucceededNotification.Create(message, state), cancellationToken: token);
+                            await PublishAsync(CommandSucceededNotification.Create(message, state), cancellationToken: token).ConfigureAwait(false);
                         }
                         catch (Exception e) when (LogError(e))
                         {
                             _logger.LogError(e, "Error on handling Command {MessageType} {@Message}", typeof(T), message);
-                            await PublishAsync(CommandFailedNotification.Create(message, e, state), cancellationToken: token);
+                            await PublishAsync(CommandFailedNotification.Create(message, e, state), cancellationToken: token).ConfigureAwait(false);
                         }
 
                         sw.Stop();
@@ -139,7 +139,7 @@ namespace SoftwarePioniere.Messaging
 
                     }
                 },
-                cts.Token);
+                cts.Token).ConfigureAwait(false);
         }
 
 
@@ -201,12 +201,12 @@ namespace SoftwarePioniere.Messaging
                             {
                                 var lockResource = lockId(domainEvent, new AggregateTypeInfo<TAggregate>(message.AggregateId));
                                 _logger.LogDebug("Handle Domain Event with Lock {LockId}", lockResource);
-                                await _lockProvider.TryUsingAsync(lockResource, token1 => Exc(), cancellationToken: cancellationToken);
+                                await _lockProvider.TryUsingAsync(lockResource, token1 => Exc(), cancellationToken: cancellationToken).ConfigureAwait(false);
                             }
                             else
                             {
                                 _logger.LogDebug("Handle Domain Event without Locking");
-                                await Exc();
+                                await Exc().ConfigureAwait(false);
                             }
 
                             sw.Stop();
@@ -223,7 +223,7 @@ namespace SoftwarePioniere.Messaging
                         message);
                 }
 
-            }, cancellationToken);
+            }, cancellationToken).ConfigureAwait(false);
         }
 
         public async Task<MessageResponse> PublishCommandAsync<T>(T cmd, CancellationToken cancellationToken = default
@@ -245,7 +245,7 @@ namespace SoftwarePioniere.Messaging
 
                 try
                 {
-                    await _bus.PublishAsync(cmd);
+                    await _bus.PublishAsync(cmd).ConfigureAwait(false);
 
                 }
                 catch (Exception e) when (LogError(e))
@@ -268,7 +268,7 @@ namespace SoftwarePioniere.Messaging
             _logger.LogDebug("PublishCommandsAsync started");
 
             var tasks = cmds.Select(cmd => PublishCommandAsync(cmd, cancellationToken)).ToList();
-            var results = await Task.WhenAll(tasks);
+            var results = await Task.WhenAll(tasks).ConfigureAwait(false);
 
             if (results.Any(x => x.IsError)) return results.FirstOrDefault(x => x.IsError);
 

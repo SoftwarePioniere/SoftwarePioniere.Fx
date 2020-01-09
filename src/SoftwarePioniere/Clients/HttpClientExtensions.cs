@@ -12,7 +12,7 @@ namespace SoftwarePioniere.Clients
 
         public static async Task<T> GetAsAsync<T>(this HttpClient client, string uri)
         {
-            var response = await client.GetAsync(uri);
+            var response = await client.GetAsync(uri).ConfigureAwait(false);
 
             if (response.StatusCode == HttpStatusCode.Forbidden)
             {
@@ -30,7 +30,7 @@ namespace SoftwarePioniere.Clients
             }
 
             response.EnsureSuccessStatusCode();
-            var content = await response.Content.ReadAsStringAsync();
+            var content = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
             return JsonConvert.DeserializeObject<T>(content);
 
         }

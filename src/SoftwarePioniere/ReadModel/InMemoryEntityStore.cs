@@ -184,8 +184,8 @@ namespace SoftwarePioniere.ReadModel
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            await InternalDeleteItemAsync<T>(item.EntityId, cancellationToken);
-            await InternalInsertItemAsync(item, cancellationToken);
+            await InternalDeleteItemAsync<T>(item.EntityId, cancellationToken).ConfigureAwait(false);
+            await InternalInsertItemAsync(item, cancellationToken).ConfigureAwait(false);
 
         }
 

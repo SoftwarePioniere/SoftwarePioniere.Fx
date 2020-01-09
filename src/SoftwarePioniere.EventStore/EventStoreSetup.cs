@@ -145,8 +145,8 @@ namespace SoftwarePioniere.EventStore
             {
                 _logger.LogDebug("Projection Query different Found: {ProjectionName}. Try Disable and Update", name);
                 await manager.DisableAsync(name, _provider.AdminCredentials).ConfigureAwait(false);
-                await manager.UpdateQueryAsync(name, query, emitEnabled, _provider.AdminCredentials);
-                await manager.EnableAsync(name, _provider.AdminCredentials);
+                await manager.UpdateQueryAsync(name, query, emitEnabled, _provider.AdminCredentials).ConfigureAwait(false);
+                await manager.EnableAsync(name, _provider.AdminCredentials).ConfigureAwait(false);
                 await Task.Delay(1000).ConfigureAwait(false);
             }
             else
@@ -154,8 +154,8 @@ namespace SoftwarePioniere.EventStore
                 _logger.LogDebug("Projection Not Found: {ProjectionName}. Try Create", name);
                 await manager.CreateContinuousAsync(name, query, trackEmittedStreams, _provider.AdminCredentials)
                     .ConfigureAwait(false);
-                await manager.UpdateQueryAsync(name, query, emitEnabled, _provider.AdminCredentials);
-                await manager.EnableAsync(name, _provider.AdminCredentials);
+                await manager.UpdateQueryAsync(name, query, emitEnabled, _provider.AdminCredentials).ConfigureAwait(false);
+                await manager.EnableAsync(name, _provider.AdminCredentials).ConfigureAwait(false);
                 await Task.Delay(1000).ConfigureAwait(false);
             }
 
@@ -171,9 +171,9 @@ namespace SoftwarePioniere.EventStore
             var manager = _provider.CreatePersistentSubscriptionsManager();
             var cred = _provider.AdminCredentials;
 
-            var con = await _provider.GetActiveConnection();
+            var con = await _provider.GetActiveConnection().ConfigureAwait(false);
             
-            var list = await manager.List(cred);
+            var list = await manager.List(cred).ConfigureAwait(false);
             var exists = list.Any(x => string.Equals(x.EventStreamId, stream) &&
                                        string.Equals(x.GroupName, group));
 
@@ -187,7 +187,7 @@ namespace SoftwarePioniere.EventStore
 
                 //   configure?.Invoke(settings);
 
-                await con.CreatePersistentSubscriptionAsync(stream, group, settings, cred);
+                await con.CreatePersistentSubscriptionAsync(stream, @group, settings, cred).ConfigureAwait(false);
             }
             else
             {

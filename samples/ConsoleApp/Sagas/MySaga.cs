@@ -15,7 +15,7 @@ namespace ConsoleApp.Sagas
 
         protected override async Task RegisterMessagesAsync()
         {
-            await Bus.SubscribeCommand<FakeCommand>(HandleAsync, CancellationToken);
+            await Bus.SubscribeCommand<FakeCommand>(HandleAsync, CancellationToken).ConfigureAwait(false);
         }
 
         public Task HandleAsync(FakeCommand message)

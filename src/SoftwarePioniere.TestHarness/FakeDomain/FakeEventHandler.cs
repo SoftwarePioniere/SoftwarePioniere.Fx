@@ -40,8 +40,8 @@ namespace SoftwarePioniere.FakeDomain
 
         public async Task StartAsync(CancellationToken cancellationToken)
         {
-            await _subscriber.SubscribeAsync<FakeEvent>(HandleAsync, cancellationToken);
-            await _subscriber.SubscribeAsync<FakeEvent2>(HandleAsync, cancellationToken);
+            await _subscriber.SubscribeAsync<FakeEvent>(HandleAsync, cancellationToken).ConfigureAwait(false);
+            await _subscriber.SubscribeAsync<FakeEvent2>(HandleAsync, cancellationToken).ConfigureAwait(false);
         }
     }
 }

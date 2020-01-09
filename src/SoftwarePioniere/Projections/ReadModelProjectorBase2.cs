@@ -41,7 +41,7 @@ namespace SoftwarePioniere.Projections
                 using (Logger.BeginScope(state))
                 {
                     Logger.LogDebug($"HANDLE PROJECTOR EVENT {StreamName}/{domainEvent.GetType().Name}");
-                    await handler(message);
+                    await handler(message).ConfigureAwait(false);
                 }
             }
         }

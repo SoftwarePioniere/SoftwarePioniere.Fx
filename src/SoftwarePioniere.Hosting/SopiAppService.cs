@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
@@ -11,7 +10,6 @@ using Polly;
 using SoftwarePioniere.Domain;
 using SoftwarePioniere.Messaging;
 using SoftwarePioniere.Projections;
-using SoftwarePioniere.ReadModel;
 
 namespace SoftwarePioniere.Hosting
 {
@@ -38,7 +36,7 @@ namespace SoftwarePioniere.Hosting
         }
 
 
-        public static string GetInnerExceptionMessage(Exception ex)
+        private static string GetInnerExceptionMessage(Exception ex)
         {
             if (ex.InnerException != null)
             {
@@ -72,7 +70,7 @@ namespace SoftwarePioniere.Hosting
                                 await Policy
                                     .Handle<Exception>()
                                     .WaitAndRetryAsync(5, i => TimeSpan.FromSeconds(i * 0.5))
-                                    .ExecuteAsync(() => initializer.InitializeAsync(stoppingToken));
+                                    .ExecuteAsync(() => initializer.InitializeAsync(stoppingToken)).ConfigureAwait(false);
                             }
                             catch (Exception e)
                             {
@@ -83,7 +81,7 @@ namespace SoftwarePioniere.Hosting
                         _logger.LogInformation("Starting ConnectionProvider Initialization");
                         var sw1 = Stopwatch.StartNew();
 
-                        await Task.WhenAll(connectionProviders.Select(InitProvider));
+                        await Task.WhenAll(connectionProviders.Select(InitProvider)).ConfigureAwait(false);
 
                         //var done = new List<Type>();
 
@@ -118,7 +116,7 @@ namespace SoftwarePioniere.Hosting
                             await Policy
                                 .Handle<Exception>()
                                 .WaitAndRetryAsync(5, i => TimeSpan.FromSeconds(i * 0.5))
-                                .ExecuteAsync(() => initializer.InitializeAsync(stoppingToken));
+                                .ExecuteAsync(() => initializer.InitializeAsync(stoppingToken)).ConfigureAwait(false);
                         }
                         catch (Exception e)
                         {
@@ -129,7 +127,7 @@ namespace SoftwarePioniere.Hosting
                     _logger.LogInformation("Starting EventStore Initialization");
                     var sw1 = Stopwatch.StartNew();
 
-                    await Task.WhenAll(eventStoreInitializers.Select(InitAsync));
+                    await Task.WhenAll(eventStoreInitializers.Select(InitAsync)).ConfigureAwait(false);
 
                     //var done = new List<Type>();
 
@@ -158,7 +156,7 @@ namespace SoftwarePioniere.Hosting
                         _logger.LogInformation("Start Saga {Saga}", saga.GetType().Name);
                         try
                         {
-                            await saga.StartAsync(stoppingToken);
+                            await saga.StartAsync(stoppingToken).ConfigureAwait(false);
                         }
                         catch (Exception e)
                         {
@@ -169,7 +167,7 @@ namespace SoftwarePioniere.Hosting
                     _logger.LogInformation("Starting Sagas");
                     var sw1 = Stopwatch.StartNew();
 
-                    await Task.WhenAll(sagas.Select(InitSaga));
+                    await Task.WhenAll(sagas.Select(InitSaga)).ConfigureAwait(false);
 
                     sw1.Stop();
                     _logger.LogInformation("Saga Start Finished in {Elapsed} ms", sw1.ElapsedMilliseconds);
@@ -187,7 +185,7 @@ namespace SoftwarePioniere.Hosting
                         _logger.LogInformation("Start MessageHandler {MessageHandler}", handler.GetType().Name);
                         try
                         {
-                            await handler.StartAsync(stoppingToken);
+                            await handler.StartAsync(stoppingToken).ConfigureAwait(false);
                         }
                         catch (Exception e)
                         {
@@ -197,7 +195,7 @@ namespace SoftwarePioniere.Hosting
 
                     _logger.LogInformation("Starting MessageHandler");
                     var sw1 = Stopwatch.StartNew();
-                    await Task.WhenAll(handlers.Select(InitHandler));
+                    await Task.WhenAll(handlers.Select(InitHandler)).ConfigureAwait(false);
                     sw1.Stop();
                     _logger.LogInformation("MessageHandler Start Finished in {Elapsed} ms", sw1.ElapsedMilliseconds);
                 }
@@ -215,7 +213,7 @@ namespace SoftwarePioniere.Hosting
                         _logger.LogInformation("Start ProjectorRegistry {ProjectorRegistry}", registry.GetType().Name);
                         try
                         {
-                            await registry.StartAsync(stoppingToken);
+                            await registry.StartAsync(stoppingToken).ConfigureAwait(false);
                         }
                         catch (Exception e)
                         {
@@ -225,7 +223,7 @@ namespace SoftwarePioniere.Hosting
 
                     _logger.LogInformation("Starting ProjectorRegistries");
                     var sw1 = Stopwatch.StartNew();
-                    await Task.WhenAll(registries.Select(StartRegistry));
+                    await Task.WhenAll(registries.Select(StartRegistry)).ConfigureAwait(false);
                     sw1.Stop();
                     _logger.LogInformation("ProjectorRegistries Start Finished in {Elapsed} ms", sw1.ElapsedMilliseconds);
                 }
@@ -242,7 +240,7 @@ namespace SoftwarePioniere.Hosting
                         _logger.LogInformation("Start SopiService {SopiService}", service.GetType().Name);
                         try
                         {
-                            await service.StartAsync(stoppingToken);
+                            await service.StartAsync(stoppingToken).ConfigureAwait(false);
                         }
                         catch (Exception e)
                         {
@@ -253,7 +251,7 @@ namespace SoftwarePioniere.Hosting
                     _logger.LogInformation("Starting SopiServices");
                     var sw1 = Stopwatch.StartNew();
 
-                    await Task.WhenAll(services.Select(StartService));
+                    await Task.WhenAll(services.Select(StartService)).ConfigureAwait(false);
 
                     sw1.Stop();
                     _logger.LogInformation("SopiServices Start Finished in {Elapsed} ms", sw1.ElapsedMilliseconds);

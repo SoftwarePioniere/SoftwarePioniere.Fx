@@ -55,9 +55,9 @@ namespace SoftwarePioniere.EventStore.Domain
         private async Task ConnectToPersistentSubscriptionInternal()
         {
             var cred = _connectionProvider.OpsCredentials;
-            var con = await _connectionProvider.GetActiveConnection();
+            var con = await _connectionProvider.GetActiveConnection().ConfigureAwait(false);
 
-            await con.ConnectToPersistentSubscriptionAsync(_stream, _groupName, EventAppeared, SubscriptionDropped, cred, _bufferSize);
+            await con.ConnectToPersistentSubscriptionAsync(_stream, _groupName, EventAppeared, SubscriptionDropped, cred, _bufferSize).ConfigureAwait(false);
         }
 
         private async void SubscriptionDropped(EventStorePersistentSubscriptionBase sub, SubscriptionDropReason reason, Exception ex)
@@ -67,14 +67,14 @@ namespace SoftwarePioniere.EventStore.Domain
             if (!_cancellationToken.IsCancellationRequested)
             {
                 _logger.LogInformation("Re Subscribe PersistentSubscription ");
-                await ConnectToPersistentSubscriptionInternal();
+                await ConnectToPersistentSubscriptionInternal().ConfigureAwait(false);
             }
         }
 
 
         private async Task EventAppeared(EventStorePersistentSubscriptionBase sub, ResolvedEvent subEvent)
         {
-            var con = await _connectionProvider.GetActiveConnection();
+            var con = await _connectionProvider.GetActiveConnection().ConfigureAwait(false);
 
             //     var origEvent = await con.ReadEventAsync(subEvent.OriginalStreamId, subEvent.OriginalEventNumber, true, _connectionProvider.OpsCredentials);
             
@@ -89,7 +89,7 @@ namespace SoftwarePioniere.EventStore.Domain
                     StreamPosition.End,
                     1,
                     false,
-                    _connectionProvider.OpsCredentials);
+                    _connectionProvider.OpsCredentials).ConfigureAwait(false);
 
                 ResolvedEvent? @event = null;
                 bool isResultRemoved = false;
@@ -122,7 +122,7 @@ namespace SoftwarePioniere.EventStore.Domain
 
                 if (!eventIsRemovedEvent && (!isResultRemoved || !_skipRemoved))
                 {
-                    var curEvent = await con.ReadEventAsync(stream, eventNumber, false, _connectionProvider.OpsCredentials);
+                    var curEvent = await con.ReadEventAsync(stream, eventNumber, false, _connectionProvider.OpsCredentials).ConfigureAwait(false);
                     if (curEvent.Event.HasValue)
                     {
                         @event = curEvent.Event;
@@ -137,7 +137,7 @@ namespace SoftwarePioniere.EventStore.Domain
 
                     var item = JsonConvert.DeserializeObject<T>(data);
                     
-                    await _eventAppeared(item);
+                    await _eventAppeared(item).ConfigureAwait(false);
 
                     //await _telemetryAdapter.RunDependencyAsync("PERS SUBS", "EVENTSTORE", state => _eventAppeared(item, state), parentState, _logger);
 

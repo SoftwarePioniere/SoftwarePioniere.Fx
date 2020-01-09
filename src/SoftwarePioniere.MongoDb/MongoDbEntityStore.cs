@@ -39,9 +39,9 @@ namespace SoftwarePioniere.MongoDb
                 BatchSize = _provider.Options.FindBatchSize,
                 Limit = _provider.Options.FindLimit
 
-            }, cancellationToken);
+            }, cancellationToken).ConfigureAwait(false);
 
-            return await find.ToListAsync(cancellationToken);
+            return await find.ToListAsync(cancellationToken).ConfigureAwait(false);
 
         }
 
@@ -58,9 +58,9 @@ namespace SoftwarePioniere.MongoDb
             {
                 BatchSize = _provider.Options.FindBatchSize,
                 Limit = _provider.Options.FindLimit
-            }, cancellationToken);
+            }, cancellationToken).ConfigureAwait(false);
 
-            return await find.ToListAsync(cancellationToken);
+            return await find.ToListAsync(cancellationToken).ConfigureAwait(false);
         }
 
         protected override async Task InternalBulkInsertItemsAsync<T>(T[] items,
@@ -82,7 +82,7 @@ namespace SoftwarePioniere.MongoDb
                 await collection.InsertManyAsync(items, new InsertManyOptions()
                 {
                     BypassDocumentValidation = true
-                }, cancellationToken);
+                }, cancellationToken).ConfigureAwait(false);
             }
             catch (MongoException e) when (LogError(e))
             {
@@ -97,7 +97,7 @@ namespace SoftwarePioniere.MongoDb
             var collectionName = _provider.KeyCache.GetEntityTypeKey<T>();
             try
             {
-                await _provider.Database.Value.DropCollectionAsync(collectionName, cancellationToken);
+                await _provider.Database.Value.DropCollectionAsync(collectionName, cancellationToken).ConfigureAwait(false);
             }
             catch (MongoException e) when (LogError(e))
             {
@@ -118,7 +118,7 @@ namespace SoftwarePioniere.MongoDb
             {
                 var collection = _provider.GetCol<T>();
                 var filter = new ExpressionFilterDefinition<T>(x => x.EntityId == entityId);
-                await collection.DeleteOneAsync(filter, cancellationToken);
+                await collection.DeleteOneAsync(filter, cancellationToken).ConfigureAwait(false);
             }
             catch (MongoException e) when (LogError(e))
             {
@@ -136,7 +136,7 @@ namespace SoftwarePioniere.MongoDb
             {
                 var collection = _provider.GetCol<T>();
 
-                await collection.DeleteManyAsync(filter, cancellationToken);
+                await collection.DeleteManyAsync(filter, cancellationToken).ConfigureAwait(false);
             }
             catch (MongoException e) when (LogError(e))
             {
@@ -238,9 +238,9 @@ namespace SoftwarePioniere.MongoDb
             var find = await collection.FindAsync(filter, new FindOptions<T>
             {
                 Limit = 1
-            }, cancellationToken);
+            }, cancellationToken).ConfigureAwait(false);
 
-            var list = await find.ToListAsync(cancellationToken);
+            var list = await find.ToListAsync(cancellationToken).ConfigureAwait(false);
 
             if (list == null || list.Count == 0)
                 return null;
@@ -286,7 +286,7 @@ namespace SoftwarePioniere.MongoDb
                 {
                     BypassDocumentValidation = true,
                     IsUpsert = true
-                }, cancellationToken);
+                }, cancellationToken).ConfigureAwait(false);
 
                 //   Logger.LogDebug("Replace Result: {@Result}", res);
             }

@@ -64,7 +64,7 @@ namespace SoftwarePioniere.EventStore.Projections
             var sw = Stopwatch.StartNew();
 
             var cred = _connectionProvider.OpsCredentials;
-            var src = await _connectionProvider.GetActiveConnection();
+            var src = await _connectionProvider.GetActiveConnection().ConfigureAwait(false);
 
             StreamEventsSlice slice;
 
@@ -74,7 +74,7 @@ namespace SoftwarePioniere.EventStore.Projections
             {
                 _logger.LogTrace("Reading Slice from {0}", sliceStart);
 
-                slice = await src.ReadStreamEventsForwardAsync(stream, sliceStart, _options.InitReadCount, true, cred);
+                slice = await src.ReadStreamEventsForwardAsync(stream, sliceStart, _options.InitReadCount, true, cred).ConfigureAwait(false);
                 _logger.LogTrace("Next Event: {0} , IsEndOfStream: {1}", slice.NextEventNumber, slice.IsEndOfStream);
 
                 sliceStart = slice.NextEventNumber;
@@ -99,7 +99,7 @@ namespace SoftwarePioniere.EventStore.Projections
                                 EventNumber = ev.OriginalEventNumber
                             };
 
-                            await context.HandleEventAsync(entry);
+                            await context.HandleEventAsync(entry).ConfigureAwait(false);
                         }
                     }
                     catch (Exception e) when (LogError(e))
@@ -129,7 +129,7 @@ namespace SoftwarePioniere.EventStore.Projections
         {
             _logger.LogDebug("InsertEmptyDomainEventIfStreamIsEmpty {StreamName}", streamName);
 
-            var empty = await _connectionProvider.IsStreamEmptyAsync(streamName);
+            var empty = await _connectionProvider.IsStreamEmptyAsync(streamName).ConfigureAwait(false);
 
             if (empty)
             {
@@ -144,7 +144,7 @@ namespace SoftwarePioniere.EventStore.Projections
                     name = $"{streamName.Replace("$ce-", string.Empty)}-empty";
 
                 _logger.LogDebug("InsertEmptyEvent: StreamName {StreamName}", name);
-                var con = await _connectionProvider.GetActiveConnection();
+                var con = await _connectionProvider.GetActiveConnection().ConfigureAwait(false);
                 await con.AppendToStreamAsync(name, -1, events, _connectionProvider.OpsCredentials).ConfigureAwait(false);
 
             }
@@ -174,17 +174,17 @@ namespace SoftwarePioniere.EventStore.Projections
             {
                 _logger.LogDebug("Preparing Stream {StreamName}", s);
                 return InsertEmptyDomainEventIfStreamIsEmpty(s);
-            }));
+            })).ConfigureAwait(false);
 
           
-            await _cache.RemoveByPrefixAsync(CacheKeys.Create<ProjectionInitializationStatus>());
+            await _cache.RemoveByPrefixAsync(CacheKeys.Create<ProjectionInitializationStatus>()).ConfigureAwait(false);
             foreach (var projector in _projectors)
             {
                 if (projector != null)
                 {
                     var projectorId = projector.GetType().FullName;
 
-                    var statusItem = await _entityStore.LoadAsync<ProjectionInitializationStatus>(projectorId, cancellationToken);
+                    var statusItem = await _entityStore.LoadAsync<ProjectionInitializationStatus>(projectorId, cancellationToken).ConfigureAwait(false);
 
                     if (statusItem.IsNew)
                     {
@@ -193,19 +193,19 @@ namespace SoftwarePioniere.EventStore.Projections
                         entity.StreamName = projector.StreamName;
                         entity.Status = ProjectionInitializationStatus.StatusNew;
                         entity.ModifiedOnUtc = DateTime.UtcNow;
-                        await _entityStore.SaveAsync(statusItem, cancellationToken);
+                        await _entityStore.SaveAsync(statusItem, cancellationToken).ConfigureAwait(false);
                     }
                 }
             }
 
 
             var contexte = await Task.WhenAll(_projectors.Select(projector =>
-               {
-                   return Policy.Handle<Exception>().RetryAsync(2, (exception, i) =>
-                       _logger.LogError(exception, "Retry {Retry}", i)).ExecuteAsync(() => InitProjectorInternal(cancellationToken, projector));
-               }));
+            {
+                return Policy.Handle<Exception>().RetryAsync(2, (exception, i) =>
+                    _logger.LogError(exception, "Retry {Retry}", i)).ExecuteAsync(() => InitProjectorInternal(cancellationToken, projector));
+            })).ConfigureAwait(false);
 
-            await Task.WhenAll(contexte.Select(ctx => StartProjectorInternal(cancellationToken, ctx)));
+            await Task.WhenAll(contexte.Select(ctx => StartProjectorInternal(cancellationToken, ctx))).ConfigureAwait(false);
 
             _logger.LogInformation("EventStore Projection Initializer Finished in {Elapsed} ms", sw.ElapsedMilliseconds);
         }
@@ -214,8 +214,8 @@ namespace SoftwarePioniere.EventStore.Projections
         private async Task StartProjectorInternal(CancellationToken cancellationToken, EventStoreProjectionContext context)
         {
             _logger.LogDebug("Starting Subscription on EventStore for Projector {Projector}", context.ProjectorId);
-            await context.StartSubscription(cancellationToken);
-            await UpdateInitializationStatusAsync(cancellationToken, context.ProjectorId, ProjectionInitializationStatus.StatusReady, "Startet");
+            await context.StartSubscription(cancellationToken).ConfigureAwait(false);
+            await UpdateInitializationStatusAsync(cancellationToken, context.ProjectorId, ProjectionInitializationStatus.StatusReady, "Startet").ConfigureAwait(false);
         }
 
         private async Task<EventStoreProjectionContext> InitProjectorInternal(CancellationToken cancellationToken, IReadModelProjector projector)
@@ -225,7 +225,7 @@ namespace SoftwarePioniere.EventStore.Projections
 
             _logger.LogInformation("Initialize Projector {ProjectorName}", projectorId);
 
-            await UpdateInitializationStatusAsync(cancellationToken, projectorId, ProjectionInitializationStatus.StatusPending, "Starting");
+            await UpdateInitializationStatusAsync(cancellationToken, projectorId, ProjectionInitializationStatus.StatusPending, "Starting").ConfigureAwait(false);
 
             var context =
                 new EventStoreProjectionContext(_loggerFactory, _connectionProvider, _entityStore, projector, _options.UseQueue, projectorId);
@@ -233,22 +233,22 @@ namespace SoftwarePioniere.EventStore.Projections
             projector.Context = context;
 
             //   await _cache.RemoveByPrefixAsync1(CacheKeys.Create<ProjectionStatus>());
-            var status = await _entityStore.LoadAsync<ProjectionStatus>(projectorId, cancellationToken);
+            var status = await _entityStore.LoadAsync<ProjectionStatus>(projectorId, cancellationToken).ConfigureAwait(false);
             context.Status = status.Entity;
 
             if (status.IsNew)
             {
                 _logger.LogDebug("Starting Empty Initialization for Projector {Projector}", projectorId);
 
-                await UpdateInitializationStatusAsync(cancellationToken, projectorId, ProjectionInitializationStatus.StatusPending, "StartingInitialization");
+                await UpdateInitializationStatusAsync(cancellationToken, projectorId, ProjectionInitializationStatus.StatusPending, "StartingInitialization").ConfigureAwait(false);
 
-                await context.StartInitializationModeAsync();
+                await context.StartInitializationModeAsync().ConfigureAwait(false);
 
-                await UpdateInitializationStatusAsync(cancellationToken, projectorId, ProjectionInitializationStatus.StatusPending, "InitializationStartingStreamReading");
+                await UpdateInitializationStatusAsync(cancellationToken, projectorId, ProjectionInitializationStatus.StatusPending, "InitializationStartingStreamReading").ConfigureAwait(false);
 
                 try
                 {
-                    var tempStatus = await ReadStreamAsync(context.StreamName, context, cancellationToken);
+                    var tempStatus = await ReadStreamAsync(context.StreamName, context, cancellationToken).ConfigureAwait(false);
 
                     if (tempStatus != null)
                     {
@@ -262,12 +262,12 @@ namespace SoftwarePioniere.EventStore.Projections
                     throw;
                 }
 
-                await UpdateInitializationStatusAsync(cancellationToken, projectorId, ProjectionInitializationStatus.StatusPending, "InitializationStartingCopy");
-                await context.UpdateStreamStatusAsync();
+                await UpdateInitializationStatusAsync(cancellationToken, projectorId, ProjectionInitializationStatus.StatusPending, "InitializationStartingCopy").ConfigureAwait(false);
+                await context.UpdateStreamStatusAsync().ConfigureAwait(false);
 
                 try
                 {
-                    await projector.CopyEntitiesAsync(context.EntityStore, _entityStore, cancellationToken);
+                    await projector.CopyEntitiesAsync(context.EntityStore, _entityStore, cancellationToken).ConfigureAwait(false);
                 }
                 catch (Exception ex) when (LogError(ex))
                 {
@@ -275,10 +275,10 @@ namespace SoftwarePioniere.EventStore.Projections
                     throw;
                 }
 
-                await context.StopInitializationModeAsync();
-                await _entityStore.SaveAsync(status, cancellationToken);
+                await context.StopInitializationModeAsync().ConfigureAwait(false);
+                await _entityStore.SaveAsync(status, cancellationToken).ConfigureAwait(false);
 
-                await UpdateInitializationStatusAsync(cancellationToken, projectorId, ProjectionInitializationStatus.StatusPending, "InitializationFinished");
+                await UpdateInitializationStatusAsync(cancellationToken, projectorId, ProjectionInitializationStatus.StatusPending, "InitializationFinished").ConfigureAwait(false);
 
             }
 
@@ -290,10 +290,10 @@ namespace SoftwarePioniere.EventStore.Projections
         {
             cancellationToken.ThrowIfCancellationRequested();
             //     await _cache.RemoveByPrefixAsync(CacheKeys.Create<ProjectionInitializationStatus>());
-            var statusItem = await _entityStore.LoadAsync<ProjectionInitializationStatus>(projectorId, cancellationToken);
+            var statusItem = await _entityStore.LoadAsync<ProjectionInitializationStatus>(projectorId, cancellationToken).ConfigureAwait(false);
             statusItem.Entity.Status = status;
             statusItem.Entity.StatusText = statusText;
-            await _entityStore.SaveAsync(statusItem, cancellationToken);
+            await _entityStore.SaveAsync(statusItem, cancellationToken).ConfigureAwait(false);
         }
 
 
@@ -301,7 +301,7 @@ namespace SoftwarePioniere.EventStore.Projections
         {
             _logger.LogTrace("GetStatusAsync");
 
-            var states = await _entityStore.LoadItemsAsync<ProjectionInitializationStatus>();
+            var states = await _entityStore.LoadItemsAsync<ProjectionInitializationStatus>().ConfigureAwait(false);
             var enumerable = states as ProjectionInitializationStatus[] ?? states.ToArray();
             var temp = new ProjectionRegistryStatus()
             {

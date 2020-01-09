@@ -55,7 +55,7 @@ namespace SoftwarePioniere.Projections
                     async token =>
                     {
 
-                        var item = await LoadItemAsync(message);
+                        var item = await LoadItemAsync(message).ConfigureAwait(false);
 
                         if (item.Entity == null)
                         {
@@ -68,22 +68,22 @@ namespace SoftwarePioniere.Projections
                             {
                                 await DeleteAsync(item.Id,
                                     message,
-                                    CreateIdentifierItem);
+                                    CreateIdentifierItem).ConfigureAwait(false);
 
 
                             }
                         }
-                    }, cancellationToken: CancellationToken.None);
+                    }, cancellationToken: CancellationToken.None).ConfigureAwait(false);
             }
 
-            await LockProvider.TryUsingAsync(GetCacheLockId(), async () => await DoAsync(), timeUntilExpires: null, cancellationToken: CancellationToken.None);
+            await LockProvider.TryUsingAsync(GetCacheLockId(), async () => await DoAsync().ConfigureAwait(false), timeUntilExpires: null, cancellationToken: CancellationToken.None).ConfigureAwait(false);
         }
 
         protected async Task DeleteItemAsync(IMessage message)
         {
             async Task DoAsync()
             {
-                var item = await LoadItemAsync(message);
+                var item = await LoadItemAsync(message).ConfigureAwait(false);
 
                 if (item.Entity == null)
                 {
@@ -94,11 +94,11 @@ namespace SoftwarePioniere.Projections
                 {
                     await base.DeleteAsync(item.Id,
                         message,
-                        CreateIdentifierItem);
+                        CreateIdentifierItem).ConfigureAwait(false);
                         //,state: state);
                 }
             }
-            await LockProvider.TryUsingAsync(GetCacheLockId(), async () => await DoAsync(), timeUntilExpires: null, cancellationToken: CancellationToken.None);
+            await LockProvider.TryUsingAsync(GetCacheLockId(), async () => await DoAsync().ConfigureAwait(false), timeUntilExpires: null, cancellationToken: CancellationToken.None).ConfigureAwait(false);
         }
 
         protected abstract string CreateLockId(IMessage message);
@@ -115,7 +115,7 @@ namespace SoftwarePioniere.Projections
                 async token =>
                 {
 
-                    var item = await LoadItemAsync(message);
+                    var item = await LoadItemAsync(message).ConfigureAwait(false);
                     var entity = item.Entity;
 
                     if (entity == null)
@@ -126,10 +126,10 @@ namespace SoftwarePioniere.Projections
                     {
                         setValues?.Invoke(entity);
 
-                      //      await SaveItemAsync(item, message, state);
-                      await SaveItemAsync(item, message);
+                        //      await SaveItemAsync(item, message, state);
+                        await SaveItemAsync(item, message).ConfigureAwait(false);
                     }
-                }, cancellationToken: CancellationToken.None);
+                }, cancellationToken: CancellationToken.None).ConfigureAwait(false);
         }
 
         protected async Task LoadAndSaveOnlyExistingAsync(IMessage message, Action<T> setValues = null)
@@ -140,7 +140,7 @@ namespace SoftwarePioniere.Projections
                 async token =>
                 {
 
-                    var item = await LoadItemAsync(message);
+                    var item = await LoadItemAsync(message).ConfigureAwait(false);
                     var entity = item.Entity;
 
                     if (item.IsNew)
@@ -158,11 +158,11 @@ namespace SoftwarePioniere.Projections
 
                             setValues?.Invoke(entity);
 
-                          //  await SaveItemAsync(item, message, state);
-                          await SaveItemAsync(item, message);
+                            //  await SaveItemAsync(item, message, state);
+                            await SaveItemAsync(item, message).ConfigureAwait(false);
                         }
                     }
-                }, cancellationToken: CancellationToken.None);
+                }, cancellationToken: CancellationToken.None).ConfigureAwait(false);
         }
 
         private async Task SaveItemAsync(EntityDescriptor<T> item, IMessage domainEvent)
@@ -172,17 +172,17 @@ namespace SoftwarePioniere.Projections
 
                 if (Context.IsLiveProcessing)
                 {
-                    await SaveAsync(item, domainEvent, CreateIdentifierItem(item.Entity));
+                    await SaveAsync(item, domainEvent, CreateIdentifierItem(item.Entity)).ConfigureAwait(false);
                 }
                 else
                 {
-                    await SaveAsync(item, domainEvent, null);
+                    await SaveAsync(item, domainEvent, null).ConfigureAwait(false);
                 }
 
-                await Cache.RemoveByPrefixAsync(EntityTypeKey);
+                await Cache.RemoveByPrefixAsync(EntityTypeKey).ConfigureAwait(false);
             }
 
-            await LockProvider.TryUsingAsync(GetCacheLockId(), async () => await DoAsync(), timeUntilExpires: null, cancellationToken: CancellationToken.None);
+            await LockProvider.TryUsingAsync(GetCacheLockId(), async () => await DoAsync().ConfigureAwait(false), timeUntilExpires: null, cancellationToken: CancellationToken.None).ConfigureAwait(false);
         }
 
     }

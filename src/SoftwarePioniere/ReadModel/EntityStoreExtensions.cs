@@ -16,7 +16,7 @@ namespace SoftwarePioniere.ReadModel
                 EntityId = id
             };
 
-            var o = await store.LoadItemAsync<T>(id, cancellationToken);
+            var o = await store.LoadItemAsync<T>(id, cancellationToken).ConfigureAwait(false);
 
             if (o == null)
             {
@@ -40,7 +40,7 @@ namespace SoftwarePioniere.ReadModel
 
         public static async Task<T> LoadEntity<T>(this IEntityStore store, string entityIdValue, CancellationToken cancellationToken = default(CancellationToken)) where T : Entity
         {
-            var ent = await store.LoadItemAsync<T>(entityIdValue.CalculateEntityId<T>(), cancellationToken);
+            var ent = await store.LoadItemAsync<T>(entityIdValue.CalculateEntityId<T>(), cancellationToken).ConfigureAwait(false);
             return ent;
         }
     }

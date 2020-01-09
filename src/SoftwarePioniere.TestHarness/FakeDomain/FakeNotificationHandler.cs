@@ -50,7 +50,7 @@ namespace SoftwarePioniere.FakeDomain
 
         public async Task StartAsync(CancellationToken cancellationToken)
         {
-            await _subscriber.SubscribeAsync<NotificationMessage>(HandleAsync, cancellationToken: cancellationToken);
+            await _subscriber.SubscribeAsync<NotificationMessage>(HandleAsync, cancellationToken: cancellationToken).ConfigureAwait(false);
         }
     }
 }
