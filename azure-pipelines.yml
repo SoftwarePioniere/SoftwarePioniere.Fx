@@ -60,9 +60,11 @@ steps:
     packageType: sdk
 
 - script: |
-    dotnet tool restore
+    dotnet tool restore    
     dotnet tool run dotnet-cake --version
+    dotnet tool run dotnet-cake --bootstrap
     dotnet tool run dotnet-cake build.cake --target=$(CakeTarget) --configuration=$(BuildConfiguration)
+  displayName: Run Cake ${{ variables.CakeTarget }} ${{ variables.BuildConfiguration }}
   env:
     NUGET_API_KEY: $(NuGetApiKey)
     MYGET_API_KEY: $(MyGetApiKey)
@@ -76,6 +78,7 @@ steps:
     SOPI_TESTS_AZUREADCLIENT__CLIENTSECRET: $(SopiTestAzureAdClientSecret)
     SOPI_TESTS_AUTH0CLIENT__CLIENTID: $(SopiTestAuth0ClientId)
     SOPI_TESTS_AUTH0CLIENT__CLIENTSECRET: $(SopiTestAuth0ClientSecret)
+    DOTNET_CLI_TELEMETRY_OPTOUT: 1
 
 - task: PublishTestResults@2
   inputs:
