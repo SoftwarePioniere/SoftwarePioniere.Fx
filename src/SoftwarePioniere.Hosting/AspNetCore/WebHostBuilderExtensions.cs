@@ -74,7 +74,7 @@ namespace SoftwarePioniere.Hosting.AspNetCore
                             .UseSerilogRequestLogging()
                             //  .UseMiddleware<SerilogMiddleware>()
                             //.UseMiddleware<SopiLifetimeMiddleware>()
-                            .UseSopiHealthChecks()
+                            //.UseSopiHealthChecks()
                             .UseCors()
                             .UseDefaultFiles()
                             .UseStaticFiles()

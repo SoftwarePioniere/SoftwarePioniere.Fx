@@ -78,8 +78,8 @@ namespace SoftwarePioniere.Hosting
                 )
             );
 
-            builder.GetHealthChecksBuilder()
-                .AddAzureBlobStorage(opt.ConnectionString, "azure-storage");
+            //builder.GetHealthChecksBuilder()
+            //    .AddAzureBlobStorage(opt.ConnectionString, "azure-storage");
 
             return builder;
         }

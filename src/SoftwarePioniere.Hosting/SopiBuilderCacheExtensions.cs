@@ -82,10 +82,10 @@ namespace SoftwarePioniere.Hosting
                 c.MessageBus = SopiOptions.CacheRedis;
             });
 
-            var options = new RedisOptions();
-            configureOptions(options);
-            builder.GetHealthChecksBuilder()
-                .AddRedis(options.ConnectionString, "redis-cache");
+            //var options = new RedisOptions();
+            //configureOptions(options);
+            //builder.GetHealthChecksBuilder()
+            //    .AddRedis(options.ConnectionString, "redis-cache");
 
             return builder;
         }

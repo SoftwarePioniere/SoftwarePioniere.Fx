@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Diagnostics.HealthChecks;
+//using Microsoft.Extensions.Diagnostics.HealthChecks;
 using SoftwarePioniere.Builder;
 using SoftwarePioniere.EventStore;
 
@@ -38,16 +38,16 @@ namespace SoftwarePioniere.Hosting
                 c.DomainEventStore = SopiOptions.DomainEventStoreEventStore;
             });
 
-            var options = new EventStoreOptions();
-            configureOptions(options);
+            //var options = new EventStoreOptions();
+            //configureOptions(options);
 
 
-            builder.GetHealthChecksBuilder()
-                .Add(new HealthCheckRegistration(
-                    "eventstore",
-                    provider => new SopiEventStoreHealthCheck(provider.GetRequiredService<EventStoreConnectionProvider>()),
-                    null,
-                    null));
+            //builder.GetHealthChecksBuilder()
+            //    .Add(new HealthCheckRegistration(
+            //        "eventstore",
+            //        provider => new SopiEventStoreHealthCheck(provider.GetRequiredService<EventStoreConnectionProvider>()),
+            //        null,
+            //        null));
 
             return builder;
 

@@ -234,9 +234,11 @@ namespace SoftwarePioniere.Caching
                 }
                 catch (Exception e) when (LogError(e))
                 {
-                    throw;
+                    if (_options.ThrowExceptions) throw;
                 }
             }
+
+            return new T[0];
         }
 
         public async Task SetItemsEnsureAsync(string setKey, string entityId)
@@ -384,10 +386,12 @@ namespace SoftwarePioniere.Caching
                 }
                 catch (Exception e) when (LogError(e))
                 {
-                    throw;
+                    if (_options.ThrowExceptions) throw;
                 }
 
             }
+
+            return default;
         }
 
         public async Task<T[]> CacheLoadItems<T>(Func<Task<IEnumerable<T>>> loader, string cacheKey, int minutes = int.MinValue, bool setExpirationOnHit = true)
@@ -457,10 +461,11 @@ namespace SoftwarePioniere.Caching
                 }
                 catch (Exception e) when (LogError(e))
                 {
-                    throw;
+                    if (_options.ThrowExceptions) throw;
                 }
-
             }
+
+            return new T[0];
         }
 
 

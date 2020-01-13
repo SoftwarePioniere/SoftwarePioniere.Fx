@@ -72,10 +72,10 @@ namespace SoftwarePioniere.Hosting
                 c.MessageBus = SopiOptions.MessageBusRedis;
             });
 
-            var options = new RedisOptions();
-            configureOptions(options);
-            builder.GetHealthChecksBuilder()
-                .AddRedis(options.ConnectionString, "redis-bus");
+            //var options = new RedisOptions();
+            //configureOptions(options);
+            //builder.GetHealthChecksBuilder()
+            //    .AddRedis(options.ConnectionString, "redis-bus");
 
             return builder;
         }

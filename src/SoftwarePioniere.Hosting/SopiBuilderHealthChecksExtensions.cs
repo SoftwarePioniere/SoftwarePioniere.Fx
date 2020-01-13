@@ -1,24 +1,24 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using SoftwarePioniere.Builder;
+﻿//using Microsoft.Extensions.DependencyInjection;
+//using SoftwarePioniere.Builder;
 
-namespace SoftwarePioniere.Hosting
-{
-    public static class SopiBuilderHealthChecksExtensions
-    {
+//namespace SoftwarePioniere.Hosting
+//{
+//    public static class SopiBuilderHealthChecksExtensions
+//    {
 
-        public static ISopiBuilder AddHealthChecks(this ISopiBuilder builder)
-        {
-            var services = builder.Services;
+//        public static ISopiBuilder AddHealthChecks(this ISopiBuilder builder)
+//        {
+//            var services = builder.Services;
 
-            builder.AddFeature("HealthChecksBuilder", services.AddHealthChecks());     
+//            builder.AddFeature("HealthChecksBuilder", services.AddHealthChecks());     
 
-            return builder;
-        }
+//            return builder;
+//        }
 
-        public static IHealthChecksBuilder GetHealthChecksBuilder(this ISopiBuilder builder)
-        {
-            return builder.GetFeature<IHealthChecksBuilder>("HealthChecksBuilder");
-        }
+//        public static IHealthChecksBuilder GetHealthChecksBuilder(this ISopiBuilder builder)
+//        {
+//            return builder.GetFeature<IHealthChecksBuilder>("HealthChecksBuilder");
+//        }
 
-    }
-}
+//    }
+//}

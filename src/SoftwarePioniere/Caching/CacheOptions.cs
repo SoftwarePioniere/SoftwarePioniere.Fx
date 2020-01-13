@@ -10,5 +10,6 @@ namespace SoftwarePioniere.Caching
         public bool DisableLocking { get; set; }
         public bool DisableLocking2 { get; set; }
         public bool DisableLocking3 { get; set; }
+        public bool ThrowExceptions { get; set; }
     }
 }

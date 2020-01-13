@@ -1,7 +1,6 @@
 ﻿using System;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using MongoDB.Driver;
 using SoftwarePioniere.AzureCosmosDb;
 using SoftwarePioniere.Builder;
 using SoftwarePioniere.MongoDb;
@@ -93,17 +92,17 @@ namespace SoftwarePioniere.Hosting
                 c.EntityStore = SopiOptions.EntityStoreAzureCosmosDb;
             });
 
-            var options = new AzureCosmosDbOptions();
-            configureOptions(options);
-            options.CollectionId = CreateDatabaseId(builder);
+            //var options = new AzureCosmosDbOptions();
+            //configureOptions(options);
+            //options.CollectionId = CreateDatabaseId(builder);
 
-            builder.GetHealthChecksBuilder()
-                .AddDocumentDb(setup =>
-                    {
-                        setup.PrimaryKey = options.AuthKey;
-                        setup.UriEndpoint = options.EndpointUrl;
-                    },
-                    "azurecosmosdb-entitystore");
+            //builder.GetHealthChecksBuilder()
+            //    .AddDocumentDb(setup =>
+            //        {
+            //            setup.PrimaryKey = options.AuthKey;
+            //            setup.UriEndpoint = options.EndpointUrl;
+            //        },
+            //        "azurecosmosdb-entitystore");
 
             return builder;
         }
@@ -126,20 +125,20 @@ namespace SoftwarePioniere.Hosting
             configureOptions(options);
             options.DatabaseId = CreateDatabaseId(builder);
 
-            var url = new MongoServerAddress(options.Server, options.Port);
-            var settings = new MongoClientSettings
-            {
-                Server = url,
-                ConnectTimeout = TimeSpan.FromSeconds(0.5),
-                HeartbeatTimeout = TimeSpan.FromSeconds(0.5),
-                ServerSelectionTimeout = TimeSpan.FromSeconds(0.5),
-                SocketTimeout = TimeSpan.FromSeconds(0.5)
-            };
+            //var url = new MongoServerAddress(options.Server, options.Port);
+            //var settings = new MongoClientSettings
+            //{
+            //    Server = url,
+            //    ConnectTimeout = TimeSpan.FromSeconds(0.5),
+            //    HeartbeatTimeout = TimeSpan.FromSeconds(0.5),
+            //    ServerSelectionTimeout = TimeSpan.FromSeconds(0.5),
+            //    SocketTimeout = TimeSpan.FromSeconds(0.5)
+            //};
 
-            builder.GetHealthChecksBuilder()
-                .AddMongoDb(settings,
-                    options.DatabaseId,
-                    "mongodb-entitystore");
+            //builder.GetHealthChecksBuilder()
+            //    .AddMongoDb(settings,
+            //        options.DatabaseId,
+            //        "mongodb-entitystore");
 
 
             return builder;
