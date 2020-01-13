@@ -7,10 +7,11 @@
 ///////////////////////////////////////////////////////////////////////////////
 // AddIns
 ///////////////////////////////////////////////////////////////////////////////
-#addin "nuget:?package=Cake.Docker&version=0.10.0"
-#addin "nuget:?package=Cake.FileHelpers&version=3.2.0"
-#addin "nuget:?package=Newtonsoft.Json&version=11.0.2"
-#tool "nuget:?package=GitVersion.CommandLine&version=4.0.0"
+#addin "nuget:?package=Cake.FileHelpers&version=3.2.1"
+#addin "nuget:?package=Newtonsoft.Json&version=12.0.3"
+#addin "nuget:?package=Cake.Docker&version=0.11.0"
+
+#tool "nuget:?package=GitVersion.CommandLine&version=5.0.1"
 
 ///////////////////////////////////////////////////////////////////////////////
 // Params

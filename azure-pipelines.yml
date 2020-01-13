@@ -12,18 +12,33 @@ trigger:
     - README.md
 
 pool:
-    vmimage: 'ubuntu-16.04'
+  vmimage: 'ubuntu-latest'
+
+variables:
+  BuildConfiguration: ''
+  CakeTarget: 'BuildAndPublish'
+  CakeVersion: '0.35.0'
+  CakeToolPath: 'dotnet-cake-tool-0-35-0'
 
 steps:
+- pwsh: if (!(Test-Path -Path tools)) { New-Item -Name tools -ItemType Directory }
+  displayName: 'Create Tools Directory'
 
-- pwsh: if (!(Test-Path -Path tools/dotnet-cake-tool-0-33-0)) { dotnet tool install Cake.Tool --tool-path tools/dotnet-cake-tool-0-33-0 --version 0.33.0 --add-source https://api.nuget.org/v3/index.json }
-  displayName: 'install cake global tool'
+- pwsh: if (!(Test-Path -Path $(CakeToolPath))) { dotnet tool install Cake.Tool --tool-path $(CakeToolPath) --version $(CakeVersion) }
+  displayName: 'Install Cake Tool'
+  workingDirectory: 'tools'
 
 - task: Bash@3
-  displayName: 'run cake'
+  displayName: Bootstrap Cake
   inputs:
     targetType: inline
-    script: exec ./tools/dotnet-cake-tool-0-33-0/dotnet-cake build.cake --target="BuildAndPublish"
+    script: exec ./tools/$(CakeToolPath)/dotnet-cake build.cake --bootstrap
+
+- task: Bash@3
+  displayName: Run Cake ${{ variables.CakeTarget }} ${{ variables.BuildConfiguration }}
+  inputs:
+    targetType: inline
+    script: exec ./tools/$(CakeToolPath)/dotnet-cake build.cake --target=$(CakeTarget) --configuration=$(BuildConfiguration)
   env:
     NUGET_API_KEY: $(NuGetApiKey)
     MYGET_API_KEY: $(MyGetApiKey)
