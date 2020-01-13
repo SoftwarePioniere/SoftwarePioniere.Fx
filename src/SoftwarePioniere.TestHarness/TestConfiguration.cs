@@ -11,7 +11,9 @@ namespace SoftwarePioniere
         {
             var basePath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..");
             var fullPath = Path.GetFullPath(basePath);
+#if DEBUG
             Console.WriteLine($"TestConfiguration BasePath: {fullPath}");
+#endif
 
             // ReSharper disable once UnusedVariable
             var builder = new ConfigurationBuilder()
