@@ -12,7 +12,7 @@ trigger:
     - README.md
 
 pool:
-  vmimage: 'ubuntu-latest'
+  vmimage: 'ubuntu-18.04'
 
 variables:
   BuildConfiguration: ''
