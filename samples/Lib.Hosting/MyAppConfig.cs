@@ -5,7 +5,7 @@ using SoftwarePioniere.Hosting;
 
 namespace Lib.Hosting
 {
-    public static class AppConfig
+    public static class MyAppConfig
     {
         public const string AzureAdResource = "https://testapi.softwarepioniere-demo.de";
         public const string AzureAdAdminGroupId = "975b884d-a98c-4964-90d0-d9aa3c1a0a6c";

@@ -63,7 +63,7 @@ namespace SoftwarePioniere.Hosting
                 .Enrich.WithProperty("Assembly", assembly?.FullName)
                 .Enrich.WithProperty("AppId", sopiOptions.AppId)
                 .Enrich.WithProperty("AppVersion", version)
-                                .WriteTo.File(logFile, 
+                                .WriteTo.File(logFile,
                     rollingInterval: RollingInterval.Day,
                     fileSizeLimitBytes: options.FileSizeLimitBytes,
                     rollOnFileSizeLimit: true,
@@ -71,8 +71,10 @@ namespace SoftwarePioniere.Hosting
                 ;
 
             if (
-                !string.Equals(Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT"), Microsoft.AspNetCore.Hosting.EnvironmentName.Production)
-                && !string.Equals(Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT"), Microsoft.AspNetCore.Hosting.EnvironmentName.Staging)
+                options.DisableConsole ||
+
+                (!string.Equals(Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT"), Microsoft.Extensions.Hosting.Environments.Production)
+                && !string.Equals(Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT"), Microsoft.Extensions.Hosting.Environments.Staging))
                 )
             {
                 loggerConfiguration.WriteTo.LiterateConsole(outputTemplate: options.Template);

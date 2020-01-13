@@ -62,8 +62,6 @@ namespace SoftwarePioniere.Hosting
 
             services
                 .AddSingleton<ICacheAdapter, CacheAdapter>()
-                .AddSingleton<ISagaServices, SagaServices>()
-             //   .AddSingleton<IProjectorServices, ProjectorServices>()
                 .AddDefaultMessageBusAdapter()
               
                 ;
@@ -74,7 +72,10 @@ namespace SoftwarePioniere.Hosting
 
         public static ISopiBuilder AddDomainServices(this ISopiBuilder builder)
         {
-            builder.Services.AddDomainServices(c => builder.Config.Bind("Repository", c));
+            builder.Services
+                .AddDomainServices(c => builder.Config.Bind("Repository", c))
+                .AddSingleton<ISagaServices, SagaServices>()
+                ;
 
             if (builder.Options.DomainEventStore == SopiOptions.DomainEventStoreEventStore)
             {

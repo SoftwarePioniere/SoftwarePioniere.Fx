@@ -11,11 +11,12 @@ namespace SoftwarePioniere.AspNetCore.Builder
             var services = builder.Services;
 
             var mvc = services.AddMvc()
-                .AddJsonOptions(options =>
-                {
-                    //      options.SerializerSettings.NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore;
-                })
-                .SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+                //.AddJsonOptions(options =>
+                //{
+                //    //      options.SerializerSettings.NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore;
+                //})
+                .SetCompatibilityVersion(CompatibilityVersion.Latest)
+                .AddNewtonsoftJson();
 
             builder.AddFeature("MvcBuilder", mvc);
 

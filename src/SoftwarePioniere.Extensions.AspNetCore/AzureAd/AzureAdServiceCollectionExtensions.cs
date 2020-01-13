@@ -34,7 +34,7 @@ namespace SoftwarePioniere.Extensions.AspNetCore.AzureAd
             services.AddOptions()
                 .Configure(configureOptions);
 
-            services.AddSingleton<IConfigureOptions<SopiSwaggerClientOptions>, ConfigureSopiSwaggerClientOptions>();
+            services.AddSingleton<IConfigureOptions<SopiSwaggerAuthOptions>, ConfigureSopiSwaggerClientOptions>();
             return services;
         }
 
@@ -60,7 +60,7 @@ namespace SoftwarePioniere.Extensions.AspNetCore.AzureAd
             }
         }
 
-        public class ConfigureSopiSwaggerClientOptions : IConfigureNamedOptions<SopiSwaggerClientOptions>
+        public class ConfigureSopiSwaggerClientOptions : IConfigureNamedOptions<SopiSwaggerAuthOptions>
         {
             private readonly AzureAdOptions _azureAdOptions;
 
@@ -69,7 +69,7 @@ namespace SoftwarePioniere.Extensions.AspNetCore.AzureAd
                 _azureAdOptions = auth0Options.Value;
             }
 
-            public void Configure(SopiSwaggerClientOptions options)
+            public void Configure(SopiSwaggerAuthOptions options)
             {
                 Configure(Options.DefaultName, options);
             }
@@ -77,16 +77,16 @@ namespace SoftwarePioniere.Extensions.AspNetCore.AzureAd
             public string Authority => $"https://login.microsoftonline.com/{_azureAdOptions.TenantId}/";
             public string SwaggerAuthorizationUrl => $"{Authority}oauth2/authorize";
 
-            public void Configure(string name, SopiSwaggerClientOptions options)
+            public void Configure(string name, SopiSwaggerAuthOptions options)
 
             {
-                
+
                 //public string Authority => $"https://login.microsoftonline.com/{TenantId}/";
                 //public string IssuerUrl => $"https://sts.windows.net/{TenantId}/";
                 //public string SwaggerAuthorizationUrl => $"{Authority}oauth2/authorize";
                 //public string SwaggerResource => Resource;
 
-                options.AuthorizationUrl = SwaggerAuthorizationUrl;
+                options.AuthorizationUrl = new Uri(SwaggerAuthorizationUrl);
                 options.ClientId = _azureAdOptions.SwaggerClientId;
                 options.ClientSecret = _azureAdOptions.SwaggerClientSecret;
                 options.Resource = _azureAdOptions.Resource;

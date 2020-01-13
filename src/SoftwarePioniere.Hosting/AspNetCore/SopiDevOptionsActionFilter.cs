@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using SoftwarePioniere.Builder;
 
@@ -13,7 +14,7 @@ namespace SoftwarePioniere.Hosting.AspNetCore
     {
         public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
-            var env = context.HttpContext.RequestServices.GetRequiredService<IHostingEnvironment>();
+            var env = context.HttpContext.RequestServices.GetRequiredService<IWebHostEnvironment>();
 
             if (env.IsDevelopment())
             {

@@ -4,8 +4,8 @@ using System.IO;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.Filters;
-using Swashbuckle.AspNetCore.Swagger;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace SoftwarePioniere.Extensions.AspNetCore.Swagger
@@ -19,7 +19,7 @@ namespace SoftwarePioniere.Extensions.AspNetCore.Swagger
 
             services.AddSingleton<IConfigureOptions<SopiSwaggerOptions>>(p =>
                 new ConfigureSopiSwaggerOptionsForMultipleServices(
-                    p.GetRequiredService<IOptions<SopiSwaggerClientOptions>>(),
+                    p.GetRequiredService<IOptions<SopiSwaggerAuthOptions>>(),
                     titleName, baseRoute, serviceName, apiKeys, readOnly, configureOptions
                     ));
 
@@ -38,14 +38,14 @@ namespace SoftwarePioniere.Extensions.AspNetCore.Swagger
             private readonly string[] _apiKeys;
             private readonly bool _readOnly;
             private readonly Action<SopiSwaggerOptions> _configureOptions;
-            private readonly SopiSwaggerClientOptions _swaggerClientOptions;
+            private readonly SopiSwaggerAuthOptions _auth;
 
             public ConfigureSopiSwaggerOptionsForMultipleServices(
-                IOptions<SopiSwaggerClientOptions> swaggerClientOptions,
+                IOptions<SopiSwaggerAuthOptions> swaggerClientOptions,
                 string titleName, string baseRoute, string serviceName, string[] apiKeys, bool readOnly
                 , Action<SopiSwaggerOptions> configureOptions = null)
             {
-                _swaggerClientOptions = swaggerClientOptions.Value;
+                _auth = swaggerClientOptions.Value;
                 _titleName = titleName;
                 _baseRoute = baseRoute;
                 _serviceName = serviceName;
@@ -53,123 +53,126 @@ namespace SoftwarePioniere.Extensions.AspNetCore.Swagger
                 _readOnly = readOnly;
                 _configureOptions = configureOptions;
             }
-            public void Configure(SopiSwaggerOptions c)
+            public void Configure(SopiSwaggerOptions options)
             {
-                c.Title = $"{_titleName} {_serviceName}";
-                c.Doc = _apiKeys[0];
+                options.Title = $"{_titleName} {_serviceName}";
+                options.Doc = _apiKeys[0];
 
-                var docs = _apiKeys.Select(apiKey => new SwaggerDocOptions { Name = apiKey, Title = c.Title, Url = $"/{_baseRoute}/{_serviceName}/swagger/{apiKey}.json" }).ToArray();
-                c.Docs = docs;
-                c.RouteTemplate = $"{_baseRoute}/{_serviceName}" + "/swagger/{documentName}.json";
-                c.ReadOnlyUi = _readOnly;
+                var docs = _apiKeys.Select(apiKey => new SwaggerDocOptions { Name = apiKey, Title = options.Title, Url = $"/{_baseRoute}/{_serviceName}/swagger/{apiKey}.json" }).ToArray();
+                options.Docs = docs;
+                options.RouteTemplate = $"{_baseRoute}/{_serviceName}" + "/swagger/{documentName}.json";
+                options.ReadOnlyUi = _readOnly;
 
                 if (!_readOnly)
                 {
-                    var scopes = new Dictionary<string, string>();
-                    //{
-                    //    {"admin", "admin access"}
-                    //};
+                    options.Scopes = new Dictionary<string, string>();
 
-                    c.OAuth2Scheme = new OAuth2Scheme
+                    options.OAuth2Scheme = new OpenApiSecurityScheme()
                     {
-                        Type = "oauth2",
-                        Flow = "implicit",
-                        AuthorizationUrl = _swaggerClientOptions.AuthorizationUrl,
-                        Scopes = scopes
+                        Type = SecuritySchemeType.OAuth2,
+                        Flows = new OpenApiOAuthFlows()
+                        {
+                            Implicit = new OpenApiOAuthFlow()
+                            {
+                                Scopes = options.Scopes,
+                                AuthorizationUrl = _auth.AuthorizationUrl
+                            }
+                        }
                     };
 
-                    c.OAuthAdditionalQueryStringParams = new Dictionary<string, string>
-                {
-                    {"resource", _swaggerClientOptions.Resource},
-                    {"Audience", _swaggerClientOptions.Resource}
-                };
+                    options.OAuthAdditionalQueryStringParams = new Dictionary<string, string>
+                    {
+                        {"resource", _auth.Resource},
+                        {"Audience", _auth.Resource}
+                    };
 
-                    c.OAuthClientId = _swaggerClientOptions.ClientId;
-                    c.OAuthClientSecret = _swaggerClientOptions.ClientSecret;
+                    options.OAuthClientId = _auth.ClientId;
+                    options.OAuthClientSecret = _auth.ClientSecret;
+
                 }
-                _configureOptions?.Invoke(c);
+                _configureOptions?.Invoke(options);
             }
         }
 
-        public static IServiceCollection AddSopiSwaggerForSingleService(this IServiceCollection services, string apiKey, string baseRoute, string serviceName, bool readOnly
-        , Action<SopiSwaggerOptions> configureOptions = null)
-        {
-            Console.WriteLine("AddSopiSwaggerForSingleService");
+        //public static IServiceCollection AddSopiSwaggerForSingleService(this IServiceCollection services, string apiKey, string baseRoute, string serviceName, bool readOnly
+        //, Action<SopiSwaggerOptions> configureOptions = null)
+        //{
+        //    Console.WriteLine("AddSopiSwaggerForSingleService");
 
 
-            services.AddSingleton<IConfigureOptions<SopiSwaggerOptions>>(p =>
-                new ConfigureSopiSwaggerForSingleService(
-                    p.GetRequiredService<IOptions<SopiSwaggerClientOptions>>(),
-                    apiKey, baseRoute, serviceName, readOnly, configureOptions
-                ));
+        //    services.AddSingleton<IConfigureOptions<SopiSwaggerOptions>>(p =>
+        //        new ConfigureSopiSwaggerForSingleService(
+        //            p.GetRequiredService<IOptions<SopiSwaggerClientOptions>>(),
+        //            apiKey, baseRoute, serviceName, readOnly, configureOptions
+        //        ));
 
-            return services;
-        }
+        //    return services;
+        //}
 
-        private class ConfigureSopiSwaggerForSingleService : IConfigureOptions<SopiSwaggerOptions>
-        {
-            private readonly string _apiKey;
-            private readonly string _baseRoute;
-            private readonly string _serviceName;
-            private readonly bool _readOnly;
-            private readonly Action<SopiSwaggerOptions> _configureOptions;
-            private readonly SopiSwaggerClientOptions _swaggerClientOptions;
+        //private class ConfigureSopiSwaggerForSingleService : IConfigureOptions<SopiSwaggerOptions>
+        //{
+        //    private readonly string _apiKey;
+        //    private readonly string _baseRoute;
+        //    private readonly string _serviceName;
+        //    private readonly bool _readOnly;
+        //    private readonly Action<SopiSwaggerOptions> _configureOptions;
+        //    private readonly SopiSwaggerClientOptions _swaggerClientOptions;
 
-            public ConfigureSopiSwaggerForSingleService(
-                IOptions<SopiSwaggerClientOptions> swaggerClientOptions,
-                string apiKey, string baseRoute, string serviceName, bool readOnly
-                , Action<SopiSwaggerOptions> configureOptions = null)
-            {
-                _swaggerClientOptions = swaggerClientOptions.Value;
+        //    public ConfigureSopiSwaggerForSingleService(
+        //        IOptions<SopiSwaggerClientOptions> swaggerClientOptions,
+        //        string apiKey, string baseRoute, string serviceName, bool readOnly
+        //        , Action<SopiSwaggerOptions> configureOptions = null)
+        //    {
+        //        _swaggerClientOptions = swaggerClientOptions.Value;
 
-                _apiKey = apiKey;
-                _baseRoute = baseRoute;
-                _serviceName = serviceName;
-                _readOnly = readOnly;
-                _configureOptions = configureOptions;
-            }
-            public void Configure(SopiSwaggerOptions c)
-            {
-                c.Title = $"{_apiKey} {_serviceName}";
-                c.Doc = _apiKey;
-                c.Docs = new[]
-                {
-                    new SwaggerDocOptions{Name = _apiKey , Title  = c.Title,  Url=$"/{_baseRoute}/{_serviceName}/swagger/{_apiKey}.json" }
-                };
-                c.RouteTemplate = $"{_baseRoute}/{_serviceName}" + "/swagger/{documentName}.json";
-                c.ServiceName = _serviceName;
-                c.ReadOnlyUi = _readOnly;
+        //        _apiKey = apiKey;
+        //        _baseRoute = baseRoute;
+        //        _serviceName = serviceName;
+        //        _readOnly = readOnly;
+        //        _configureOptions = configureOptions;
+        //    }
+        //    public void Configure(SopiSwaggerOptions c)
+        //    {
+        //        c.Title = $"{_apiKey} {_serviceName}";
+        //        c.Doc = _apiKey;
+        //        c.Docs = new[]
+        //        {
+        //            new SwaggerDocOptions{Name = _apiKey , Title  = c.Title,  Url=$"/{_baseRoute}/{_serviceName}/swagger/{_apiKey}.json" }
+        //        };
+        //        c.RouteTemplate = $"{_baseRoute}/{_serviceName}" + "/swagger/{documentName}.json";
+        //        c.ServiceName = _serviceName;
+        //        c.ReadOnlyUi = _readOnly;
 
-                if (!_readOnly)
-                {
+        //        if (!_readOnly)
+        //        {
 
-                    var scopes = new Dictionary<string, string>();
-                    //{
-                    //    {"admin", "admin access"}
-                    //};
+        //            var scopes = new Dictionary<string, string>();
+        //            //{
+        //            //    {"admin", "admin access"}
+        //            //};
 
-                    c.OAuth2Scheme = new OAuth2Scheme
-                    {
-                        Type = "oauth2",
-                        Flow = "implicit",
-                        AuthorizationUrl = _swaggerClientOptions.AuthorizationUrl,
-                        Scopes = scopes
-                    };
+        //            //c.OAuth2Scheme = new OAuth2Scheme
+        //            //{
+        //            //    Type = "oauth2",
+        //            //    Flow = "implicit",
+        //            //    AuthorizationUrl = _swaggerClientOptions.AuthorizationUrl,
+        //            //    Scopes = scopes
+        //            //};
 
-                    c.OAuthAdditionalQueryStringParams = new Dictionary<string, string>
-                    {
-                        {"resource", _swaggerClientOptions.Resource},
-                        {"Audience", _swaggerClientOptions.Resource}
-                    };
+        //            c.OAuthAdditionalQueryStringParams = new Dictionary<string, string>
+        //            {
+        //                {"resource", _swaggerClientOptions.Resource},
+        //                {"Audience", _swaggerClientOptions.Resource}
+        //            };
 
-                    c.OAuthClientId = _swaggerClientOptions.ClientId;
-                    c.OAuthClientSecret = _swaggerClientOptions.ClientSecret;
-                }
-                _configureOptions?.Invoke(c);
-            }
+        //            c.OAuthClientId = _swaggerClientOptions.ClientId;
+        //            c.OAuthClientSecret = _swaggerClientOptions.ClientSecret;
+        //        }
+        //        _configureOptions?.Invoke(c);
+        //    }
 
 
-        }
+        //}
 
         public static IServiceCollection AddSopiSwagger(this IServiceCollection services, Action<SopiSwaggerOptions> configureOptions = null)
         {
@@ -191,7 +194,7 @@ namespace SoftwarePioniere.Extensions.AspNetCore.Swagger
                     {
                         foreach (var doc in sopiSwaggerOptions.Docs)
                         {
-                            options.SwaggerDoc(doc.Name, new Info
+                            options.SwaggerDoc(doc.Name, new OpenApiInfo
                             {
                                 Title = doc.Title,
                                 Version = "v1"
@@ -207,7 +210,7 @@ namespace SoftwarePioniere.Extensions.AspNetCore.Swagger
                             doc = sopiSwaggerOptions.Doc;
                         }
 
-                        options.SwaggerDoc(doc, new Info
+                        options.SwaggerDoc(doc, new OpenApiInfo
                         {
                             Title = $"{sopiSwaggerOptions.Title}-{doc}",
                             Version = "v1"
@@ -223,137 +226,65 @@ namespace SoftwarePioniere.Extensions.AspNetCore.Swagger
                     }
 
                     options.EnableAnnotations();
-                    options.DescribeAllEnumsAsStrings();
+                    //     options.DescribeAllEnumsAsStrings();
                     options.OperationFilter<SummaryFromOperationFilter>();
-                    options.OperationFilter<FormFileOperationFilter>();
+                    //options.OperationFilter<FormFileOperationFilter>();
                     options.OperationFilter<AppendAuthorizeToSummaryOperationFilter>();
-                    
+
 
                     if (!sopiSwaggerOptions.ReadOnlyUi)
                     {
-
-                        if (!string.IsNullOrEmpty(sopiSwaggerOptions.AuthorizationUrl))
+                        if (sopiSwaggerOptions.OAuth2Scheme != null)
                         {
-                            var sch = new OAuth2Scheme
-                            {
-                                Type = "oauth2",
-                                Flow = "implicit",
-                                AuthorizationUrl = sopiSwaggerOptions.AuthorizationUrl,
-                                Scopes = sopiSwaggerOptions.Scopes
-                            };
-                            options.AddSecurityDefinition("oauth2", sch);
+                            options.AddSecurityDefinition("oauth2", sopiSwaggerOptions.OAuth2Scheme);
                         }
-
-                        options.AddSecurityDefinition("oauth2", sopiSwaggerOptions.OAuth2Scheme);
+                        else
+                        {
+                            if (!string.IsNullOrEmpty(sopiSwaggerOptions.AuthorizationUrl))
+                            {
+                                var sch = new OpenApiSecurityScheme
+                                {
+                                    Type = SecuritySchemeType.OAuth2,
+                                    Flows = new OpenApiOAuthFlows
+                                    {
+                                        Implicit = new OpenApiOAuthFlow
+                                        {
+                                            AuthorizationUrl = new Uri(sopiSwaggerOptions.AuthorizationUrl),
+                                            Scopes = sopiSwaggerOptions.Scopes
+                                        }
+                                    }
+                                };
+                                options.AddSecurityDefinition("oauth2", sch);
+                            }
+                        }
                     }
-                    
+
                     options.OperationFilter<SecurityRequirementsOperationFilter>();
 
                     options.DocInclusionPredicate((s, description) =>
                     {
-                        if (sopiSwaggerOptions.Docs == null) return true;
+                        if (sopiSwaggerOptions.Docs == null)
+                        {
+                            return true;
+                        }
 
                         if (sopiSwaggerOptions.Docs.Select(x => x.Name).Contains(s))
+                        {
                             return description.GroupName == s;
+                        }
 
                         if (string.IsNullOrEmpty(description.GroupName))
+                        {
                             return true;
+                        }
 
                         return description.GroupName != s;
                     });
-
                 });
 
             services.AddSwaggerGen();
 
             return services;
-        }
-
-        public class ConfigureSwaggerGen : IConfigureNamedOptions<SwaggerGenOptions>
-        {
-            private readonly SopiSwaggerOptions _sopiSwaggerOptions;
-
-            public ConfigureSwaggerGen(IOptions<SopiSwaggerOptions> sopiSwaggerOptions)
-            {
-                _sopiSwaggerOptions = sopiSwaggerOptions.Value;
-            }
-            public void Configure(SwaggerGenOptions options)
-            {
-                Configure(Options.DefaultName, options);
-            }
-
-            public void Configure(string name, SwaggerGenOptions options)
-            {
-                if (_sopiSwaggerOptions.Docs != null)
-                {
-                    foreach (var doc in _sopiSwaggerOptions.Docs)
-                    {
-                        options.SwaggerDoc(doc.Name, new Info
-                        {
-                            Title = doc.Title,
-                            Version = "v1"
-                        });
-                    }
-                }
-                else
-                {
-                    var doc = "api";
-
-                    if (!string.IsNullOrEmpty(_sopiSwaggerOptions.Doc))
-                    {
-                        doc = _sopiSwaggerOptions.Doc;
-                    }
-
-                    options.SwaggerDoc(doc, new Info
-                    {
-                        Title = $"{_sopiSwaggerOptions.Title}-{doc}",
-                        Version = "v1"
-                    });
-                }
-
-                if (_sopiSwaggerOptions.XmlFiles != null)
-                {
-                    foreach (var xmlFile in _sopiSwaggerOptions.XmlFiles)
-                    {
-                        IncludeXmlCommentsIfExist(options, xmlFile);
-                    }
-                }
-
-                options.EnableAnnotations();
-                options.DescribeAllEnumsAsStrings();
-                options.OperationFilter<FormFileOperationFilter>();
-                options.OperationFilter<AppendAuthorizeToSummaryOperationFilter>();
-                options.OperationFilter<SummaryFromOperationFilter>();
-
-                if (!string.IsNullOrEmpty(_sopiSwaggerOptions.AuthorizationUrl))
-                {
-                    var sch = new OAuth2Scheme
-                    {
-                        Type = "oauth2",
-                        Flow = "implicit",
-                        AuthorizationUrl = _sopiSwaggerOptions.AuthorizationUrl,
-                        Scopes = _sopiSwaggerOptions.Scopes
-                    };
-                    options.AddSecurityDefinition("oauth2", sch);
-                }
-
-                options.AddSecurityDefinition("oauth2", _sopiSwaggerOptions.OAuth2Scheme);
-
-                options.OperationFilter<SecurityRequirementsOperationFilter>();
-
-                options.DocInclusionPredicate((s, description) =>
-                {
-                    if (_sopiSwaggerOptions.Docs == null) return true;
-
-                    if (_sopiSwaggerOptions.Docs.Select(x => x.Name).Contains(s))
-                        return description.GroupName == s;
-
-                    if (string.IsNullOrEmpty(description.GroupName))
-                        return true;
-
-                    return description.GroupName != s;
-                });
-            }
         }
 
         private static void IncludeXmlCommentsIfExist(this SwaggerGenOptions swaggerGenOptions, string fileName)
@@ -368,5 +299,114 @@ namespace SoftwarePioniere.Extensions.AspNetCore.Swagger
                 swaggerGenOptions.IncludeXmlComments(xmlFileName);
             }
         }
+
+        //public class ConfigureSwaggerGen : IConfigureNamedOptions<SwaggerGenOptions>
+        //{
+        //    private readonly SopiSwaggerOptions _sopiSwaggerOptions;
+
+        //    public ConfigureSwaggerGen(IOptions<SopiSwaggerOptions> sopiSwaggerOptions)
+        //    {
+        //        _sopiSwaggerOptions = sopiSwaggerOptions.Value;
+        //    }
+
+        //    public void Configure(SwaggerGenOptions options)
+        //    {
+        //        Configure(Options.DefaultName, options);
+        //    }
+
+        //    public void Configure(string name, SwaggerGenOptions options)
+        //    {
+        //        if (_sopiSwaggerOptions.Docs != null)
+        //        {
+        //            foreach (var doc in _sopiSwaggerOptions.Docs)
+        //            {
+        //                options.SwaggerDoc(doc.Name, new OpenApiInfo
+        //                {
+        //                    Title = doc.Title,
+        //                    Version = "v1"
+        //                });
+        //            }
+        //        }
+        //        else
+        //        {
+        //            var doc = "api";
+
+        //            if (!string.IsNullOrEmpty(_sopiSwaggerOptions.Doc))
+        //            {
+        //                doc = _sopiSwaggerOptions.Doc;
+        //            }
+
+        //            options.SwaggerDoc(doc, new OpenApiInfo
+        //            {
+        //                Title = $"{_sopiSwaggerOptions.Title}-{doc}",
+        //                Version = "v1"
+        //            });
+        //        }
+
+        //        if (_sopiSwaggerOptions.XmlFiles != null)
+        //        {
+        //            foreach (var xmlFile in _sopiSwaggerOptions.XmlFiles)
+        //            {
+        //                IncludeXmlCommentsIfExist(options, xmlFile);
+        //            }
+        //        }
+
+        //        options.EnableAnnotations();
+        //        //options.DescribeAllEnumsAsStrings();
+        //        //options.OperationFilter<FormFileOperationFilter>();
+        //        options.OperationFilter<AppendAuthorizeToSummaryOperationFilter>();
+        //        options.OperationFilter<SummaryFromOperationFilter>();
+
+        //        if (!string.IsNullOrEmpty(_sopiSwaggerOptions.AuthorizationUrl))
+        //        {
+        //            var sch = new OpenApiSecurityScheme
+        //            {
+        //                Name = "oauth2",
+        //                Flows = new OpenApiOAuthFlows
+        //                {
+        //                    Implicit = new OpenApiOAuthFlow
+        //                    {
+        //                        AuthorizationUrl = new Uri(_sopiSwaggerOptions.AuthorizationUrl),
+        //                        Scopes = _sopiSwaggerOptions.Scopes
+        //                    }
+        //                }
+        //            };
+        //            options.AddSecurityDefinition("oauth2", sch);
+
+        //            //var sch = new OAuth2Scheme
+        //            //{
+        //            //    Type = "oauth2",
+        //            //    Flow = "implicit",
+        //            //    AuthorizationUrl = _sopiSwaggerOptions.AuthorizationUrl,
+        //            //    Scopes = _sopiSwaggerOptions.Scopes
+        //            //};
+        //            //options.AddSecurityDefinition("oauth2", sch);
+        //        }
+
+        //        options.AddSecurityDefinition("oauth2", _sopiSwaggerOptions.OAuth2Scheme);
+
+        //        options.OperationFilter<SecurityRequirementsOperationFilter>();
+
+        //        options.DocInclusionPredicate((s, description) =>
+        //        {
+        //            if (_sopiSwaggerOptions.Docs == null)
+        //            {
+        //                return true;
+        //            }
+
+        //            if (_sopiSwaggerOptions.Docs.Select(x => x.Name).Contains(s))
+        //            {
+        //                return description.GroupName == s;
+        //            }
+
+        //            if (string.IsNullOrEmpty(description.GroupName))
+        //            {
+        //                return true;
+        //            }
+
+        //            return description.GroupName != s;
+        //        });
+        //    }
+        //}
     }
 }

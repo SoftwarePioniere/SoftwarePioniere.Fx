@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using SoftwarePioniere.Builder;
@@ -18,7 +19,7 @@ namespace WebApp.Controller
         [SwaggerOperation(OperationId = "GetDevOptions")]
         public ActionResult<string> GetDevOptions(
            [FromServices] IOptionsSnapshot<DevOptions> options
-           , [FromServices] IHostingEnvironment environment)
+           , [FromServices] IWebHostEnvironment environment)
         {
             if (!environment.IsDevelopment())
                 return BadRequest("only in development enviroment");
@@ -32,7 +33,7 @@ namespace WebApp.Controller
         [SwaggerOperation(OperationId = "PostToggleDevOptionsGetWithBadRequest")]
         public ActionResult<string> PostToggleDevOptionsGetWithBadRequest(
             [FromServices] DevOptionsConfigurationProvider provider
-            , [FromServices] IHostingEnvironment environment
+            , [FromServices] IWebHostEnvironment environment
 
             )
         {
@@ -49,7 +50,7 @@ namespace WebApp.Controller
         [SwaggerOperation(OperationId = "PostToggleDevOptionsPostWithBadRequest")]
         public ActionResult<string> PostToggleDevOptionsPostWithBadRequest(
             [FromServices] DevOptionsConfigurationProvider provider
-            , [FromServices] IHostingEnvironment environment
+            , [FromServices] IWebHostEnvironment environment
         )
         {
             if (!environment.IsDevelopment())
@@ -64,7 +65,7 @@ namespace WebApp.Controller
         [SwaggerOperation(OperationId = "PostToggleDevOptionsRaiseCommandFailed")]
         public ActionResult<string> PostToggleDevOptionsRaiseCommandFailed(
             [FromServices] DevOptionsConfigurationProvider provider
-            , [FromServices] IHostingEnvironment environment)
+            , [FromServices] IWebHostEnvironment environment)
         {
             if (!environment.IsDevelopment())
                 return BadRequest("only in development enviroment");

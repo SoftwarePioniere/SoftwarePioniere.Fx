@@ -14,9 +14,11 @@ namespace SoftwarePioniere.Extensions.AspNetCore.Swagger
         public static IApplicationBuilder UseSopiSwagger(this IApplicationBuilder app)
         {
             var options = app.ApplicationServices.GetRequiredService<IOptions<SopiSwaggerOptions>>().Value;
+
+
             app.UseSwagger(c =>
              {
-                 c.PreSerializeFilters.Add((swagger, httpReq) => swagger.Host = httpReq.Host.Value);
+                 //c.PreSerializeFilters.Add((swagger, httpReq) => swagger. = httpReq.Host.Value);
 
                  if (!string.IsNullOrEmpty(options.RouteTemplate))
                  {

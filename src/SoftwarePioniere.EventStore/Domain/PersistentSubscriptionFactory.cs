@@ -7,9 +7,9 @@ namespace SoftwarePioniere.EventStore.Domain
     public class PersistentSubscriptionFactory : IPersistentSubscriptionFactory
     {
         private readonly EventStoreConnectionProvider _connectionProvider;
-        private readonly IApplicationLifetime _applicationLifetime;
+        private readonly IHostApplicationLifetime _applicationLifetime;
   
-        public PersistentSubscriptionFactory(EventStoreConnectionProvider connectionProvider, IApplicationLifetime applicationLifetime)
+        public PersistentSubscriptionFactory(EventStoreConnectionProvider connectionProvider, IHostApplicationLifetime applicationLifetime)
         {
             _connectionProvider = connectionProvider ?? throw new ArgumentNullException(nameof(connectionProvider));
             _applicationLifetime = applicationLifetime ?? throw new ArgumentNullException(nameof(applicationLifetime));

@@ -1,12 +1,13 @@
-﻿using System.Collections.Generic;
-using Swashbuckle.AspNetCore.Swagger;
+﻿using System;
+using System.Collections.Generic;
+using Microsoft.OpenApi.Models;
 
 namespace SoftwarePioniere.Extensions.AspNetCore.Swagger
 {
     public class SopiSwaggerOptions
     {
         public string[] XmlFiles { get; set; }
-        public OAuth2Scheme OAuth2Scheme { get; set; }
+        public OpenApiSecurityScheme OAuth2Scheme { get; set; }
         public string AuthorizationUrl { get; set; }
         public Dictionary<string, string> Scopes { get; set; }
         public Dictionary<string, string> OAuthAdditionalQueryStringParams { get; set; }
@@ -29,11 +30,11 @@ namespace SoftwarePioniere.Extensions.AspNetCore.Swagger
         public string Title { get; set; }
     }
 
-    public class SopiSwaggerClientOptions
+    public class SopiSwaggerAuthOptions
     {
         public string ClientId { get; set; }
         public string ClientSecret { get; set; }
-        public string AuthorizationUrl { get; set; }
+        public Uri AuthorizationUrl { get; set; }
         public string Resource { get; set; }
     }
 }

@@ -15,7 +15,7 @@ namespace SoftwarePioniere.EventStore.Domain
         private readonly EventStoreConnectionProvider _connectionProvider;
         private readonly CancellationToken _cancellationToken;
 
-        public PersistentSubscriptionAdapter(EventStoreConnectionProvider connectionProvider, IApplicationLifetime applicationLifetime)
+        public PersistentSubscriptionAdapter(EventStoreConnectionProvider connectionProvider, IHostApplicationLifetime applicationLifetime)
         {
             if (applicationLifetime == null)
             {

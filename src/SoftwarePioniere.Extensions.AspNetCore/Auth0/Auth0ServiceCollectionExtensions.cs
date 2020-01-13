@@ -29,12 +29,12 @@ namespace SoftwarePioniere.Extensions.AspNetCore.Auth0
             services.AddOptions()
                 .Configure(configureOptions);
 
-            services.AddSingleton<IConfigureOptions<SopiSwaggerClientOptions>, ConfigureSopiSwaggerClientOptions>();
+            services.AddSingleton<IConfigureOptions<SopiSwaggerAuthOptions>, ConfigureSopiSwaggerClientOptions>();
 
             return services;
         }
 
-        public class ConfigureSopiSwaggerClientOptions : IConfigureNamedOptions<SopiSwaggerClientOptions>
+        public class ConfigureSopiSwaggerClientOptions : IConfigureNamedOptions<SopiSwaggerAuthOptions>
         {
             private readonly Auth0Options _auth0Options;
 
@@ -43,14 +43,14 @@ namespace SoftwarePioniere.Extensions.AspNetCore.Auth0
                 _auth0Options = auth0Options.Value;
             }
 
-            public void Configure(SopiSwaggerClientOptions options)
+            public void Configure(SopiSwaggerAuthOptions options)
             {
                 Configure(Options.DefaultName, options);
             }
 
-            public void Configure(string name, SopiSwaggerClientOptions options)
+            public void Configure(string name, SopiSwaggerAuthOptions options)
             {
-                options.AuthorizationUrl = $"{_auth0Options.Domain}authorize";
+                options.AuthorizationUrl = new Uri($"{_auth0Options.Domain}authorize");
                 options.ClientId = _auth0Options.SwaggerClientId;
                 options.ClientSecret = _auth0Options.SwaggerClientSecret;
                 options.Resource = _auth0Options.SwaggerResource;

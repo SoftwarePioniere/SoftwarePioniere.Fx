@@ -2,8 +2,12 @@
 using Lib.Hosting;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Serilog;
 using SoftwarePioniere;
 using SoftwarePioniere.AspNetCore;
 using SoftwarePioniere.AspNetCore.Builder;
@@ -20,107 +24,132 @@ namespace WebApp.Host
 {
     public static class Program
     {
-        public static int Main(string[] args) => StartWebServer(args);
-
-        private static int StartWebServer(string[] args)
+        private static IHostBuilder CreateWebHostBuilder(string[] args)
         {
             var id = Environment.GetEnvironmentVariable("APPID");
 
             if (string.IsNullOrEmpty(id))
+            {
                 id = "app";
+            }
 
-            AppConfig.SetEnvironmentVariables(id);
+            MyAppConfig.SetEnvironmentVariables(id);
+            MyAppConfig.SetWebSocketEnvironmentVariables(Constants.NotificationsBaseRouteAuth);
 
-            AppConfig.SetWebSocketEnvironmentVariables(Constants.NotificationsBaseRouteAuth);
+            var config = WebHost.CreateDefaultBuilder(args)
+                .ConfigureAppConfiguration(MyAppConfig.Configure)
+                .ConfigureServices((context, collection) => collection.AddSingleton(context.Configuration))
+                .Configure(builder => { })
+                .Build().Services.GetRequiredService<IConfiguration>();
 
 
-            return SopiWebHost.Run(WebHost.CreateDefaultBuilder(args),
-                AppConfig.Configure,
-                sopiBuilder =>
+            var serlogger = config.CreateSerilogger();
+
+            return Microsoft.Extensions.Hosting.Host.CreateDefaultBuilder(args)
+                .ConfigureAppConfiguration(MyAppConfig.Configure)
+                .UseSerilog()
+                .ConfigureWebHostDefaults(webBuilder =>
                 {
-                    var services = sopiBuilder.Services;
-                    var startDomainServices = Environment.GetEnvironmentVariable("DOMAIN_SERVICES");
-
-                    if (string.IsNullOrEmpty(startDomainServices) || startDomainServices.ToLower() == "true")
+                    webBuilder.ConfigureServices((context, services) =>
                     {
-                        sopiBuilder
-                            .AddDomainServices();
-
-                        services
-                            .AddSingleton<ISaga, MySaga1>();
-
-                    }
-
-                    var startProjectionServices = Environment.GetEnvironmentVariable("PROJECTION_SERVICES");
-
-                    if (string.IsNullOrEmpty(startProjectionServices) || startProjectionServices.ToLower() == "true")
-                    {
-                        sopiBuilder
-                            .AddProjectionServices();
-
-                        services
-                            .AddSingleton<MyProjector1>()
-                            .AddSingleton<IReadModelProjector, MyCompositeProjector1>();
-
-                    }
-
-                    services.AddSopiSwaggerForMultipleServices(Constants.ApiTitle,
-                             Constants.ApiBaseRoute,
-                             "sample",
-                             new[]
-                             {
-                            Constants.ApiKey, "api", "api2", "cmd1", "qry1"
-                             },
-                             false);
-
-                    services
-                        .AddTestClientOptions(c => { c.BaseAddress = "http://localhost:5099"; })
-                        .AddTestSystemClient()
-                        .AddTestUserClient()
-                        //.AddSingleton<IReadModelProjector, MyProjector1>()
-                        .AddSopiService<DelayStartService>()
-                        .AddSignalR(options => { options.EnableDetailedErrors = true; })
-                        ;
-
-
-                    var startQueryServices = Environment.GetEnvironmentVariable("QUERY_SERVICES");
-
-                    if (string.IsNullOrEmpty(startQueryServices) || startQueryServices.ToLower() == "true")
-                    {
-                        services
-                            .AddTransient<MyQueryService>()
+                        var sopiBuilder = services
+                                .AddSopi(context.Configuration, serlogger.Information)
+                                .AddAuthentication()
+                                .AddPlatformServices()
+                                .AddMvcServices()
+                                .AddSystemServicesByConfiguration()
                             ;
-                        
-                       
-                    }
 
-                    sopiBuilder.GetMvcBuilder().AddApplicationPart(typeof(HomeController).Assembly);
+                        var startDomainServices = Environment.GetEnvironmentVariable("DOMAIN_SERVICES");
 
-                },
-                app =>
-                {
-                    var logger = app.ApplicationServices.GetStartupLogger();
+                        if (string.IsNullOrEmpty(startDomainServices) || startDomainServices.ToLower() == "true")
+                        {
+                            sopiBuilder
+                                .AddDomainServices();
 
-                    app.UseVersionInfo(Constants.ApiBaseRoute);
-                    app.UseSopiLifetimeEndpoint(Constants.ApiBaseRoute);
-                    app.UseProjectionStatusEndpoint(Constants.ProjectionBaseRoute);
+                            services
+                                .AddSingleton<ISaga, MySaga1>();
+                        }
 
-                    //   app.UseSopiLifetime();
-                    logger.LogInformation("WebSocket Url: {WebSocketUrl}", Constants.NotificationsBaseRoute);
-                    logger.LogInformation("WebSocket AuthUrl: {WebSocketUrl}", Constants.NotificationsBaseRouteAuth);
+                        var startProjectionServices = Environment.GetEnvironmentVariable("PROJECTION_SERVICES");
 
-                    app.UseSignalR(routes =>
-                    {
-                        routes.MapHub<TestHub>(Constants.NotificationsBaseRoute);
-                        routes.MapHub<TestHubAuth>(Constants.NotificationsBaseRouteAuth);
+                        if (string.IsNullOrEmpty(startProjectionServices) || startProjectionServices.ToLower() == "true")
+                        {
+                            sopiBuilder
+                                .AddProjectionServices();
+
+                            services
+                                .AddSingleton<MyProjector1>()
+                                .AddSingleton<IReadModelProjector, MyCompositeProjector1>();
+                        }
+
+                        services.AddSopiSwaggerForMultipleServices(Constants.ApiTitle,
+                                 Constants.ApiBaseRoute,
+                                 "sample",
+                                 new[]
+                                 {
+                                        Constants.ApiKey, "api", "api2", "cmd1", "qry1"
+                                 },
+                                 false);
+
+                        services
+                            .AddTestClientOptions(c => { c.BaseAddress = "http://localhost:5099"; })
+                            .AddTestSystemClient()
+                            .AddTestUserClient()
+                            .AddSingleton<IReadModelProjector, MyProjector1>()
+                            .AddSopiService<DelayStartService>()
+                            .AddHostedService<SopiAppService>()
+                            ;
+
+
+
+                        services.AddSignalR(options => { options.EnableDetailedErrors = true; })
+                            ;
+
+                        var startQueryServices = Environment.GetEnvironmentVariable("QUERY_SERVICES");
+
+                        if (string.IsNullOrEmpty(startQueryServices) || startQueryServices.ToLower() == "true")
+                        {
+                            services
+                                .AddTransient<MyQueryService>()
+                                ;
+                        }
+
+                        sopiBuilder.GetMvcBuilder().AddApplicationPart(typeof(HomeController).Assembly);
                     });
-                },
-                (context, services) =>
-                {
 
-                }
-            );
 
+                    webBuilder.Configure(app =>
+                    {
+                        var logger = app.ApplicationServices.GetStartupLogger();
+                        app.UseSerilogRequestLogging();
+
+                        app.UseVersionInfo(Constants.ApiBaseRoute);
+                        app.UseSopiLifetimeEndpoint(Constants.ApiBaseRoute);
+                        app.UseProjectionStatusEndpoint(Constants.ProjectionBaseRoute);
+
+                        app.UseRouting()
+                            .UseAuthentication()
+                            .UseAuthorization();
+
+                        logger.LogInformation("WebSocket Url: {WebSocketUrl}", Constants.NotificationsBaseRoute);
+                        logger.LogInformation("WebSocket AuthUrl: {WebSocketUrl}", Constants.NotificationsBaseRouteAuth);
+
+                        app.UseEndpoints(endpoints =>
+                            {
+                                endpoints.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
+
+                                endpoints.MapHub<TestHub>(Constants.NotificationsBaseRoute);
+                                endpoints.MapHub<TestHubAuth>(Constants.NotificationsBaseRouteAuth);
+                            })
+                            .UseSopiSwagger();
+                    });
+                });
+        }
+
+        public static void Main(string[] args)
+        {
+            CreateWebHostBuilder(args).Build().Run();
         }
     }
 }

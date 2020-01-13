@@ -5,6 +5,8 @@
     {
         public bool UseSeq { get; set; }
 
+        public bool DisableConsole { get; set; }
+
         public string SeqServerUrl { get; set; } = "http://localhost:5341";
 
         public string MinimumLevel { get; set; } = "Information";

@@ -6,7 +6,7 @@
       "launchBrowser": false,
       "applicationUrl": "http://localhost:5098",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development",
+        "DOTNET_ENVIRONMENT": "Development",
         "APPID": "cmd"
       }
     }

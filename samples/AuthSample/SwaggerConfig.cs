@@ -1,18 +1,18 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.Options;
+using Microsoft.OpenApi.Models;
 using SoftwarePioniere.Extensions.AspNetCore.Swagger;
-using Swashbuckle.AspNetCore.Swagger;
 
 namespace AuthSample
 {
     public class SwaggerConfig : IConfigureOptions<SopiSwaggerOptions>
     {
-        private readonly SopiSwaggerClientOptions _swaggerClientOptions;
+        private readonly SopiSwaggerAuthOptions _auth;
 
-        public SwaggerConfig(IOptions<SopiSwaggerClientOptions> cwco)
+        public SwaggerConfig(IOptions<SopiSwaggerAuthOptions> auth)
         {
-            _swaggerClientOptions = cwco.Value;
+            _auth = auth.Value;
         }
 
         public void Configure(SopiSwaggerOptions options)
@@ -31,27 +31,32 @@ namespace AuthSample
 
             options.XmlFiles = new string[0];
 
-            var scopes = new Dictionary<string, string>
+            options.Scopes = new Dictionary<string, string>
                 {
                     {"admin", "admin access"}
                 };
 
-            options.OAuth2Scheme = new OAuth2Scheme
+            options.OAuth2Scheme = new OpenApiSecurityScheme()
             {
-                Type = "oauth2",
-                Flow = "implicit",
-                AuthorizationUrl = _swaggerClientOptions.AuthorizationUrl,
-                Scopes = scopes
+                Type = SecuritySchemeType.OAuth2,
+                Flows = new OpenApiOAuthFlows()
+                {
+                    Implicit = new OpenApiOAuthFlow()
+                    {
+                        Scopes = options.Scopes,
+                        AuthorizationUrl = _auth.AuthorizationUrl
+                    }
+                }
             };
 
             options.OAuthAdditionalQueryStringParams = new Dictionary<string, string>
                 {
-                    {"resource", _swaggerClientOptions.Resource},
-                    {"Audience", _swaggerClientOptions.Resource}
+                    {"resource", _auth.Resource},
+                    {"Audience", _auth.Resource}
                 };
 
-            options.OAuthClientId = _swaggerClientOptions.ClientId;
-            options.OAuthClientSecret = _swaggerClientOptions.ClientSecret;
+            options.OAuthClientId = _auth.ClientId;
+            options.OAuthClientSecret = _auth.ClientSecret;
         }
 
     }
