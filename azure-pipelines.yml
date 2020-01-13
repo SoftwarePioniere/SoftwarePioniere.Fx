@@ -17,54 +17,20 @@ pool:
 variables:
   BuildConfiguration: 'Release'
   CakeTarget: 'BuildAndPublish'
-  # CakeVersion: '0.35.0'
-  # CakeToolPath: 'dotnet-cake-tool-0-35-0'
 
 steps:
-# - pwsh: if (!(Test-Path -Path tools)) { New-Item -Name tools -ItemType Directory }
-#   displayName: 'Create Tools Directory'
-
-# - pwsh: if (!(Test-Path -Path $(CakeToolPath))) { dotnet tool install Cake.Tool --tool-path $(CakeToolPath) --version $(CakeVersion) }
-#   displayName: 'Install Cake Tool'
-#   workingDirectory: 'tools'
-
-# - task: Bash@3
-#   displayName: Bootstrap Cake
-#   inputs:
-#     targetType: inline
-#     script: exec ./tools/$(CakeToolPath)/dotnet-cake build.cake --bootstrap
-
-# - task: Bash@3
-#   displayName: Run Cake ${{ variables.CakeTarget }} ${{ variables.BuildConfiguration }}
-#   inputs:
-#     targetType: inline
-#     script: exec ./tools/$(CakeToolPath)/dotnet-cake build.cake --target=$(CakeTarget) --configuration=$(BuildConfiguration)
-#   env:
-#     NUGET_API_KEY: $(NuGetApiKey)
-#     MYGET_API_KEY: $(MyGetApiKey)
-#     SOPI_TESTS_EVENTSTORE__TCPPORT: 1193
-#     SOPI_TESTS_EVENTSTORE__HTTPPORT: 2193
-#     SOPI_TESTS_EVENTSTORE__EXTSECURETCPPORT: 1195
-#     SOPI_TESTS_MONGODB__PORT: 27097
-#     SOPI_TESTS_AZURECOSMOSDB__AUTHKEY: $(SopiTestCosmosDbPrimaryKey)
-#     SOPI_TESTS_AZURECOSMOSDB__ENDPOINTURL: $(SopiTestCosmosDbEndpint)
-#     SOPI_TESTS_AZUREADCLIENT__CLIENTID: $(SopiTestAzureAdClientId)
-#     SOPI_TESTS_AZUREADCLIENT__CLIENTSECRET: $(SopiTestAzureAdClientSecret)
-#     SOPI_TESTS_AUTH0CLIENT__CLIENTID: $(SopiTestAuth0ClientId)
-#     SOPI_TESTS_AUTH0CLIENT__CLIENTSECRET: $(SopiTestAuth0ClientSecret)
-
-- task: UseDotNet@2 
+- task: UseDotNet@2
   displayName: ".NET Core 3.1.x"
   inputs:
     version: '3.1.x'
     packageType: sdk
 
 - script: |
-    dotnet tool restore    
+    dotnet tool restore
     dotnet tool run dotnet-cake --version
     dotnet tool run dotnet-cake --bootstrap
     dotnet tool run dotnet-cake build.cake --target=$(CakeTarget) --configuration=$(BuildConfiguration)
-  displayName: Run Cake ${{ variables.CakeTarget }} ${{ variables.BuildConfiguration }}
+  displayName: Cake ${{ variables.CakeTarget }} ${{ variables.BuildConfiguration }}
   env:
     NUGET_API_KEY: $(NuGetApiKey)
     MYGET_API_KEY: $(MyGetApiKey)
@@ -79,6 +45,7 @@ steps:
     SOPI_TESTS_AUTH0CLIENT__CLIENTID: $(SopiTestAuth0ClientId)
     SOPI_TESTS_AUTH0CLIENT__CLIENTSECRET: $(SopiTestAuth0ClientSecret)
     DOTNET_CLI_TELEMETRY_OPTOUT: 1
+    DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
 
 - task: PublishTestResults@2
   inputs:
