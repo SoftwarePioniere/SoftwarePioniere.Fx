@@ -51,7 +51,7 @@ namespace SoftwarePioniere.Extensions.AspNetCore.Tests
             azureAdOpions.UserGroupId.Should().Be(AzureAdUserGroupId);
             azureAdOpions.SwaggerClientId.Should().Be(AzureAdSwaggerClientId);
             
-            var sopiSwaggerOptions = provider.GetRequiredService<IOptions<SopiSwaggerClientOptions>>().Value;
+            var sopiSwaggerOptions = provider.GetRequiredService<IOptions<SopiSwaggerAuthOptions>>().Value;
 
             sopiSwaggerOptions.Resource.Should().Be(AzureAdResource);
             sopiSwaggerOptions.ClientId.Should().Be(AzureAdSwaggerClientId);
