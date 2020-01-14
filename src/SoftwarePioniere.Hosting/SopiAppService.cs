@@ -10,6 +10,7 @@ using Polly;
 using SoftwarePioniere.Domain;
 using SoftwarePioniere.Messaging;
 using SoftwarePioniere.Projections;
+using SoftwarePioniere.ReadModel;
 
 namespace SoftwarePioniere.Hosting
 {
@@ -100,8 +101,6 @@ namespace SoftwarePioniere.Hosting
                 }
             }
 
-
-
             //eventstore initializer
             {
 
@@ -144,6 +143,38 @@ namespace SoftwarePioniere.Hosting
                 }
             }
 
+            //entity initializer
+            {
+
+                var entityStoreInitializers = _provider.GetServices<IEntityStoreInitializer>().ToList();
+                if (entityStoreInitializers.Count > 0)
+                {
+                    async Task InitAsync(IEntityStoreInitializer initializer)
+                    {
+                        _logger.LogInformation("Initialize EntityStoreInitializer {EntityStoreInitializer}", initializer.GetType().FullName);
+                        try
+                        {
+                            await Policy
+                                .Handle<Exception>()
+                                .WaitAndRetryAsync(5, i => TimeSpan.FromSeconds(i * 0.5))
+                                .ExecuteAsync(() => initializer.InitializeAsync(stoppingToken)).ConfigureAwait(false);
+                        }
+                        catch (Exception e)
+                        {
+                            _logger.LogCritical(e, "{Type} {Inner}", initializer.GetType().FullName, GetInnerExceptionMessage(e));
+                        }
+                    }
+
+                    _logger.LogInformation("Starting EntityStore Initialization");
+                    var sw1 = Stopwatch.StartNew();
+
+                    await Task.WhenAll(entityStoreInitializers.Select(InitAsync)).ConfigureAwait(false);
+
+                
+                    sw1.Stop();
+                    _logger.LogInformation("EntityStore Initialization Finished in {Elapsed} ms", sw1.ElapsedMilliseconds);
+                }
+            }
 
             //saga2
             {
@@ -228,7 +259,7 @@ namespace SoftwarePioniere.Hosting
                     _logger.LogInformation("ProjectorRegistries Start Finished in {Elapsed} ms", sw1.ElapsedMilliseconds);
                 }
             }
-            
+
             //sopi services
             {
 
