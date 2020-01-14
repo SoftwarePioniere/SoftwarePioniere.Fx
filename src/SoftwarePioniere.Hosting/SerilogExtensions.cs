@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
-using System.Reflection;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
 using Serilog;
 using Serilog.Core;
 using Serilog.Events;
@@ -11,17 +11,6 @@ namespace SoftwarePioniere.Hosting
 {
     public static class SerilogExtensions
     {
-        public static ILogger CreateSerilogger(this IConfiguration config, Action<LoggerConfiguration> setupAction = null, string sourceContext = "Startup")
-        {
-            Console.WriteLine("CreateSerilogger");
-            var loggerConfig = new LoggerConfiguration();
-            loggerConfig.ConfigureSerilog(config, setupAction);
-            var logger = loggerConfig.CreateLogger()
-                .ForContext(Constants.SourceContextPropertyName, sourceContext);
-            Log.Logger = logger;
-            return logger;
-        }
-
         public static void ConfigureSerilog(this LoggerConfiguration loggerConfiguration, IConfiguration config,
             Action<LoggerConfiguration> setupAction = null)
         {
@@ -31,9 +20,7 @@ namespace SoftwarePioniere.Hosting
 
             var options = config.CreateLoggingOptions();
 
-            var assembly = Assembly.GetEntryAssembly();
-            var version = assembly?.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
-            Console.WriteLine($"ConfigureSerilog:: AppVersion: {version}");
+            Console.WriteLine($"ConfigureSerilog:: AppVersion: {sopiOptions.AppVersion}");
 
             if (!Directory.Exists(options.LogDir))
             {
@@ -60,25 +47,27 @@ namespace SoftwarePioniere.Hosting
                 .Enrich.FromLogContext()
                 .Enrich.WithMachineName()
                 .Enrich.WithThreadId()
-                .Enrich.WithProperty("Assembly", assembly?.FullName)
                 .Enrich.WithProperty("AppId", sopiOptions.AppId)
-                .Enrich.WithProperty("AppVersion", version)
-                                .WriteTo.File(logFile,
+                .Enrich.WithProperty("AppVersion", sopiOptions.AppVersion)
+                .WriteTo.File(logFile,
                     rollingInterval: RollingInterval.Day,
                     fileSizeLimitBytes: options.FileSizeLimitBytes,
                     rollOnFileSizeLimit: true,
                     outputTemplate: options.Template)
                 ;
 
+            if (!string.IsNullOrEmpty(sopiOptions.AppContext))
+            {
+                loggerConfiguration.Enrich.WithProperty("AppContext", sopiOptions.AppContext);
+            }
+
             if (
                 options.DisableConsole ||
-
-                (!string.Equals(Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT"), Microsoft.Extensions.Hosting.Environments.Production)
-                && !string.Equals(Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT"), Microsoft.Extensions.Hosting.Environments.Staging))
-                )
+                !string.Equals(Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT"), Environments.Production)
+                && !string.Equals(Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT"), Environments.Staging)
+            )
             {
                 loggerConfiguration.WriteTo.LiterateConsole(outputTemplate: options.Template);
-
             }
 
             if (options.UseSeq)
@@ -133,6 +122,17 @@ namespace SoftwarePioniere.Hosting
             }
 
             setupAction?.Invoke(loggerConfiguration);
+        }
+
+        public static ILogger CreateSerilogger(this IConfiguration config, Action<LoggerConfiguration> setupAction = null, string sourceContext = "Startup")
+        {
+            Console.WriteLine("CreateSerilogger");
+            var loggerConfig = new LoggerConfiguration();
+            loggerConfig.ConfigureSerilog(config, setupAction);
+            var logger = loggerConfig.CreateLogger()
+                .ForContext(Constants.SourceContextPropertyName, sourceContext);
+            Log.Logger = logger;
+            return logger;
         }
     }
 }

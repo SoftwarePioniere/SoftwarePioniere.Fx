@@ -1,11 +1,21 @@
 ﻿// ReSharper disable UnusedMember.Global
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 // ReSharper disable AutoPropertyCanBeMadeGetOnly.Global
+
+using System;
+using System.Reflection;
+
 namespace SoftwarePioniere.Builder
 {
 
     public class SopiOptions
     {
+        public SopiOptions()
+        {
+            var assembly = Assembly.GetEntryAssembly();
+            AppVersion = (assembly ?? throw new InvalidOperationException()).GetCustomAttribute<AssemblyInformationalVersionAttribute>().InformationalVersion;
+        }
+
         public const string AuthAuth0 = "Auth0";
         public const string AuthAzureAd = "AzureAd";
         public const string MessageBusRedis = "Redis";
@@ -23,6 +33,7 @@ namespace SoftwarePioniere.Builder
 
         public string AppId { get; set; } //= "sopi-test";
         public string AppContext { get; set; }
+        public string AppVersion { get; set; }
 
         public string AllowedOrigins { get; set; } = "*"; //"http://localhost:4200;http://localhost:8100;https://fliegel365-dev-start.azurewebsites.net/";
         public string Auth { get; set; } = AuthAuth0;
@@ -33,6 +44,15 @@ namespace SoftwarePioniere.Builder
         public bool AllowDevMode { get; set; }
         public string Storage { get; set; }
         public string WebSocketPaths { get; set; }
+
+        public string CreateDatabaseId()
+        {
+            if (!string.IsNullOrEmpty(AppContext))
+                return $"{AppContext}-{AppVersion}".Replace(".", "-").Replace(" ", "").Replace("+", "");
+
+            return $"{AppId}-{AppVersion}".Replace(".", "-").Replace(" ", "").Replace("+", "");
+
+        }
 
     }
 }

@@ -21,14 +21,7 @@ namespace SoftwarePioniere.Hosting
             if (!string.IsNullOrEmpty(options.CacheScope))
                 return options.CacheScope;
 
-            if (string.IsNullOrEmpty(builder.Options.AppContext))
-            {
-                return $"{builder.Options.AppId}-{builder.Version}".Replace(".", "-").Replace(" ", "").Replace("+","");
-            }
-            else
-            {
-                return $"{builder.Options.AppContext}-{builder.Version}".Replace(".", "-").Replace(" ", "").Replace("+","");
-            }
+            return builder.Options.CreateDatabaseId();
         }
 
 
@@ -55,7 +48,7 @@ namespace SoftwarePioniere.Hosting
 
             return builder;
         }
-        
+
         public static ISopiBuilder AddRedisCacheClient(this ISopiBuilder builder,
             Action<RedisOptions> configureOptions)
         {

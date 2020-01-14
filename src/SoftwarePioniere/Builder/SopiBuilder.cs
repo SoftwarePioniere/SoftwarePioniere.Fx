@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Reflection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -14,7 +13,7 @@ namespace SoftwarePioniere.Builder
         //public object MvcBuilder { get; set; }
         public SopiOptions Options { get; set; }
         public IConfiguration Config { get; set; }
-        public string Version { get; }
+        //public string Version { get; }
 
         
         public void Log(string message)
@@ -32,8 +31,6 @@ namespace SoftwarePioniere.Builder
             _log = log;
             //      AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
             Services = services ?? throw new ArgumentNullException(nameof(services));
-            var assembly = Assembly.GetEntryAssembly();
-            Version = (assembly ?? throw new InvalidOperationException()).GetCustomAttribute<AssemblyInformationalVersionAttribute>().InformationalVersion;
         }
 
         //private static Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)

@@ -9,18 +9,6 @@ namespace SoftwarePioniere.Hosting
 {
     public static class SopiBuilderEntityStoreExtensions
     {
-        private static string CreateDatabaseId(ISopiBuilder builder)
-        {
-
-            if (string.IsNullOrEmpty(builder.Options.AppContext))
-            {
-                return $"{builder.Options.AppId}-{builder.Version}".Replace(".", "-").Replace(" ", "").Replace("+","");
-            }
-            else
-            {
-                return $"{builder.Options.AppContext}-{builder.Version}".Replace(".", "-").Replace(" ", "").Replace("+","");
-            }
-        }
 
         public static ISopiBuilder AddEntityStore(this ISopiBuilder builder)
         {
@@ -39,7 +27,7 @@ namespace SoftwarePioniere.Hosting
                         if (string.IsNullOrEmpty(options.DatabaseId))
                         {
                             builder.Log("Configuring MongoDb EntityStore Options");
-                            options.DatabaseId = CreateDatabaseId(builder);
+                            options.DatabaseId = builder.Options.CreateDatabaseId();
                             builder.Log($"New MongoDb DatabaseId {options.DatabaseId}");
                         }
                     });
@@ -54,7 +42,7 @@ namespace SoftwarePioniere.Hosting
                         if (string.IsNullOrEmpty(options.CollectionId))
                         {
                             builder.Log("Configuring AzureCosmosDb EntityStore Options");
-                            options.CollectionId = CreateDatabaseId(builder);
+                            options.CollectionId = builder.Options.CreateDatabaseId();
                             builder.Log($"New AzureCosmosDb CollectionId {options.CollectionId}");
                         }
                     });
@@ -121,9 +109,9 @@ namespace SoftwarePioniere.Hosting
             });
 
 
-            var options = new MongoDbOptions();
-            configureOptions(options);
-            options.DatabaseId = CreateDatabaseId(builder);
+            //var options = new MongoDbOptions();
+            //configureOptions(options);
+            //options.DatabaseId = builder.Options.CreateDatabaseId();
 
             //var url = new MongoServerAddress(options.Server, options.Port);
             //var settings = new MongoClientSettings
