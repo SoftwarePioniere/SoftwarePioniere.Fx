@@ -52,7 +52,10 @@ namespace WebApp.FrontHost
                                 .AddSopi(context.Configuration, serlogger.Information)
                                 .AddAuthentication()
                                 .AddPlatformServices()
-                                .AddMvcServices()
+                                .AddMvcServices(mvc =>
+                                {
+                                    mvc.AddNewtonsoftJson();
+                                })
                                 .AddSystemServicesByConfiguration()
                             ;
 

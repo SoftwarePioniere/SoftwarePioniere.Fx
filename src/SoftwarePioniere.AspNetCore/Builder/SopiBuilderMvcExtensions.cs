@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using SoftwarePioniere.Builder;
 
@@ -6,7 +7,7 @@ namespace SoftwarePioniere.AspNetCore.Builder
 {
     public static class SopiBuilderMvcExtensions
     {
-        public static ISopiBuilder AddMvcServices(this ISopiBuilder builder)
+        public static ISopiBuilder AddMvcServices(this ISopiBuilder builder, Action<IMvcBuilder> mvcBuilderAction = null)
         {
             var services = builder.Services;
 
@@ -16,7 +17,11 @@ namespace SoftwarePioniere.AspNetCore.Builder
                 //    //      options.SerializerSettings.NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore;
                 //})
                 .SetCompatibilityVersion(CompatibilityVersion.Latest)
-                .AddNewtonsoftJson();
+                //.AddNewtonsoftJson()
+                
+                ;
+
+            mvcBuilderAction?.Invoke(mvc);
 
             builder.AddFeature("MvcBuilder", mvc);
 
