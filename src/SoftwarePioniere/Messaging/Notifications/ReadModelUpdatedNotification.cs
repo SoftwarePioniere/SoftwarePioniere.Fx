@@ -3,7 +3,8 @@
 // ReSharper disable UnusedMember.Global
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 
-using Newtonsoft.Json;
+using J = Newtonsoft.Json.JsonPropertyAttribute;
+using J1 = System.Text.Json.Serialization.JsonPropertyNameAttribute;
 
 namespace SoftwarePioniere.Messaging.Notifications
 {
@@ -24,22 +25,28 @@ namespace SoftwarePioniere.Messaging.Notifications
         {            
         }
 
-        [JsonProperty("entity_id")]
+        [J("entity_id")]
+        [J1("entity_id")]
         public string EntityId { get; set; }
 
-        [JsonProperty("entity_type")]
+        [J("entity_type")]
+        [J1("entity_type")]
         public string EntityType { get; set; }
 
-        [JsonProperty("entity")]
+        [J("entity")]
+        [J1("entity")]
         public string Entity { get; set; }
 
-        [JsonProperty("method")]
+        [J("method")]
+        [J1("method")]
         public string Method { get; set; }
         
-        [JsonProperty("reason")]
+        [J("reason")]
+        [J1("reason")]
         public string Reason { get; set; }
         
-        [JsonProperty("tags")]
+        [J("tags")]
+        [J1("tags")]
         public string[] Tags { get; set; }
     }
 }

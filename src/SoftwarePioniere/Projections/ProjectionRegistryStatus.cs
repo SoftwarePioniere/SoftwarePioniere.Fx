@@ -1,4 +1,6 @@
-﻿using Newtonsoft.Json;
+﻿using J = Newtonsoft.Json.JsonPropertyAttribute;
+using J1 = System.Text.Json.Serialization.JsonPropertyNameAttribute;
+
 
 namespace SoftwarePioniere.Projections
 {
@@ -10,19 +12,24 @@ namespace SoftwarePioniere.Projections
             Status = ProjectionInitializationStatus.StatusNew;
         }
         
-        [JsonProperty("status")]
+        [J("status")]
+        [J1("status")]
         public string Status { get; set; }
 
-        [JsonProperty("total")]
+        [J("total")]
+        [J1("total")]
         public int Total { get; set; }
 
-        [JsonProperty("ready")]
+        [J("ready")]
+        [J1("ready")]
         public int Ready { get; set; }
 
-        [JsonProperty("pending")]
+        [J("pending")]
+        [J1("pending")]
         public int Pending { get; set; }
 
-        [JsonProperty("projectors")]
+        [J("projectors")]
+        [J1("projectors")]
         public ProjectionInitializationStatus[] Projectors { get; set; }
 
        

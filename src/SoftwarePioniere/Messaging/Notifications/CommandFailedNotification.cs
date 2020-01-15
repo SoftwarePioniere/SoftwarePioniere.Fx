@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using Newtonsoft.Json;
+using J = Newtonsoft.Json.JsonPropertyAttribute;
+using J1 = System.Text.Json.Serialization.JsonPropertyNameAttribute;
 // ReSharper disable UnusedMember.Global
 
 namespace SoftwarePioniere.Messaging.Notifications
@@ -18,28 +19,36 @@ namespace SoftwarePioniere.Messaging.Notifications
 
         }
 
-        [JsonProperty("command_id")]
+        [J("command_id")]
+        [J1("command_id")]
         public Guid CommandId { get; set; }
 
-        [JsonProperty("command_type")]
+        [J("command_type")]
+        [J1("command_type")]
         public string CommandType { get; set; }
 
-        [JsonProperty("request_id")]
+        [J("request_id")]
+        [J1("request_id")]
         public string RequestId { get; set; }
 
-        [JsonProperty("trace_identifier")]
+        [J("trace_identifier")]
+        [J1("trace_identifier")]
         public string TraceIdentifier { get; set; }
 
-        [JsonProperty("object_type")]
+        [J("object_type")]
+        [J1("object_type")]
         public string ObjectType { get; set; }
 
-        [JsonProperty("object_id")]
+        [J("object_id")]
+        [J1("object_id")]
         public string ObjectId { get; set; }
 
-        [JsonProperty("error_text")]
+        [J("error_text")]
+        [J1("error_text")]
         public string ErrorText { get; set; }
 
-        [JsonProperty("user_id")]
+        [J("user_id")]
+        [J1("user_id")]
         public string UserId { get; set; }
 
         public static NotificationMessage Create(ICommand cmd, Exception ex, Dictionary<string, string> state)

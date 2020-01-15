@@ -1,31 +1,40 @@
 ﻿using System;
-using Newtonsoft.Json;
+
+using J = Newtonsoft.Json.JsonPropertyAttribute;
+using J1 = System.Text.Json.Serialization.JsonPropertyNameAttribute;
+
 
 namespace SoftwarePioniere.Messaging.Notifications
 {
     public class NotificationMessage : INotificationMessage
     {
         
-        [JsonProperty("content")]
+        [J("content")]
+        [J1("content")]
         public string Content { get; set; }
 
-        [JsonProperty("notification_type")]
-        [JsonRequired]
+        [J("notification_type")]
+        [J1("notification_type")]
         public string NotificationType { get; set; }
 
-        [JsonProperty("user_name")]
+        [J("user_name")]
+        [J1("user_name")]
         public string UserName { get; set; }
 
-        [JsonProperty("user_id")]
+        [J("user_id")]
+        [J1("user_id")]
         public string UserId { get; set; }
 
-        [JsonProperty("id")]
+        [J("id")]
+        [J1("id")]
         public Guid Id { get; set; }
 
-        [JsonProperty("timestamp_utc")]
+        [J("timestamp_utc")]
+        [J1("timestamp_utc")]
         public DateTime TimeStampUtc { get; set; }
 
-        [JsonProperty("tags")]
+        [J("tags")]
+        [J1("tags")]
         public string[] Tags { get; set; }
     }
 }

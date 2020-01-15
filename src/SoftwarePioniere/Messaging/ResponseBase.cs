@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
-using Newtonsoft.Json;
+using J = Newtonsoft.Json.JsonPropertyAttribute;
+using J1 = System.Text.Json.Serialization.JsonPropertyNameAttribute;
 
 namespace SoftwarePioniere.Messaging
 {
@@ -10,13 +11,16 @@ namespace SoftwarePioniere.Messaging
             Properties = new Dictionary<string, string>();
         }
 
-        [JsonProperty(PropertyName = "is_error")]
+        [J("is_error")]
+        [J1("is_error")]
         public bool IsError => !string.IsNullOrEmpty(Error);
 
-        [JsonProperty(PropertyName = "error")]
+        [J( "error")]
+        [J1( "error")]
         public string Error { get; set; }
 
-        [JsonProperty("properties")]
+        [J("properties")]
+        [J1("properties")]
         public Dictionary<string, string> Properties { get; set; }
 
     }

@@ -1,28 +1,32 @@
-﻿using Newtonsoft.Json;
+﻿using J = Newtonsoft.Json.JsonPropertyAttribute;
+using J1 = System.Text.Json.Serialization.JsonPropertyNameAttribute;
 
 namespace SoftwarePioniere.ReadModel
 {
     /// <summary>
     /// Infos zum EntityType
     /// </summary>
-    public  class EntityTypeInfo
+    public class EntityTypeInfo
     {
         /// <summary>
         /// Der Klassen Name
         /// </summary>
-        [JsonProperty("name")]
+        [J("name")]
+        [J1("name")]
         public string Name { get; set; }
 
         /// <summary>
         /// Der vollständige Klassen Name
         /// </summary>
-        [JsonProperty("full_name")]
+        [J("full_name")]
+        [J1("full_name")]
         public string FullName { get; set; }
 
         /// <summary>
         /// EntityType der Klasse
         /// </summary>
-        [JsonProperty("type_key")]
+        [J("type_key")]
+        [J1("type_key")]
         public string TypeKey { get; set; }
     }
 }

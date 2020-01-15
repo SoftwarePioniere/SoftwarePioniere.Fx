@@ -1,12 +1,13 @@
-﻿using Newtonsoft.Json;
+﻿using J = Newtonsoft.Json.JsonPropertyAttribute;
 
 namespace WebApp.Controller
 {
     public class KeyValueItem
     {
-        [JsonProperty("key")]
+        [J("key")]
         public string Key { get; set; }
-        [JsonProperty("value")]
+
+        [J("value")]
         public string Value { get; set; }
     }
 }

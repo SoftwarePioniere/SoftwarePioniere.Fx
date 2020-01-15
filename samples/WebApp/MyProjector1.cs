@@ -1,10 +1,11 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using SoftwarePioniere.FakeDomain;
 using SoftwarePioniere.Messaging;
 using SoftwarePioniere.Projections;
 using SoftwarePioniere.ReadModel;
+
+using J = Newtonsoft.Json.JsonPropertyAttribute;
 
 namespace WebApp
 {
@@ -95,7 +96,7 @@ namespace WebApp
 
         public class IdentifierItem
         {
-            [JsonProperty("e_id")]
+            [J("e_id")]
             public string EntityId { get; set; }
         }
     }

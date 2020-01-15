@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
-using Newtonsoft.Json;
+using J = Newtonsoft.Json.JsonPropertyAttribute;
+using J1 = System.Text.Json.Serialization.JsonPropertyNameAttribute;
 
 namespace SoftwarePioniere.ReadModel
 {
@@ -17,56 +18,62 @@ namespace SoftwarePioniere.ReadModel
         /// <summary>
         /// current page
         /// </summary>
-        [JsonProperty("page")]
+        [J("page")]
+        [J1("page")]
         public int Page { get; set; }
 
         /// <summary>
         /// size of the page
         /// </summary>
-        [JsonProperty("page_size")]
+        [J("page_size")]
+        [J1("page_size")]
         public int PageSize { get; set; }
 
 
         /// <summary>
         /// results of the current page
         /// </summary>
-        [JsonProperty("result_count")]
+        [J("result_count")]
+        [J1("result_count")]
         public int ResultCount { get; set; }
 
         /// <summary>
         /// total result count
         /// </summary>
-        [JsonProperty("total_count")]
+        [J("total_count")]
+        [J1("total_count")]
         public int TotalCount { get; set; }
 
         /// <summary>
         /// Continuation Token for DocumentDB
         /// </summary>
-        [JsonProperty("continuation_token")]
+        [J("continuation_token")]
+        [J1("continuation_token")]
         public string ContinuationToken { get; set; }
 
         /// <summary>
         /// Results
         /// </summary>
-        [JsonProperty("results")]
+        [J("results")]
+        [J1("results")]
         public IList<T> Results { get; set; }
 
         ///// <summary>
         ///// indicates, that an error occured
         ///// </summary>
-        //[JsonProperty(PropertyName = "is_error")]
+        //[J(PropertyName = "is_error")]
         //public bool IsError => !string.IsNullOrEmpty(Error);
 
         ///// <summary>
         ///// errortext
         ///// </summary>
-        //[JsonProperty(PropertyName = "error")]
+        //[J(PropertyName = "error")]
         //public string Error { get; set; }
 
         ///// <summary>
         ///// status code
         ///// </summary>
-        //[JsonProperty(PropertyName = "http_status_code")]
+        //[J(PropertyName = "http_status_code")]
         //public int HttpStatusCode { get; set; } = HttpStatusCode.OK;
     }
 }

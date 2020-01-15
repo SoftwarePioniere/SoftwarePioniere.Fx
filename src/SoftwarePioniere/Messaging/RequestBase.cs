@@ -1,5 +1,7 @@
 ﻿using System;
-using Newtonsoft.Json;
+
+using J = Newtonsoft.Json.JsonPropertyAttribute;
+using J1 = System.Text.Json.Serialization.JsonPropertyNameAttribute;
 
 namespace SoftwarePioniere.Messaging
 {
@@ -11,8 +13,9 @@ namespace SoftwarePioniere.Messaging
         /// <summary>
         /// TimeStamp from the client in UTC
         /// </summary>
-        [JsonRequired]
-        [JsonProperty(PropertyName = "timestamp_utc")]
+ 
+        [J("timestamp_utc")]
+        [J1("timestamp_utc")]
         public DateTime TimeStampUtc { get; set; }
       
     }

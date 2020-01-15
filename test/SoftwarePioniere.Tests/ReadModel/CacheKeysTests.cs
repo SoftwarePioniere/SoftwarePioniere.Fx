@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using FluentAssertions;
-using Newtonsoft.Json;
+using J = Newtonsoft.Json.JsonPropertyAttribute;
 using SoftwarePioniere.ReadModel;
 using Xunit;
 
@@ -16,7 +16,7 @@ namespace SoftwarePioniere.Tests.ReadModel
             {
             }
 
-            [JsonProperty("string_value")]
+            [J("string_value")]
             public string StringValue { get; set; }
         }
 

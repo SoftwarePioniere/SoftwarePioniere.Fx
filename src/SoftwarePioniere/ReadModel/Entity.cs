@@ -1,6 +1,8 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
-using Newtonsoft.Json;
+
+using J = Newtonsoft.Json.JsonPropertyAttribute;
+using J1 = System.Text.Json.Serialization.JsonPropertyNameAttribute;
 
 namespace SoftwarePioniere.ReadModel
 {
@@ -25,21 +27,24 @@ namespace SoftwarePioniere.ReadModel
         /// </summary>
         [Key]
         [Required]
-        [JsonProperty("id")]
+        [J("id")]
+        [J1("id")]
         [MongoDB.Bson.Serialization.Attributes.BsonId]
         public string EntityId { get; set; }
 
         /// <summary>
         /// Object entityType
         /// </summary>
-        [JsonProperty("entity_type")]
+        [J("entity_type")]
+        [J1("entity_type")]
         [Required]
         public string EntityType { get; private set; }
 
         /// <summary>
         /// Date on last operation
         /// </summary>
-        [JsonProperty("modified_on_utc")]
+        [J("modified_on_utc")]
+        [J1("modified_on_utc")]
         [Required]
         public DateTime ModifiedOnUtc { get; set; }
 

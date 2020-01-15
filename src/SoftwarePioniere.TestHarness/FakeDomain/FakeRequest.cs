@@ -1,15 +1,18 @@
 ﻿using System;
-using Newtonsoft.Json;
+using J = Newtonsoft.Json.JsonPropertyAttribute;
+using J1 = System.Text.Json.Serialization.JsonPropertyNameAttribute;
 using SoftwarePioniere.Messaging;
 
 namespace SoftwarePioniere.FakeDomain
 {
     public class FakeRequest : RequestBase
     {
-        [JsonProperty("text")]
+        [J("text")]
+        [J1("text")]
         public string Text { get; set; }
 
-        [JsonProperty("object_id")]
+        [J("object_id")]
+        [J1("object_id")]
         public string ObjectId { get; set; }
 
         public FakeCommand CreateFakeCommand(string requestId, string userId)
