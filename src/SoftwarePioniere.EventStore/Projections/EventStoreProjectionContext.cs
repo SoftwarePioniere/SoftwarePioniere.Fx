@@ -159,24 +159,34 @@ namespace SoftwarePioniere.EventStore.Projections
                     entry.EventNumber,
                     StreamName);
 
-                CurrentCheckPoint = entry.EventNumber;
-
-                try
+                if (entry.EventNumber > Status.LastCheckPoint)
                 {
-                    await _projector.ProcessEventAsync(entry.EventData).ConfigureAwait(false);
-                    Status.LastCheckPoint = entry.EventNumber;
-                    Status.ModifiedOnUtc = DateTime.UtcNow;
 
-                    if (!IsInitializing)
-                        await EntityStore.UpdateItemAsync(Status, _cancellationToken).ConfigureAwait(false);
+                    CurrentCheckPoint = entry.EventNumber;
+
+                    try
+                    {
+                        await _projector.ProcessEventAsync(entry.EventData).ConfigureAwait(false);
+                        Status.LastCheckPoint = entry.EventNumber;
+                        Status.ModifiedOnUtc = DateTime.UtcNow;
+
+                        if (!IsInitializing)
+                            await EntityStore.UpdateItemAsync(Status, _cancellationToken).ConfigureAwait(false);
+                    }
+                    catch (Exception e) when (LogError(e))
+                    {
+                        _logger.LogError(e,
+                            "Error while Processing Event {EventNumber} from {StreamName} {ProjectorId}",
+                            entry.EventNumber,
+                            StreamName,
+                            ProjectorId);
+                    }
+
                 }
-                catch (Exception e) when (LogError(e))
+                else
                 {
-                    _logger.LogError(e,
-                        "Error while Processing Event {EventNumber} from {StreamName} {ProjectorId}",
-                        entry.EventNumber,
-                        StreamName,
-                        ProjectorId);
+                    _logger.LogWarning("Duplicate Event Handling  {EventNumber} {StreamName}", entry.EventNumber,
+                        StreamName);
                 }
 
                 sw.Stop();
