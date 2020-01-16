@@ -1,9 +1,4 @@
-﻿
-
-// ReSharper disable UnusedMember.Global
-// ReSharper disable UnusedAutoPropertyAccessor.Global
-
-using J = Newtonsoft.Json.JsonPropertyAttribute;
+﻿using J = Newtonsoft.Json.JsonPropertyAttribute;
 using J1 = System.Text.Json.Serialization.JsonPropertyNameAttribute;
 
 namespace SoftwarePioniere.Messaging.Notifications
