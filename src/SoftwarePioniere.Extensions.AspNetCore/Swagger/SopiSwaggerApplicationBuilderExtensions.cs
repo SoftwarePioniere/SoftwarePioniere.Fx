@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using System;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using Swashbuckle.AspNetCore.Swagger;
 
 // ReSharper disable UnusedMember.Global
 // ReSharper disable ClassNeverInstantiated.Global
@@ -11,7 +13,7 @@ namespace SoftwarePioniere.Extensions.AspNetCore.Swagger
     public static class SopiSwaggerApplicationBuilderExtensions
     {
 
-        public static IApplicationBuilder UseSopiSwagger(this IApplicationBuilder app)
+        public static IApplicationBuilder UseSopiSwagger(this IApplicationBuilder app, Action<SwaggerOptions> configureSwaggerOptions = null)
         {
             var options = app.ApplicationServices.GetRequiredService<IOptions<SopiSwaggerOptions>>().Value;
 
@@ -24,6 +26,8 @@ namespace SoftwarePioniere.Extensions.AspNetCore.Swagger
                  {
                      c.RouteTemplate = options.RouteTemplate;
                  }
+
+                 configureSwaggerOptions?.Invoke(c);
              });
 
             if (options.UseSwaggerUi)
@@ -86,6 +90,7 @@ namespace SoftwarePioniere.Extensions.AspNetCore.Swagger
                     }
                 });
             }
+
 
             return app;
         }

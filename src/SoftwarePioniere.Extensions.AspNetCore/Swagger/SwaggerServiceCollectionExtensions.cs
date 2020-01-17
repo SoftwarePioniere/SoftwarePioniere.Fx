@@ -174,14 +174,16 @@ namespace SoftwarePioniere.Extensions.AspNetCore.Swagger
 
         //}
 
-        public static IServiceCollection AddSopiSwagger(this IServiceCollection services, Action<SopiSwaggerOptions> configureOptions = null)
+        public static IServiceCollection AddSopiSwagger(this IServiceCollection services
+            , Action<SopiSwaggerOptions> configureSopiSwaggerOptions = null
+            , Action<SwaggerGenOptions> configureSwaggerGenOptions = null)
         {
             Console.WriteLine("AddSopiSwagger");
 
-            if (configureOptions != null)
+            if (configureSopiSwaggerOptions != null)
             {
                 services.AddOptions()
-                    .Configure(configureOptions);
+                    .Configure(configureSopiSwaggerOptions);
             }
 
             //  services.AddSingleton<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerGen>();
@@ -280,6 +282,9 @@ namespace SoftwarePioniere.Extensions.AspNetCore.Swagger
 
                         return description.GroupName != s;
                     });
+
+                    configureSwaggerGenOptions?.Invoke(options);
+
                 });
 
             services.AddSwaggerGen();
