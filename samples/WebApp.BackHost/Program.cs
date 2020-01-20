@@ -80,7 +80,10 @@ namespace WebApp.BackHost
                                 {
                                     Constants.ApiKey, "api", "api2", "cmd1", "qry1"
                                 },
-                                false);
+                                false, options =>
+                                {
+                                    options.SchemaFilter<RemoveAllOffSchemaFilter>();
+                                });
 
 
                         });

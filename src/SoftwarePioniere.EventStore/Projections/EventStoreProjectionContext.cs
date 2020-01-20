@@ -292,7 +292,7 @@ namespace SoftwarePioniere.EventStore.Projections
         }
 
 
-        private async void SubscriptionDropped(EventStoreCatchUpSubscription sub, SubscriptionDropReason reason,
+        private void SubscriptionDropped(EventStoreCatchUpSubscription sub, SubscriptionDropReason reason,
             Exception ex)
         {
             _logger.LogError(ex,
@@ -300,13 +300,13 @@ namespace SoftwarePioniere.EventStore.Projections
                 sub.StreamId,
                 ProjectorId,
                 reason.ToString());
-            sub.Stop();
-
-            if (!_cancellationToken.IsCancellationRequested)
-            {
-                _logger.LogInformation("Re Subscribe Subscription");
-                await StartSubscriptionInternal().ConfigureAwait(false);
-            }
+          
+            //sub.Stop();
+            //if (!_cancellationToken.IsCancellationRequested)
+            //{
+            //    _logger.LogInformation("Re Subscribe Subscription");
+            //    await StartSubscriptionInternal().ConfigureAwait(false);
+            //}
         }
     }
 }

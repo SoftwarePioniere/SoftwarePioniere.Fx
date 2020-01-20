@@ -66,7 +66,10 @@ namespace WebApp.FrontHost
                             {
                                 Constants.ApiKey, "api", "api2", "cmd1", "qry1"
                             },
-                            false);
+                            false, options =>
+                            {
+                                options.SchemaFilter<RemoveAllOffSchemaFilter>();
+                            });
 
 
                         services
@@ -96,15 +99,15 @@ namespace WebApp.FrontHost
 
                         app.UseVersionInfo(Constants.ApiBaseRoute);
                         app.UseSopiLifetimeEndpoint(Constants.ApiBaseRoute);
-                   
+
                         logger.LogInformation("WebSocket Url: {WebSocketUrl}", Constants.NotificationsBaseRoute);
                         logger.LogInformation("WebSocket AuthUrl: {WebSocketUrl}", Constants.NotificationsBaseRouteAuth);
 
-                        
+
                         app.UseRouting()
                             .UseAuthentication()
                             .UseAuthorization();
-                        
+
                         app.UseEndpoints(endpoints =>
                             {
                                 endpoints.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");

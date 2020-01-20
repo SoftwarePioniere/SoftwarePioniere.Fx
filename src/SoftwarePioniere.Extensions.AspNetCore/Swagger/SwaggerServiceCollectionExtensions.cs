@@ -13,7 +13,8 @@ namespace SoftwarePioniere.Extensions.AspNetCore.Swagger
     public static class SopiSwaggerServiceCollectionExtensions
     {
         public static IServiceCollection AddSopiSwaggerForMultipleServices(this IServiceCollection services, string titleName, string baseRoute, string serviceName, string[] apiKeys, bool readOnly
-        , Action<SopiSwaggerOptions> configureOptions = null)
+            , Action<SwaggerGenOptions> configureSwaggerGenOptions
+            , Action<SopiSwaggerOptions> configureOptions = null)
         {
             Console.WriteLine("AddSopiSwaggerForMultipleServices");
 
@@ -24,7 +25,7 @@ namespace SoftwarePioniere.Extensions.AspNetCore.Swagger
                     ));
 
             services
-                .AddSopiSwagger()
+                .AddSopiSwagger(configureSwaggerGenOptions: configureSwaggerGenOptions)
                 .AddSwaggerGen();
 
             return services;

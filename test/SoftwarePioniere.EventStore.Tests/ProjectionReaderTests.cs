@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.Extensions.Configuration;
@@ -21,6 +22,10 @@ namespace SoftwarePioniere.EventStore.Tests
             var setup = GetService<EventStoreSetup>();
             var store = GetService<IEventStore>();
             var proj = GetService<IEventStoreReader>();
+
+            var prov = GetService<EventStoreConnectionProvider>();
+            await prov.InitializeAsync(CancellationToken.None);
+
 
             var name = $"tests{Guid.NewGuid().ToString().Replace("-", "")}";
             var query = TestFiles.GetFileContent("FakeCounterProjection.js");
@@ -62,6 +67,9 @@ namespace SoftwarePioniere.EventStore.Tests
             var setup = GetService<EventStoreSetup>();
             var store = GetService<IEventStore>();
             var proj = GetService<IEventStoreReader>();
+
+            var prov = GetService<EventStoreConnectionProvider>();
+            await prov.InitializeAsync(CancellationToken.None);
 
             var name = $"tests{Guid.NewGuid().ToString().Replace("-", "")}";
             var query = TestFiles.GetFileContent("FakeCounterProjection.js");

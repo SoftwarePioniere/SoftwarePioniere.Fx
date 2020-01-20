@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Foundatio.AsyncEx;
@@ -53,8 +54,9 @@ namespace SoftwarePioniere.EventStore.Tests
         {
             AggName = "SoftwarePionierTests" + Guid.NewGuid().ToString().Replace("-", string.Empty).ToLower();
 
-            //var prov = GetService<EventStoreConnectionProvider>();
-            //await prov.
+            var prov = GetService<EventStoreConnectionProvider>();
+            await prov.InitializeAsync(CancellationToken.None);
+
             var es = GetService<DomainEventStore>();
 
             var proj = new TestProjector1(Log, GetService<IProjectorServices>());
@@ -133,8 +135,9 @@ namespace SoftwarePioniere.EventStore.Tests
         {
             AggName = "SoftwarePionierTests" + Guid.NewGuid().ToString().Replace("-", string.Empty).ToLower();
 
-            //var prov = GetService<EventStoreConnectionProvider>();
-            //await prov.
+            var prov = GetService<EventStoreConnectionProvider>();
+            await prov.InitializeAsync(CancellationToken.None);
+
             var es = GetService<DomainEventStore>();
 
             var proj = new TestProjector1(Log, GetService<IProjectorServices>());

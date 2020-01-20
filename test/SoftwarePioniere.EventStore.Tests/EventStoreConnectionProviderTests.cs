@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.Extensions.Configuration;
@@ -26,6 +27,8 @@ namespace SoftwarePioniere.EventStore.Tests
         public async Task CanConnectToStoreWithOutSsl()
         {
             var provider = CreateProvider(c => c.UseSslCertificate = false);
+
+            await provider.InitializeAsync(CancellationToken.None);
             var con = provider.GetActiveConnection();
             var meta = await con.GetStreamMetadataAsync("$all", provider.AdminCredentials);
             meta.Stream.Should().Be("$all");
@@ -35,6 +38,9 @@ namespace SoftwarePioniere.EventStore.Tests
         public async Task CanConnectWithSsl()
         {
             var provider = CreateProvider(c => c.UseSslCertificate = true);
+            
+            await provider.InitializeAsync(CancellationToken.None);
+
             var con = provider.GetActiveConnection();
             var meta = await con.GetStreamMetadataAsync("$all", provider.AdminCredentials);
             meta.Stream.Should().Be("$all");
@@ -44,7 +50,7 @@ namespace SoftwarePioniere.EventStore.Tests
         public async Task CanCheckIfStreamIsEmpty()
         {
             var provider = CreateProvider(c => c.UseSslCertificate = false);
-
+            await provider.InitializeAsync(CancellationToken.None);
             var streamId = Guid.NewGuid().ToString().Replace("-", "");
             var empty = await provider.IsStreamEmptyAsync(streamId);
             empty.Should().BeTrue();

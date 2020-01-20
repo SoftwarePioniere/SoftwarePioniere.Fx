@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using SoftwarePioniere.Domain;
@@ -7,48 +8,59 @@ using Xunit.Abstractions;
 
 namespace SoftwarePioniere.EventStore.Tests
 {
-    public class DomainEventStoreTests  : EventStoreTestsBase
+    public class DomainEventStoreTests : EventStoreTestsBase
     {
         public DomainEventStoreTests(ITestOutputHelper output) : base(output)
-        { 
+        {
             ServiceCollection
                 .AddEventStoreConnection(c => new TestConfiguration().ConfigurationRoot.Bind("EventStore", c));
 
-      
+
             ServiceCollection.AddEventStoreDomainServices();
         }
 
 
+        private Task InitAsync()
+        {
+            var prov = GetService<EventStoreConnectionProvider>();
+            return prov.InitializeAsync(CancellationToken.None);
+        }
+
 
         [Fact]
-        public override Task CheckAggregateExists()
+        public override async Task CheckAggregateExists()
         {
-            return base.CheckAggregateExists();
+            await InitAsync();
+            await base.CheckAggregateExists();
         }
 
         [Fact]
-        public override void LoadThrowsErrorIfAggregateWithIdNotFound()
+        public override async void LoadThrowsErrorIfAggregateWithIdNotFound()
         {
+            await InitAsync();
             base.LoadThrowsErrorIfAggregateWithIdNotFound();
         }
 
         [Fact]
-        public override Task SaveAndLoadContainsAllEventsForAnAggregate()
+        public override async Task SaveAndLoadContainsAllEventsForAnAggregate()
         {
-            return base.SaveAndLoadContainsAllEventsForAnAggregate();
+            await InitAsync();
+            await base.SaveAndLoadContainsAllEventsForAnAggregate();
         }
 
 
         [Fact]
-        public override Task SaveThrowsErrorIfVersionsNotMatch()
+        public override async Task SaveThrowsErrorIfVersionsNotMatch()
         {
-            return base.SaveThrowsErrorIfVersionsNotMatch();
+            await InitAsync();
+            await base.SaveThrowsErrorIfVersionsNotMatch();
         }
 
         [Fact]
-        public override Task SavesEventsWithExpectedVersion()
+        public override async Task SavesEventsWithExpectedVersion()
         {
-            return base.SavesEventsWithExpectedVersion();
+            await InitAsync();
+            await base.SavesEventsWithExpectedVersion();
         }
     }
 }

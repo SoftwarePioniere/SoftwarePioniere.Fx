@@ -91,9 +91,12 @@ namespace WebApp.Host
                                  "sample",
                                  new[]
                                  {
-                                        Constants.ApiKey, "api", "api2", "cmd1", "qry1"
+                                     Constants.ApiKey, "api", "api2", "cmd1", "qry1"
                                  },
-                                 false);
+                                 false, options =>
+                                 {
+                                     options.SchemaFilter<RemoveAllOffSchemaFilter>();
+                                 });
 
                         services
                             .AddTestClientOptions(c => { c.BaseAddress = "http://localhost:5099"; })
