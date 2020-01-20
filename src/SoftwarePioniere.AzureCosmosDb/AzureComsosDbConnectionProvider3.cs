@@ -12,43 +12,78 @@ namespace SoftwarePioniere.AzureCosmosDb
 {
     public class AzureComsosDbConnectionProvider3 : IEntityStoreConnectionProvider, IDisposable
     {
+        private readonly CosmosClient _bulkClient;
         private readonly ILogger _logger;
+        private bool _isInitialized;
+        private readonly Container _container;
+        private readonly CosmosClient _client;
 
         public AzureComsosDbConnectionProvider3(ILoggerFactory loggerFactory,
             IOptions<AzureCosmosDbOptions> options)
         {
-            if (loggerFactory == null) throw new ArgumentNullException(nameof(loggerFactory));
+            if (loggerFactory == null)
+            {
+                throw new ArgumentNullException(nameof(loggerFactory));
+            }
+
             _logger = loggerFactory.CreateLogger(GetType());
 
             Options = options.Value;
             _logger.LogInformation("AzureCosmosDb Options {@Options}", options.Value.CreateSecured());
 
-            Client = new CosmosClientBuilder(Options.EndpointUrl, Options.AuthKey)
-                    .WithThrottlingRetryOptions(TimeSpan.FromMinutes(Options.MaxRetryWaitTimeOnThrottledRequestsMinutes),
-                        Options.MaxRetryAttemptsOnThrottledRequests)
-                    //.AddCustomHandlers(new ThrottlingHandler(_logger))
-                    .Build();
+            _client = new CosmosClientBuilder(Options.EndpointUrl, Options.AuthKey)
+                .WithThrottlingRetryOptions(TimeSpan.FromMinutes(Options.MaxRetryWaitTimeOnThrottledRequestsMinutes),
+                    Options.MaxRetryAttemptsOnThrottledRequests)
+                //.AddCustomHandlers(new ThrottlingHandler(_logger))
+                .Build();
 
-            BulkClient = new CosmosClientBuilder(Options.EndpointUrl, Options.AuthKey)
-                  //.AddCustomHandlers(new ThrottlingHandler(_logger))
-                  .WithThrottlingRetryOptions(TimeSpan.FromMinutes(Options.MaxRetryWaitTimeOnThrottledRequestsMinutes),
-                      Options.MaxRetryAttemptsOnThrottledRequests)
+            _bulkClient = new CosmosClientBuilder(Options.EndpointUrl, Options.AuthKey)
+                //.AddCustomHandlers(new ThrottlingHandler(_logger))
+                .WithThrottlingRetryOptions(TimeSpan.FromMinutes(Options.MaxRetryWaitTimeOnThrottledRequestsMinutes),
+                    Options.MaxRetryAttemptsOnThrottledRequests)
                 .WithBulkExecution(true)
                 .Build();
 
             Database = Client.GetDatabase(Options.DatabaseId);
-            Container = Database.GetContainer(Options.CollectionId);
+            _container = Database.GetContainer(Options.CollectionId);
         }
 
-        public Container Container { get; }
+        public CosmosClient BulkClient
+        {
+            get
+            {
+                AssertInitialized();
+                return _bulkClient;
+            }
+        }
 
-        public Database Database { get; }
+        public CosmosClient Client
+        {
+            get
+            {
+                AssertInitialized();
+                return _client;
+            }
+        }
 
-        public CosmosClient Client { get; }
+        public Container Container
+        {
+            get
+            {
+                AssertInitialized();
+                return _container;
+            }
+        }
 
-        public CosmosClient BulkClient { get; }
+        private Database Database { get; }
 
         public AzureCosmosDbOptions Options { get; }
+
+        public void Dispose()
+        {
+            Client?.Dispose();
+        }
+
 
         public async Task InitializeAsync(CancellationToken cancellationToken)
         {
@@ -63,14 +98,15 @@ namespace SoftwarePioniere.AzureCosmosDb
                 var throughputResponse = await database.ReadThroughputAsync(cancellationToken).ConfigureAwait(false);
                 if (throughputResponse.HasValue)
 
+                {
                     if (throughputResponse.Value != Options.OfferThroughput)
+                    {
                         await database.ReplaceThroughputAsync(Options.OfferThroughput, cancellationToken: cancellationToken).ConfigureAwait(false);
+                    }
+                }
             }
-        }
 
-        public void Dispose()
-        {
-            Client?.Dispose();
+            _isInitialized = true;
         }
 
 
@@ -78,7 +114,6 @@ namespace SoftwarePioniere.AzureCosmosDb
         {
             try
             {
-
                 var contRespose = await Container.ReadContainerAsync().ConfigureAwait(false);
                 if (contRespose.StatusCode == HttpStatusCode.OK)
                 {
@@ -95,6 +130,14 @@ namespace SoftwarePioniere.AzureCosmosDb
             catch (Exception e)
             {
                 _logger.LogError(e, "Error in Clear Database");
+            }
+        }
+
+        private void AssertInitialized()
+        {
+            if (!_isInitialized)
+            {
+                throw new InvalidOperationException("Initialize First");
             }
         }
     }

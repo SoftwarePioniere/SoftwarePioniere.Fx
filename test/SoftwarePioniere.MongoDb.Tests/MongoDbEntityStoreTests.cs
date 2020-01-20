@@ -29,6 +29,9 @@ namespace SoftwarePioniere.MongoDb.Tests
         [Fact]
         public async Task Test1()
         {
+            var provider = GetService<MongoDbConnectionProvider>();
+            await provider.InitializeAsync(CancellationToken.None);
+
             var mog = GetService<MongoDbEntityStore>();
             var ent = FakeEntity.Create(Guid.NewGuid().ToString());
 
@@ -40,7 +43,9 @@ namespace SoftwarePioniere.MongoDb.Tests
         [Fact]
         public async Task PerfCheck()
         {
-            var prod = GetService<MongoDbConnectionProvider>();
+            var provider = GetService<MongoDbConnectionProvider>();
+            await provider.InitializeAsync(CancellationToken.None);
+
             var store = CreateInstance();
 
             BulkInsertCount = 10000;
@@ -50,7 +55,7 @@ namespace SoftwarePioniere.MongoDb.Tests
 
             _logger.LogInformation("Bulk Insert Finished");
             
-            var options = prod.Options;
+            var options = provider.Options;
 
             async Task F1()
             {

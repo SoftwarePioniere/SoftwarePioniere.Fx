@@ -12,16 +12,17 @@ using SoftwarePioniere.ReadModel;
 
 namespace SoftwarePioniere.MongoDb
 {
-
     public class MongoDbConnectionProvider : IEntityStoreConnectionProvider
     {
         private readonly ILogger _logger;
 
-        public TypeKeyCache KeyCache { get; private set; }
 
-        //private readonly Uri _collectionUri;
+        private Lazy<IMongoDatabase> _database;
+        private Lazy<IMongoDatabase> _databaseInsert;
+        private Lazy<IMongoDatabase> _databaseLoadItem;
+        private Lazy<IMongoDatabase> _databaseLoadItems;
 
-        public MongoDbOptions Options { get; set; }
+        private bool _isInitialized;
 
         static MongoDbConnectionProvider()
         {
@@ -33,7 +34,10 @@ namespace SoftwarePioniere.MongoDb
         public MongoDbConnectionProvider(ILoggerFactory loggerFactory, IOptions<MongoDbOptions> options)
         {
             if (loggerFactory == null)
+            {
                 throw new ArgumentNullException(nameof(loggerFactory));
+            }
+
             _logger = loggerFactory.CreateLogger(GetType());
 
             KeyCache = new TypeKeyCache();
@@ -44,70 +48,6 @@ namespace SoftwarePioniere.MongoDb
 
             //InitClient();
             InitDatabase();
-        }
-
-
-        public async Task<bool> CheckDatabaseExistsAsync()
-        {
-            _logger.LogTrace(nameof(CheckDatabaseExistsAsync));
-
-            var client = CreateClient();
-
-            var databases = await client.ListDatabasesAsync().ConfigureAwait(false);
-
-            while (await databases.MoveNextAsync().ConfigureAwait(false))
-            {
-                var items = databases.Current.ToArray();
-                var c = (items.Count(x => x["name"] == Options.DatabaseId) > 0);
-
-                if (c)
-                    return true;
-
-            }
-
-            return false;
-        }
-
-        public IMongoClient CreateClient()
-        {
-            var url = new MongoServerAddress(Options.Server, Options.Port);
-            var settings = new MongoClientSettings
-            { Server = url };
-
-            if (Options.ClusterConfigurator != null)
-                settings.ClusterConfigurator = Options.ClusterConfigurator;
-
-            var client = new MongoClient(settings);
-            return client;
-        }
-
-
-        private void InitDatabase()
-        {
-            Database = new Lazy<IMongoDatabase>(() =>
-            {
-                var client = CreateClient();
-                return client.GetDatabase(Options.DatabaseId);
-            });
-
-            DatabaseInsert = new Lazy<IMongoDatabase>(() =>
-            {
-                var client = CreateClient();
-                return client.GetDatabase(Options.DatabaseId);
-            });
-
-            DatabaseLoadItems = new Lazy<IMongoDatabase>(() =>
-            {
-                var client = CreateClient();
-                return client.GetDatabase(Options.DatabaseId);
-            });
-
-
-            DatabaseLoadItem = new Lazy<IMongoDatabase>(() =>
-            {
-                var client = CreateClient();
-                return client.GetDatabase(Options.DatabaseId);
-            });
         }
 
         //private void InitClient()
@@ -143,20 +83,58 @@ namespace SoftwarePioniere.MongoDb
 
         //public Lazy<IMongoClient> Client { get; private set; }
 
-        public Lazy<IMongoDatabase> Database { get; private set; }
+        public Lazy<IMongoDatabase> Database
+        {
+            get
+            {
+                AssertInitialized();
+                return _database;
+            }
+            private set => _database = value;
+        }
 
         //public Lazy<IMongoClient> Client2 { get; private set; }
 
-        public Lazy<IMongoDatabase> DatabaseInsert { get; private set; }
+        public Lazy<IMongoDatabase> DatabaseInsert
+        {
+            get
+            {
+                AssertInitialized();
+                return _databaseInsert;
+            }
+            private set => _databaseInsert = value;
+        }
+
+        //public Lazy<IMongoClient> ClientLoadItem { get; private set; }
+
+        public Lazy<IMongoDatabase> DatabaseLoadItem
+        {
+            get
+            {
+                AssertInitialized();
+                return _databaseLoadItem;
+            }
+            private set => _databaseLoadItem = value;
+        }
 
 
         //public Lazy<IMongoClient> Client3 { get; private set; }
 
-        public Lazy<IMongoDatabase> DatabaseLoadItems { get; private set; }
+        public Lazy<IMongoDatabase> DatabaseLoadItems
+        {
+            get
+            {
+                AssertInitialized();
+                return _databaseLoadItems;
+            }
+            private set => _databaseLoadItems = value;
+        }
 
-        //public Lazy<IMongoClient> ClientLoadItem { get; private set; }
+        public TypeKeyCache KeyCache { get; }
 
-        public Lazy<IMongoDatabase> DatabaseLoadItem { get; private set; }
+        //private readonly Uri _collectionUri;
+
+        public MongoDbOptions Options { get; set; }
 
 
         public async Task ClearDatabaseAsync()
@@ -166,6 +144,58 @@ namespace SoftwarePioniere.MongoDb
             await CreateClient().DropDatabaseAsync(Options.DatabaseId).ConfigureAwait(false);
             _logger.LogInformation("Reinit Client");
             InitDatabase();
+        }
+
+        public async Task InitializeAsync(CancellationToken cancellationToken)
+        {
+            _isInitialized = true;
+            await CheckDatabaseExistsAsync().ConfigureAwait(false);
+        }
+
+        private void AssertInitialized()
+        {
+            if (!_isInitialized)
+            {
+                throw new InvalidOperationException("Initialize First");
+            }
+        }
+
+
+        public async Task<bool> CheckDatabaseExistsAsync()
+        {
+            _logger.LogTrace(nameof(CheckDatabaseExistsAsync));
+
+            var client = CreateClient();
+
+            var databases = await client.ListDatabasesAsync().ConfigureAwait(false);
+
+            while (await databases.MoveNextAsync().ConfigureAwait(false))
+            {
+                var items = databases.Current.ToArray();
+                var c = items.Count(x => x["name"] == Options.DatabaseId) > 0;
+
+                if (c)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        public IMongoClient CreateClient()
+        {
+            var url = new MongoServerAddress(Options.Server, Options.Port);
+            var settings = new MongoClientSettings
+                {Server = url};
+
+            if (Options.ClusterConfigurator != null)
+            {
+                settings.ClusterConfigurator = Options.ClusterConfigurator;
+            }
+
+            var client = new MongoClient(settings);
+            return client;
         }
 
         public IMongoCollection<T> GetCol<T>() where T : Entity
@@ -178,21 +208,43 @@ namespace SoftwarePioniere.MongoDb
             return DatabaseInsert.Value.GetCollection<T>(KeyCache.GetEntityTypeKey<T>());
         }
 
-        public IMongoCollection<T> GetColLoadItems<T>() where T : Entity
-        {
-            return DatabaseLoadItems.Value.GetCollection<T>(KeyCache.GetEntityTypeKey<T>());
-        }
-
         public IMongoCollection<T> GetColLoadItem<T>() where T : Entity
         {
             return DatabaseLoadItem.Value.GetCollection<T>(KeyCache.GetEntityTypeKey<T>());
         }
 
-        public async Task InitializeAsync(CancellationToken cancellationToken)
+        public IMongoCollection<T> GetColLoadItems<T>() where T : Entity
         {
+            return DatabaseLoadItems.Value.GetCollection<T>(KeyCache.GetEntityTypeKey<T>());
+        }
 
 
-            await CheckDatabaseExistsAsync().ConfigureAwait(false);
+        private void InitDatabase()
+        {
+            Database = new Lazy<IMongoDatabase>(() =>
+            {
+                var client = CreateClient();
+                return client.GetDatabase(Options.DatabaseId);
+            });
+
+            DatabaseInsert = new Lazy<IMongoDatabase>(() =>
+            {
+                var client = CreateClient();
+                return client.GetDatabase(Options.DatabaseId);
+            });
+
+            DatabaseLoadItems = new Lazy<IMongoDatabase>(() =>
+            {
+                var client = CreateClient();
+                return client.GetDatabase(Options.DatabaseId);
+            });
+
+
+            DatabaseLoadItem = new Lazy<IMongoDatabase>(() =>
+            {
+                var client = CreateClient();
+                return client.GetDatabase(Options.DatabaseId);
+            });
         }
     }
 }

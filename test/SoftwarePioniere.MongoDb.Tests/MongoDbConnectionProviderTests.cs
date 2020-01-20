@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.Extensions.Configuration;
@@ -29,6 +30,7 @@ namespace SoftwarePioniere.MongoDb.Tests
         public async Task CanConnectToClient()
         {
             var provider = CreateProvider();
+            await provider.InitializeAsync(CancellationToken.None);
             await provider.CreateClient().ListDatabasesAsync();
         }
 
@@ -36,6 +38,8 @@ namespace SoftwarePioniere.MongoDb.Tests
         public async Task CanClearDatabase()
         {
             var provider = CreateProvider();
+            await provider.InitializeAsync(CancellationToken.None);
+
 
             await provider.Database.Value.CreateCollectionAsync(Guid.NewGuid().ToString());
             (await provider.CheckDatabaseExistsAsync()).Should().BeTrue();
