@@ -23,6 +23,8 @@ namespace SoftwarePioniere.AzureCosmosDb.Tests
         [Fact]
         public async Task NonExistingEntityLoadReturnsNull()
         {
+            await base.InitializeAsync();
+
             var store = CreateInstance();
             var entity = await store.LoadItemAsync<FakeEntity>(Guid.NewGuid().ToString());
 

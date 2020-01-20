@@ -31,7 +31,6 @@ namespace SoftwarePioniere.AzureCosmosDb.Tests
         public async Task CanClearDatabase()
         {
             var provider = CreateProvider();
-
             await provider.InitializeAsync(CancellationToken.None);
 
             var database = provider.Client.GetDatabase(provider.Options.DatabaseId);

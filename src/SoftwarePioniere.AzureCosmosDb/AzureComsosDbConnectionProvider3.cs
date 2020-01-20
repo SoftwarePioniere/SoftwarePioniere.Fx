@@ -12,11 +12,12 @@ namespace SoftwarePioniere.AzureCosmosDb
 {
     public class AzureComsosDbConnectionProvider3 : IEntityStoreConnectionProvider, IDisposable
     {
-        private readonly CosmosClient _bulkClient;
+        private CosmosClient _bulkClient;
         private readonly ILogger _logger;
         private bool _isInitialized;
-        private readonly Container _container;
-        private readonly CosmosClient _client;
+        private Container _container;
+        private CosmosClient _client;
+        private Database _database;
 
         public AzureComsosDbConnectionProvider3(ILoggerFactory loggerFactory,
             IOptions<AzureCosmosDbOptions> options)
@@ -31,21 +32,7 @@ namespace SoftwarePioniere.AzureCosmosDb
             Options = options.Value;
             _logger.LogInformation("AzureCosmosDb Options {@Options}", options.Value.CreateSecured());
 
-            _client = new CosmosClientBuilder(Options.EndpointUrl, Options.AuthKey)
-                .WithThrottlingRetryOptions(TimeSpan.FromMinutes(Options.MaxRetryWaitTimeOnThrottledRequestsMinutes),
-                    Options.MaxRetryAttemptsOnThrottledRequests)
-                //.AddCustomHandlers(new ThrottlingHandler(_logger))
-                .Build();
 
-            _bulkClient = new CosmosClientBuilder(Options.EndpointUrl, Options.AuthKey)
-                //.AddCustomHandlers(new ThrottlingHandler(_logger))
-                .WithThrottlingRetryOptions(TimeSpan.FromMinutes(Options.MaxRetryWaitTimeOnThrottledRequestsMinutes),
-                    Options.MaxRetryAttemptsOnThrottledRequests)
-                .WithBulkExecution(true)
-                .Build();
-
-            Database = Client.GetDatabase(Options.DatabaseId);
-            _container = Database.GetContainer(Options.CollectionId);
         }
 
         public CosmosClient BulkClient
@@ -75,7 +62,14 @@ namespace SoftwarePioniere.AzureCosmosDb
             }
         }
 
-        private Database Database { get; }
+        private Database Database
+        {
+            get
+            {
+                AssertInitialized();
+                return _database;
+            }
+        }
 
         public AzureCosmosDbOptions Options { get; }
 
@@ -87,7 +81,24 @@ namespace SoftwarePioniere.AzureCosmosDb
 
         public async Task InitializeAsync(CancellationToken cancellationToken)
         {
-            var databaseResponse = await Client.CreateDatabaseIfNotExistsAsync(Options.DatabaseId, Options.OfferThroughput, cancellationToken: cancellationToken).ConfigureAwait(false);
+            _client = new CosmosClientBuilder(Options.EndpointUrl, Options.AuthKey)
+                .WithThrottlingRetryOptions(TimeSpan.FromMinutes(Options.MaxRetryWaitTimeOnThrottledRequestsMinutes),
+                    Options.MaxRetryAttemptsOnThrottledRequests)
+                //.AddCustomHandlers(new ThrottlingHandler(_logger))
+                .Build();
+
+            _bulkClient = new CosmosClientBuilder(Options.EndpointUrl, Options.AuthKey)
+                //.AddCustomHandlers(new ThrottlingHandler(_logger))
+                .WithThrottlingRetryOptions(TimeSpan.FromMinutes(Options.MaxRetryWaitTimeOnThrottledRequestsMinutes),
+                    Options.MaxRetryAttemptsOnThrottledRequests)
+                .WithBulkExecution(true)
+                .Build();
+
+            _database = _client.GetDatabase(Options.DatabaseId);
+            _container = _database.GetContainer(Options.CollectionId);
+
+
+            var databaseResponse = await _client.CreateDatabaseIfNotExistsAsync(Options.DatabaseId, Options.OfferThroughput, cancellationToken: cancellationToken).ConfigureAwait(false);
             var database = databaseResponse.Database;
 
             var readResponse = await database.ReadAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
