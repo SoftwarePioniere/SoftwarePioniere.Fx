@@ -46,7 +46,8 @@ steps:
     DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 'true'
 
 - task: PublishTestResults@2
-  inputs:
+  condition: always()
+  inputs:    
     testResultsFormat: VSTest
     testResultsFiles: '**/*.trx'
 

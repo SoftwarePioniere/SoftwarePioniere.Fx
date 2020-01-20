@@ -56,6 +56,17 @@ Setup(context =>
 
     Information("Version: {0}" , GetVersion() );
     Information("AssemblyVersion: {0}" , GetAssemblyVersion() );
+
+
+    var envVars = EnvironmentVariables();
+    foreach(var envVar in envVars)
+    {
+        Information(
+            "Key: {0}\tValue: \"{1}\"",
+            envVar.Key,
+            envVar.Value
+            );
+    }
 });
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -75,6 +86,33 @@ Task("GitVersion")
 ///////////////////////////////////////////////////////////////////////////////
 // TASKS
 ///////////////////////////////////////////////////////////////////////////////
+
+Task("MyTest")
+    .Does(() =>
+{
+  var envVars = EnvironmentVariables();
+  foreach(var envVar in envVars)
+  {
+      Information(
+          "Key: {0}\tValue: \"{1}\"",
+          envVar.Key,
+          envVar.Value
+          );
+  }
+ 
+   // StopTestEnv();
+  StartTestEnv();
+
+  Information("Sleep");
+  System.Threading.Thread.Sleep(15000);
+
+})
+.Finally(() =>
+{
+    StopTestEnv();
+});
+
+
 
 Task("Clean")
     .Does(() =>
@@ -312,7 +350,8 @@ private void StartTestEnv(){
     DockerComposeUp( new DockerComposeUpSettings{
                 Files = new [] { "docker-compose-build.yml" },
                 DetachedMode = true,
-                ForceRecreate = true
+                ForceRecreate = true,
+                ProjectName = "sopifx"
         });
 }
 
