@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Runtime.InteropServices.ComTypes;
 using EventStore.ClientAPI;
 using SoftwarePioniere.Domain;
 using SoftwarePioniere.EventStore;
