@@ -25,7 +25,7 @@ services:
       - EVENTSTORE_STATS_PERIOD_SEC=120
       - EVENTSTORE_RUN_PROJECTIONS=ALL
       - EVENTSTORE_DB=/data
-      - EVENTSTORE_EXT_TCP_HEARTBEAT_TIMEOUT=10000   
+    #  - EVENTSTORE_EXT_TCP_HEARTBEAT_TIMEOUT=10000   
     volumes:
       - 'eventstoredata:/data'
       

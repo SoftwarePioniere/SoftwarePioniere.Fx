@@ -30,7 +30,7 @@ namespace SoftwarePioniere.AzureCosmosDb
             _logger = loggerFactory.CreateLogger(GetType());
 
             Options = options.Value;
-            _logger.LogInformation("AzureCosmosDb Options {@Options}", options.Value.CreateSecured());
+            _logger.LogInformation("AzureCosmosDb Options @{Options}", options.Value.CreateSecured());
 
 
         }

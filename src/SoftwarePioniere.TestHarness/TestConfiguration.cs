@@ -23,9 +23,9 @@ namespace SoftwarePioniere
                 .AddUserSecrets("sopitest")
                 ;
 
-#if !DEBUG
+//#if !DEBUG
            builder.AddEnvironmentVariables("SOPI_TESTS_");
-#endif
+//#endif
 
             config?.Invoke(builder);
 

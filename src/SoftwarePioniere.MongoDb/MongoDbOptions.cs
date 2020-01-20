@@ -21,10 +21,10 @@ namespace SoftwarePioniere.MongoDb
 
         public int Port { get; set; } = 27017;
 
-        public override string ToString()
-        {
-            return $"Server: {Server} // Port: {Port} // DatabaseId: {DatabaseId} // UserName: {UserName} ";
-        }
+        //public override string ToString()
+        //{
+        //    return $"Server: {Server} // Port: {Port} // DatabaseId: {DatabaseId} // UserName: {UserName} ";
+        //}
 
         public MongoDbOptions CreateSecured()
         {
@@ -33,7 +33,8 @@ namespace SoftwarePioniere.MongoDb
                 DatabaseId = DatabaseId,
                 Port = Port,
                 Server = Server,
-                UserName = UserName
+                UserName = UserName,
+                Password = "XXX"
             };
 
         }

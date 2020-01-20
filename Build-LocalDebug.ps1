@@ -1,5 +1,9 @@
 $host.ui.RawUI.WindowTitle = 'build.. ' + (Get-Item -Path "." -Verbose).Name
 
+$env:SOPI_TESTS_EVENTSTORE__TCPPORT=1193
+$env:SOPI_TESTS_EVENTSTORE__HTTPPORT=2193
+$env:SOPI_TESTS_EVENTSTORE__EXTSECURETCPPORT=1195
+$env:SOPI_TESTS_MONGODB__PORT=27097
 
 dotnet tool restore
 dotnet tool run dotnet-cake --version
