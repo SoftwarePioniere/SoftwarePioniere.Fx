@@ -55,7 +55,8 @@ namespace SoftwarePioniere.EventStore.Domain
         private async Task ConnectToPersistentSubscriptionInternal()
         {
             var cred = _connectionProvider.OpsCredentials;
-            var con = await _connectionProvider.GetActiveConnection().ConfigureAwait(false);
+            //var con = await _connectionProvider.GetActiveConnection().ConfigureAwait(false);
+            var con = _connectionProvider.GetActiveConnection();
 
             await con.ConnectToPersistentSubscriptionAsync(_stream, _groupName, EventAppeared, SubscriptionDropped, cred, _bufferSize).ConfigureAwait(false);
         }
@@ -74,8 +75,8 @@ namespace SoftwarePioniere.EventStore.Domain
 
         private async Task EventAppeared(EventStorePersistentSubscriptionBase sub, ResolvedEvent subEvent)
         {
-            var con = await _connectionProvider.GetActiveConnection().ConfigureAwait(false);
-
+            //var con = await _connectionProvider.GetActiveConnection().ConfigureAwait(false);
+            var con = _connectionProvider.GetActiveConnection();
             //     var origEvent = await con.ReadEventAsync(subEvent.OriginalStreamId, subEvent.OriginalEventNumber, true, _connectionProvider.OpsCredentials);
             
             var subData = subEvent.Event.Data.FromUtf8();

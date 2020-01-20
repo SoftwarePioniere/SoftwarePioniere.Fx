@@ -264,7 +264,8 @@ namespace SoftwarePioniere.EventStore.Projections
                 StreamName);
 
             var cred = _connectionProvider.OpsCredentials;
-            var src = await _connectionProvider.GetActiveConnection().ConfigureAwait(false);
+            //var src = await _connectionProvider.GetActiveConnection().ConfigureAwait(false);
+            var src = _connectionProvider.GetActiveConnection();
             long? lastCheckpoint = null;
 
             if (Status.LastCheckPoint.HasValue && Status.LastCheckPoint != -1)

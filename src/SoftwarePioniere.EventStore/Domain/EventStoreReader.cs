@@ -58,7 +58,9 @@ namespace SoftwarePioniere.EventStore.Domain
             long sliceStart = StreamPosition.Start;
             StreamEventsSlice currentSlice;
 
-            var con = await _provider.GetActiveConnection().ConfigureAwait(false);
+            //var con = await _provider.GetActiveConnection().ConfigureAwait(false);
+            var con = _provider.GetActiveConnection();
+
             do
             {
                 currentSlice =
@@ -99,7 +101,9 @@ namespace SoftwarePioniere.EventStore.Domain
             long sliceStart = StreamPosition.Start;
             StreamEventsSlice currentSlice;
 
-            var con = await _provider.GetActiveConnection().ConfigureAwait(false);
+            //var con = await _provider.GetActiveConnection().ConfigureAwait(false);
+            var con = _provider.GetActiveConnection();
+
             do
             {
                 currentSlice =

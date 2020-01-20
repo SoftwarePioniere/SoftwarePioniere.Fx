@@ -16,6 +16,7 @@ namespace SoftwarePioniere.Messaging
  
         [J("timestamp_utc")]
         [J1("timestamp_utc")]
+        [System.ComponentModel.DataAnnotations.Required]
         public DateTime TimeStampUtc { get; set; }
       
     }

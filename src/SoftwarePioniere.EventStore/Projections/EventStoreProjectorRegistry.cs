@@ -56,7 +56,7 @@ namespace SoftwarePioniere.EventStore.Projections
             _options = options.Value;
         }
 
-  
+
         private async Task<ProjectionStatus> ReadStreamAsync(string stream, EventStoreProjectionContext context,
             CancellationToken cancellationToken = default(CancellationToken))
         {
@@ -64,7 +64,8 @@ namespace SoftwarePioniere.EventStore.Projections
             var sw = Stopwatch.StartNew();
 
             var cred = _connectionProvider.OpsCredentials;
-            var src = await _connectionProvider.GetActiveConnection().ConfigureAwait(false);
+            //var src = await _connectionProvider.GetActiveConnection().ConfigureAwait(false);
+            var src = _connectionProvider.GetActiveConnection();
 
             StreamEventsSlice slice;
 
@@ -144,7 +145,8 @@ namespace SoftwarePioniere.EventStore.Projections
                     name = $"{streamName.Replace("$ce-", string.Empty)}-empty";
 
                 _logger.LogDebug("InsertEmptyEvent: StreamName {StreamName}", name);
-                var con = await _connectionProvider.GetActiveConnection().ConfigureAwait(false);
+                //var con = await _connectionProvider.GetActiveConnection().ConfigureAwait(false);
+                var con = _connectionProvider.GetActiveConnection();
                 await con.AppendToStreamAsync(name, -1, events, _connectionProvider.OpsCredentials).ConfigureAwait(false);
 
             }
@@ -176,7 +178,7 @@ namespace SoftwarePioniere.EventStore.Projections
                 return InsertEmptyDomainEventIfStreamIsEmpty(s);
             })).ConfigureAwait(false);
 
-          
+
             await _cache.RemoveByPrefixAsync(CacheKeys.Create<ProjectionInitializationStatus>()).ConfigureAwait(false);
             foreach (var projector in _projectors)
             {

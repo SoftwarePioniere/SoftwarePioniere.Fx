@@ -11,6 +11,7 @@ using EventStore.ClientAPI.SystemData;
 using EventStore.ClientAPI.UserManagement;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using SoftwarePioniere.Hosting;
 using ILogger = Microsoft.Extensions.Logging.ILogger;
 
 // ReSharper disable UnusedAutoPropertyAccessor.Global
@@ -22,9 +23,9 @@ namespace SoftwarePioniere.EventStore
     /// <summary>
     ///     Verbindung zum Event Store
     /// </summary>
-    public sealed class EventStoreConnectionProvider
+    public sealed class EventStoreConnectionProvider : IConnectionProvider
     {
-        private static readonly SemaphoreSlim SemaphoreSlim = new SemaphoreSlim(1, 1);
+        //private static readonly SemaphoreSlim SemaphoreSlim = new SemaphoreSlim(1, 1);
 
         private readonly Lazy<IEventStoreConnection> _connection;
 
@@ -180,30 +181,38 @@ namespace SoftwarePioniere.EventStore
             return manager;
         }
 
-        public async Task<IEventStoreConnection> GetActiveConnection()
+
+        public IEventStoreConnection GetActiveConnection()
         {
-            //https://blog.cdemi.io/async-waiting-inside-c-sharp-locks/
-            await SemaphoreSlim.WaitAsync().ConfigureAwait(false);
-
-            try
-            {
-                if (!_connection.IsValueCreated)
-                {
-                    var con = _connection.Value;
-                    await con.ConnectAsync().ConfigureAwait(false);
-                    return con;
-                }
-            }
-            finally
-            {
-                //When the task is ready, release the semaphore. It is vital to ALWAYS release the semaphore when we are ready, or else we will end up with a Semaphore that is forever locked.
-                //This is why it is important to do the Release within a try...finally clause; program execution may crash or take a different path, this way you are guaranteed execution
-                SemaphoreSlim.Release();
-            }
-
-
+            AssertInitialized();
             return _connection.Value;
         }
+
+
+        //public async Task<IEventStoreConnection> GetActiveConnection()
+        //{
+        //    //https://blog.cdemi.io/async-waiting-inside-c-sharp-locks/
+        //    //await SemaphoreSlim.WaitAsync().ConfigureAwait(false);
+
+        //    //try
+        //    //{
+        //    if (!_connection.IsValueCreated)
+        //    {
+        //        var con = _connection.Value;
+        //        await con.ConnectAsync().ConfigureAwait(false);
+        //        return con;
+        //    }
+        //    //}
+        //    //finally
+        //    //{
+        //    //    //When the task is ready, release the semaphore. It is vital to ALWAYS release the semaphore when we are ready, or else we will end up with a Semaphore that is forever locked.
+        //    //    //This is why it is important to do the Release within a try...finally clause; program execution may crash or take a different path, this way you are guaranteed execution
+        //    //    SemaphoreSlim.Release();
+        //    //}
+
+
+        //    return _connection.Value;
+        //}
 
         private IPAddress GetHostIp(string ipEndpoint)
         {
@@ -272,7 +281,8 @@ namespace SoftwarePioniere.EventStore
 
             //try
             //{
-            var con = await GetActiveConnection().ConfigureAwait(false);
+
+            var con = GetActiveConnection();
 
             var slice = await con.ReadStreamEventsForwardAsync(streamName, 0, 1, false, AdminCredentials).ConfigureAwait(false);
             _logger.LogTrace("StreamExists {StreamName} : SliceStatus: {SliceStatus}", streamName, slice.Status);
@@ -337,6 +347,23 @@ namespace SoftwarePioniere.EventStore
         {
             IsConfigured = isConfigured;
             OnConfigurationStateChanged();
+        }
+
+        private bool _isInitialized;
+
+        private void AssertInitialized()
+        {
+            if (!_isInitialized)
+                throw new InvalidOperationException("Initialize First");
+        }
+
+        public async Task InitializeAsync(CancellationToken cancellationToken)
+        {
+            var con = _connection.Value;
+            await con.ConnectAsync().ConfigureAwait(false);
+
+            _isInitialized = true;
+
         }
     }
 }
