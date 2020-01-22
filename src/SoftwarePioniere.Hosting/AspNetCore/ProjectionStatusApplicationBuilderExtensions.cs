@@ -10,10 +10,10 @@ namespace SoftwarePioniere.Hosting.AspNetCore
 {
     public static class ProjectionStatusApplicationBuilderExtensions
     {
-        public static IApplicationBuilder UseProjectionStatusEndpoint(this IApplicationBuilder app, string baseRoute)
+        public static IApplicationBuilder UseProjectionStatusEndpoint(this IApplicationBuilder app, string baseRoute, Action<string> log)
         {
             var url = string.Concat("/", baseRoute, "/status");
-            Console.WriteLine("UseProjectionStatusEndpoint on Url: {0}", url);
+            log($"UseProjectionStatusEndpoint on Url: {url}");
 
 
             app.Map(url,

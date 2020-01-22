@@ -96,7 +96,7 @@ namespace WebApp.Host
                                  false, options =>
                                  {
                                      options.SchemaFilter<RemoveAllOffSchemaFilter>();
-                                 });
+                                 }, sopiBuilder.Log);
 
                         services
                             .AddTestClientOptions(c => { c.BaseAddress = "http://localhost:5099"; })
@@ -130,16 +130,13 @@ namespace WebApp.Host
                         var logger = app.ApplicationServices.GetStartupLogger();
                         app.UseSerilogRequestLogging();
 
-                        app.UseVersionInfo(Constants.ApiBaseRoute);
-                        app.UseSopiLifetimeEndpoint(Constants.ApiBaseRoute);
-                        app.UseProjectionStatusEndpoint(Constants.ProjectionBaseRoute);
+                        app.UseVersionInfo(Constants.ApiBaseRoute, s => logger.LogInformation(s));
+                        app.UseSopiLifetimeEndpoint(Constants.ApiBaseRoute, s => logger.LogInformation(s));
+                        app.UseProjectionStatusEndpoint(Constants.ProjectionBaseRoute, s => logger.LogInformation(s));
 
                         app.UseRouting()
                             .UseAuthentication()
                             .UseAuthorization();
-
-                        logger.LogInformation("WebSocket Url: {WebSocketUrl}", Constants.NotificationsBaseRoute);
-                        logger.LogInformation("WebSocket AuthUrl: {WebSocketUrl}", Constants.NotificationsBaseRouteAuth);
 
                         app.UseEndpoints(endpoints =>
                             {

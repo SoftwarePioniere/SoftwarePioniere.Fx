@@ -9,9 +9,9 @@ namespace SoftwarePioniere.Extensions.AspNetCore.Auth0
 {
     public static class Auth0ServiceCollectionExtensions
     {
-        public static IServiceCollection AddAuth0Authorization(this IServiceCollection services)
+        public static IServiceCollection AddAuth0Authorization(this IServiceCollection services, Action<string> log)
         {
-            Console.WriteLine("AddAuth0Authorization");
+            log("AddAuth0Authorization");
 
             services.AddSingleton<IConfigureOptions<AuthorizationOptions>, ConfigureAuth0AuthorizationOptions>();
             services.AddAuthorization();

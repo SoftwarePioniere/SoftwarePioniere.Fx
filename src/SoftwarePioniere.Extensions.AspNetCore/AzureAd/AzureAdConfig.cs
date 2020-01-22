@@ -1,20 +1,21 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using System;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace SoftwarePioniere.Extensions.AspNetCore.AzureAd
 {
     public static class AzureAdConfig
     {
-        public static IServiceCollection ConfigureAzureAd(this IServiceCollection services, IConfiguration config)
+        public static IServiceCollection ConfigureAzureAd(this IServiceCollection services, IConfiguration config, Action<string> log)
         {
-            services.AddAzureAdOptions(config);
+            services.AddAzureAdOptions(config, log);
 
             services
                 .AddAuthentication(AuthConfig.AuthenticationConfig)
-                .AddAzureAdBearer()
+                .AddAzureAdBearer(log)
                 ;
 
-            services.AddAzureAdAuthorization();
+            services.AddAzureAdAuthorization(log);
 
             return services;
         }

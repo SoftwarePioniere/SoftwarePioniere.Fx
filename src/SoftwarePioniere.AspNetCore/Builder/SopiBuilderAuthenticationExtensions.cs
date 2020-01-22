@@ -15,14 +15,14 @@ namespace SoftwarePioniere.AspNetCore.Builder
                 case SopiOptions.AuthAuth0:
                     {
                         builder.Log("Adding Auth0 Config");
-                        builder.Services.ConfigureAuth0(builder.Config);
+                        builder.Services.ConfigureAuth0(builder.Config, builder.Log);
                         //builder.AddFeature("SwaggerClientOptions", swag);
                         break;
                     }
                 case SopiOptions.AuthAzureAd:
                     {
                         builder.Log("Adding AzureAd Config");
-                        builder.Services.ConfigureAzureAd(builder.Config);
+                        builder.Services.ConfigureAzureAd(builder.Config, builder.Log);
                         //builder.AddFeature("SwaggerClientOptions", swag);
                         break;
                     }

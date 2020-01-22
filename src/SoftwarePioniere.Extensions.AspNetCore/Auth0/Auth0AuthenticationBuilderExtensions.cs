@@ -11,10 +11,10 @@ namespace SoftwarePioniere.Extensions.AspNetCore.Auth0
 {
     public static class Auth0AuthenticationBuilderExtensions
     {
-       
-        public static AuthenticationBuilder AddAuth0Bearer(this AuthenticationBuilder builder)
+
+        public static AuthenticationBuilder AddAuth0Bearer(this AuthenticationBuilder builder, Action<string> log)
         {
-            Console.WriteLine("AddAuth0Bearer");
+            log("AddAuth0Bearer");
 
             builder.Services.AddSingleton<IConfigureOptions<JwtBearerOptions>, ConfigureAuth0JwtBearerOptions>();
             builder.AddJwtBearer();
@@ -93,6 +93,6 @@ namespace SoftwarePioniere.Extensions.AspNetCore.Auth0
             }
         }
 
-   
+
     }
 }

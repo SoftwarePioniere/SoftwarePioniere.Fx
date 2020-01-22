@@ -6,18 +6,24 @@ using Microsoft.Extensions.Options;
 using SoftwarePioniere.Extensions.AspNetCore.AzureAd;
 using SoftwarePioniere.Extensions.AspNetCore.Swagger;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace SoftwarePioniere.Extensions.AspNetCore.Tests
 {
     public class AzureAdConfigurationTests
     {
+        private readonly ITestOutputHelper _outputHelper;
         public const string AzureAdResource = "https://testapi.softwarepioniere-demo.de";
         public const string AzureAdAdminGroupId = "975b884d-a98c-4964-90d0-d9aa3c1a0a6c";
         public const string AzureAdTenantId = "74a8c6fa-684f-4b5a-b174-34428871d801";
         public const string AzureAdUserGroupId = "717f59a3-17e0-44a3-9c2d-fbf16e7333d7";
         public const string AzureAdSwaggerClientId = "90b324a8-eff9-4bda-a5e8-19eafc709b10";
 
-        
+        public AzureAdConfigurationTests(ITestOutputHelper outputHelper)
+        {
+            _outputHelper = outputHelper;
+        }
+
         [Fact]
         public void CanRegisterAzureAdOptions()
         {
@@ -37,12 +43,12 @@ namespace SoftwarePioniere.Extensions.AspNetCore.Tests
                 .Build();
 
             var services = new ServiceCollection()
-                .AddAzureAdOptions(config)
-                .AddAzureAdAuthorization()
+                .AddAzureAdOptions(config, _outputHelper.WriteLine)
+                .AddAzureAdAuthorization(_outputHelper.WriteLine)
                 ;
 
             var provider = services.BuildServiceProvider();
-            
+
             var azureAdOpions = provider.GetRequiredService<IOptions<AzureAdOptions>>().Value;
 
             azureAdOpions.TenantId.Should().Be(AzureAdTenantId);
@@ -50,7 +56,7 @@ namespace SoftwarePioniere.Extensions.AspNetCore.Tests
             azureAdOpions.Resource.Should().Be(AzureAdResource);
             azureAdOpions.UserGroupId.Should().Be(AzureAdUserGroupId);
             azureAdOpions.SwaggerClientId.Should().Be(AzureAdSwaggerClientId);
-            
+
             var sopiSwaggerOptions = provider.GetRequiredService<IOptions<SopiSwaggerAuthOptions>>().Value;
 
             sopiSwaggerOptions.Resource.Should().Be(AzureAdResource);

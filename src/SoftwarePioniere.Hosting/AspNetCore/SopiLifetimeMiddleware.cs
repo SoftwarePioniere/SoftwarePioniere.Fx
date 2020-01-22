@@ -106,10 +106,10 @@ namespace SoftwarePioniere.Hosting.AspNetCore
         //}
 
 
-        public static IApplicationBuilder UseSopiLifetimeEndpoint(this IApplicationBuilder app, string baseRoute)
+        public static IApplicationBuilder UseSopiLifetimeEndpoint(this IApplicationBuilder app, string baseRoute, Action<string> log)
         {
             var url = string.Concat("/", baseRoute, "/lifetime");
-            Console.WriteLine("UseSopiLifetimeEndpoint on Url: {0}", url);
+            log($"UseSopiLifetimeEndpoint on Url: {url}");
 
             app.Map(url,
                 applicationBuilder =>

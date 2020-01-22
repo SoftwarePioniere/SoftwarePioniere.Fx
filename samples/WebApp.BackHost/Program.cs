@@ -5,9 +5,11 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Serilog;
 using SoftwarePioniere.AspNetCore;
 using SoftwarePioniere.AspNetCore.Builder;
+using SoftwarePioniere.Builder;
 using SoftwarePioniere.Domain;
 using SoftwarePioniere.Extensions.AspNetCore.Swagger;
 using SoftwarePioniere.Hosting;
@@ -68,7 +70,7 @@ namespace WebApp.BackHost
                             services
                                 .AddSingleton<MyProjector1>()
                                 .AddSingleton<IReadModelProjector, MyCompositeProjector1>()
-                                
+
                                 .AddHostedService<SopiAppService>()
                                 ;
 
@@ -83,20 +85,21 @@ namespace WebApp.BackHost
                                 false, options =>
                                 {
                                     options.SchemaFilter<RemoveAllOffSchemaFilter>();
-                                });
+                                }, sopiBuilder.Log);
 
 
                         });
 
                         webBuilder.Configure(app =>
                         {
+                            var logger = app.ApplicationServices.GetStartupLogger();
                             app.UseSerilogRequestLogging();
 
-                            app.UseVersionInfo(Constants.ApiBaseRoute);
-                            app.UseSopiLifetimeEndpoint(Constants.ApiBaseRoute);
-                            app.UseProjectionStatusEndpoint(Constants.ProjectionBaseRoute);
+                            app.UseVersionInfo(Constants.ApiBaseRoute, s => logger.LogInformation(s));
+                            app.UseSopiLifetimeEndpoint(Constants.ApiBaseRoute, s => logger.LogInformation(s));
+                            app.UseProjectionStatusEndpoint(Constants.ProjectionBaseRoute, s => logger.LogInformation(s));
 
-                            
+
                             app.UseRouting()
                                 .UseAuthentication()
                                 .UseAuthorization();

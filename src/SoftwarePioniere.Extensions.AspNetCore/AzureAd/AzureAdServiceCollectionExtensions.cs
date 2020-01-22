@@ -9,9 +9,9 @@ namespace SoftwarePioniere.Extensions.AspNetCore.AzureAd
 {
     public static class AzureAdServiceCollectionExtensions
     {
-        public static IServiceCollection AddAzureAdAuthorization(this IServiceCollection services)
+        public static IServiceCollection AddAzureAdAuthorization(this IServiceCollection services, Action<string> log)
         {
-            Console.WriteLine("AddAzureAdAuthorization");
+            log("AddAzureAdAuthorization");
 
             //configure the AuthorizationOptions from the AzureAd Options
             services.AddSingleton<IConfigureOptions<AuthorizationOptions>, ConfigureAzureAuthorizationOptions>();
@@ -22,14 +22,14 @@ namespace SoftwarePioniere.Extensions.AspNetCore.AzureAd
             return services;
         }
 
-        public static IServiceCollection AddAzureAdOptions(this IServiceCollection services, IConfiguration config)
+        public static IServiceCollection AddAzureAdOptions(this IServiceCollection services, IConfiguration config, Action<string> log)
         {
-            return AddAzureAdOptions(services, options => config.Bind("AzureAd", options));
+            return AddAzureAdOptions(services, options => config.Bind("AzureAd", options), log);
         }
 
-        public static IServiceCollection AddAzureAdOptions(this IServiceCollection services, Action<AzureAdOptions> configureOptions)
+        public static IServiceCollection AddAzureAdOptions(this IServiceCollection services, Action<AzureAdOptions> configureOptions, Action<string> log)
         {
-            Console.WriteLine("AddAzureAdOptions");
+            log("AddAzureAdOptions");
 
             services.AddOptions()
                 .Configure(configureOptions);

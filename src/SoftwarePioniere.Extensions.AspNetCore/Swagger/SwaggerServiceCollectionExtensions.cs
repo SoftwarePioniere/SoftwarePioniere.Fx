@@ -14,9 +14,10 @@ namespace SoftwarePioniere.Extensions.AspNetCore.Swagger
     {
         public static IServiceCollection AddSopiSwaggerForMultipleServices(this IServiceCollection services, string titleName, string baseRoute, string serviceName, string[] apiKeys, bool readOnly
             , Action<SwaggerGenOptions> configureSwaggerGenOptions
+            , Action<string> log
             , Action<SopiSwaggerOptions> configureOptions = null)
         {
-            Console.WriteLine("AddSopiSwaggerForMultipleServices");
+            log("AddSopiSwaggerForMultipleServices");
 
             services.AddSingleton<IConfigureOptions<SopiSwaggerOptions>>(p =>
                 new ConfigureSopiSwaggerOptionsForMultipleServices(
@@ -25,7 +26,7 @@ namespace SoftwarePioniere.Extensions.AspNetCore.Swagger
                     ));
 
             services
-                .AddSopiSwagger(configureSwaggerGenOptions: configureSwaggerGenOptions)
+                .AddSopiSwagger(log, configureSwaggerGenOptions: configureSwaggerGenOptions)
                 .AddSwaggerGen();
 
             return services;
@@ -176,10 +177,11 @@ namespace SoftwarePioniere.Extensions.AspNetCore.Swagger
         //}
 
         public static IServiceCollection AddSopiSwagger(this IServiceCollection services
+            , Action<string> log
             , Action<SopiSwaggerOptions> configureSopiSwaggerOptions = null
             , Action<SwaggerGenOptions> configureSwaggerGenOptions = null)
         {
-            Console.WriteLine("AddSopiSwagger");
+            log("AddSopiSwagger");
 
             if (configureSopiSwaggerOptions != null)
             {

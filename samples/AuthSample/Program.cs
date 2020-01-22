@@ -1,5 +1,7 @@
 ﻿// ReSharper disable once RedundantUsingDirective
 // ReSharper disable once RedundantUsingDirective
+
+using System;
 using SoftwarePioniere.Extensions.AspNetCore.AzureAd;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -21,7 +23,7 @@ namespace AuthSample
                 {
                     webBuilder.ConfigureServices((context, services) =>
                     {
-                        services.ConfigureAzureAd(context.Configuration);
+                        services.ConfigureAzureAd(context.Configuration, Console.WriteLine);
                         //services.ConfigureAuth0(context.Configuration);
 
                         services.AddSingleton<IConfigureOptions<SopiSwaggerOptions>, SwaggerConfig>();
@@ -33,7 +35,7 @@ namespace AuthSample
                             .AddNewtonsoftJson();
 
 
-                        services.AddSopiSwagger();
+                        services.AddSopiSwagger(Console.WriteLine);
                     });
 
 

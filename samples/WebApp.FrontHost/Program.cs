@@ -69,7 +69,7 @@ namespace WebApp.FrontHost
                             false, options =>
                             {
                                 options.SchemaFilter<RemoveAllOffSchemaFilter>();
-                            });
+                            }, sopiBuilder.Log);
 
 
                         services
@@ -97,12 +97,8 @@ namespace WebApp.FrontHost
                         var logger = app.ApplicationServices.GetStartupLogger();
                         app.UseSerilogRequestLogging();
 
-                        app.UseVersionInfo(Constants.ApiBaseRoute);
-                        app.UseSopiLifetimeEndpoint(Constants.ApiBaseRoute);
-
-                        logger.LogInformation("WebSocket Url: {WebSocketUrl}", Constants.NotificationsBaseRoute);
-                        logger.LogInformation("WebSocket AuthUrl: {WebSocketUrl}", Constants.NotificationsBaseRouteAuth);
-
+                        app.UseVersionInfo(Constants.ApiBaseRoute, s => logger.LogInformation(s));
+                        app.UseSopiLifetimeEndpoint(Constants.ApiBaseRoute, s => logger.LogInformation(s));
 
                         app.UseRouting()
                             .UseAuthentication()

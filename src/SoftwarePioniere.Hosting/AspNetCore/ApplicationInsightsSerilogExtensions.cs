@@ -7,7 +7,7 @@ namespace SoftwarePioniere.Hosting.AspNetCore
 {
     public static class ApplicationInsightsSerilogExtensions
     {
-        public static ILogger CreateSeriloggerWithApplicationInsights(this IConfiguration config,
+        public static ILogger CreateSeriloggerWithApplicationInsights(this IConfiguration config, Action<string> log,
             Action<LoggerConfiguration> setupAction = null)
         {
 
@@ -20,7 +20,7 @@ namespace SoftwarePioniere.Hosting.AspNetCore
 
                 if (!string.IsNullOrEmpty(appInsightsKey))
                 {
-                    Console.WriteLine("ConfigureLogger:: Adding ApplicationInsightsTraces");
+                    log("ConfigureLogger:: Adding ApplicationInsightsTraces");
                     logggerConfiguration.WriteTo.ApplicationInsights(appInsightsKey, new TraceTelemetryConverter());
                 }
 

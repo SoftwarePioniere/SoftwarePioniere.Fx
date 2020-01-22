@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
@@ -14,9 +15,9 @@ namespace SoftwarePioniere.Extensions.AspNetCore.AzureAd
 {
     public static class AzureAdAuthenticationBuilderExtensions
     {
-        public static AuthenticationBuilder AddAzureAdBearer(this AuthenticationBuilder builder)
+        public static AuthenticationBuilder AddAzureAdBearer(this AuthenticationBuilder builder, Action<string> log)
         {
-            Console.WriteLine("AddAzureAdBearer");
+            log("AddAzureAdBearer");
 
             builder.Services.AddSingleton<IConfigureOptions<JwtBearerOptions>, ConfigureAzureJwtBearerOptions>();
             builder.AddJwtBearer();
@@ -67,10 +68,12 @@ namespace SoftwarePioniere.Extensions.AspNetCore.AzureAd
 
         private class ConfigureAzureJwtBearerOptions : IConfigureNamedOptions<JwtBearerOptions>
         {
+            private readonly ILogger<ConfigureAzureJwtBearerOptions> _logger;
             private readonly AzureAdOptions _azureAdOptions;
 
-            public ConfigureAzureJwtBearerOptions(IOptions<AzureAdOptions> azureOptions)
+            public ConfigureAzureJwtBearerOptions(IOptions<AzureAdOptions> azureOptions, ILogger<ConfigureAzureJwtBearerOptions> logger)
             {
+                _logger = logger;
                 _azureAdOptions = azureOptions.Value;
             }
 
@@ -106,7 +109,7 @@ namespace SoftwarePioniere.Extensions.AspNetCore.AzureAd
                     contextTokenAddPaths = _azureAdOptions.ContextTokenAddPaths.Split(';');
                 }
 
-                Console.WriteLine("AddAzureAd: Adding JwtBeaerer");
+                _logger.LogInformation("AddAzureAd: Adding JwtBeaerer");
 
 
                 options.Audience = _azureAdOptions.Resource;

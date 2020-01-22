@@ -7,11 +7,11 @@ namespace SoftwarePioniere.AspNetCore
 {
     public static class VersionInfoApplicationBuilderExtensions
     {
-        public static IApplicationBuilder UseVersionInfo(this IApplicationBuilder app, string baseRoute)
+        public static IApplicationBuilder UseVersionInfo(this IApplicationBuilder app, string baseRoute, Action<string> log)
         {
             {
                 var url = string.Concat("/", baseRoute, "/version");
-                Console.WriteLine("UseVersionInfo Version on Url: {0}", url);
+                log($"UseVersionInfo Version on Url: {url}");
 
                 app.Map(url,
                     applicationBuilder =>
@@ -30,7 +30,7 @@ namespace SoftwarePioniere.AspNetCore
 
             {
                 var url = string.Concat("/", baseRoute, "/title");
-                Console.WriteLine("UseVersionInfo Title on Url: {0}", url);
+                log($"UseVersionInfo Title on Url: {url}");
 
                 app.Map(url,
                     applicationBuilder =>
