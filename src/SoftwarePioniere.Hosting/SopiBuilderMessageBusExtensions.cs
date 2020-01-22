@@ -7,7 +7,6 @@ using Microsoft.Extensions.Options;
 using SoftwarePioniere.Builder;
 using SoftwarePioniere.Hosting.AzureServiceBus.Queues;
 using SoftwarePioniere.Messaging;
-using SoftwarePioniere.Redis;
 
 namespace SoftwarePioniere.Hosting
 {
@@ -24,7 +23,7 @@ namespace SoftwarePioniere.Hosting
             {
                 case SopiOptions.MessageBusRedis:
                     builder.Log("Adding Redis Message Bus");
-                    builder.AddRedisMessageBus(c => config.Bind("Redis", c));
+                    builder.AddRedisMessageBus();
                     break;
 
                 case SopiOptions.MessageBusAzureServiceBus:
@@ -61,11 +60,10 @@ namespace SoftwarePioniere.Hosting
             return builder;
         }
 
-        public static ISopiBuilder AddRedisMessageBus(this ISopiBuilder builder,
-            Action<RedisOptions> configureOptions)
+        public static ISopiBuilder AddRedisMessageBus(this ISopiBuilder builder)
         {
             var services = builder.Services;
-            services.AddRedisMessageBus("Fliegel365", configureOptions);
+            services.AddRedisMessageBus("Fliegel365");
 
             builder.Services.PostConfigure<SopiOptions>(c =>
             {

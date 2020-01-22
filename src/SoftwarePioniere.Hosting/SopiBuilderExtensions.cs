@@ -15,6 +15,14 @@ namespace SoftwarePioniere.Hosting
     {
         public static ISopiBuilder AddSystemServicesByConfiguration(this ISopiBuilder builder)
         {
+            if (builder.Options.AnyRedis())
+            {
+                builder.Services
+                    .AddRedisOptions(builder.Config)
+                    .AddRedis()
+                    ;
+            }
+
             builder
                 .AddMessageBus()
                 .AddEntityStore()
@@ -30,7 +38,7 @@ namespace SoftwarePioniere.Hosting
         {
             var services = builder.Services;
             services
-              //  .AddDefaultTelemetryAdapter()
+                //  .AddDefaultTelemetryAdapter()
                 .AddDefaultMessageBusAdapter();
 
             return builder;
@@ -63,7 +71,7 @@ namespace SoftwarePioniere.Hosting
             services
                 .AddSingleton<ICacheAdapter, CacheAdapter>()
                 .AddDefaultMessageBusAdapter()
-              
+
                 ;
 
 

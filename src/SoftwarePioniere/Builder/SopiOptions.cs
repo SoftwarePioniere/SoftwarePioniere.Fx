@@ -54,5 +54,9 @@ namespace SoftwarePioniere.Builder
 
         }
 
+        public bool AnyRedis()
+        {
+            return CacheClient == CacheRedis || MessageBus == MessageBusRedis;
+        }
     }
 }

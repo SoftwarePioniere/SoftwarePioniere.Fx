@@ -1,6 +1,7 @@
 ﻿using System;
 using Foundatio.Caching;
 using Foundatio.Messaging;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using SoftwarePioniere.Hosting;
 using SoftwarePioniere.Messaging;
@@ -13,11 +14,20 @@ namespace Microsoft.Extensions.DependencyInjection
 {
     public static class RedisDependencyInjectionExtensions
     {
-        public static IServiceCollection AddRedis(this IServiceCollection services, Action<RedisOptions> configureOptions)
+        public static IServiceCollection AddRedisOptions(this IServiceCollection services, IConfiguration configuration)
         {
-            services
+            return services.AddRedisOptions(c => configuration.Bind("Redis", c));
+        }
+
+        public static IServiceCollection AddRedisOptions(this IServiceCollection services, Action<RedisOptions> configureOptions)
+        {
+            return services
                 .AddOptions()
                 .Configure(configureOptions);
+        }
+
+        public static IServiceCollection AddRedis(this IServiceCollection services)
+        {
 
             services
                 .AddSingleton<RedisConnectionProvider>()
@@ -25,8 +35,8 @@ namespace Microsoft.Extensions.DependencyInjection
 
                 .AddSingleton(p => p.GetRequiredService<RedisConnectionProvider>().Connection)
 
-              //  .AddSingleton(p => ConnectionMultiplexer.Connect(p.GetRequiredService<IOptions<RedisOptions>>().Value.ConnectionString))
-                
+                //  .AddSingleton(p => ConnectionMultiplexer.Connect(p.GetRequiredService<IOptions<RedisOptions>>().Value.ConnectionString))
+
                 .AddSingleton<IConnectionMultiplexer>(c => c.GetRequiredService<ConnectionMultiplexer>())
 
                 //.AddSingleton(p => ConnectionMultiplexer.Connect(p.GetRequiredService<IOptions<RedisOptions>>().Value.ConnectionString))
@@ -38,10 +48,8 @@ namespace Microsoft.Extensions.DependencyInjection
 
         }
 
-        public static IServiceCollection AddRedisMessageBus(this IServiceCollection services, string topic, Action<RedisOptions> configureOptions)
+        public static IServiceCollection AddRedisMessageBus(this IServiceCollection services, string topic)
         {
-
-            services.AddRedis(configureOptions);
 
             services
 
@@ -63,11 +71,8 @@ namespace Microsoft.Extensions.DependencyInjection
         }
 
 
-        public static IServiceCollection AddRedisCacheClient(this IServiceCollection services,
-            Action<RedisOptions> configureOptions)
+        public static IServiceCollection AddRedisCacheClient(this IServiceCollection services)
         {
-            services.AddRedis(configureOptions);
-
             services.AddSingleton<ICacheClient>(p =>
                 new RedisCacheClient(o =>
                     o.LoggerFactory(p.GetRequiredService<ILoggerFactory>())
