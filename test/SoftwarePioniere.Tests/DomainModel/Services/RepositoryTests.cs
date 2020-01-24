@@ -81,13 +81,13 @@ namespace SoftwarePioniere.Tests.DomainModel.Services
             }
 
             public Task PublishAsync<T>(T message, TimeSpan? delay = null,
-                CancellationToken cancellationToken = default) where T : class, IMessage
+                CancellationToken cancellationToken = default) where T : class, SoftwarePioniere.Messaging.IMessage
             {
                 return _bus.PublishAsync(typeof(T), message, delay, cancellationToken);
             }
 
             public Task SubscribeMessage<T>(Func<T, Task> handler,
-                CancellationToken cancellationToken = default, Func<T, string> lockId = null) where T : class, IMessage
+                CancellationToken cancellationToken = default, Func<T, string> lockId = null) where T : class, SoftwarePioniere.Messaging.IMessage
             {
                 throw new NotImplementedException();
             }
@@ -123,7 +123,7 @@ namespace SoftwarePioniere.Tests.DomainModel.Services
 
             mockPublisher.Setup(x => x.PublishAsync(
                     It.IsIn(typeof(FakeEvent), typeof(AggregateDomainEventMessage)),
-                    It.IsAny<IMessage>(),
+                    It.IsAny<SoftwarePioniere.Messaging.IMessage>(),
                     It.IsAny<TimeSpan>(),
                     It.IsAny<CancellationToken>())
                 )

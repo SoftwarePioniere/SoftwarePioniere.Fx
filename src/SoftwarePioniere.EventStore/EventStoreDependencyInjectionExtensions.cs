@@ -4,6 +4,7 @@ using SoftwarePioniere.Domain;
 using SoftwarePioniere.EventStore;
 using SoftwarePioniere.EventStore.Domain;
 using SoftwarePioniere.Hosting;
+using IEventStoreLogger = EventStore.ClientAPI.ILogger;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.Extensions.DependencyInjection
@@ -25,6 +26,13 @@ namespace Microsoft.Extensions.DependencyInjection
             }
 
             services
+                //.AddSingleton<IEventStoreLogger>(
+                //    p =>
+                //    {
+                //        var loggerFactory = p.GetRequiredService<ILoggerFactory>();
+                //        var logger = loggerFactory.CreateLogger("EventStore");
+                //        return new EventStoreLogger(logger);
+                //    })
 
                 .AddSingleton<EventStoreConnectionProvider>()
                 .AddSingleton<IConnectionProvider>(p => p.GetRequiredService<EventStoreConnectionProvider>())

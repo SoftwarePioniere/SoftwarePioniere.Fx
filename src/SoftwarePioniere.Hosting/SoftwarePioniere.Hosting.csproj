@@ -11,7 +11,7 @@
     <PackageReference Include="AspNetCore.HealthChecks.MongoDb" Version="2.2.3" />
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics.HealthChecks" Version="2.2.0" />
     <PackageReference Include="AspNetCore.HealthChecks.Redis" Version="2.2.4" />-->
-    <PackageReference Include="Foundatio.AzureServiceBus" Version="8.1.1518" />
+    <PackageReference Include="Foundatio.AzureServiceBus" Version="9.0.0" />
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.12.0" />
     <PackageReference Include="Polly" Version="7.2.0" />
     <PackageReference Include="Serilog" Version="2.9.0" />
@@ -24,7 +24,7 @@
     <PackageReference Include="Serilog.Sinks.File" Version="4.1.0" />
     <PackageReference Include="Serilog.Sinks.Literate" Version="3.0.0" />
     <PackageReference Include="Serilog.Sinks.Seq" Version="4.0.0" />
-    <PackageReference Include="Foundatio.AzureStorage" Version="8.1.1537" />
+    <PackageReference Include="Foundatio.AzureStorage" Version="9.0.0" />
   </ItemGroup>
 
   <ItemGroup>

@@ -4,6 +4,7 @@ using IEventStoreLogger = EventStore.ClientAPI.ILogger;
 
 namespace SoftwarePioniere.EventStore
 {
+   
     public class EventStoreLogger : IEventStoreLogger
     {
         private readonly ILogger _logger;

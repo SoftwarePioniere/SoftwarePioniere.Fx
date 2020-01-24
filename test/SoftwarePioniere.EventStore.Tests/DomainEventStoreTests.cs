@@ -1,6 +1,5 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using SoftwarePioniere.Domain;
 using Xunit;
@@ -13,7 +12,8 @@ namespace SoftwarePioniere.EventStore.Tests
         public DomainEventStoreTests(ITestOutputHelper output) : base(output)
         {
             ServiceCollection
-                .AddEventStoreConnection(c => new TestConfiguration().ConfigurationRoot.Bind("EventStore", c));
+                .AddEventStoreTestConfig(_logger)
+                ;
 
 
             ServiceCollection.AddEventStoreDomainServices();

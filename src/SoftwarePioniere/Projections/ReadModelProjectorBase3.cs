@@ -5,8 +5,8 @@ using Foundatio.Caching;
 using Foundatio.Lock;
 using Foundatio.Messaging;
 using Microsoft.Extensions.Logging;
-using SoftwarePioniere.Messaging;
 using SoftwarePioniere.ReadModel;
+using IMessage = SoftwarePioniere.Messaging.IMessage;
 
 namespace SoftwarePioniere.Projections
 {

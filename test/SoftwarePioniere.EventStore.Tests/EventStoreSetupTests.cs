@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
 using FluentAssertions;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -97,9 +95,9 @@ namespace SoftwarePioniere.EventStore.Tests
         public EventStoreSetupTests(ITestOutputHelper output) : base(output)
         {
             ServiceCollection
-                .AddEventStoreConnection(c => new TestConfiguration().ConfigurationRoot.Bind("EventStore", c));
+                .AddEventStoreTestConfig(_logger)
+                ;
 
-          
         }
     }
 }

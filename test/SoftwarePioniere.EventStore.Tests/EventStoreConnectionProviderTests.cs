@@ -2,10 +2,6 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Serilog;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -16,10 +12,6 @@ namespace SoftwarePioniere.EventStore.Tests
         // ReSharper disable once UnusedParameter.Local
         private EventStoreConnectionProvider CreateProvider(Action<EventStoreOptions> config = null)
         {
-            ServiceCollection
-                .AddEventStoreConnection(c => new TestConfiguration().ConfigurationRoot.Bind("EventStore", c));
-
-
             return GetService<EventStoreConnectionProvider>();
         }
 
@@ -38,7 +30,7 @@ namespace SoftwarePioniere.EventStore.Tests
         public async Task CanConnectWithSsl()
         {
             var provider = CreateProvider(c => c.UseSslCertificate = true);
-            
+
             await provider.InitializeAsync(CancellationToken.None);
 
             var con = provider.GetActiveConnection();
@@ -58,21 +50,23 @@ namespace SoftwarePioniere.EventStore.Tests
 
         public EventStoreConnectionProviderTests(ITestOutputHelper output) : base(output)
         {
-
-
-            var loggerConfiguration = new LoggerConfiguration()
-                    .MinimumLevel.Verbose()
-                    .WriteTo.LiterateConsole()
-                    //#if !DEBUG
-                    .WriteTo.File("/testresults/log.txt")
-                //#endif
-
-                ;
-            //           log.Debug("Test Loggy");
-
-            var lf = new TestLoggerSerilogFactory(output, loggerConfiguration);
             ServiceCollection
-                .AddSingleton<ILoggerFactory>(lf);
+                .AddEventStoreTestConfig(_logger)
+                ;
+
+            //var loggerConfiguration = new LoggerConfiguration()
+            //        .MinimumLevel.Verbose()
+            //        .WriteTo.LiterateConsole()
+            //        //#if !DEBUG
+            //        .WriteTo.File("/testresults/log.txt")
+            //    //#endif
+
+            //    ;
+            ////           log.Debug("Test Loggy");
+
+            //var lf = new TestLoggerSerilogFactory(output, loggerConfiguration);
+            //ServiceCollection
+            //    .AddSingleton<ILoggerFactory>(lf);
 
             //Log.AddSerilog(loggerConfiguration);
 

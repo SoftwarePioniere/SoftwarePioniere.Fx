@@ -21,6 +21,7 @@ using SoftwarePioniere.Projections;
 using SoftwarePioniere.ReadModel;
 using Xunit;
 using Xunit.Abstractions;
+using IMessage = SoftwarePioniere.Messaging.IMessage;
 
 namespace SoftwarePioniere.EventStore.Tests
 {
@@ -29,7 +30,11 @@ namespace SoftwarePioniere.EventStore.Tests
         public EventStoreProjectionContextTests(ITestOutputHelper output) : base(output)
         {
             ServiceCollection
-                .AddEventStoreConnection(c => new TestConfiguration().ConfigurationRoot.Bind("EventStore", c))
+                .AddEventStoreTestConfig(_logger)
+                ;
+
+            ServiceCollection
+          
                 //   .AddEventStoreProjectionServices()
                 .AddEventStoreDomainServices()
                 .AddInMemoryEntityStore()

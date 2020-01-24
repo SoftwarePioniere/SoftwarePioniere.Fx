@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using SoftwarePioniere.Domain;
 using SoftwarePioniere.FakeDomain;
@@ -19,6 +18,8 @@ namespace SoftwarePioniere.EventStore.Tests
         [Fact]
         public async Task ProjectionReaderTest()
         {
+           
+
             var setup = GetService<EventStoreSetup>();
             var store = GetService<IEventStore>();
             var proj = GetService<IEventStoreReader>();
@@ -107,7 +108,10 @@ namespace SoftwarePioniere.EventStore.Tests
         public ProjectionReaderTests(ITestOutputHelper output) : base(output)
         {
             ServiceCollection
-                .AddEventStoreConnection(c => new TestConfiguration().ConfigurationRoot.Bind("EventStore", c))
+                .AddEventStoreTestConfig(_logger)
+                ;
+
+            ServiceCollection
                 .AddEventStoreDomainServices()
                 ;
 
