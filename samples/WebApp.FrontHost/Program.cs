@@ -76,8 +76,13 @@ namespace WebApp.FrontHost
                             .AddTestClientOptions(c => { c.BaseAddress = "http://localhost:5097"; })
                             .AddTestSystemClient()
                             .AddTestUserClient()
+                            ;
 
+                        services
                             .AddSignalR(options => { options.EnableDetailedErrors = true; })
+                            .AddJsonProtocol()
+                            .AddNewtonsoftJsonProtocol()
+                            .AddMessagePackProtocol()
                             ;
 
 

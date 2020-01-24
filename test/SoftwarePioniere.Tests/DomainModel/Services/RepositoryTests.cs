@@ -13,6 +13,7 @@ using SoftwarePioniere.FakeDomain;
 using SoftwarePioniere.Messaging;
 using Xunit;
 using Xunit.Abstractions;
+// ReSharper disable RedundantNameQualifier
 
 namespace SoftwarePioniere.Tests.DomainModel.Services
 {

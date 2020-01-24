@@ -133,7 +133,7 @@ namespace SoftwarePioniere.Caching
 
             var items = new List<T>();
 
-            var idsListValue = await CacheClient.GetListAsync<string>(setKey).ConfigureAwait(false);
+            var idsListValue = await CacheClient.GetSetAsync<string>(setKey).ConfigureAwait(false);
 
             if (idsListValue == null)
                 return new List<T>();
@@ -220,11 +220,11 @@ namespace SoftwarePioniere.Caching
                         await Task.WhenAll(tasks).ConfigureAwait(false);
 
                         var entityIds = entities.Select(x => x.EntityId).ToArray();
-                        await CacheClient.ListAddAsync(setKey, entityIds, expiresIn).ConfigureAwait(false);
+                        await CacheClient.SetAddAsync(setKey, entityIds, expiresIn).ConfigureAwait(false);
                     }
                     else
                     {
-                        await CacheClient.ListAddAsync(setKey, EmptyList, expiresIn).ConfigureAwait(false);
+                        await CacheClient.SetAddAsync(setKey, EmptyList, expiresIn).ConfigureAwait(false);
                     }
 
                     sw.Stop();
@@ -259,7 +259,7 @@ namespace SoftwarePioniere.Caching
                     {
                         //if (await CacheClient.ExistsAsync(setKey))
                         //{
-                        await CacheClient.ListAddAsync(setKey, new[] { entityId }).ConfigureAwait(false);
+                        await CacheClient.SetAddAsync(setKey, new[] { entityId }).ConfigureAwait(false);
                         //}
                     }
                     else
@@ -268,7 +268,7 @@ namespace SoftwarePioniere.Caching
                         var lockId = $"{setKey}.ItemsAdd";
 
                         await _lockProvider.TryUsingAsync(lockId, () =>
-                                CacheClient.ListAddAsync(setKey, new[] { entityId })
+                                CacheClient.SetAddAsync(setKey, new[] { entityId })
                         , TimeSpan.FromSeconds(2), CancellationToken.None).ConfigureAwait(false);
 
                     }
@@ -298,14 +298,14 @@ namespace SoftwarePioniere.Caching
                     {
                         //if (await CacheClient.ExistsAsync(setKey))
                         //{
-                        await CacheClient.ListRemoveAsync(setKey, new[] { entityId }).ConfigureAwait(false);
+                        await CacheClient.SetRemoveAsync(setKey, new[] { entityId }).ConfigureAwait(false);
                         //}
                     }
                     else
                     {
                         var lockId = $"{setKey}.ItemsAdd";
 
-                        await _lockProvider.TryUsingAsync(lockId, () => CacheClient.ListRemoveAsync(setKey, new[] { entityId }), TimeSpan.FromSeconds(2), CancellationToken.None).ConfigureAwait(false);
+                        await _lockProvider.TryUsingAsync(lockId, () => CacheClient.SetRemoveAsync(setKey, new[] { entityId }), TimeSpan.FromSeconds(2), CancellationToken.None).ConfigureAwait(false);
                     }
                 }
 
@@ -412,7 +412,7 @@ namespace SoftwarePioniere.Caching
                 {
                     _logger.LogDebug("Cache Key exists");
 
-                    var l = await CacheClient.GetListAsync<T>(cacheKey).ConfigureAwait(false);
+                    var l = await CacheClient.GetSetAsync<T>(cacheKey).ConfigureAwait(false);
                     if (l.HasValue)
                     {
                         _logger.LogDebug("Return result from Cache");
@@ -440,7 +440,7 @@ namespace SoftwarePioniere.Caching
                     {
                         if (_options.DisableLocking3)
                         {
-                            await CacheClient.ListAddAsync(cacheKey, enumerable, expiresIn).ConfigureAwait(false);
+                            await CacheClient.SetAddAsync(cacheKey, enumerable, expiresIn).ConfigureAwait(false);
                         }
                         else
                         {
@@ -449,7 +449,7 @@ namespace SoftwarePioniere.Caching
 
                             if (!isLocked)
                             {
-                                await _lockProvider.TryUsingAsync(cacheKey, () => CacheClient.ListAddAsync(cacheKey, enumerable, expiresIn), null, TimeSpan.FromSeconds(_options.CacheLockTimeoutSeconds)).ConfigureAwait(false);
+                                await _lockProvider.TryUsingAsync(cacheKey, () => CacheClient.SetAddAsync(cacheKey, enumerable, expiresIn), null, TimeSpan.FromSeconds(_options.CacheLockTimeoutSeconds)).ConfigureAwait(false);
                             }
                         }
                     }
