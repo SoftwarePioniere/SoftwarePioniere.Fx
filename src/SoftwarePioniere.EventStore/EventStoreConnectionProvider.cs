@@ -42,7 +42,7 @@ namespace SoftwarePioniere.EventStore
 
             _logger = loggerFactory.CreateLogger(GetType());
 
-            _logger.LogInformation("EventStore Options @{Options}", options.Value.CreateSecured());
+            _logger.LogInformation("EventStore Options {@Options}", options.Value.CreateSecured());
 
             OpsCredentials = new UserCredentials(Options.OpsUsername, Options.OpsPassword);
             AdminCredentials = new UserCredentials(Options.AdminUsername, Options.AdminPassword);

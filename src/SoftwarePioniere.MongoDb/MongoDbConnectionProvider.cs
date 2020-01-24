@@ -44,7 +44,7 @@ namespace SoftwarePioniere.MongoDb
 
             Options = options.Value;
 
-            _logger.LogInformation("MongoDb Options @{Options}", options.Value.CreateSecured());
+            _logger.LogInformation("MongoDb Options {@Options}", options.Value.CreateSecured());
 
             //InitClient();
             InitDatabase();

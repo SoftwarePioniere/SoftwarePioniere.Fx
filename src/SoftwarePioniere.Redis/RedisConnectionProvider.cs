@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using SoftwarePioniere.Hosting;
 using StackExchange.Redis;
@@ -9,10 +10,22 @@ namespace SoftwarePioniere.Redis
 {
     public class RedisConnectionProvider : IConnectionProvider
     {
+        private readonly ILogger _logger;
         private readonly RedisOptions _options;
+        private ConnectionMultiplexer _connection;
 
-        public RedisConnectionProvider(IOptions<RedisOptions> options)
+        private bool _isInitialized;
+
+        public RedisConnectionProvider(ILoggerFactory loggerFactory, IOptions<RedisOptions> options)
         {
+            if (loggerFactory == null)
+            {
+                throw new ArgumentNullException(nameof(loggerFactory));
+            }
+
+            _logger = loggerFactory.CreateLogger(GetType());
+
+            _logger.LogInformation("Redis Options {@Options}", options.Value);
             _options = options.Value;
         }
 
@@ -26,15 +39,6 @@ namespace SoftwarePioniere.Redis
             private set => _connection = value;
         }
 
-        private bool _isInitialized;
-        private ConnectionMultiplexer _connection;
-
-        private void AssertInitialized()
-        {
-            if (!_isInitialized)
-                throw new InvalidOperationException("Initialize First");
-        }
-
         public async Task InitializeAsync(CancellationToken cancellationToken)
         {
             //late initialize
@@ -43,11 +47,23 @@ namespace SoftwarePioniere.Redis
             var connectionstring = _options.ConnectionString;
 
             if (!string.IsNullOrEmpty(_options.ConnectionString2))
+            {
                 connectionstring = string.Concat(_options.ConnectionString, _options.ConnectionString2);
+            }
+            
+            _logger.LogInformation("ConnectAsync with connectionString: {ConnectionString}", connectionstring);
 
             Connection = await ConnectionMultiplexer.ConnectAsync(connectionstring).ConfigureAwait(false);
 
             _isInitialized = true;
+        }
+
+        private void AssertInitialized()
+        {
+            if (!_isInitialized)
+            {
+                throw new InvalidOperationException("Initialize First");
+            }
         }
     }
 }
