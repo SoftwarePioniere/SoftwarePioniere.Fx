@@ -79,28 +79,28 @@ namespace SoftwarePioniere.EventStore
         /// </summary>
         public EventStoreOptions Options { get; }
 
-        private IEventStoreConnection CreateForCluster(ConnectionSettingsBuilder connectionSettingsBuilder)
-        {
-            var endpoints = Options.ClusterIpEndpoints.Select((x, i) =>
-            {
-                var ipa = GetHostIp(x);
-                var port = Options.TcpPort;
+        //private IEventStoreConnection CreateForCluster(ConnectionSettingsBuilder connectionSettingsBuilder)
+        //{
+        //    var endpoints = Options.ClusterIpEndpoints.Select((x, i) =>
+        //    {
+        //        var ipa = GetHostIp(x);
+        //        var port = Options.TcpPort;
 
-                if (Options.ClusterHttpPorts.Length >= i + 1) port = Options.ClusterHttpPorts[i];
+        //        if (Options.ClusterHttpPorts.Length >= i + 1) port = Options.ClusterHttpPorts[i];
 
-                _logger.LogTrace($"Creating Cluster IP Endpoint: {ipa}:{port}");
-                return new IPEndPoint(ipa, port);
-            });
+        //        _logger.LogTrace($"Creating Cluster IP Endpoint: {ipa}:{port}");
+        //        return new IPEndPoint(ipa, port);
+        //    });
 
-            var clusterSettings = ClusterSettings.Create()
-                    .DiscoverClusterViaGossipSeeds()
-                    .SetGossipTimeout(TimeSpan.FromMilliseconds(500))
-                    .SetGossipSeedEndPoints(endpoints.ToArray())
-                ;
+        //    var clusterSettings = ClusterSettings.Create()
+        //            .DiscoverClusterViaGossipSeeds()
+        //            .SetGossipTimeout(TimeSpan.FromMilliseconds(500))
+        //            .SetGossipSeedEndPoints(endpoints.ToArray())
+        //        ;
 
-            var con = EventStoreConnection.Create(connectionSettingsBuilder, clusterSettings);
-            return con;
-        }
+        //    var con = EventStoreConnection.Create(connectionSettingsBuilder, clusterSettings);
+        //    return con;
+        //}
 
 
         public IEventStoreConnection CreateNewConnection(Action<ConnectionSettingsBuilder> setup = null)
@@ -114,38 +114,38 @@ namespace SoftwarePioniere.EventStore
 
             setup?.Invoke(connectionSettingsBuilder);
 
-            if (!Options.UseCluster)
+            //if (!Options.UseCluster)
+            //{
+            var ipa = GetHostIp(Options.IpEndPoint);
+
+            if (Options.UseSslCertificate)
             {
-                var ipa = GetHostIp(Options.IpEndPoint);
+                _logger.LogInformation("Connecting To GetEventStore: with SSL IP: {0}:{1} // User: {2}", Options.IpEndPoint, Options.ExtSecureTcpPort, Options.OpsUsername);
 
-                if (Options.UseSslCertificate)
-                {
-                    _logger.LogInformation("Connecting To GetEventStore: with SSL IP: {0}:{1} // User: {2}", Options.IpEndPoint, Options.ExtSecureTcpPort, Options.OpsUsername);
-
-                    var url = $"tcp://{ipa.MapToIPv4()}:{Options.ExtSecureTcpPort}";
-                    connectionSettingsBuilder.UseSslConnection(Options.SslTargetHost, Options.SslValidateServer);
-                    var uri = new Uri(url);
-                    con = EventStoreConnection.Create(connectionSettingsBuilder, uri);
-                }
-                else
-                {
-                    _logger.LogInformation("Connecting To GetEventStore: without SSL IP: {0}:{1} // User: {2}", Options.IpEndPoint, Options.TcpPort, Options.OpsUsername);
-
-                    var url = $"tcp://{ipa.MapToIPv4()}:{Options.TcpPort}";
-                    var uri = new Uri(url);
-                    con = EventStoreConnection.Create(connectionSettingsBuilder, uri);
-                }
+                var url = $"tcp://{ipa.MapToIPv4()}:{Options.ExtSecureTcpPort}";
+                connectionSettingsBuilder.UseSslConnection(Options.SslTargetHost, Options.SslValidateServer);
+                var uri = new Uri(url);
+                con = EventStoreConnection.Create(connectionSettingsBuilder, uri);
             }
             else
             {
-                if (Options.UseSslCertificate)
-                    //var ipa = GetHostIp(Options.IpEndPoint);
-                    //   var url = $"tcp://{ipa.MapToIPv4()}:{Options.ExtSecureTcpPort}";
-                    connectionSettingsBuilder.UseSslConnection(Options.SslTargetHost, Options.SslValidateServer);
+                _logger.LogInformation("Connecting To GetEventStore: without SSL IP: {0}:{1} // User: {2}", Options.IpEndPoint, Options.TcpPort, Options.OpsUsername);
 
-                _logger.LogInformation("Connecting To GetEventStore: for Cluster // User: {0}", Options.OpsUsername);
-                con = CreateForCluster(connectionSettingsBuilder);
+                var url = $"tcp://{ipa.MapToIPv4()}:{Options.TcpPort}";
+                var uri = new Uri(url);
+                con = EventStoreConnection.Create(connectionSettingsBuilder, uri);
             }
+            //}
+            //else
+            //{
+            //    if (Options.UseSslCertificate)
+            //        //var ipa = GetHostIp(Options.IpEndPoint);
+            //        //   var url = $"tcp://{ipa.MapToIPv4()}:{Options.ExtSecureTcpPort}";
+            //        connectionSettingsBuilder.UseSslConnection(Options.SslTargetHost, Options.SslValidateServer);
+
+            //    _logger.LogInformation("Connecting To GetEventStore: for Cluster // User: {0}", Options.OpsUsername);
+            //    con = CreateForCluster(connectionSettingsBuilder);
+            //}
 
             RegisterEvents(con);
             //con.ConnectAsync().ConfigureAwait(false).GetAwaiter().GetResult();

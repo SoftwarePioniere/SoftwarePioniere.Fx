@@ -6,11 +6,11 @@ namespace SoftwarePioniere.EventStore
 {
     public class EventStoreOptions
     {
-        public EventStoreOptions()
-        {
-            ClusterIpEndpoints = new string[0];
-            ClusterHttpPorts = new int[0];
-        }
+        //public EventStoreOptions()
+        //{
+        //    ClusterIpEndpoints = new string[0];
+        //    ClusterHttpPorts = new int[0];
+        //}
 
         /// <summary>
         /// Customizen der Connection Settings
@@ -74,11 +74,11 @@ namespace SoftwarePioniere.EventStore
         /// </summary>
         public string OpsUsername { get; set; } = "ops";
 
-        public bool UseCluster { get; set; }
+        //public bool UseCluster { get; set; }
 
-        public string[] ClusterIpEndpoints { get; set; }
+        //public string[] ClusterIpEndpoints { get; set; }
 
-        public int[] ClusterHttpPorts { get; set; }
+        //public int[] ClusterHttpPorts { get; set; }
 
         public double OperationTimeoutSeconds { get; set; } = 5;
 
