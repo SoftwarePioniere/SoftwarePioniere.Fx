@@ -9,7 +9,7 @@ namespace SoftwarePioniere.Extensions.AspNetCore.AzureAd
     public class AzureAdOptions
     {
         public string TenantId { get; set; }
-
+        public string DomainName { get; set; }
         public string IssuerSigningKey { get; set; }
         public string Resource { get; set; }
         public string AdminGroupId { get; set; }
