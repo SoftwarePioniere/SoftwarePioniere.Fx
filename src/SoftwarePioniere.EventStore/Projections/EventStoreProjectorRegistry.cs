@@ -180,27 +180,24 @@ namespace SoftwarePioniere.EventStore.Projections
 
 
             await _cache.RemoveByPrefixAsync(CacheKeys.Create<ProjectionInitializationStatus>()).ConfigureAwait(false);
-            foreach (var projector in _projectors)
+
+            await Task.WhenAll(_projectors.Select(async projector =>
             {
-                if (projector != null)
+                var projectorId = projector.GetType().FullName;
+
+                var statusItem = await _entityStore.LoadAsync<ProjectionInitializationStatus>(projectorId, cancellationToken).ConfigureAwait(false);
+
+                if (statusItem.IsNew)
                 {
-                    var projectorId = projector.GetType().FullName;
-
-                    var statusItem = await _entityStore.LoadAsync<ProjectionInitializationStatus>(projectorId, cancellationToken).ConfigureAwait(false);
-
-                    if (statusItem.IsNew)
-                    {
-                        var entity = statusItem.Entity;
-                        entity.ProjectorId = projectorId;
-                        entity.StreamName = projector.StreamName;
-                        entity.Status = ProjectionInitializationStatus.StatusNew;
-                        entity.ModifiedOnUtc = DateTime.UtcNow;
-                        await _entityStore.SaveAsync(statusItem, cancellationToken).ConfigureAwait(false);
-                    }
+                    var entity = statusItem.Entity;
+                    entity.ProjectorId = projectorId;
+                    entity.StreamName = projector.StreamName;
+                    entity.Status = ProjectionInitializationStatus.StatusNew;
+                    entity.ModifiedOnUtc = DateTime.UtcNow;
+                    await _entityStore.SaveAsync(statusItem, cancellationToken).ConfigureAwait(false);
                 }
-            }
-
-
+            }));
+            
             var contexte = await Task.WhenAll(_projectors.Select(projector =>
             {
                 return Policy.Handle<Exception>().RetryAsync(2, (exception, i) =>

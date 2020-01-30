@@ -18,8 +18,4 @@
     <ProjectReference Include="..\SoftwarePioniere\SoftwarePioniere.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Subscriptions" />
-  </ItemGroup>
-
 </Project>

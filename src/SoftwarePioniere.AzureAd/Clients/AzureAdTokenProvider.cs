@@ -22,15 +22,11 @@ namespace SoftwarePioniere.AzureAd.Clients
             }
 
             _settings = options.Value;
-
-
         }
-
-
 
         protected override async Task<string> LoadToken(string resource, string tenantId)
         {
-            Logger.LogInformation("Loading AzureAd Token for {Resource}", resource);
+            Logger.LogInformation("Loading AzureAd Token for {Resource} on Tenant {TenantId}", resource, tenantId);
 
             string authority;
 
@@ -46,10 +42,20 @@ namespace SoftwarePioniere.AzureAd.Clients
 
             var context = _contexte.GetOrAdd(tenantId, new AuthenticationContext(authority));
 
-            var authenticationResult = await context.AcquireTokenAsync(resource,
-                new ClientCredential(_settings.ClientId, _settings.ClientSecret)).ConfigureAwait(false);
+            try
+            {
+                var authenticationResult = await context.AcquireTokenAsync(resource,
+                    new ClientCredential(_settings.ClientId, _settings.ClientSecret)).ConfigureAwait(false);
 
-            return authenticationResult.AccessToken;
+                return authenticationResult.AccessToken;
+            }
+            catch (Exception e)
+            {
+                Logger.LogError(e, "Error Aquire Token on Resource {Resource} on Tenant {TenantId}", resource, tenantId);
+                _contexte.TryRemove(tenantId, out var ctx);
+                throw;
+            }
+            
         }
     }
 }
