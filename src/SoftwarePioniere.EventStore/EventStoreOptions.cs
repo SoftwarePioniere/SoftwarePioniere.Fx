@@ -1,6 +1,9 @@
 using System;
 using EventStore.ClientAPI;
-using Newtonsoft.Json;
+
+using JC = Newtonsoft.Json.JsonConvert;
+using JI = Newtonsoft.Json.JsonIgnoreAttribute;
+using JI1 = System.Text.Json.Serialization.JsonIgnoreAttribute;
 
 namespace SoftwarePioniere.EventStore
 {
@@ -15,7 +18,8 @@ namespace SoftwarePioniere.EventStore
         /// <summary>
         /// Customizen der Connection Settings
         /// </summary>
-        [JsonIgnore]
+        [JI]
+        [JI1]
         public Action<ConnectionSettingsBuilder> ConnectionSetup { get; set; }
 
         /// <summary>
@@ -95,8 +99,8 @@ namespace SoftwarePioniere.EventStore
 
         public EventStoreOptions CreateSecured()
         {
-            var json = JsonConvert.SerializeObject(this);
-            var opt = JsonConvert.DeserializeObject<EventStoreOptions>(json);
+            var json = JC.SerializeObject(this);
+            var opt = JC.DeserializeObject<EventStoreOptions>(json);
             opt.AdminPassword = "XXX";
             opt.OpsPassword = "XXX";
             return opt;

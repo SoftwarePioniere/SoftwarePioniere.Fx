@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+
 using System.Threading;
 using System.Threading.Tasks;
 using Foundatio.Lock;
@@ -14,12 +15,23 @@ using SoftwarePioniere.Telemetry;
 
 namespace SoftwarePioniere.Messaging
 {
+    // ReSharper disable once ClassWithVirtualMembersNeverInherited.Global
     public class DefaultMessageBusAdapter : IMessageBusAdapter
     {
         private readonly ISopiApplicationLifetime _applicationLifetime;
         private readonly IMessageBus _bus;
         private readonly ILockProvider _lockProvider;
         private readonly ILogger _logger;
+     
+        protected virtual IMessage CreateCommandSucceededNotification(ICommand message, Dictionary<string, string> state)
+        {
+            return CommandSucceededNotification.Create(message, state);
+        }
+
+        protected virtual  IMessage CreateCommandFailedNotification(ICommand message, Exception exception, Dictionary<string, string> state)
+        {
+            return CommandFailedNotification.Create(message, exception, state);
+        }
 
         public DefaultMessageBusAdapter(ILoggerFactory loggerFactory, IMessageBus bus, ISopiApplicationLifetime applicationLifetime, ILockProvider lockProvider)
         {
@@ -126,12 +138,13 @@ namespace SoftwarePioniere.Messaging
                                 await handler(message).ConfigureAwait(false);
                             }
 
-                            await PublishAsync(CommandSucceededNotification.Create(message, state), cancellationToken: token).ConfigureAwait(false);
+                         
+                            await PublishAsync(CreateCommandSucceededNotification(message, state), cancellationToken: token).ConfigureAwait(false);
                         }
                         catch (Exception e) when (LogError(e))
                         {
                             _logger.LogError(e, "Error on handling Command {MessageType} {@Message}", typeof(T), message);
-                            await PublishAsync(CommandFailedNotification.Create(message, e, state), cancellationToken: token).ConfigureAwait(false);
+                            await PublishAsync( CreateCommandFailedNotification(message, e, state), cancellationToken: token).ConfigureAwait(false);
                         }
 
                         sw.Stop();

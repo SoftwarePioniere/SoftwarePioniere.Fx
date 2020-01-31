@@ -52,6 +52,7 @@ namespace SoftwarePioniere.AzureAd.Clients
             catch (Exception e)
             {
                 Logger.LogError(e, "Error Aquire Token on Resource {Resource} on Tenant {TenantId}", resource, tenantId);
+                // ReSharper disable once UnusedVariable
                 _contexte.TryRemove(tenantId, out var ctx);
                 throw;
             }
