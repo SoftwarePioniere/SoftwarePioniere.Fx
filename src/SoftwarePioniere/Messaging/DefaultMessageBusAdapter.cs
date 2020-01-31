@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-
 using System.Threading;
 using System.Threading.Tasks;
 using Foundatio.Lock;
@@ -22,16 +21,7 @@ namespace SoftwarePioniere.Messaging
         private readonly IMessageBus _bus;
         private readonly ILockProvider _lockProvider;
         private readonly ILogger _logger;
-     
-        protected virtual IMessage CreateCommandSucceededNotification(ICommand message, Dictionary<string, string> state)
-        {
-            return CommandSucceededNotification.Create(message, state);
-        }
 
-        protected virtual  IMessage CreateCommandFailedNotification(ICommand message, Exception exception, Dictionary<string, string> state)
-        {
-            return CommandFailedNotification.Create(message, exception, state);
-        }
 
         public DefaultMessageBusAdapter(ILoggerFactory loggerFactory, IMessageBus bus, ISopiApplicationLifetime applicationLifetime, ILockProvider lockProvider)
         {
@@ -106,7 +96,6 @@ namespace SoftwarePioniere.Messaging
 
                     sw.Stop();
                     _logger.LogDebug("HandleMessage finished in {Elapsed} ms", sw.ElapsedMilliseconds);
-
                 }
             }, cancellationToken).ConfigureAwait(false);
         }
@@ -138,24 +127,30 @@ namespace SoftwarePioniere.Messaging
                                 await handler(message).ConfigureAwait(false);
                             }
 
-                         
-                            await PublishAsync(CreateCommandSucceededNotification(message, state), cancellationToken: token).ConfigureAwait(false);
+                            await PublishCommandSucceededNotification(message, state, token).ConfigureAwait(false);
                         }
                         catch (Exception e) when (LogError(e))
                         {
                             _logger.LogError(e, "Error on handling Command {MessageType} {@Message}", typeof(T), message);
-                            await PublishAsync( CreateCommandFailedNotification(message, e, state), cancellationToken: token).ConfigureAwait(false);
+                            await PublishCommandFailedNotification(message, e, state, token).ConfigureAwait(false);
                         }
 
                         sw.Stop();
                         _logger.LogDebug("SubscribeCommand finished in {Elapsed} ms", sw.ElapsedMilliseconds);
-
                     }
                 },
                 cts.Token).ConfigureAwait(false);
         }
 
+        protected virtual async Task PublishCommandSucceededNotification(ICommand message, Dictionary<string, string> state, CancellationToken cancellationToken)
+        {
+            await PublishAsync(CommandSucceededNotification.Create(message, state), cancellationToken: cancellationToken).ConfigureAwait(false);
+        }
 
+        protected virtual async Task PublishCommandFailedNotification(ICommand message, Exception exception, Dictionary<string, string> state, CancellationToken cancellationToken)
+        {
+            await PublishAsync(CommandFailedNotification.Create(message, exception, state), cancellationToken: cancellationToken).ConfigureAwait(false);
+        }
 
         public async Task SubscribeAggregateDomainEvent<TAggregate, TDomainEvent>(Func<TDomainEvent, AggregateTypeInfo<TAggregate>, Task> handler,
             CancellationToken cancellationToken = default
@@ -184,7 +179,7 @@ namespace SoftwarePioniere.Messaging
                         var state = new Dictionary<string, object>
                         {
                             {"DomainEventType", message.GetType().FullName},
-                            {"AggregateType",  message.AggregateType},
+                            {"AggregateType", message.AggregateType},
                             {"EventId", domainEvent.Id},
                             {"AggregateName", typeof(TAggregate).GetAggregateName()},
                             {"AggregateId", message.AggregateId},
@@ -224,7 +219,6 @@ namespace SoftwarePioniere.Messaging
 
                             sw.Stop();
                             _logger.LogDebug("HandleDomainEvent finished in {Elapsed} ms", sw.ElapsedMilliseconds);
-
                         }
                     }
                 }
@@ -235,14 +229,12 @@ namespace SoftwarePioniere.Messaging
                         typeof(TDomainEvent).GetTypeShortName(),
                         message);
                 }
-
             }, cancellationToken).ConfigureAwait(false);
         }
 
         public async Task<MessageResponse> PublishCommandAsync<T>(T cmd, CancellationToken cancellationToken = default
         ) where T : class, ICommand
         {
-
             var state = cmd.CreateState();
             using (_logger.BeginScope(state.CreateLoggerScope()))
             {
@@ -259,7 +251,6 @@ namespace SoftwarePioniere.Messaging
                 try
                 {
                     await _bus.PublishAsync(cmd).ConfigureAwait(false);
-
                 }
                 catch (Exception e) when (LogError(e))
                 {
@@ -276,7 +267,6 @@ namespace SoftwarePioniere.Messaging
         public async Task<MessageResponse> PublishCommandsAsync<T>(IEnumerable<T> cmds, CancellationToken cancellationToken = default
         ) where T : class, ICommand
         {
-
             var sw = Stopwatch.StartNew();
             _logger.LogDebug("PublishCommandsAsync started");
 
@@ -289,7 +279,6 @@ namespace SoftwarePioniere.Messaging
             _logger.LogDebug("PublishCommandsAsync finished in {Elapsed} ms", sw.ElapsedMilliseconds);
 
             return results.FirstOrDefault();
-
         }
 
         private bool LogError(Exception ex)
