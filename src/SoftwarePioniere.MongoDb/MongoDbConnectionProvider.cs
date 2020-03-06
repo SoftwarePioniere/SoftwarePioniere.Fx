@@ -187,7 +187,16 @@ namespace SoftwarePioniere.MongoDb
         {
             var url = new MongoServerAddress(Options.Server, Options.Port);
             var settings = new MongoClientSettings
-                {Server = url};
+            {
+                Server = url
+            };
+
+            if (!string.IsNullOrEmpty(Options.UserName) && !string.IsNullOrEmpty(Options.Password))
+            {
+                settings.Credential =
+                    MongoCredential.CreateCredential(Options.DatabaseId, Options.UserName, Options.Password);
+            }
+
 
             if (Options.ClusterConfigurator != null)
             {
