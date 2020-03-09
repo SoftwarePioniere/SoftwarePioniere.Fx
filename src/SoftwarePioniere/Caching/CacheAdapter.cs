@@ -39,6 +39,9 @@ namespace SoftwarePioniere.Caching
 
         public Task<bool> AddAsync<T>(string key, T value)
         {
+            if (_options.CachingDisabled)
+                return Task.FromResult(true);
+
             return CacheClient.SetAsync(key, value, TimeSpan.FromMinutes(60));
         }
 
@@ -318,6 +321,9 @@ namespace SoftwarePioniere.Caching
 
         public async Task<T> CacheLoad<T>(Func<Task<T>> loader, string cacheKey, int minutes = int.MinValue, bool setExpirationOnHit = true)
         {
+            if (_options.CachingDisabled)
+                return await loader();
+
             using (_logger.BeginScope(new Dictionary<string, object>
             {
                 {"CacheKey", cacheKey},
@@ -396,6 +402,15 @@ namespace SoftwarePioniere.Caching
 
         public async Task<T[]> CacheLoadItems<T>(Func<Task<IEnumerable<T>>> loader, string cacheKey, int minutes = int.MinValue, bool setExpirationOnHit = true)
         {
+            if (_options.CachingDisabled)
+            {
+                var result = await loader();
+                if (result == null)
+                    return new T[0];
+
+                return result.ToArray();
+            }
+
             using (_logger.BeginScope(new Dictionary<string, object>
             {
                 {"CacheKey", cacheKey},
@@ -471,6 +486,11 @@ namespace SoftwarePioniere.Caching
 
         public async Task<int> RemoveByPrefixAsync(string prefix)
         {
+            if (_options.CachingDisabled)
+            {
+                return 0;
+            }
+
             using (_logger.BeginScope(new Dictionary<string, object>
             {
                 {"Prefix", prefix},
