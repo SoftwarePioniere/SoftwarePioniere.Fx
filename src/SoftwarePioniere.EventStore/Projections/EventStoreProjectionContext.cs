@@ -8,6 +8,7 @@ using Foundatio.Caching;
 using Foundatio.Queues;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using SoftwarePioniere.Caching;
 using SoftwarePioniere.Projections;
 using SoftwarePioniere.ReadModel;
 using ILogger = Microsoft.Extensions.Logging.ILogger;
@@ -95,11 +96,17 @@ namespace SoftwarePioniere.EventStore.Projections
             _initEntityStore = new InMemoryEntityStore(new OptionsWrapper<InMemoryEntityStoreOptions>(
                     new InMemoryEntityStoreOptions
                     {
-                        CachingDisabled = true
                     }),
                 new InMemoryEntityStoreConnectionProvider(),
                 _loggerFactory,
-                NullCacheClient.Instance);
+                NullCacheClient.Instance,
+                new OptionsWrapper<CacheOptions>(
+                    new CacheOptions()
+                    {
+                        CachingDisabled = true
+                    }
+                )
+            );
 
             IsInitializing = true;
             IsLiveProcessing = false;
@@ -141,7 +148,6 @@ namespace SoftwarePioniere.EventStore.Projections
 
         internal async Task HandleEventAsync(ProjectionEventData entry)
         {
-
             var state = new Dictionary<string, object>
             {
                 {"EventType", entry.EventData.GetType().FullName},
@@ -161,7 +167,6 @@ namespace SoftwarePioniere.EventStore.Projections
 
                 if (entry.EventNumber > Status.LastCheckPoint)
                 {
-
                     CurrentCheckPoint = entry.EventNumber;
 
                     try
@@ -181,7 +186,6 @@ namespace SoftwarePioniere.EventStore.Projections
                             StreamName,
                             ProjectorId);
                     }
-
                 }
                 else
                 {
@@ -300,7 +304,7 @@ namespace SoftwarePioniere.EventStore.Projections
                 sub.StreamId,
                 ProjectorId,
                 reason.ToString());
-          
+
             //sub.Stop();
             //if (!_cancellationToken.IsCancellationRequested)
             //{

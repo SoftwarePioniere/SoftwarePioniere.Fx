@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Foundatio.Caching;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using SoftwarePioniere.Caching;
 
 namespace SoftwarePioniere.ReadModel
 {
@@ -18,8 +19,8 @@ namespace SoftwarePioniere.ReadModel
 
         public InMemoryEntityStore(IOptions<InMemoryEntityStoreOptions> options,
             InMemoryEntityStoreConnectionProvider provider,
-            ILoggerFactory loggerFactory, ICacheClient cacheClient
-            ) : base(options, loggerFactory, cacheClient)
+            ILoggerFactory loggerFactory, ICacheClient cacheClient, IOptions<CacheOptions> cacheOptions
+            ) : base(options, loggerFactory, cacheClient, cacheOptions)
         {
             _provider = provider ?? throw new ArgumentNullException(nameof(provider));
         }

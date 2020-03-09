@@ -10,6 +10,7 @@ using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Linq;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using SoftwarePioniere.Caching;
 using SoftwarePioniere.ReadModel;
 
 namespace SoftwarePioniere.AzureCosmosDb
@@ -19,9 +20,10 @@ namespace SoftwarePioniere.AzureCosmosDb
         private readonly AzureComsosDbConnectionProvider3 _provider;
 
         public AzureCosmodbEntityStore3(IOptions<AzureCosmosDbOptions> options, ILoggerFactory loggerFactory,
-            ICacheClient cacheClient, AzureComsosDbConnectionProvider3 provider) : base(options,
+            ICacheClient cacheClient, AzureComsosDbConnectionProvider3 provider,
+            IOptions<CacheOptions> cacheOptions) : base(options,
             loggerFactory,
-            cacheClient)
+            cacheClient, cacheOptions)
         {
             _provider = provider;
         }
@@ -64,7 +66,8 @@ namespace SoftwarePioniere.AzureCosmosDb
         }
 
 
-        protected override async Task InternalBulkInsertItemsAsync<T>(T[] items, CancellationToken cancellationToken = default)
+        protected override async Task InternalBulkInsertItemsAsync<T>(T[] items,
+            CancellationToken cancellationToken = default)
         {
             Logger.LogTrace("InternalBulkInsertItemsAsync: {EntityType} {EntityCount}", typeof(T), items.Length);
 
@@ -79,7 +82,9 @@ namespace SoftwarePioniere.AzureCosmosDb
 
             var itemsPerWorker = items.Length / concurrentWorkers + 1;
 
-            Logger.LogTrace("Initiating process with {ConcurrentWorkers} worker threads for {TotalItems} Items with {ItemsPerWorker} Items per Worker ", concurrentWorkers, items.Length, itemsPerWorker);
+            Logger.LogTrace(
+                "Initiating process with {ConcurrentWorkers} worker threads for {TotalItems} Items with {ItemsPerWorker} Items per Worker ",
+                concurrentWorkers, items.Length, itemsPerWorker);
 
             for (var w = 0; w < concurrentWorkers; w++)
             {
@@ -93,7 +98,8 @@ namespace SoftwarePioniere.AzureCosmosDb
 
                 var workerChunks = workerItems.Length / concurrentDocuments + 1;
 
-                Logger.LogTrace("Worker chunks {WorkerChunks} for {ConcurrentDocuments} concurrent docs", workerChunks, concurrentDocuments);
+                Logger.LogTrace("Worker chunks {WorkerChunks} for {ConcurrentDocuments} concurrent docs", workerChunks,
+                    concurrentDocuments);
 
                 for (var i = 0;
                     i < workerChunks;
@@ -110,20 +116,25 @@ namespace SoftwarePioniere.AzureCosmosDb
                         foreach (var entity in chunkItems)
 
                         {
-                            tasks.Add(container.CreateItemAsync(entity, GetPartitionKey<T>(), cancellationToken: cancellationToken)
+                            tasks.Add(container
+                                .CreateItemAsync(entity, GetPartitionKey<T>(), cancellationToken: cancellationToken)
                                 .ContinueWith(task =>
                                 {
                                     if (task.Exception != null)
                                     {
                                         var innerExceptions = task.Exception.Flatten();
-                                        var cosmosException = innerExceptions.InnerExceptions.FirstOrDefault(innerEx => innerEx is CosmosException) as CosmosException;
+                                        var cosmosException =
+                                            innerExceptions.InnerExceptions.FirstOrDefault(innerEx =>
+                                                innerEx is CosmosException) as CosmosException;
                                         if (cosmosException != null)
                                         {
-                                            Logger.LogError("Item {EntityId} failed with status code {StatusCode}", entity.EntityId, cosmosException.StatusCode);
+                                            Logger.LogError("Item {EntityId} failed with status code {StatusCode}",
+                                                entity.EntityId, cosmosException.StatusCode);
                                         }
                                         else
                                         {
-                                            Logger.LogError(task.Exception.GetBaseException(), "Error {EntityId}", entity.EntityId);
+                                            Logger.LogError(task.Exception.GetBaseException(), "Error {EntityId}",
+                                                entity.EntityId);
                                         }
                                     }
 
@@ -179,7 +190,8 @@ namespace SoftwarePioniere.AzureCosmosDb
             }
         }
 
-        protected override async Task InternalDeleteItemAsync<T>(string entityId, CancellationToken cancellationToken = default)
+        protected override async Task InternalDeleteItemAsync<T>(string entityId,
+            CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrEmpty(entityId))
             {
@@ -264,7 +276,9 @@ namespace SoftwarePioniere.AzureCosmosDb
 
             try
             {
-                await _provider.Container.CreateItemAsync(item, GetPartitionKey<T>(), cancellationToken: cancellationToken).ConfigureAwait(false);
+                await _provider.Container
+                    .CreateItemAsync(item, GetPartitionKey<T>(), cancellationToken: cancellationToken)
+                    .ConfigureAwait(false);
             }
             catch (CosmosException nfex) when (nfex.StatusCode == HttpStatusCode.Conflict)
             {
@@ -278,7 +292,9 @@ namespace SoftwarePioniere.AzureCosmosDb
                 }
 
 
-                await _provider.Container.UpsertItemAsync(item, GetPartitionKey<T>(), cancellationToken: cancellationToken).ConfigureAwait(false);
+                await _provider.Container
+                    .UpsertItemAsync(item, GetPartitionKey<T>(), cancellationToken: cancellationToken)
+                    .ConfigureAwait(false);
             }
             catch (CosmosException e) when (LogCosmosError(e))
             {
@@ -286,7 +302,8 @@ namespace SoftwarePioniere.AzureCosmosDb
             }
         }
 
-        protected override async Task InternalInsertOrUpdateItemAsync<T>(T item, CancellationToken cancellationToken = default)
+        protected override async Task InternalInsertOrUpdateItemAsync<T>(T item,
+            CancellationToken cancellationToken = default)
         {
             if (item == null)
             {
@@ -308,7 +325,8 @@ namespace SoftwarePioniere.AzureCosmosDb
             }
         }
 
-        protected override async Task<T> InternalLoadItemAsync<T>(string entityId, CancellationToken cancellationToken = default)
+        protected override async Task<T> InternalLoadItemAsync<T>(string entityId,
+            CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrEmpty(entityId))
             {
@@ -356,7 +374,9 @@ namespace SoftwarePioniere.AzureCosmosDb
 
             try
             {
-                await _provider.Container.UpsertItemAsync(item, GetPartitionKey<T>(), cancellationToken: cancellationToken).ConfigureAwait(false);
+                await _provider.Container
+                    .UpsertItemAsync(item, GetPartitionKey<T>(), cancellationToken: cancellationToken)
+                    .ConfigureAwait(false);
             }
             catch (CosmosException nfex) when (nfex.StatusCode == HttpStatusCode.NotFound)
             {
@@ -370,7 +390,9 @@ namespace SoftwarePioniere.AzureCosmosDb
                 }
 
 
-                await _provider.Container.CreateItemAsync(item, GetPartitionKey<T>(), cancellationToken: cancellationToken).ConfigureAwait(false);
+                await _provider.Container
+                    .CreateItemAsync(item, GetPartitionKey<T>(), cancellationToken: cancellationToken)
+                    .ConfigureAwait(false);
             }
             catch (CosmosException e) when (LogCosmosError(e))
             {

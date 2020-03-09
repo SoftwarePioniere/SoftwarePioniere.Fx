@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MongoDB.Bson;
 using MongoDB.Driver;
+using SoftwarePioniere.Caching;
 using SoftwarePioniere.ReadModel;
 
 namespace SoftwarePioniere.MongoDb
@@ -18,7 +19,7 @@ namespace SoftwarePioniere.MongoDb
         private readonly MongoDbConnectionProvider _provider;
 
         public MongoDbEntityStore(IOptions<MongoDbOptions> options, ILoggerFactory loggerFactory,
-            ICacheClient cacheClient, MongoDbConnectionProvider provider) : base(options, loggerFactory, cacheClient)
+            ICacheClient cacheClient, MongoDbConnectionProvider provider, IOptions<CacheOptions> cacheOptions) : base(options, loggerFactory, cacheClient, cacheOptions)
         {
             _provider = provider;
 

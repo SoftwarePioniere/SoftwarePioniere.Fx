@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Foundatio.Caching;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using SoftwarePioniere.Caching;
 
 namespace SoftwarePioniere.ReadModel
 {
@@ -20,13 +21,15 @@ namespace SoftwarePioniere.ReadModel
         protected readonly ILogger Logger;
         protected readonly TypeKeyCache TypeKeyCache = new TypeKeyCache();
 
-        protected EntityStoreBase(IOptions<TOptions> options, ILoggerFactory loggerFactory, ICacheClient cacheClient)
+        protected EntityStoreBase(IOptions<TOptions> options, ILoggerFactory loggerFactory, ICacheClient cacheClient, IOptions<CacheOptions> cacheOptions)
         {
             Options = options.Value;
             CacheClient = cacheClient;
             Logger = loggerFactory.CreateLogger(GetType());
-
+            CacheOptions = cacheOptions.Value;
         }
+
+        protected CacheOptions CacheOptions;
 
         public virtual async Task DeleteItemAsync<T>(string entityId, CancellationToken cancellationToken = default) where T : Entity
         {
@@ -38,7 +41,7 @@ namespace SoftwarePioniere.ReadModel
             Logger.LogDebug("DeleteItemAsync: {EntityType} {EntityId}", typeof(T), entityId);
 
 
-            if (!Options.CachingDisabled)
+            if (!CacheOptions.CachingDisabled)
             {
                 await CacheClient.RemoveAsync(entityId).ConfigureAwait(false);
                 //    await ClearCache<T>();
@@ -49,7 +52,7 @@ namespace SoftwarePioniere.ReadModel
 
         public async Task DeleteItemsAsync<T>(Expression<Func<T, bool>> @where, CancellationToken cancellationToken = default) where T : Entity
         {
-            if (!Options.CachingDisabled)
+            if (!CacheOptions.CachingDisabled)
             {
                 await CacheClient.RemoveByPrefixAsync(CacheKeys.Create<T>()).ConfigureAwait(false);
             }
@@ -59,7 +62,7 @@ namespace SoftwarePioniere.ReadModel
 
         public async Task DeleteAllItemsAsync<T>(CancellationToken cancellationToken = default) where T : Entity
         {
-            if (!Options.CachingDisabled)
+            if (!CacheOptions.CachingDisabled)
             {
                 await CacheClient.RemoveByPrefixAsync(CacheKeys.Create<T>()).ConfigureAwait(false);
             }
@@ -76,9 +79,9 @@ namespace SoftwarePioniere.ReadModel
 
             Logger.LogDebug("InsertItemAsync: {EntityType} {EntityId}", typeof(T), item.EntityId);
 
-            if (!Options.CachingDisabled)
+            if (!CacheOptions.CachingDisabled)
             {
-                await CacheClient.SetAsync(item.EntityId, item, TimeSpan.FromMinutes(Options.CacheMinutes)).ConfigureAwait(false);
+                await CacheClient.SetAsync(item.EntityId, item, TimeSpan.FromMinutes(CacheOptions.CacheMinutes)).ConfigureAwait(false);
                 //await ClearCache<T>();
             }
             await InternalInsertItemAsync(item, cancellationToken).ConfigureAwait(false);
@@ -95,9 +98,9 @@ namespace SoftwarePioniere.ReadModel
             Logger.LogDebug("BulkInsertItemsAsync: {EntityType} {EntityCount}", typeof(T), enumerable.Count());
 
 
-            if (!Options.CachingDisabled)
+            if (!CacheOptions.CachingDisabled)
             {
-                var tasks = enumerable.Select(item => CacheClient.SetAsync(item.EntityId, item, TimeSpan.FromMinutes(Options.CacheMinutes)));
+                var tasks = enumerable.Select(item => CacheClient.SetAsync(item.EntityId, item, TimeSpan.FromMinutes(CacheOptions.CacheMinutes)));
                 await Task.WhenAll(tasks).ConfigureAwait(false);
             }
 
@@ -115,9 +118,9 @@ namespace SoftwarePioniere.ReadModel
             Logger.LogDebug("InsertOrUpdateItemAsync: {EntityType} {EntityId}", typeof(T), item.EntityId);
 
 
-            if (!Options.CachingDisabled)
+            if (!CacheOptions.CachingDisabled)
             {
-                await CacheClient.SetAsync(item.EntityId, item, TimeSpan.FromMinutes(Options.CacheMinutes)).ConfigureAwait(false);
+                await CacheClient.SetAsync(item.EntityId, item, TimeSpan.FromMinutes(CacheOptions.CacheMinutes)).ConfigureAwait(false);
             }
             await InternalInsertOrUpdateItemAsync(item, cancellationToken).ConfigureAwait(false);
         }
@@ -131,7 +134,7 @@ namespace SoftwarePioniere.ReadModel
 
             Logger.LogDebug("LoadItemAsync: {EntityType} {EntityId}", typeof(T), entityId);
 
-            if (Options.CachingDisabled)
+            if (CacheOptions.CachingDisabled)
             {
                 return await InternalLoadItemAsync<T>(entityId, cancellationToken).ConfigureAwait(false);
             }
@@ -198,9 +201,9 @@ namespace SoftwarePioniere.ReadModel
                 Logger.LogDebug("UpdateItemAsync: {EntityType} {EntityId}", typeof(T), item.EntityId);
             }
 
-            if (!Options.CachingDisabled)
+            if (!CacheOptions.CachingDisabled)
             {
-                await CacheClient.SetAsync(item.EntityId, item, TimeSpan.FromMinutes(Options.CacheMinutes)).ConfigureAwait(false);
+                await CacheClient.SetAsync(item.EntityId, item, TimeSpan.FromMinutes(CacheOptions.CacheMinutes)).ConfigureAwait(false);
             }
 
             await InternalUpdateItemAsync(item, cancellationToken).ConfigureAwait(false);
@@ -244,7 +247,7 @@ namespace SoftwarePioniere.ReadModel
             if (ret != null)
             {
                 Logger.LogTrace("Loaded Result. Set to Cache {CacheKey}", cacheKey);
-                await CacheClient.SetAsync(cacheKey, ret, DateTime.UtcNow.AddMinutes(Options.CacheMinutes)).ConfigureAwait(false);
+                await CacheClient.SetAsync(cacheKey, ret, DateTime.UtcNow.AddMinutes(CacheOptions.CacheMinutes)).ConfigureAwait(false);
 
             }
 
