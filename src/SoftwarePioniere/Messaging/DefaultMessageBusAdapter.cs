@@ -235,7 +235,7 @@ namespace SoftwarePioniere.Messaging
                             }
 
                             sw.Stop();
-                            _logger.LogInformation("HandleDomainEvent {MessageType} of {AggregateName} finished in {Elapsed} ms", message.GetType().GetTypeShortName(), typeof(TAggregate).GetAggregateName(), sw.ElapsedMilliseconds);
+                            _logger.LogInformation("HandleDomainEvent {MessageType} of {AggregateName} finished in {Elapsed} ms", typeof(TDomainEvent).GetTypeShortName(), typeof(TAggregate).GetAggregateName(), sw.ElapsedMilliseconds);
                         }
                     }
                 }
