@@ -124,7 +124,7 @@ namespace SoftwarePioniere.EventStore
         }
 
         public async Task CreateContinousProjectionAsync(string name, string query, bool trackEmittedStreams = false,
-            bool? emitEnabled = false)
+            bool? emitEnabled = false, bool resetIfUpdated = false)
         {
             _logger.LogTrace("CreateContinousProjectionAsync: {ProjectionName}", name);
 
@@ -146,6 +146,10 @@ namespace SoftwarePioniere.EventStore
                 _logger.LogDebug("Projection Query different Found: {ProjectionName}. Try Disable and Update", name);
                 await manager.DisableAsync(name, _provider.AdminCredentials).ConfigureAwait(false);
                 await manager.UpdateQueryAsync(name, query, emitEnabled, _provider.AdminCredentials).ConfigureAwait(false);
+                if (resetIfUpdated)
+                {
+                    await manager.ResetAsync(name, _provider.AdminCredentials).ConfigureAwait(false);
+                }
                 await manager.EnableAsync(name, _provider.AdminCredentials).ConfigureAwait(false);
                 await Task.Delay(1000).ConfigureAwait(false);
             }
@@ -244,6 +248,15 @@ namespace SoftwarePioniere.EventStore
 
             isRunning = await CheckProjectionIsRunningAsync(name).ConfigureAwait(false);
             _logger.LogDebug("Projection {ProjectionName} running : {running}", name, isRunning);
+        }
+
+        public async Task ResetProjectionAsync(string name)
+        {
+
+            var manager = new ProjectionsManager(new EventStoreLogger(_logger),
+                _provider.GetHttpIpEndpoint(),
+                TimeSpan.FromSeconds(5));
+            await manager.ResetAsync(name, _provider.AdminCredentials).ConfigureAwait(false);
         }
 
         private static string CleanString(string dirty)

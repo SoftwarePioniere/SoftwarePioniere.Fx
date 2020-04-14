@@ -25,7 +25,7 @@ namespace SoftwarePioniere.Messaging
             return Task.FromResult(true);
         }
 
-        public Task CreateContinousProjectionAsync(string name, string query, bool trackEmittedStreams, bool? emitEnabled)
+        public Task CreateContinousProjectionAsync(string name, string query, bool trackEmittedStreams, bool? emitEnabled, bool resetIfUpdated = false)
         {
             return Task.CompletedTask;
         }
@@ -41,6 +41,11 @@ namespace SoftwarePioniere.Messaging
         }
 
         public Task EnableProjectionAsync(string name)
+        {
+            return Task.CompletedTask;
+        }
+
+        public Task ResetProjectionAsync(string name)
         {
             return Task.CompletedTask;
         }

@@ -23,7 +23,8 @@ namespace SoftwarePioniere.Messaging
         private readonly ILogger _logger;
 
 
-        public DefaultMessageBusAdapter(ILoggerFactory loggerFactory, IMessageBus bus, ISopiApplicationLifetime applicationLifetime, ILockProvider lockProvider)
+        public DefaultMessageBusAdapter(ILoggerFactory loggerFactory, IMessageBus bus,
+            ISopiApplicationLifetime applicationLifetime, ILockProvider lockProvider)
         {
             if (loggerFactory == null) throw new ArgumentNullException(nameof(loggerFactory));
             _logger = loggerFactory.CreateLogger(GetType());
@@ -33,10 +34,12 @@ namespace SoftwarePioniere.Messaging
             _lockProvider = lockProvider;
         }
 
-        public Task PublishAsync(Type messageType, object message, TimeSpan? delay = null, CancellationToken cancellationToken = default)
+        public Task PublishAsync(Type messageType, object message, TimeSpan? delay = null,
+            CancellationToken cancellationToken = default)
         {
             try
             {
+                _logger.LogInformation("Publishing Message {MessageType}", messageType.GetTypeShortName());
                 return _bus.PublishAsync(messageType, message, delay, cancellationToken);
             }
             catch (Exception e)
@@ -51,6 +54,7 @@ namespace SoftwarePioniere.Messaging
         ) where T : class, IMessage
         {
             var messageType = typeof(T);
+            _logger.LogInformation("Publishing Message {MessageType}", messageType.GetTypeShortName());
             return _bus.PublishAsync(messageType, message, delay, cancellationToken);
         }
 
@@ -58,7 +62,7 @@ namespace SoftwarePioniere.Messaging
             , Func<T, string> lockId = null
         ) where T : class, IMessage
         {
-            _logger.LogDebug("Subscribing to Message {MessageType}", typeof(T).GetTypeShortName());
+            _logger.LogDebug("Subscribing Message {MessageType}", typeof(T).GetTypeShortName());
             var bus = _bus;
 
             await bus.SubscribeAsync<T>(async (message, token) =>
@@ -82,7 +86,8 @@ namespace SoftwarePioniere.Messaging
                         {
                             var lockResource = lockId(message);
                             _logger.LogDebug("Handle Message with Lock {LockId}", lockResource);
-                            await _lockProvider.TryUsingAsync(lockResource, token1 => handler(message), cancellationToken: cancellationToken).ConfigureAwait(false);
+                            await _lockProvider.TryUsingAsync(lockResource, token1 => handler(message),
+                                cancellationToken: cancellationToken).ConfigureAwait(false);
                         }
                         else
                         {
@@ -95,12 +100,14 @@ namespace SoftwarePioniere.Messaging
                     }
 
                     sw.Stop();
-                    _logger.LogDebug("HandleMessage finished in {Elapsed} ms", sw.ElapsedMilliseconds);
+                    _logger.LogInformation("HandleMessage {MessageType} finished in {Elapsed} ms",
+                        message.GetType().GetTypeShortName(), sw.ElapsedMilliseconds);
                 }
             }, cancellationToken).ConfigureAwait(false);
         }
 
-        public async Task SubscribeCommand<T>(Func<T, Task> handler, CancellationToken cancellationToken = default, Func<T, string> lockId = null) where T : class, ICommand
+        public async Task SubscribeCommand<T>(Func<T, Task> handler, CancellationToken cancellationToken = default,
+            Func<T, string> lockId = null) where T : class, ICommand
         {
             var cts = CancellationTokenSource.CreateLinkedTokenSource(_applicationLifetime.Stopped, cancellationToken);
 
@@ -120,7 +127,8 @@ namespace SoftwarePioniere.Messaging
                             {
                                 var lockResource = lockId(message);
                                 _logger.LogDebug("Handle Command with Lock {LockId}", lockResource);
-                                await _lockProvider.TryUsingAsync(lockResource, token1 => handler(message), cancellationToken: cancellationToken).ConfigureAwait(false);
+                                await _lockProvider.TryUsingAsync(lockResource, token1 => handler(message),
+                                    cancellationToken: cancellationToken).ConfigureAwait(false);
                             }
                             else
                             {
@@ -131,28 +139,34 @@ namespace SoftwarePioniere.Messaging
                         }
                         catch (Exception e) when (LogError(e))
                         {
-                            _logger.LogError(e, "Error on handling Command {MessageType} {@Message}", typeof(T), message);
+                            _logger.LogError(e, "Error on handling Command {MessageType} {@Message}", typeof(T),
+                                message);
                             await PublishCommandFailedNotification(message, e, state, token).ConfigureAwait(false);
                         }
 
                         sw.Stop();
-                        _logger.LogDebug("SubscribeCommand finished in {Elapsed} ms", sw.ElapsedMilliseconds);
+                        _logger.LogInformation("HandleCommand {MessageType} finished in {Elapsed} ms", typeof(T).GetTypeShortName(), sw.ElapsedMilliseconds);
                     }
                 },
                 cts.Token).ConfigureAwait(false);
         }
 
-        protected virtual async Task PublishCommandSucceededNotification(ICommand message, Dictionary<string, string> state, CancellationToken cancellationToken)
+        protected virtual async Task PublishCommandSucceededNotification(ICommand message,
+            Dictionary<string, string> state, CancellationToken cancellationToken)
         {
-            await PublishAsync(CommandSucceededNotification.Create(message, state), cancellationToken: cancellationToken).ConfigureAwait(false);
+            await PublishAsync(CommandSucceededNotification.Create(message, state),
+                cancellationToken: cancellationToken).ConfigureAwait(false);
         }
 
-        protected virtual async Task PublishCommandFailedNotification(ICommand message, Exception exception, Dictionary<string, string> state, CancellationToken cancellationToken)
+        protected virtual async Task PublishCommandFailedNotification(ICommand message, Exception exception,
+            Dictionary<string, string> state, CancellationToken cancellationToken)
         {
-            await PublishAsync(CommandFailedNotification.Create(message, exception, state), cancellationToken: cancellationToken).ConfigureAwait(false);
+            await PublishAsync(CommandFailedNotification.Create(message, exception, state),
+                cancellationToken: cancellationToken).ConfigureAwait(false);
         }
 
-        public async Task SubscribeAggregateDomainEvent<TAggregate, TDomainEvent>(Func<TDomainEvent, AggregateTypeInfo<TAggregate>, Task> handler,
+        public async Task SubscribeAggregateDomainEvent<TAggregate, TDomainEvent>(
+            Func<TDomainEvent, AggregateTypeInfo<TAggregate>, Task> handler,
             CancellationToken cancellationToken = default
             , Func<TDomainEvent, AggregateTypeInfo<TAggregate>, string> lockId = null
         ) where TAggregate : IAggregateRoot where TDomainEvent : class, IDomainEvent
@@ -207,18 +221,21 @@ namespace SoftwarePioniere.Messaging
 
                             if (lockId != null)
                             {
-                                var lockResource = lockId(domainEvent, new AggregateTypeInfo<TAggregate>(message.AggregateId));
-                                _logger.LogDebug("Handle Domain Event with Lock {LockId}", lockResource);
-                                await _lockProvider.TryUsingAsync(lockResource, token1 => Exc(), cancellationToken: cancellationToken).ConfigureAwait(false);
+                                var lockResource = lockId(domainEvent,
+                                    new AggregateTypeInfo<TAggregate>(message.AggregateId));
+                                _logger.LogDebug("HandleDomainEvent with Lock {LockId}", lockResource);
+                                await _lockProvider
+                                    .TryUsingAsync(lockResource, token1 => Exc(), cancellationToken: cancellationToken)
+                                    .ConfigureAwait(false);
                             }
                             else
                             {
-                                _logger.LogDebug("Handle Domain Event without Locking");
+                                _logger.LogDebug("HandleDomain Event without Locking");
                                 await Exc().ConfigureAwait(false);
                             }
 
                             sw.Stop();
-                            _logger.LogDebug("HandleDomainEvent finished in {Elapsed} ms", sw.ElapsedMilliseconds);
+                            _logger.LogInformation("HandleDomainEvent {MessageType} of {AggregateName} finished in {Elapsed} ms", message.GetType().GetTypeShortName(), typeof(TAggregate).GetAggregateName(), sw.ElapsedMilliseconds);
                         }
                     }
                 }
@@ -258,13 +275,14 @@ namespace SoftwarePioniere.Messaging
                 }
 
                 sw.Stop();
-                _logger.LogDebug("PublishCommandAsync finished in {Elapsed} ms", sw.ElapsedMilliseconds);
+                _logger.LogInformation("PublishCommand {MessageType} finished in {Elapsed} ms", typeof(T).GetTypeShortName(), sw.ElapsedMilliseconds);
 
                 return x;
             }
         }
 
-        public async Task<MessageResponse> PublishCommandsAsync<T>(IEnumerable<T> cmds, CancellationToken cancellationToken = default
+        public async Task<MessageResponse> PublishCommandsAsync<T>(IEnumerable<T> cmds,
+            CancellationToken cancellationToken = default
         ) where T : class, ICommand
         {
             var sw = Stopwatch.StartNew();
