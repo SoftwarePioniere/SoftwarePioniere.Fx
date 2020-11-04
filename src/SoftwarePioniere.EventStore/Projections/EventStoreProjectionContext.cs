@@ -4,8 +4,8 @@ using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using EventStore.ClientAPI;
+using EventStore.ClientAPI.SystemData;
 using Foundatio.Caching;
-using Foundatio.Queues;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using SoftwarePioniere.Caching;
@@ -21,17 +21,21 @@ namespace SoftwarePioniere.EventStore.Projections
         private readonly IEntityStore _entityStore;
         private readonly ILogger _logger;
         private readonly ILoggerFactory _loggerFactory;
+
         private readonly IReadModelProjector _projector;
-        private readonly bool _useQueue;
+        // private readonly bool _useQueue;
 
         private CancellationToken _cancellationToken;
         private InMemoryEntityStore _initEntityStore;
+
+
+        private bool _subscriptionDropped;
 
         public EventStoreProjectionContext(ILoggerFactory loggerFactory
             , EventStoreConnectionProvider connectionProvider
             , IEntityStore entityStore
             , IReadModelProjector projector
-            , bool useQueue
+            // , bool useQueue
             , string projectorId
         )
         {
@@ -40,7 +44,7 @@ namespace SoftwarePioniere.EventStore.Projections
             _connectionProvider = connectionProvider ?? throw new ArgumentNullException(nameof(connectionProvider));
             _entityStore = entityStore ?? throw new ArgumentNullException(nameof(entityStore));
             _projector = projector ?? throw new ArgumentNullException(nameof(projector));
-            _useQueue = useQueue;
+            // _useQueue = useQueue;
 
             StreamName = projector.StreamName;
 
@@ -51,22 +55,20 @@ namespace SoftwarePioniere.EventStore.Projections
 
             ProjectorId = projectorId;
 
-            if (_useQueue)
-            {
-                Queue = new InMemoryQueue<ProjectionEventData>(new InMemoryQueueOptions<ProjectionEventData>
-                {
-                    LoggerFactory = loggerFactory
-                });
-            }
+            // if (_useQueue)
+            // {
+            //     Queue = new InMemoryQueue<ProjectionEventData>(new InMemoryQueueOptions<ProjectionEventData>
+            //     {
+            //         LoggerFactory = loggerFactory
+            //     });
+            // }
         }
-
-        public bool IsInitializing { get; private set; }
 
         // private EventStoreStreamCatchUpSubscription _sub;
 
         public Action LiveProcessingStartedAction { get; set; }
 
-        private IQueue<ProjectionEventData> Queue { get; }
+        // private IQueue<ProjectionEventData> Queue { get; }
         public long CurrentCheckPoint { get; private set; }
 
 
@@ -83,6 +85,8 @@ namespace SoftwarePioniere.EventStore.Projections
             }
         }
 
+        public bool IsInitializing { get; private set; }
+
         public bool IsLiveProcessing { get; private set; }
         public bool IsReady { get; private set; }
         public string ProjectorId { get; }
@@ -94,14 +98,12 @@ namespace SoftwarePioniere.EventStore.Projections
             _logger.LogDebug("StartInitializationMode");
 
             _initEntityStore = new InMemoryEntityStore(new OptionsWrapper<InMemoryEntityStoreOptions>(
-                    new InMemoryEntityStoreOptions
-                    {
-                    }),
+                    new InMemoryEntityStoreOptions()),
                 new InMemoryEntityStoreConnectionProvider(),
                 _loggerFactory,
                 NullCacheClient.Instance,
                 new OptionsWrapper<CacheOptions>(
-                    new CacheOptions()
+                    new CacheOptions
                     {
                         CachingDisabled = true
                     }
@@ -127,12 +129,8 @@ namespace SoftwarePioniere.EventStore.Projections
                 ProjectorId,
                 StreamName);
             _cancellationToken = cancellationToken;
-            return StartSubscriptionInternal();
-        }
-
-        public Task UpdateStreamStatusAsync()
-        {
-            return EntityStore.UpdateItemAsync(Status, _cancellationToken);
+            StartSubscriptionInternal();
+            return Task.CompletedTask;
         }
 
         public Task StopInitializationModeAsync()
@@ -144,6 +142,17 @@ namespace SoftwarePioniere.EventStore.Projections
             _initEntityStore = null;
 
             return Task.CompletedTask;
+        }
+
+        public Task UpdateStreamStatusAsync()
+        {
+            return EntityStore.UpdateItemAsync(Status, _cancellationToken);
+        }
+
+        protected bool LogError(Exception ex)
+        {
+            _logger.LogError(ex, ex.GetBaseException().Message);
+            return true;
         }
 
         internal async Task HandleEventAsync(ProjectionEventData entry)
@@ -176,7 +185,9 @@ namespace SoftwarePioniere.EventStore.Projections
                         Status.ModifiedOnUtc = DateTime.UtcNow;
 
                         if (!IsInitializing)
+                        {
                             await EntityStore.UpdateItemAsync(Status, _cancellationToken).ConfigureAwait(false);
+                        }
                     }
                     catch (Exception e) when (LogError(e))
                     {
@@ -189,7 +200,8 @@ namespace SoftwarePioniere.EventStore.Projections
                 }
                 else
                 {
-                    _logger.LogWarning("Duplicate Event Handling  {EventNumber} {StreamName}", entry.EventNumber,
+                    _logger.LogWarning("Duplicate Event Handling  {EventNumber} {StreamName}",
+                        entry.EventNumber,
                         StreamName);
                 }
 
@@ -199,12 +211,6 @@ namespace SoftwarePioniere.EventStore.Projections
                     StreamName,
                     sw.ElapsedMilliseconds);
             }
-        }
-
-        protected bool LogError(Exception ex)
-        {
-            _logger.LogError(ex, ex.GetBaseException().Message);
-            return true;
         }
 
         private async Task EventAppeared(EventStoreCatchUpSubscription sub, ResolvedEvent evt)
@@ -221,35 +227,35 @@ namespace SoftwarePioniere.EventStore.Projections
                 EventNumber = evt.OriginalEventNumber
             };
 
-            if (_useQueue)
-            {
-                _logger.LogTrace("Enqueue Event {@0}", desc);
-                await Queue.EnqueueAsync(desc).ConfigureAwait(false);
-            }
-            else
-            {
-                await HandleEventAsync(desc).ConfigureAwait(false);
-            }
+            // if (_useQueue)
+            // {
+            //     _logger.LogTrace("Enqueue Event {@0}", desc);
+            //     await Queue.EnqueueAsync(desc).ConfigureAwait(false);
+            // }
+            // else
+            // {
+            await HandleEventAsync(desc).ConfigureAwait(false);
+            // }
         }
 
-        private async Task HandleAsync(IQueueEntry<ProjectionEventData> entry)
-        {
-            _logger.LogDebug("Handled Item {EventNumber}", entry.Value.EventNumber);
-
-            try
-            {
-                await HandleEventAsync(entry.Value).ConfigureAwait(false);
-                entry.MarkCompleted();
-            }
-            catch (Exception e) when (LogError(e))
-            {
-                _logger.LogError(e,
-                    "Error while Processing Event {EventNumber} from {Stream} {ProjectorId}",
-                    entry.Value.EventNumber,
-                    StreamName,
-                    ProjectorId);
-            }
-        }
+        // private async Task HandleAsync(IQueueEntry<ProjectionEventData> entry)
+        // {
+        //     _logger.LogDebug("Handled Item {EventNumber}", entry.Value.EventNumber);
+        //
+        //     try
+        //     {
+        //         await HandleEventAsync(entry.Value).ConfigureAwait(false);
+        //         entry.MarkCompleted();
+        //     }
+        //     catch (Exception e) when (LogError(e))
+        //     {
+        //         _logger.LogError(e,
+        //             "Error while Processing Event {EventNumber} from {Stream} {ProjectorId}",
+        //             entry.Value.EventNumber,
+        //             StreamName,
+        //             ProjectorId);
+        //     }
+        // }
 
         private void LiveProcessingStarted(EventStoreCatchUpSubscription sub)
         {
@@ -261,7 +267,7 @@ namespace SoftwarePioniere.EventStore.Projections
             LiveProcessingStartedAction?.Invoke();
         }
 
-        private async Task StartSubscriptionInternal()
+        private void StartSubscriptionInternal()
         {
             _logger.LogDebug("StartSubscriptionInternal for Projector {ProjectorId} on {Stream}",
                 ProjectorId,
@@ -270,6 +276,22 @@ namespace SoftwarePioniere.EventStore.Projections
             var cred = _connectionProvider.OpsCredentials;
             //var src = await _connectionProvider.GetActiveConnection().ConfigureAwait(false);
             var src = _connectionProvider.GetActiveConnection();
+
+            src.Connected += (s, e) =>
+            {
+                if (_subscriptionDropped)
+                {
+                    _logger.LogDebug("Reconnected after Subscription Dropped. Resubscribe to Subscription");
+                    _subscriptionDropped = false;
+                    SubscribeInternal(src, cred);
+                }
+            };
+
+            SubscribeInternal(src, cred);
+        }
+
+        private void SubscribeInternal(IEventStoreConnection src, UserCredentials cred)
+        {
             long? lastCheckpoint = null;
 
             if (Status.LastCheckPoint.HasValue && Status.LastCheckPoint != -1)
@@ -277,12 +299,11 @@ namespace SoftwarePioniere.EventStore.Projections
                 lastCheckpoint = Status.LastCheckPoint;
             }
 
-            if (_useQueue)
-            {
-                _logger.LogDebug("Start Working in Queue");
-
-                await Queue.StartWorkingAsync(HandleAsync, cancellationToken: _cancellationToken).ConfigureAwait(false);
-            }
+            // if (_useQueue)
+            // {
+            //     _logger.LogDebug("Start Working in Queue");
+            //     await Queue.StartWorkingAsync(HandleAsync, cancellationToken: _cancellationToken).ConfigureAwait(false);
+            // }
 
             var sub = src.SubscribeToStreamFrom(StreamName,
                 lastCheckpoint,
@@ -295,7 +316,6 @@ namespace SoftwarePioniere.EventStore.Projections
             _cancellationToken.Register(sub.Stop);
         }
 
-
         private void SubscriptionDropped(EventStoreCatchUpSubscription sub, SubscriptionDropReason reason,
             Exception ex)
         {
@@ -305,12 +325,15 @@ namespace SoftwarePioniere.EventStore.Projections
                 ProjectorId,
                 reason.ToString());
 
-            //sub.Stop();
-            //if (!_cancellationToken.IsCancellationRequested)
-            //{
-            //    _logger.LogInformation("Re Subscribe Subscription");
-            //    await StartSubscriptionInternal().ConfigureAwait(false);
-            //}
+            if (!_cancellationToken.IsCancellationRequested)
+            {
+                // _logger.LogInformation("Re Subscribe Subscription");
+                _subscriptionDropped = true;
+
+                // await Task.Delay(TimeSpan.FromSeconds(2), CancellationToken.None)
+                //     .ContinueWith(task => StartSubscriptionInternal(), CancellationToken.None);
+                //await StartSubscriptionInternal().ConfigureAwait(false);
+            }
         }
     }
 }

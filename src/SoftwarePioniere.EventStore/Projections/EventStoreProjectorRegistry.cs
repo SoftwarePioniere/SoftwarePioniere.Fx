@@ -227,7 +227,7 @@ namespace SoftwarePioniere.EventStore.Projections
             await UpdateInitializationStatusAsync(cancellationToken, projectorId, ProjectionInitializationStatus.StatusPending, "Starting").ConfigureAwait(false);
 
             var context =
-                new EventStoreProjectionContext(_loggerFactory, _connectionProvider, _entityStore, projector, _options.UseQueue, projectorId);
+                new EventStoreProjectionContext(_loggerFactory, _connectionProvider, _entityStore, projector, projectorId);
 
             projector.Context = context;
 

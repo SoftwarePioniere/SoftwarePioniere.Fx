@@ -69,7 +69,7 @@ namespace SoftwarePioniere.EventStore.Tests
             var ctx = new EventStoreProjectionContext(Log,
                 GetService<EventStoreConnectionProvider>(),
                 GetService<IEntityStore>(),
-                proj, false,
+                proj, 
                 typeof(TestProjector1).FullName);
 
             long totalEvents = await AddEvents(es);
@@ -135,38 +135,38 @@ namespace SoftwarePioniere.EventStore.Tests
         }
 
 
-        [Fact]
-        public async Task TestWithQueue()
-        {
-            AggName = "SoftwarePionierTests" + Guid.NewGuid().ToString().Replace("-", string.Empty).ToLower();
+        //[Fact]
+        //public async Task TestWithQueue()
+        //{
+        //    AggName = "SoftwarePionierTests" + Guid.NewGuid().ToString().Replace("-", string.Empty).ToLower();
 
-            var prov = GetService<EventStoreConnectionProvider>();
-            await prov.InitializeAsync(CancellationToken.None);
+        //    var prov = GetService<EventStoreConnectionProvider>();
+        //    await prov.InitializeAsync(CancellationToken.None);
 
-            var es = GetService<DomainEventStore>();
+        //    var es = GetService<DomainEventStore>();
 
-            var proj = new TestProjector1(Log, GetService<IProjectorServices>());
+        //    var proj = new TestProjector1(Log, GetService<IProjectorServices>());
 
-            var ctx = new EventStoreProjectionContext(Log,
-                GetService<EventStoreConnectionProvider>(),
-                GetService<IEntityStore>(),
-                proj, true,
-                typeof(TestProjector1).FullName);
+        //    var ctx = new EventStoreProjectionContext(Log,
+        //        GetService<EventStoreConnectionProvider>(),
+        //        GetService<IEntityStore>(),
+        //        proj,
+        //        typeof(TestProjector1).FullName);
 
-            long totalEvents = await AddEvents(es);
+        //    long totalEvents = await AddEvents(es);
 
 
-            await ctx.StartInitializationModeAsync();
-            await ctx.StopInitializationModeAsync();
+        //    await ctx.StartInitializationModeAsync();
+        //    await ctx.StopInitializationModeAsync();
 
-            await ctx.StartSubscription();
+        //    await ctx.StartSubscription();
 
-            await Task.Delay(TimeSpan.FromSeconds(5));
+        //    await Task.Delay(TimeSpan.FromSeconds(5));
 
-            ctx.IsLiveProcessing.Should().BeTrue();
-            ctx.Status.Should().NotBeNull();
-            ctx.Status.LastCheckPoint.Should().Be(totalEvents);
-        }
+        //    ctx.IsLiveProcessing.Should().BeTrue();
+        //    ctx.Status.Should().NotBeNull();
+        //    ctx.Status.LastCheckPoint.Should().Be(totalEvents);
+        //}
 
 
         //[Fact]
