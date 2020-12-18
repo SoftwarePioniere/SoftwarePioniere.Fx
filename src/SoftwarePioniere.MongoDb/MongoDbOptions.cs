@@ -34,7 +34,8 @@ namespace SoftwarePioniere.MongoDb
                 Port = Port,
                 Server = Server,
                 UserName = UserName,
-                Password = "XXX"
+                Password = "XXX",
+                BulkInsertSplitSize = BulkInsertSplitSize
             };
 
         }
@@ -44,5 +45,7 @@ namespace SoftwarePioniere.MongoDb
 
         public int? FindBatchSize { get; set; }
         public int? FindLimit { get; set; }
+
+        public int? BulkInsertSplitSize { get; set; }
     }
 }

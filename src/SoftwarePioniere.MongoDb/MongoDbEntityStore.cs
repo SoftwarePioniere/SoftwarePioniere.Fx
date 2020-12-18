@@ -78,17 +78,38 @@ namespace SoftwarePioniere.MongoDb
             {
                 var collection = _provider.GetColInsert<T>();
 
-                //var entities = items.Select(item => new MongoEntity<T> { _id = item.EntityId, Entity = item });
-
-                await collection.InsertManyAsync(items, new InsertManyOptions()
+                if (_provider.Options.BulkInsertSplitSize.HasValue)
                 {
-                    BypassDocumentValidation = true
-                }, cancellationToken).ConfigureAwait(false);
+                    foreach (var tmp in Split(items, _provider.Options.BulkInsertSplitSize.Value))
+                    {
+                        await collection.InsertManyAsync(tmp, new InsertManyOptions()
+                        {
+                            BypassDocumentValidation = true
+                        }, cancellationToken).ConfigureAwait(false);
+                    }
+                }
+                else
+                {
+                    await collection.InsertManyAsync(items, new InsertManyOptions()
+                    {
+                        BypassDocumentValidation = true
+                    }, cancellationToken).ConfigureAwait(false);
+                }
+             
+
+             
             }
             catch (MongoException e) when (LogError(e))
             {
                 Logger.LogWarning(e, "InsertManyAsync Failed {ItemsCount} {@Ids}", items.Length, items.Select(x => x.EntityId).ToArray());
             }
+        }
+        
+        private static IEnumerable<IEnumerable<T>> Split<T>(T[] array, int size)
+        {
+            for (var i = 0;
+                i < (float) array.Length / size;
+                i++) yield return array.Skip(i * size).Take(size);
         }
 
         protected override async Task InternalDeleteAllItemsAsync<T>(CancellationToken cancellationToken = default)
